@@ -1,0 +1,276 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,decorations.pathreplacing}
+\usepackage{pgfgantt}
+
+% Farben: nur weiß, schwarz, blau
+\definecolor{mainblue}{RGB}{0,51,102}
+
+% Beamer-Theme ohne Boxen
+\usetheme{default}
+\usecolortheme{default}
+
+\setbeamercolor{frametitle}{fg=mainblue}
+\setbeamercolor{title}{fg=mainblue}
+\setbeamercolor{structure}{fg=mainblue}
+\setbeamercolor{itemize item}{fg=mainblue}
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamertemplate{itemize item}{\textbullet}
+\setbeamertemplate{itemize subitem}{--}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\title{Implementierung von UDP Options}
+\subtitle{RFC 9868 in Zig mit eBPF-Monitoring}
+\author{Alan Bernstein}
+\date{}
+\institute{FernUniversität in Hagen}
+
+\begin{document}
+
+% Folie 1: Titel
+\begin{frame}
+\titlepage
+\end{frame}
+
+% Folie 2: Problemstellung
+\begin{frame}{Problemstellung: UDP heute}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\textbf{Limitierungen von UDP (RFC 768, 1980):}
+\begin{itemize}
+    \item Keine native Integritätsprüfung der Payload
+    \item Fehlende Authentifizierung auf Transportebene
+    \item Keine Path MTU Discovery
+    \item Keine Timestamps für RTT-Messung
+\end{itemize}
+
+\vspace{1em}
+\textit{Minimalistisch, aber unflexibel für moderne Anforderungen.}
+\end{column}
+\begin{column}{0.4\textwidth}
+\centering
+\textbf{UDP Header (8 Bytes)}
+
+\vspace{0.5em}
+\begin{tikzpicture}[scale=0.8]
+    \draw[thick, mainblue] (0,0) rectangle (2.5,0.8);
+    \draw[thick, mainblue] (2.5,0) rectangle (5,0.8);
+    \draw[thick, mainblue] (0,-0.8) rectangle (2.5,0);
+    \draw[thick, mainblue] (2.5,-0.8) rectangle (5,0);
+
+    \node at (1.25,0.4) {\small Source Port};
+    \node at (3.75,0.4) {\small Dest Port};
+    \node at (1.25,-0.4) {\small Length};
+    \node at (3.75,-0.4) {\small Checksum};
+
+    \node[below] at (1.25,-0.8) {\footnotesize 16 bits};
+    \node[below] at (3.75,-0.8) {\footnotesize 16 bits};
+\end{tikzpicture}
+
+\vspace{0.5em}
+{\footnotesize Seit 45 Jahren unverändert}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Folie 3: Warum UDP Options?
+\begin{frame}{Warum werden UDP Options benötigt?}
+\textbf{Drei zentrale Gründe:}
+
+\begin{itemize}
+    \item \textbf{Legacy-Kompatibilität} \\
+    Bestehende UDP-Anwendungen können nicht einfach auf DTLS migriert werden. \\
+    Options werden von Legacy-Empfängern ignoriert.
+
+    \item \textbf{Performance-Anforderungen} \\
+    Echtzeit-Anwendungen benötigen minimale Latenz. \\
+    UDP Options arbeiten direkt auf Transportebene -- ohne zusätzliche Schicht.
+
+    \item \textbf{Middlebox-Traversal} \\
+    NATs und Firewalls müssen UDP-Pakete korrekt weiterleiten. \\
+    RFC 9868 definiert dafür die Options Checksum (OCS).
+\end{itemize}
+
+\vspace{1em}
+\textbf{Prominente UDP-basierte Protokolle:} \quad
+QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
+\end{frame}
+
+% Folie 4: RFC 9868 und Surplus Area
+\begin{frame}{RFC 9868: Transport Options for UDP}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\textbf{Definition (Oktober 2025):}
+\begin{itemize}
+    \item Erste Erweiterung von RFC 768 nach 45 Jahren
+    \item Options im \textit{Surplus Area} zwischen UDP-Payload und IP-Ende
+    \item Abwärtskompatibel zu Legacy-Empfängern
+\end{itemize}
+
+\vspace{1em}
+\textbf{Kernprinzipien:}
+\begin{itemize}
+    \item UDP bleibt zustandslos
+    \item UDP bleibt unidirektional
+    \item Options sind ein Framework
+\end{itemize}
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\textbf{UDP Datagram mit Options}
+
+\vspace{0.5em}
+\begin{tikzpicture}[scale=0.75]
+    % IP Header
+    \draw[thick, black] (0,4) rectangle (5,4.6);
+    \node at (2.5,4.3) {\small IP Header};
+
+    % UDP Header
+    \draw[thick, mainblue, fill=mainblue!20] (0,3) rectangle (5,4);
+    \node at (2.5,3.5) {\small UDP Header (8 Bytes)};
+
+    % User Data
+    \draw[thick, black] (0,1.5) rectangle (5,3);
+    \node at (2.5,2.25) {\small User Data (Payload)};
+    \node[right] at (5.1,2.25) {\footnotesize $\leftarrow$ Length-Feld};
+
+    % Surplus Area
+    \draw[thick, mainblue, fill=mainblue!10] (0,0.5) rectangle (5,1.5);
+    \node[mainblue] at (2.5,1) {\textbf{Surplus Area}};
+    \node[mainblue, below] at (2.5,0.5) {\footnotesize UDP Options};
+
+    % Brace
+    \draw[decorate, decoration={brace, amplitude=5pt, mirror}, thick, mainblue]
+        (5.3,0.5) -- (5.3,1.5);
+    \node[right, mainblue] at (5.5,1) {\footnotesize neu};
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Folie 5: UDP Options Architektur
+\begin{frame}{UDP Options Architektur}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\textbf{Definierte Option-Typen:}
+
+\begin{itemize}
+    \item \textbf{OCS} -- Options Checksum \\
+    {\small Sichert Middlebox-Traversal}
+
+    \item \textbf{FRAG} -- Fragmentation \\
+    {\small UDP-Level Fragmentierung, unabhängig von IP}
+
+    \item \textbf{TIME} -- Timestamps \\
+    {\small RTT-Messung und Rate Limiting}
+
+    \item \textbf{AUTH} -- Authentication \\
+    {\small Source-Validierung und Integritätsschutz}
+\end{itemize}
+
+\vspace{0.5em}
+{\small Zusätzlich: EOL (End of List), NOP (Alignment)}
+\end{column}
+\begin{column}{0.4\textwidth}
+\centering
+\textbf{Option Format (TLV)}
+
+\vspace{1em}
+\begin{tikzpicture}[scale=0.8]
+    % Kind
+    \draw[thick, mainblue, fill=mainblue!30] (0,0) rectangle (1.5,0.8);
+    \node at (0.75,0.4) {\small Kind};
+    \node[below] at (0.75,0) {\footnotesize 8 bits};
+
+    % Length
+    \draw[thick, mainblue, fill=mainblue!20] (1.5,0) rectangle (3.0,0.8);
+    \node at (2.25,0.4) {\small Length};
+    \node[below] at (2.25,0) {\footnotesize 8 bits};
+
+    % Data
+    \draw[thick, mainblue, fill=mainblue!10] (3.0,0) rectangle (7.0,0.8);
+    \node at (5.0,0.4) {\small Data};
+    \node[below] at (5.0,0) {\footnotesize 0--255 Bytes};
+\end{tikzpicture}
+
+\vspace{1.5em}
+{\small Type-Length-Value Schema}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Folie 6: Anwendungsfälle
+\begin{frame}{Anwendungsfälle für UDP Options}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Sicherheit \& Integrität:}
+\begin{itemize}
+    \item Authentifizierung und Integritätsschutz (AUTH)
+    \item Path MTU Discovery ohne Payload-Beeinflussung
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Echtzeit \& Performance:}
+\begin{itemize}
+    \item Präzise RTT-Messung mit Timestamps (TIME)
+    \item UDP-Level Fragmentierung statt IP (FRAG)
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vspace{2em}
+\centering
+\textbf{Einsatzgebiete:} \quad VoIP \quad | \quad IoT \quad | \quad Gaming \quad | \quad Streaming
+\end{frame}
+
+% Folie 7: Zusammenfassung
+\begin{frame}{Zusammenfassung}
+\textbf{RFC 9868 erweitert UDP um:}
+\begin{itemize}
+    \item Sicherheitsfunktionen (Authentifizierung, Integrität)
+    \item Path MTU Discovery
+    \item Timestamps für RTT-Messung
+    \item Fragmentierung auf UDP-Ebene
+\end{itemize}
+
+\vspace{1em}
+\textbf{Vorteile:}
+\begin{itemize}
+    \item Abwärtskompatibel -- Legacy-Empfänger ignorieren Options
+    \item Kein zusätzlicher Protokoll-Overhead wie bei DTLS
+    \item Erweiterbar durch neue Option-Typen
+\end{itemize}
+
+\end{frame}
+
+% Folie 8: Zeitplan
+\begin{frame}{Zeitplan}
+\centering
+\begin{ganttchart}[
+    x unit=1.6cm,
+    y unit chart=0.6cm,
+    vgrid,
+    hgrid,
+    bar/.style={fill=mainblue},
+    bar height=0.5,
+    title height=1,
+    title label font=\small,
+    bar label font=\small,
+    group label font=\small\bfseries
+]{1}{6}
+    \gantttitle{Monat}{6} \\
+    \gantttitlelist{1,...,6}{1} \\
+    \ganttbar{Literaturrecherche}{1}{1} \\
+    \ganttbar{Architekturentwurf}{2}{2} \\
+    \ganttbar{Implementierung (Zig)}{2}{4} \\
+    \ganttbar{eBPF Monitoring}{4}{5} \\
+    \ganttbar{Evaluation}{5}{6} \\
+    \ganttbar{Dokumentation}{1}{6}
+\end{ganttchart}
+\end{frame}
+
+\end{document}
