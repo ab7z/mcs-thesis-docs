@@ -1,0 +1,185 @@
+% =============================================================================
+% Bibliographie für Masterarbeit: UDP Transport Options (RFC 9868)
+% =============================================================================
+
+% RFC Documents
+@techreport{rfc768,
+    author      = {J. Postel},
+    title       = {{User Datagram Protocol}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {768},
+    year        = {1980},
+    month       = aug,
+    doi         = {10.17487/RFC0768},
+    url         = {https://www.rfc-editor.org/info/rfc768},
+}
+
+@techreport{rfc791,
+    author      = {J. Postel},
+    title       = {{Internet Protocol}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {791},
+    year        = {1981},
+    month       = sep,
+    doi         = {10.17487/RFC0791},
+    url         = {https://www.rfc-editor.org/info/rfc791},
+}
+
+@techreport{rfc1071,
+    author      = {R. Braden and D. Borman and C. Partridge},
+    title       = {{Computing the Internet Checksum}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {1071},
+    year        = {1988},
+    month       = sep,
+    doi         = {10.17487/RFC1071},
+    url         = {https://www.rfc-editor.org/info/rfc1071},
+}
+
+@techreport{rfc8200,
+    author      = {S. Deering and R. Hinden},
+    title       = {{Internet Protocol, Version 6 (IPv6) Specification}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {8200},
+    year        = {2017},
+    month       = jul,
+    doi         = {10.17487/RFC8200},
+    url         = {https://www.rfc-editor.org/info/rfc8200},
+}
+
+@techreport{rfc9000,
+    author      = {J. Iyengar and M. Thomson},
+    title       = {{QUIC: A UDP-Based Multiplexed and Secure Transport}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {9000},
+    year        = {2021},
+    month       = may,
+    doi         = {10.17487/RFC9000},
+    url         = {https://www.rfc-editor.org/info/rfc9000},
+}
+
+@techreport{rfc9114,
+    author      = {M. Bishop},
+    title       = {{HTTP/3}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {9114},
+    year        = {2022},
+    month       = jun,
+    doi         = {10.17487/RFC9114},
+    url         = {https://www.rfc-editor.org/info/rfc9114},
+}
+
+@techreport{rfc9868,
+    author      = {J. Touch},
+    title       = {{Transport Options for UDP}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {9868},
+    year        = {2025},
+    month       = oct,
+    doi         = {10.17487/RFC9868},
+    url         = {https://www.rfc-editor.org/info/rfc9868},
+}
+
+@techreport{rfc9869,
+    author      = {J. Touch},
+    title       = {{Datagram Packetization Layer Path MTU Discovery for UDP Options}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {9869},
+    year        = {2025},
+    month       = oct,
+    doi         = {10.17487/RFC9869},
+    url         = {https://www.rfc-editor.org/info/rfc9869},
+}
+
+@techreport{rfc6347,
+    author      = {E. Rescorla and N. Modadugu},
+    title       = {{Datagram Transport Layer Security Version 1.2}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {6347},
+    year        = {2012},
+    month       = jan,
+    doi         = {10.17487/RFC6347},
+    url         = {https://www.rfc-editor.org/info/rfc6347},
+}
+
+% Zig Documentation
+@online{zig-lang,
+    author  = {{Zig Software Foundation}},
+    title   = {{Zig Programming Language}},
+    year    = {2024},
+    url     = {https://ziglang.org/},
+    urldate = {2025-01-24},
+}
+
+@online{zig-docs,
+    author  = {{Zig Software Foundation}},
+    title   = {{Zig Language Reference}},
+    year    = {2024},
+    url     = {https://ziglang.org/documentation/master/},
+    urldate = {2025-01-24},
+}
+
+% eBPF and XDP
+@inproceedings{ebpf-xdp,
+    author    = {H{\o}iland-J{\o}rgensen, Toke and Brouer, Jesper Dangaard and Borkmann, Daniel and Fastabend, John and Herbert, Tom and Ahern, David and Miller, David},
+    title     = {{The eXpress Data Path: Fast Programmable Packet Processing in the Operating System Kernel}},
+    booktitle = {Proceedings of the 14th International Conference on emerging Networking EXperiments and Technologies},
+    series    = {CoNEXT '18},
+    year      = {2018},
+    pages     = {54--66},
+    doi       = {10.1145/3281411.3281443},
+}
+
+% Network Programming
+@book{stevens-unix,
+    author    = {Stevens, W. Richard and Fenner, Bill and Rudoff, Andrew M.},
+    title     = {{UNIX Network Programming, Volume 1: The Sockets Networking API}},
+    edition   = {3},
+    publisher = {Addison-Wesley Professional},
+    year      = {2003},
+    isbn      = {978-0131411555},
+}
+
+@book{tanenbaum-networks,
+    author    = {Tanenbaum, Andrew S. and Wetherall, David J.},
+    title     = {{Computer Networks}},
+    edition   = {5},
+    publisher = {Pearson},
+    year      = {2011},
+    isbn      = {978-0132126953},
+}
+
+% NAT Traversal
+@techreport{rfc5389,
+    author      = {J. Rosenberg and R. Mahy and P. Matthews and D. Wing},
+    title       = {{Session Traversal Utilities for NAT (STUN)}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {5389},
+    year        = {2008},
+    month       = oct,
+    doi         = {10.17487/RFC5389},
+    url         = {https://www.rfc-editor.org/info/rfc5389},
+}
+
+% Path MTU Discovery
+@techreport{rfc8899,
+    author      = {G. Fairhurst and T. Jones and M. T\"uxen and I. R\"ungeler and T. V\"olker},
+    title       = {{Packetization Layer Path MTU Discovery for Datagram Transports}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {8899},
+    year        = {2020},
+    month       = sep,
+    doi         = {10.17487/RFC8899},
+    url         = {https://www.rfc-editor.org/info/rfc8899},
+}

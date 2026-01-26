@@ -12,6 +12,11 @@
 *.lof
 *.lot
 *.synctex.gz
+*.acn
+*.acr
+*.alg
+*.gl*
+*.ist
 
 # Beamer
 *.nav
@@ -22,5 +27,6 @@
 .DS_Store
 
 # Editor files
+.vscode
 *.swp
 *~

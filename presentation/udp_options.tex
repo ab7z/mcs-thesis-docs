@@ -156,24 +156,17 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
 \begin{frame}{UDP Options Architektur}
 \begin{columns}[T]
 \begin{column}{0.55\textwidth}
-\textbf{Definierte Option-Typen:}
+\textbf{UDP Options Framework:}
 
 \begin{itemize}
-    \item \textbf{OCS} -- Options Checksum \\
-    {\small Sichert Middlebox-Traversal}
-
-    \item \textbf{FRAG} -- Fragmentation \\
-    {\small UDP-Level Fragmentierung, unabhängig von IP}
-
-    \item \textbf{TIME} -- Timestamps \\
-    {\small RTT-Messung und Rate Limiting}
-
-    \item \textbf{AUTH} -- Authentication \\
-    {\small Source-Validierung und Integritätsschutz}
+    \item Erweiterbare Architektur für zukünftige Anforderungen
+    \item Options werden im TLV-Format (Type-Length-Value) kodiert
+    \item Kategorisierung in SAFE und UNSAFE Options
+    \item Unterstützung für Sicherheit, Fragmentierung und Timing
 \end{itemize}
 
 \vspace{0.5em}
-{\small Zusätzlich: EOL (End of List), NOP (Alignment)}
+{\small Definierte Typen: OCS, FRAG, TIME, AUTH, EOL, NOP}
 \end{column}
 \begin{column}{0.4\textwidth}
 \centering
