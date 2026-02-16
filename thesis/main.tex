@@ -12,7 +12,8 @@
 \documentclass[
     12pt,           % Schriftgröße
     a4paper,        % Papierformat
-    oneside         % Einseitiger Druck
+    oneside,        % Einseitiger Druck
+    openany         % Kapitel auf jeder Seite beginnen (keine leeren Seiten)
 ]{report}
 
 % =============================================================================
@@ -59,6 +60,17 @@
     \LARGE \bfseries #1\par\nobreak
     \vskip 30\p@
   }}
+% Erlaube Seitenumbrüche zwischen aufeinanderfolgenden Überschriften ohne Fließtext.
+% Ohne diesen Patch bilden Überschriften eine unbrechbare Kette (@nobreaktrue kaskadiert),
+% die bei Stub-Kapiteln die Seitenhöhe übersteigt und leere Seiten erzeugt.
+\let\@orig@startsection\@startsection
+\def\@startsection{\@nobreakfalse\@orig@startsection}
+\makeatother
+
+% Abstand zwischen Fußnotennummer und -text
+\makeatletter
+\renewcommand{\@makefntext}[1]{%
+  \noindent\@makefnmark\enspace #1}
 \makeatother
 
 % Seitenstil: leere Kopfzeile, Seitennummer zentriert im Fuß
@@ -72,7 +84,7 @@
 
 % Bibliographie
 \usepackage[
-    backend=bibtex,
+    backend=biber,
     style=numeric-comp,
     sorting=none,
     giveninits=true,
@@ -92,6 +104,7 @@
 
 % Code-Listings
 \usepackage{listings}
+\usepackage{fancyvrb}            % Zentrierbare Verbatim-Umgebungen
 \usepackage{xcolor}
 
 % Farben für Listings
@@ -227,15 +240,14 @@
 % 3. METADATEN (ehemals config/metadata.tex)
 % =============================================================================
 
-\newcommand{\thesistitle}{UDP Transport Options (RFC 9868)}
-\newcommand{\thesissubtitle}{Implementierung und Analyse in Zig}
+\newcommand{\thesistitle}{UDP Transport Options}
+\newcommand{\thesissubtitle}{Implementierung und Analyse von RFC 9868 in Zig}
 \newcommand{\thesisauthor}{Alan Bernstein}
 \newcommand{\thesismatrikel}{2068834}
 \newcommand{\thesisemail}{alan.bernstein@pm.me}
 
 \newcommand{\thesissupervisor}{Prof. Dr. Christian Icking}
 \newcommand{\thesissecondexaminer}{Dr. Lihong Ma}
-\newcommand{\thesiscompanysupervisor}{Enrico Höschler}
 
 \newcommand{\thesisuniversity}{FernUniversität in Hagen}
 \newcommand{\thesisfaculty}{Fakultät für Mathematik und Informatik}
