@@ -8,14 +8,188 @@
 \section{Das User Datagram Protocol (UDP)}
 \label{sec:udp}
 
+Das User Datagram Protocol (UDP) ist neben dem Transmission Control Protocol (TCP) eines der beiden zentralen
+Transportprotokolle der TCP/IP-Protokollfamilie. Im Gegensatz zu TCP verfolgt UDP ein bewusst minimalistisches Design:
+Es sendet Datagramme ohne vorherigen Handshake oder Zustandsabgleich mit dem Empfänger, bietet keine Garantien
+für Zustellung, Reihenfolge oder Duplikaterkennung und verzichtet
+auf jeglichen Flusskontroll- oder Staukontrollmechanismus \cite{rfc768}. Mit der Protokollnummer~17 im IP-Header
+registriert, wurde UDP in RFC~768 spezifiziert und trägt die Bezeichnung STD~6 als Internet-Standard. Bemerkenswert
+ist, dass der Protokollstandard RFC~768 seit seiner Veröffentlichung im August 1980 nie direkt aktualisiert wurde --
+eine Stabilität von über 45~Jahren, die erst mit RFC~9868 durchbrochen wird \cite{rfc9868}.
+
 \subsection{Historische Entwicklung}
 \label{subsec:udp-historie}
 
+Die Entstehung von UDP ist untrennbar mit der Aufspaltung des ursprünglichen \emph{Transmission Control Program}
+verbunden. In RFC~675 beschrieben Cerf, Dalal und Sunshine im Dezember 1974 ein monolithisches Protokoll, das
+sowohl Netzwerk- als auch Transportfunktionen in einem einzigen Protokoll vereinte \cite{rfc675}. Ab 1978 wurde
+dieses Konzept schrittweise in separate Schichten aufgeteilt: Das Internet Protocol (IP) übernahm die
+Netzwerkfunktionen, während TCP die zuverlässige Transportschicht bildete. Die Erkenntnis, dass nicht alle
+Anwendungen die Zuverlässigkeitsgarantien und den damit verbundenen Overhead von TCP benötigen, führte zur
+Entwicklung eines leichtgewichtigen Alternativprotokolls -- UDP.
+
+Am 28.~August 1980 veröffentlichte Jon Postel am Information Sciences Institute (ISI) der University of Southern
+California RFC~768, die Spezifikation des User Datagram Protocol \cite{rfc768}. Mit nur drei Seiten ist RFC~768
+eines der kürzesten RFC-Dokumente überhaupt\footnote{Zum Vergleich: RFC~793 (TCP) umfasst 85~Seiten, RFC~9868
+(UDP Options) 51~Seiten.}. Diese Kürze spiegelt das Designziel wider: UDP sollte ein minimalistisches,
+transaktionsorientiertes Protokoll sein, das lediglich Portnummern zur Demultiplexierung und eine optionale
+Prüfsumme zur Fehlererkennung bereitstellt. Als erste Anwendungsfälle nennt RFC~768 explizit den Internet Name
+Server\footnote{Ein Vorläufer des heutigen DNS, das diesen frühen Namensdienst später ablöste.} sowie das
+Trivial File Transfer Protocol (TFTP, beschrieben in IEN~133).
+
+Die endgültige Formalisierung des TCP/IP-Stacks erfolgte im September 1981 mit der Veröffentlichung von
+RFC~791 (IPv4) \cite{rfc791} und RFC~793 (TCP) \cite{rfc793}. Gemeinsam mit UDP bildeten diese drei Protokolle
+die Grundpfeiler der Internet-Protokollsuite. Eine weitere wichtige Ergänzung stellte RFC~1122 dar, in dem Braden
+1989 die Implementierungsanforderungen für Internet-Hosts präzisierte \cite{rfc1122}. Dieses Dokument
+konkretisierte unter anderem die Anforderungen an UDP-Implementierungen, etwa die Behandlung von Paketen mit
+ungültiger Prüfsumme und das Verhalten bei nicht erreichbaren Zielports.
+
+Seit seiner Veröffentlichung 1980 ist der Protokollstandard RFC~768 im Kern unverändert geblieben. Zu den wenigen
+ergänzenden Anpassungen zählen die Prüfsummenbehandlung und die Unterstützung von Jumbogrammen: Während die
+Prüfsumme bei IPv4 optional ist, schreibt RFC~8200 sie für IPv6 grundsätzlich als verpflichtend vor
+\cite[Sec.~8.1]{rfc8200} -- mit der Ausnahme, dass RFC~6936 für bestimmte Tunnelprotokolle einen
+Zero-Checksum-Modus erlaubt \cite{rfc6936}. RFC~2675 erweiterte UDP zudem um die Unterstützung von
+IPv6-Jumbogrammen, bei denen das UDP-Längenfeld auf null gesetzt wird \cite{rfc2675}. RFC~8085 fasst als
+BCP~145 die aktuellen Richtlinien für die Nutzung von UDP zusammen und adressiert insbesondere Fragen der
+Staukontrolle bei UDP-basierten Anwendungen \cite{rfc8085}.
+
+Trotz dieser ergänzenden Spezifikationen hat die Bedeutung von UDP in den vergangenen Jahren massiv zugenommen:
+Protokolle wie QUIC \cite{rfc9000}, das HTTP/3 als Transportschicht dient \cite{rfc9114}, WebRTC, DNS und
+zahlreiche IoT-Anwendungen setzen auf UDP als Basis. Durch die Verbreitung von QUIC und HTTP/3 wird
+mittlerweile ein erheblicher und wachsender Anteil des Web-Verkehrs über UDP abgewickelt. Gerade diese
+weitgehende Stabilität von RFC~768 bei gleichzeitig wachsender Bedeutung von UDP motiviert RFC~9868 als erste
+direkte Erweiterung des Protokollstandards seit über 45~Jahren.
+
+\newpage
 \subsection{Protokollstruktur}
 \label{subsec:udp-struktur}
 
+Ein UDP-Datagramm besteht aus einem Header mit fester Länge von 8~Byte und den darauf folgenden Nutzdaten.
+\rfcref{768} definiert den Header wie folgt \cite{rfc768}:
+
+\begin{verbatim}
+   0                             15 16                           31
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Source Port          |       Destination Port        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |            Length             |           Checksum            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        data octets ...                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+\end{verbatim}
+
+Die vier Felder des Headers haben jeweils eine Breite von 16~Bit:
+
+\begin{itemize}
+    \item \code{Source Port} -- Die Portnummer des sendenden Prozesses. Dieses Feld ist optional; wird es nicht
+    benötigt, wird es auf null gesetzt \cite{rfc768}. In der Praxis nutzen Anwendungen den \term{Source Port}
+    zur Identifikation des Absenders, damit der Empfänger Antworten an den korrekten Port zurücksenden kann.
+
+    \item \code{Destination Port} -- Die Portnummer des Zielprozesses auf dem empfangenden Host. Zusammen mit der
+    IP-Zieladresse ermöglicht dieses Feld die \term{Demultiplexierung} eingehender Datagramme an die korrekte
+    Anwendung.
+
+    \item \code{Length} -- Die Gesamtlänge des UDP-Datagramms in Byte, bestehend aus Header \emph{und} Nutzdaten.
+    Der Minimalwert beträgt~8, was einem Datagramm ohne Nutzdaten entspricht \cite{rfc768}. Da das Feld 16~Bit
+    breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte\footnote{Für IPv6-Jumbogramme wird
+    das \code{Length}-Feld auf null gesetzt; die tatsächliche Länge ergibt sich aus dem Jumbo Payload Option Header
+    \cite{rfc2675}.}.
+
+    \item \code{Checksum} -- Eine Prüfsumme über einen Pseudo-Header, den UDP-Header und die Nutzdaten. Die
+    Berechnung verwendet das \term{Einerkomplement}-Verfahren: Alle 16-Bit-Wörter werden addiert und das
+    Einerkomplement der Summe bildet den Prüfsummenwert \cite{rfc1071}. Bei IPv4 ist die Prüfsumme optional --
+    wird sie nicht berechnet, wird das Feld auf null gesetzt \cite{rfc768}. Bei IPv6 hingegen ist die Prüfsumme
+    verpflichtend, da IPv6 selbst keine Header-Prüfsumme besitzt \cite[Sec.~8.1]{rfc8200}\footnote{\rfcref{6936}
+    definiert eine Ausnahme für bestimmte Tunnelprotokolle, bei denen ein Zero-Checksum-Modus erlaubt ist
+    \cite{rfc6936}.}.
+\end{itemize}
+
+\paragraph{Pseudo-Header.}
+Die UDP-Prüfsumme schützt nicht nur die Transportschichtdaten, sondern bezieht über einen \term{Pseudo-Header}
+auch Informationen der Vermittlungsschicht ein. Dieses Konzept stellt sicher, dass ein Datagramm, das durch einen
+IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt und verworfen werden kann.
+Für IPv4 definiert \rfcref{768} den folgenden Pseudo-Header \cite{rfc768}:
+
+\begin{center}
+\begin{BVerbatim}
+ 0      7 8     15 16    23 24    31
++--------+--------+--------+--------+
+|          Source Address           |
++--------+--------+--------+--------+
+|        Destination Address        |
++--------+--------+--------+--------+
+|  Zero  |Protocol|   UDP Length    |
++--------+--------+--------+--------+
+\end{BVerbatim}
+\end{center}
+
+Bei IPv6 erweitert sich der Pseudo-Header auf die 128-Bit-Adressen. Anstelle des 8-Bit-Protokollfeldes verwendet
+IPv6 ein 8-Bit-\code{Next Header}-Feld (Wert~17 für UDP) sowie ein 32-Bit-Feld für die Paketlänge der
+Transportschicht. Die verbleibenden 24~Bit werden mit Nullen aufgefüllt \cite[Sec.~8.1]{rfc8200}:
+
+\begin{center}
+\begin{BVerbatim}
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
++                   Source Address (128 Bit)                    +
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
++                 Destination Address (128 Bit)                 +
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                   Upper-Layer Packet Length                   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Zero                     |  Next Header  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+\end{BVerbatim}
+\end{center}
+
+\newpage
 \subsection{Eigenschaften}
 \label{subsec:udp-eigenschaften}
+
+Die in \secref{subsec:udp-struktur} beschriebene Header-Struktur verdeutlicht bereits das minimalistische Design
+von UDP. Aus diesem Designziel leiten sich eine Reihe funktionaler Eigenschaften ab, die maßgeblich beeinflussen,
+für welche Anwendungsfälle das Protokoll geeignet ist.
+
+\paragraph{Nachrichtenorientierung.}
+UDP ist ein \term{nachrichtenorientiertes} Protokoll: Jede Sendeoperation erzeugt genau ein Datagramm, und der
+Empfänger erhält jede Nachricht als atomare Einheit. \rfcref{768} beschreibt UDP als Verfahren, mit dem Programme Nachrichten an andere Programme senden können
+(\zitat{a procedure to send [...] messages to other programs}) \cite{rfc768}.
+
+\paragraph{Zustandslosigkeit.}
+UDP verwaltet keinen protokollspezifischen Zustand für einzelne Kommunikationsbeziehungen und hält keinerlei
+Datenstrukturen wie Sequenznummern, Fenstergrößen oder Retransmission-Timer vor \cite[Sec.~6]{rfc9868}.
+
+\paragraph{Minimale Latenz.}
+Da UDP verbindungslos arbeitet, entfällt jeglicher Handshake vor der Datenübertragung. Die erste Nachricht kann
+unmittelbar gesendet werden, ohne dass ein vorheriger Verbindungsaufbau abgewartet werden muss
+\cite[Sec.~1]{rfc8085}. Ebenso existiert kein Verbindungsabbau, der
+zusätzliche Latenz verursachen könnte.
+
+\paragraph{Unabhängigkeit der Datagramme.}
+Jedes UDP-Datagramm ist eine eigenständige, von allen anderen Datagrammen unabhängige Einheit. Der Verlust eines
+Datagramms hat daher keine Auswirkung auf die Verarbeitung nachfolgender Datagramme. Diese Eigenschaft vermeidet
+das sogenannte \term{Head-of-Line-Blocking} (HoL-Blocking), bei dem verlorene Pakete die Auslieferung
+nachfolgender Daten verzögern. Diese Eigenschaft von UDP war eine der Motivationen für die Entwicklung von QUIC:
+QUIC nutzt UDP
+als Transportschicht und realisiert auf Anwendungsebene ein Stream-Multiplexing, bei dem der Verlust eines Pakets
+nur den betroffenen Stream blockiert, nicht jedoch andere parallele Streams \cite[Sec.~1]{rfc9000}.
+
+\paragraph{Multicast und Broadcast.}
+UDP ist verbindungslos und wird häufig als Transport für IP-Multicast und (unter IPv4) IP-Broadcast verwendet.
+Ein UDP-Datagramm kann an eine Multicast-Gruppe oder eine Broadcast-Adresse gesendet und von mehreren Empfängern
+empfangen werden, sofern Netzwerk und Hosts entsprechend konfiguriert sind. Dabei gelten die üblichen
+Eigenschaften von UDP: keine Garantie für Zustellung, Reihenfolge oder Duplikaterkennung. Diese Kombination
+eignet sich besonders für lokale Mechanismen wie Service Discovery sowie für bestimmte
+Echtzeitanwendungen in kontrollierten Netzen.
+
+Diese Eigenschaften machen UDP zu einem attraktiven Transportprotokoll für latenzempfindliche, verlusttolerante
+oder gruppenbasierte Anwendungen. Allerdings fehlt UDP jede Form der protokolleigenen Erweiterbarkeit. Genau
+diese Lücke adressiert \rfcnine{} durch die Nutzung der
+\surplusarea{} (siehe \secref{subsec:surplus-area}), um Optionen zu transportieren, ohne den bestehenden
+UDP-Header zu verändern.
 
 \section{Internet Protocol (IP)}
 \label{sec:ip}
