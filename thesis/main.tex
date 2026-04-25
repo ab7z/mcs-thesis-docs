@@ -2,7 +2,7 @@
 %!TEX program = pdflatex
 % =============================================================================
 % Masterarbeit: UDP Transport Options (RFC 9868)
-%               Implementierung und Analyse in Zig
+%               Implementierung und Analyse in Rust
 % =============================================================================
 % Autor: Alan Bernstein
 % Matrikelnummer: 2068834
@@ -135,19 +135,20 @@
 \lstset{style=codestyle}
 
 % Sprachdefinitionen für Code
-\lstdefinelanguage{Zig}{
-    keywords={const, var, fn, pub, return, if, else, while, for, switch, break, continue,
-              try, catch, defer, errdefer, orelse, and, or, not, struct, enum, union,
-              packed, extern, export, inline, comptime, test, unreachable, undefined,
-              null, true, false},
+\lstdefinelanguage{Rust}{
+    keywords={as, async, await, break, const, continue, crate, dyn, else, enum, extern,
+              false, fn, for, if, impl, in, let, loop, match, mod, move, mut, pub, ref,
+              return, self, Self, static, struct, super, trait, true, type, unsafe, use,
+              where, while},
     keywordstyle=\color{blue}\bfseries,
-    ndkeywords={u8, u16, u32, u64, i8, i16, i32, i64, usize, isize, bool, void, anytype, type,
-                @intCast, @truncate, @ptrCast, @alignCast, @bitCast, @import, @This, @typeName},
+    ndkeywords={u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize,
+                f32, f64, bool, char, str, String, Vec, Option, Result, Box, Rc, Arc},
     ndkeywordstyle=\color{codepurple}\bfseries,
     sensitive=true,
     comment=[l]{//},
     morecomment=[s]{/*}{*/},
-    morestring=[b]"
+    morestring=[b]",
+    morestring=[b]'
 }
 
 \lstdefinelanguage{Hexdump}{
@@ -198,6 +199,7 @@
 \usepackage{caption}            % Bildunterschriften anpassen
 \usepackage{subcaption}         % Subfigures
 \usepackage{pdfpages}           % PDF-Seiten einbinden
+\setlength{\marginparwidth}{2cm} % benötigt von todonotes
 \usepackage[disable]{todonotes} % TODO-Notizen deaktiviert
 
 % =============================================================================
@@ -241,7 +243,7 @@
 % =============================================================================
 
 \newcommand{\thesistitle}{UDP Transport Options}
-\newcommand{\thesissubtitle}{Implementierung und Analyse von RFC 9868 in Zig}
+\newcommand{\thesissubtitle}{Implementierung und Analyse von RFC 9868 in Rust}
 \newcommand{\thesisauthor}{Alan Bernstein}
 \newcommand{\thesismatrikel}{2068834}
 \newcommand{\thesisemail}{alan.bernstein@pm.me}

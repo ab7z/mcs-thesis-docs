@@ -14,51 +14,46 @@ Es sendet Datagramme ohne vorherigen Handshake oder Zustandsabgleich mit dem Emp
 für Zustellung, Reihenfolge oder Duplikaterkennung und verzichtet
 auf jeglichen Flusskontroll- oder Staukontrollmechanismus \cite{rfc768}. Mit der Protokollnummer~17 im IP-Header
 registriert, wurde UDP in RFC~768 spezifiziert und trägt die Bezeichnung STD~6 als Internet-Standard. Bemerkenswert
-ist, dass der Protokollstandard RFC~768 seit seiner Veröffentlichung im August 1980 nie direkt aktualisiert wurde --
-eine Stabilität von über 45~Jahren, die erst mit RFC~9868 durchbrochen wird \cite{rfc9868}.
+ist, dass RFC~768 seit seiner Veröffentlichung im August 1980 über 45~Jahre hinweg keine formelle Aktualisierung
+erfahren hat. Erst RFC~9868 trägt den Header-Eintrag \texttt{Updates:~768} und erweitert damit den ursprünglichen
+UDP-Standard erstmalig direkt \cite{rfc9868}.
 
 \subsection{Historische Entwicklung}
 \label{subsec:udp-historie}
 
 Die Entstehung von UDP ist untrennbar mit der Aufspaltung des ursprünglichen \emph{Transmission Control Program}
-verbunden. In RFC~675 beschrieben Cerf, Dalal und Sunshine im Dezember 1974 ein monolithisches Protokoll, das
-sowohl Netzwerk- als auch Transportfunktionen in einem einzigen Protokoll vereinte \cite{rfc675}. Ab 1978 wurde
-dieses Konzept schrittweise in separate Schichten aufgeteilt: Das Internet Protocol (IP) übernahm die
-Netzwerkfunktionen, während TCP die zuverlässige Transportschicht bildete. Die Erkenntnis, dass nicht alle
-Anwendungen die Zuverlässigkeitsgarantien und den damit verbundenen Overhead von TCP benötigen, führte zur
-Entwicklung eines leichtgewichtigen Alternativprotokolls -- UDP.
+verbunden. Cerf, Dalal und Sunshine beschrieben Ende 1974 noch ein monolithisches Protokoll, das Netzwerk- und
+Transportfunktionen in einer einzigen Schicht vereinte \cite{rfc675}. Im Lauf der späten 1970er Jahre wurde
+dieses Konzept schrittweise getrennt: Das Internet Protocol (IP) übernahm die Wegewahl, TCP die zuverlässige
+Ende-zu-Ende-Kommunikation. Mit dieser Trennung wurde zugleich sichtbar, dass nicht jede Anwendung die
+Zuverlässigkeitsgarantien und den Overhead von TCP benötigt; gefragt war eine schlanke Alternative.
 
-Am 28.~August 1980 veröffentlichte Jon Postel am Information Sciences Institute (ISI) der University of Southern
-California RFC~768, die Spezifikation des User Datagram Protocol \cite{rfc768}. Mit nur drei Seiten ist RFC~768
-eines der kürzesten RFC-Dokumente überhaupt\footnote{Zum Vergleich: RFC~793 (TCP) umfasst 85~Seiten, RFC~9868
-(UDP Options) 51~Seiten.}. Diese Kürze spiegelt das Designziel wider: UDP sollte ein minimalistisches,
-transaktionsorientiertes Protokoll sein, das lediglich Portnummern zur Demultiplexierung und eine optionale
-Prüfsumme zur Fehlererkennung bereitstellt. Als erste Anwendungsfälle nennt RFC~768 explizit den Internet Name
-Server\footnote{Ein Vorläufer des heutigen DNS, das diesen frühen Namensdienst später ablöste.} sowie das
-Trivial File Transfer Protocol (TFTP, beschrieben in IEN~133).
+Diese Alternative spezifizierte Jon Postel im August 1980 am Information Sciences Institute (ISI) der
+University of Southern California \cite{rfc768}. Die Spezifikation umfasst lediglich drei Seiten\footnote{Zum
+Vergleich: Die TCP-Spezifikation umfasst 85~Seiten, RFC~9868 (UDP Options) 51~Seiten.} und spiegelt damit das
+Designziel wider: ein minimalistisches, transaktionsorientiertes Protokoll, das nur Portnummern zur
+Demultiplexierung und eine optionale Prüfsumme zur Fehlererkennung beisteuert. Als erste Anwendungsfälle nennt
+das Dokument einen frühen Namensdienst (einen Vorläufer des heutigen DNS) sowie das Trivial File Transfer
+Protocol (TFTP).
 
-Die endgültige Formalisierung des TCP/IP-Stacks erfolgte im September 1981 mit der Veröffentlichung von
-RFC~791 (IPv4) \cite{rfc791} und RFC~793 (TCP) \cite{rfc793}. Gemeinsam mit UDP bildeten diese drei Protokolle
-die Grundpfeiler der Internet-Protokollsuite. Eine weitere wichtige Ergänzung stellte RFC~1122 dar, in dem Braden
-1989 die Implementierungsanforderungen für Internet-Hosts präzisierte \cite{rfc1122}. Dieses Dokument
-konkretisierte unter anderem die Anforderungen an UDP-Implementierungen, etwa die Behandlung von Paketen mit
-ungültiger Prüfsumme und das Verhalten bei nicht erreichbaren Zielports.
+Mit der Veröffentlichung der finalen IPv4- und TCP-Spezifikationen im September 1981 \cite{rfc791,rfc793} war
+die Internet-Protokollsuite in ihren wesentlichen Bestandteilen komplett. Braden präzisierte 1989 die
+Implementierungsanforderungen für Internet-Hosts \cite{rfc1122} und konkretisierte dabei auch Detailfragen zu
+UDP, etwa die Behandlung von Paketen mit ungültiger Prüfsumme und das Verhalten bei nicht erreichbaren
+Zielports.
 
-Seit seiner Veröffentlichung 1980 ist der Protokollstandard RFC~768 im Kern unverändert geblieben. Zu den wenigen
-ergänzenden Anpassungen zählen die Prüfsummenbehandlung und die Unterstützung von Jumbogrammen: Während die
-Prüfsumme bei IPv4 optional ist, schreibt RFC~8200 sie für IPv6 grundsätzlich als verpflichtend vor
-\cite[Sec.~8.1]{rfc8200} -- mit der Ausnahme, dass RFC~6936 für bestimmte Tunnelprotokolle einen
-Zero-Checksum-Modus erlaubt \cite{rfc6936}. RFC~2675 erweiterte UDP zudem um die Unterstützung von
-IPv6-Jumbogrammen, bei denen das UDP-Längenfeld auf null gesetzt wird \cite{rfc2675}. RFC~8085 fasst als
-BCP~145 die aktuellen Richtlinien für die Nutzung von UDP zusammen und adressiert insbesondere Fragen der
-Staukontrolle bei UDP-basierten Anwendungen \cite{rfc8085}.
+In den darauf folgenden Jahrzehnten blieb der UDP-Kern unverändert. Einige Begleitdokumente klärten Randfragen,
+ohne den Standard selbst zu modifizieren: Mit IPv6 wurde die zuvor optionale Prüfsumme grundsätzlich
+verpflichtend \cite[Sec.~8.1]{rfc8200}, mit einer Ausnahme für bestimmte Tunnelprotokolle, denen ein
+Zero-Checksum-Modus zugestanden wurde \cite{rfc6936}. IPv6-Jumbogramme erhielten eine Sonderregel für das
+UDP-Längenfeld \cite{rfc2675}, und BCP~145 fasste die Anwendungsrichtlinien für UDP zusammen, insbesondere
+mit Blick auf die Staukontrolle bei UDP-basierten Anwendungen \cite{rfc8085}.
 
-Trotz dieser ergänzenden Spezifikationen hat die Bedeutung von UDP in den vergangenen Jahren massiv zugenommen:
-Protokolle wie QUIC \cite{rfc9000}, das HTTP/3 als Transportschicht dient \cite{rfc9114}, WebRTC, DNS und
-zahlreiche IoT-Anwendungen setzen auf UDP als Basis. Durch die Verbreitung von QUIC und HTTP/3 wird
-mittlerweile ein erheblicher und wachsender Anteil des Web-Verkehrs über UDP abgewickelt. Gerade diese
-weitgehende Stabilität von RFC~768 bei gleichzeitig wachsender Bedeutung von UDP motiviert RFC~9868 als erste
-direkte Erweiterung des Protokollstandards seit über 45~Jahren.
+Trotz dieser zurückhaltenden Pflege hat die Bedeutung von UDP zuletzt stark zugenommen. QUIC \cite{rfc9000},
+das HTTP/3 als Transportschicht dient \cite{rfc9114}, WebRTC, DNS und zahlreiche IoT-Anwendungen bauen auf
+UDP auf. Durch die Verbreitung von QUIC und HTTP/3 wird mittlerweile ein erheblicher und wachsender Anteil des
+Web-Verkehrs über UDP abgewickelt. Gerade diese Stabilität des Protokollkerns bei gleichzeitig wachsender Last
+motiviert RFC~9868 als erste direkte Erweiterung des UDP-Standards seit über 45~Jahren.
 
 \newpage
 \subsection{Protokollstruktur}
@@ -215,7 +210,7 @@ UDP-Header zu verändern.
 \subsection{Überblick}
 \label{subsec:rfc9868-overview}
 
-\subsection{Der Surplus Area}
+\subsection{Die Surplus Area}
 \label{subsec:surplus-area}
 
 \subsection{Options-Struktur}
