@@ -11,31 +11,45 @@
 Das User Datagram Protocol (UDP) wurde 1980 in RFC~768 spezifiziert und ist seitdem praktisch unverändert
 geblieben \cite{rfc768}. Als minimalistisches Transportprotokoll bietet UDP lediglich Portnummern zur
 Demultiplexierung und eine Prüfsumme zur Fehlererkennung\footnote{Die Prüfsumme ist bei IPv4 optional
-\cite{rfc768} und bei IPv6 verpflichtend \cite[Sec.~8.1]{rfc8200}.}. Diese bewusste Einfachheit macht UDP zu einem
+\cite{rfc768} und bei IPv6 grundsätzlich verpflichtend \cite[Sec.~8.1]{rfc8200}; für bestimmte
+Tunnelszenarien ist eine Null-Prüfsumme zugelassen \cite{rfc6936}.}. Diese bewusste Einfachheit macht UDP zu einem
 der am häufigsten genutzten Transportprotokolle im Internet.
 
-Moderne Anwendungen nutzen UDP zunehmend für zeitkritische Kommunikation. Protokolle wie QUIC, WebRTC, DNS und
-zahlreiche Spiele- sowie IoT-Anwendungen setzen auf UDP, um die Latenz des TCP-Handshakes zu vermeiden und mehr
+Moderne Anwendungen nutzen UDP zunehmend für zeitkritische Kommunikation. Protokolle wie QUIC und WebRTC sowie
+zahlreiche Spiele- und IoT-Anwendungen setzen auf UDP, um die Latenz des TCP-Handshakes zu vermeiden und mehr
 Kontrolle über die Übertragungsmechanismen zu erhalten.
 
-RFC~9868, veröffentlicht im Oktober 2025, schließt diese Lücke durch die Einführung von \emph{Transport Options
-for UDP} \cite{rfc9868}. Die Erweiterung nutzt die sogenannte \emph{Surplus Area} -- den Bereich zwischen dem Ende
-der UDP-Nutzdaten und dem Ende des IP-Datagramms -- für optionale Transportschicht-Mechanismen. Da das
-UDP-Length-Feld die Länge der Nutzdaten angibt und diese von der IP-Paketlänge abweichen kann, entsteht ein bisher
-ungenutzter Bereich für Erweiterungen.
+Diese Anwendungen stoßen jedoch wiederholt an Grenzen, die UDP allein nicht behandelt: eine Integritätsprüfung
+über die einfache 16-Bit-Prüfsumme hinaus, eine transportbezogene Fragmentierung unabhängig von IP sowie
+Mechanismen zum Austausch von Laufzeit- oder MTU-Informationen zwischen Endpunkten. Historisch wurden solche
+Bedürfnisse entweder den Anwendungen überlassen oder blieben offen.
+
+RFC~9868, veröffentlicht im Oktober 2025, versucht diese Lücke durch die Einführung von \emph{Transport Options
+for UDP} zu schließen \cite{rfc9868}. Die Erweiterung nutzt die sogenannte \emph{Surplus Area} (den möglichen Bereich
+zwischen dem Ende der UDP-Nutzdaten und dem Ende des IP-Datagramms) für optionale Transportschicht-Mechanismen. Da das
+UDP-Length-Feld die Länge des UDP-Datagramms (Header und Nutzdaten) angibt und diese kleiner sein kann als die vom
+IP-Header implizierte Transportnutzlast, entsteht ein bisher ungenutzter Bereich für Erweiterungen.
 
 RFC~9868 definiert ein erweiterbares Options-Framework mit folgenden Eigenschaften:
 
 \begin{itemize}
     \item Optionen werden im TLV-Format (Type-Length-Value) kodiert und in der \emph{Surplus Area} platziert
-    \item Kategorisierung in SAFE Options (können ignoriert werden) und UNSAFE Options (modifizieren Nutzdaten)
-    \item Unterstützung für Sicherheitsfunktionen (Prüfsummen, Integrität)
+    \item Kategorisierung in SAFE Options (können von Empfängern, die sie nicht kennen, sicher übersprungen
+        werden) und UNSAFE Options (können die Nutzdaten verändern oder ihre Bedeutung ändern und dürfen daher
+        nicht ignoriert werden)
+    \item Integritätsschutz für die Surplus Area über die Option Checksum (OCS); eine Authentifizierungsoption
+        (AUTH) ist als Kennung reserviert
     \item Fragmentierung auf UDP-Ebene, unabhängig von IP-Fragmentierung
 \end{itemize}
 
-Ein entscheidender Vorteil der UDP-Options ist ihre \textbf{Abwärtskompatibilität}: Legacy-Systeme, die UDP Options
-nicht unterstützen, ignorieren die Surplus Area und verarbeiten lediglich die regulären UDP-Nutzdaten. Dies
+Ein entscheidender Vorteil der UDP Options ist ihre \textbf{Abwärtskompatibilität}: Bestandssysteme, die UDP
+Options nicht unterstützen, ignorieren die Surplus Area und verarbeiten lediglich die regulären UDP-Nutzdaten. Dies
 ermöglicht eine schrittweise Einführung der Erweiterung ohne Beeinträchtigung bestehender Infrastruktur.
+
+Ebenso bleibt UDP unter dem Options-Framework \textbf{zustandslos}: UDP Options führen keinen protokolleigenen
+Zustand ein, da die Zustandshaltung weiterhin der Anwendung obliegt \cite[Sec.~6]{rfc9868}.
+Einzig die Zusammenführung fragmentierter Pakete (FRAG) bildet eine eng umgrenzte Ausnahme und erfordert
+kurzlebigen Empfängerzustand.
 
 
 \section{Problemstellung}
@@ -62,9 +76,9 @@ Transportnutzlast. Der entstehende Bereich wird für UDP Options verwendet:
 \end{verbatim}
 
 Die Surplus Area beginnt mit einem 2-Byte Option Checksum (OCS), gefolgt von den eigentlichen Optionen im
-TLV-Format (Type-Length-Value). Diese Struktur ermöglicht variable Optionslängen und zukünftige Erweiterungen.
+TLV-Format. Diese Struktur ermöglicht variable Optionslängen und zukünftige Erweiterungen.
 
-\subsection{Unidirektionalität und Statelessness}
+\subsection{Unidirektionalität}
 
 RFC~9868 stellt explizit klar: \emph{``UDP is unidirectional; UDP Options do not change that fact.''}
 \cite[Sec.~6]{rfc9868}. Diese Design-Entscheidung hat weitreichende Implikationen:
@@ -95,8 +109,8 @@ auf Daten jenseits der UDP-Länge vorsieht, erfordert eine Implementierung im Us
 die vollständige Kontrolle über die Paketstruktur ermöglichen, jedoch erhöhte Systemberechtigungen voraussetzen.
 
 Eine weitere Herausforderung stellt die Kompatibilität mit Middleboxes dar. Während NAT-Geräte UDP-Pakete mit
-Surplus Area typischerweise korrekt weiterleiten -- sie modifizieren lediglich Header-Felder und ignorieren den
-übrigen IP-Payload -- interpretieren bestimmte Intrusion Detection Systeme und Firewalls die Diskrepanz zwischen
+Surplus Area typischerweise korrekt weiterleiten (sie modifizieren lediglich Header-Felder und ignorieren den
+übrigen IP-Payload), interpretieren bestimmte Intrusion Detection Systeme und Firewalls die Diskrepanz zwischen
 UDP-Length und IP-Length als Angriffsindikator \cite[Sec.~18]{rfc9868}. RFC~9868 adressiert dieses Problem durch
 die Option Checksum (OCS).
 
@@ -104,32 +118,49 @@ die Option Checksum (OCS).
 \label{sec:zielsetzung}
 
 Ziel dieser Arbeit ist die Implementierung einer RFC~9868-konformen Bibliothek für UDP Transport Options in der
-Programmiersprache Zig. Die Implementierung fokussiert auf eine Userspace-Lösung mittels Raw Sockets und umfasst
+Programmiersprache Rust. Die Implementierung fokussiert auf eine Userspace-Lösung mittels Raw Sockets und umfasst
 Parser sowie Serializer für TLV-kodierte UDP Options, OCS-Validierung gemäß Section~9 des RFC~9868, Unterstützung
 der Must-Support Options (EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES) sowie Raw-Socket-Programmierung für den Zugriff
 auf die Surplus Area.
 
 Die Verifikation der Implementierung erfolgt durch Unit Tests für die einzelnen Komponenten sowie Integrationstests
-über das Loopback-Interface. Zusätzlich wird das Verhalten der UDP Options bei der Übertragung über das Internet
-untersucht, um die Kompatibilität mit bestehender Netzwerkinfrastruktur zu evaluieren.
+über das Loopback-Interface. Darauf aufbauend wird die Bibliothek in mehreren Umgebungen mit zunehmender
+Realitätsnähe erprobt: einer lokal virtualisierten Umgebung, einer tunnelbasierten Kopplung zweier Endpunkte, einer
+Verbindung zwischen zwei Hosts innerhalb Deutschlands sowie einer interkontinentalen Verbindung. Der Vergleich
+dieser Umgebungen erlaubt Aussagen darüber, inwieweit Annahmen aus kontrollierten Testbedingungen auf reale Netzpfade
+übertragbar sind.
+
+Auf dieser Grundlage erfolgt eine Evaluierung der praktischen Implementierung hinsichtlich Funktionsfähigkeit,
+Beobachtbarkeit der Surplus Area entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
+(insbesondere NAT- und Filtergeräten).
+
+Abschließend werden Spezifikation und tatsächliche Umsetzung gegenübergestellt: Welche Anforderungen des RFC~9868
+konnten vollständig, welche nur eingeschränkt und welche nicht im Userspace umgesetzt werden, und welche
+Diskrepanzen zwischen Soll- und Ist-Verhalten ergeben sich aus den Beschränkungen der eingesetzten Schnittstellen.
 
 Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES-Anwendungsfall für Path MTU Discovery, welcher in
-RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME Option, deren Anwendungsfall im RFC nicht
-spezifiziert ist, sowie die Optionen AUTH, UCMP und UENC, die laut Section~11.9 des RFC noch nicht vollständig
-spezifiziert sind. Die Implementierung erfolgt ausschließlich im Userspace; Kernel-Module werden nicht entwickelt.
+RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar das
+Optionsformat und den Anwendungszweck (RTT-Schätzung) beschreibt, aber kein konkretes nutzendes Protokoll
+festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Kind-Werte in RFC~9868 bisher nur reserviert sind
+(AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}). Die
+Implementierung erfolgt ausschließlich im Userspace; Kernel-Module werden nicht entwickelt.
 
+\clearpage
 \section{Eingesetzte Technologien}
 \label{sec:technologien}
 
-Als zentrale Programmiersprache wurde \textbf{Zig} (Version 0.15.2) gewählt. Zig ist eine relative neue
-Systemprogrammiersprache mit manueller Speicherverwaltung ohne versteckte Allokationen -- ein entscheidender Vorteil
-für die byte-genaue Konstruktion von Netzwerk-Headern. Die nahtlose C-Interoperabilität ermöglicht die direkte Nutzung
-von POSIX-Schnittstellen für Raw Sockets. Zusätzlich bieten integrierte Laufzeitprüfungen einen wirksamen Schutz gegen
-Speicherfehler beim Parsen von Netzwerkpaketen.
+Als zentrale Programmiersprache wurde \textbf{Rust} gewählt. Rust garantiert durch Ownership und Borrow Checker
+\emph{Memory Safety} ohne Garbage Collector: ein entscheidender Vorteil beim Parsen eingehender Netzwerkpakete,
+da klassische Fehlerklassen wie Buffer Overflows, Use-after-free und Data Races bereits zur Übersetzungszeit
+ausgeschlossen werden.
+
+Das Crates-Ökosystem (\texttt{crates.io}) stellt zudem geprüfte Bausteine für die Netzwerk- und Systemprogrammierung
+bereit (u.\,a. \texttt{nix}, \texttt{socket2}, \texttt{libc}), sodass der direkte Zugriff auf POSIX-Schnittstellen
+wie Raw Sockets ohne eigene FFI-Wrapper möglich ist.
 
 Für die Analyse des Netzwerkverkehrs und die Verifikation der generierten UDP-Pakete sind \textbf{Wireshark} und
 \textbf{tcpdump} unverzichtbar, da sie eine detaillierte Inspektion auf Bitebene erlauben.
 
 Ergänzend wird ein transparenter, KI-gestützter Ansatz verfolgt. Large Language Models (LLMs) wie \textbf{Claude}
-(Anthropic) und \textbf{Codex} (OpenAI) dienen als Assistenzsysteme für Code-Reviews, die Analyse komplexer
-RFC-Spezifikationen, \LaTeX{}-Formatierung sowie zur sprachlichen Glättung von Texten.
+(Anthropic) dienen als Assistenzsysteme für Code-Reviews, die Analyse komplexer RFC-Spezifikationen,
+\LaTeX{}-Formatierung sowie zur sprachlichen Glättung von Texten.
