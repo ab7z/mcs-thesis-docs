@@ -58,25 +58,15 @@ kurzlebigen Empfängerzustand.
 Die Implementierung von UDP Options gemäß RFC~9868 wirft mehrere technische Herausforderungen auf, die in dieser
 Arbeit adressiert werden.
 
-\subsection{Das Surplus-Area-Konzept}
+\subsection{Die Surplus Area als ungenutzter Erweiterungsraum}
 
 Anders als TCP, dessen Header ein explizites Optionsfeld vorsieht, bietet der ursprüngliche UDP-Header keinen Raum
-für Erweiterungen. RFC~9868 löst dieses Problem durch Nutzung der \emph{Surplus Area}: Da das UDP-Length-Feld die
-Länge des UDP-Headers plus Nutzdaten angibt, kann diese kleiner sein als die vom IP-Header implizierte
-Transportnutzlast. Der entstehende Bereich wird für UDP Options verwendet:
-
-\begin{verbatim}
-                       IP transport payload
-    <---------------------------------------------------------->
-   +--------+---------+----------------------+------------------+
-   | IP Hdr | UDP Hdr | UDP user data        | surplus area     |
-   +--------+---------+----------------------+------------------+
-             <------------------------------>
-                        UDP Length
-\end{verbatim}
-
-Die Surplus Area beginnt mit einem 2-Byte Option Checksum (OCS), gefolgt von den eigentlichen Optionen im
-TLV-Format. Diese Struktur ermöglicht variable Optionslängen und zukünftige Erweiterungen.
+für Erweiterungen. RFC~9868 nutzt stattdessen die \textit{Surplus Area}: den Bereich zwischen dem Ende der durch das
+UDP-Length-Feld begrenzten Nutzdaten und dem Ende der vom IP-Header implizierten Transportnutzlast. Der genaue
+Aufbau dieses Bereichs, der mit der \textit{Option Checksum (OCS)} beginnt und die Optionen im TLV-Format aufnimmt, wird in den
+Grundlagen behandelt (\secref{subsec:surplus-area}). Für die Problemstellung genügt die Feststellung, dass hier ein
+bislang ungenutzter, abwärtskompatibler Erweiterungsraum entsteht, dessen Nutzung im Userspace jedoch nicht
+vorgesehen ist.
 
 \subsection{Unidirektionalität}
 
@@ -93,8 +83,10 @@ RFC~9868 stellt explizit klar: \emph{``UDP is unidirectional; UDP Options do not
 \end{itemize}
 
 Für Anwendungsfälle, die bidirektionale Kommunikation oder garantierte Antworten erfordern, verweist RFC~9868 auf
-ein separates Dokument, das solche Mechanismen spezifizieren soll. Dies unterstreicht, dass UDP Options bewusst auf
-der unidirektionalen Natur von UDP aufbauen.
+ein noch zu definierendes separates Dokument, das solche Mechanismen spezifizieren soll~\cite[Sec.~6]{rfc9868}.%
+\footnote{Eine Recherche im IETF Datatracker (Stand Mai 2026) ergab, dass ein solches Dokument noch nicht
+existiert; weder ein einschlägiger RFC noch ein dedizierter IETF-Draft wurde veröffentlicht.}
+Dies unterstreicht, dass UDP Options bewusst auf der unidirektionalen Natur von UDP aufbauen.
 
 Für die Implementierung bedeutet dies, dass beide Kommunikationspartner als symmetrische Peers agieren: Jeder Peer
 muss sowohl senden als auch empfangen können, ohne dass das Protokoll eine Client-Server-Hierarchie vorschreibt.
@@ -117,50 +109,76 @@ die Option Checksum (OCS).
 \section{Zielsetzung}
 \label{sec:zielsetzung}
 
-Ziel dieser Arbeit ist die Implementierung einer RFC~9868-konformen Bibliothek für UDP Transport Options in der
-Programmiersprache Rust. Die Implementierung fokussiert auf eine Userspace-Lösung mittels Raw Sockets und umfasst
-Parser sowie Serializer für TLV-kodierte UDP Options, OCS-Validierung gemäß Section~9 des RFC~9868, Unterstützung
-der Must-Support Options (EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES) sowie Raw-Socket-Programmierung für den Zugriff
-auf die Surplus Area.
+Aus der Problemstellung ergeben sich zwei Forschungsfragen, an denen sich Umsetzung und Evaluation dieser Arbeit
+ausrichten:
+
+\begin{itemize}
+    \item \textbf{FF1:} Welche Anforderungen des RFC~9868 lassen sich für eine Userspace-Implementierung über Raw
+    Sockets vollständig, welche nur eingeschränkt und welche gar nicht erfüllen?
+
+    \item \textbf{FF2:} In welchem Umfang ist die \textit{Surplus Area} entlang realer Netzpfade zunehmender
+    Realitätsnähe beobachtbar und unverändert zustellbar, und wie verhalten sich NAT- und
+    Filtergeräte\footnote{Mit Filtergeräten sind Middleboxes gemeint, die Pakete anhand ihres Inhalts durchlassen
+    oder verwerfen, etwa Firewalls, DPI- sowie IDS/IPS-Systeme und Paketnormalisierer.} gegenüber Paketen mit
+    \textit{Surplus Area}?
+\end{itemize}
+
+Um diese Fragen zu beantworten, entsteht zunächst eine RFC~9868-konforme Bibliothek für UDP Transport Options in
+der Programmiersprache Rust. Die Implementierung fokussiert auf eine Userspace-Lösung mittels Raw Sockets und
+umfasst Parser sowie Serializer für TLV-kodierte UDP Options, OCS-Validierung gemäß Section~9 des RFC~9868,
+Unterstützung der Must-Support Options (EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES) sowie Raw-Socket-Programmierung
+für den Zugriff auf die \textit{Surplus Area}.
 
 Die Verifikation der Implementierung erfolgt durch Unit Tests für die einzelnen Komponenten sowie Integrationstests
 über das Loopback-Interface. Darauf aufbauend wird die Bibliothek in mehreren Umgebungen mit zunehmender
 Realitätsnähe erprobt: einer lokal virtualisierten Umgebung, einer tunnelbasierten Kopplung zweier Endpunkte, einer
 Verbindung zwischen zwei Hosts innerhalb Deutschlands sowie einer interkontinentalen Verbindung. Der Vergleich
-dieser Umgebungen erlaubt Aussagen darüber, inwieweit Annahmen aus kontrollierten Testbedingungen auf reale Netzpfade
-übertragbar sind.
+dieser Umgebungen erlaubt Aussagen darüber, inwieweit Annahmen aus kontrollierten Testbedingungen auf reale
+Netzpfade übertragbar sind, und beantwortet damit FF2.
 
 Auf dieser Grundlage erfolgt eine Evaluierung der praktischen Implementierung hinsichtlich Funktionsfähigkeit,
-Beobachtbarkeit der Surplus Area entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
-(insbesondere NAT- und Filtergeräten).
+Beobachtbarkeit der \textit{Surplus Area} entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
+(insbesondere NAT- und Filtergeräten). Abschließend werden Spezifikation und tatsächliche Umsetzung
+gegenübergestellt: Welche Anforderungen des RFC~9868 konnten vollständig, welche nur eingeschränkt und welche nicht
+im Userspace umgesetzt werden, und welche Diskrepanzen zwischen Soll- und Ist-Verhalten ergeben sich aus den
+Beschränkungen der eingesetzten Schnittstellen. Dieser Soll-Ist-Abgleich beantwortet FF1.
 
-Abschließend werden Spezifikation und tatsächliche Umsetzung gegenübergestellt: Welche Anforderungen des RFC~9868
-konnten vollständig, welche nur eingeschränkt und welche nicht im Userspace umgesetzt werden, und welche
-Diskrepanzen zwischen Soll- und Ist-Verhalten ergeben sich aus den Beschränkungen der eingesetzten Schnittstellen.
+Der Beitrag dieser Arbeit ist damit zweigeteilt und in beiden Teilen gleichgewichtig: Zum einen entsteht eine
+quelloffene, RFC~9868-konforme Referenzimplementierung der Kern-Mechanismen für den Userspace; zum anderen liefert
+die abgestufte Erprobung einen empirischen Befund darüber, wie weit sich diese frisch standardisierte Erweiterung
+über reale Internetpfade hinweg tatsächlich einsetzen lässt. Die Bibliothek stellt das notwendige Instrument
+bereit, während der eigenständige Erkenntnisgewinn vor allem im empirischen Teil liegt, der über eine reine
+Implementierung hinausgeht.
 
-Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES-Anwendungsfall für Path MTU Discovery, welcher in
-RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar das
+\section{Abgrenzung und Umfang}
+\label{sec:abgrenzung}
+
+Diese Arbeit setzt einen bewussten Rahmen. Sie beschränkt sich auf den im Userspace realisierbaren Kern des
+RFC~9868: das TLV-Options-Framework, die \textit{Option Checksum (OCS)} sowie die Must-Support Options. Die Beschränkung auf den
+Userspace ist eine vorab gesetzte Rahmenbedingung der Aufgabenstellung. Die konkrete Mechanik des Zugriffs (Raw
+Sockets gegenüber kernelnahen Verfahren) wird dabei nicht vorweggenommen, sondern erst in
+\secref{sec:technologieauswahl} abgewogen und begründet.
+
+Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES"=Anwendungsfall für Path MTU Discovery, welcher in
+nachfolge RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar das
 Optionsformat und den Anwendungszweck (RTT-Schätzung) beschreibt, aber kein konkretes nutzendes Protokoll
 festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Kind-Werte in RFC~9868 bisher nur reserviert sind
-(AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}). Die
-Implementierung erfolgt ausschließlich im Userspace; Kernel-Module werden nicht entwickelt.
+(AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}).
+Kernel-Module werden nicht entwickelt.
 
-\clearpage
-\section{Eingesetzte Technologien}
-\label{sec:technologien}
+\section{Aufbau der Arbeit}
+\label{sec:aufbau}
 
-Als zentrale Programmiersprache wurde \textbf{Rust} gewählt. Rust garantiert durch Ownership und Borrow Checker
-\emph{Memory Safety} ohne Garbage Collector: ein entscheidender Vorteil beim Parsen eingehender Netzwerkpakete,
-da klassische Fehlerklassen wie Buffer Overflows, Use-after-free und Data Races bereits zur Übersetzungszeit
-ausgeschlossen werden.
+Die Arbeit gliedert sich in sechs Kapitel. \chapref{chap:grundlagen} führt die technischen Grundlagen ein: das
+Internet Protocol, UDP, Middleboxes und Protokoll-Ossifikation sowie RFC~9868 mit der \textit{Surplus Area}.
+\chapref{chap:analyse} analysiert die Anforderungen, sichtet bestehende Implementierungen, arbeitet die
+Herausforderungen heraus und trifft die Technologie- und Architekturentscheidung. \chapref{chap:entwurf} führt
+Entwurf und Implementierung der Bibliothek komponentenweise zusammen. \chapref{chap:evaluation} berichtet die
+funktionale Verifikation und die Erprobung auf den vier Netzpfaden. \chapref{chap:fazit} fasst die Ergebnisse
+entlang der Forschungsfragen zusammen.
 
-Das Crates-Ökosystem (\texttt{crates.io}) stellt zudem geprüfte Bausteine für die Netzwerk- und Systemprogrammierung
-bereit (u.\,a. \texttt{nix}, \texttt{socket2}, \texttt{libc}), sodass der direkte Zugriff auf POSIX-Schnittstellen
-wie Raw Sockets ohne eigene FFI-Wrapper möglich ist.
-
-Für die Analyse des Netzwerkverkehrs und die Verifikation der generierten UDP-Pakete sind \textbf{Wireshark} und
-\textbf{tcpdump} unverzichtbar, da sie eine detaillierte Inspektion auf Bitebene erlauben.
-
-Ergänzend wird ein transparenter, KI-gestützter Ansatz verfolgt. Large Language Models (LLMs) wie \textbf{Claude}
-(Anthropic) dienen als Assistenzsysteme für Code-Reviews, die Analyse komplexer RFC-Spezifikationen,
-\LaTeX{}-Formatierung sowie zur sprachlichen Glättung von Texten.
+Diese lineare Kapitelfolge ist eine rekonstruktive Darstellungsstruktur und kein Abbild des tatsächlichen
+Arbeitsprozesses. Die Umsetzung verlief iterativ und agentengestützt, sodass Entwurf, Implementierung und Test
+einander fortlaufend bedingten. Die zur Verkehrsanalyse eingesetzten Werkzeuge (Wireshark und tcpdump) sowie die
+methodische Rolle der eingesetzten Sprachmodelle werden dort behandelt, wo sie wirksam werden: bei der
+Technologie- und Methodenwahl in \secref{subsec:agentic-coding}.

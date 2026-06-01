@@ -3,7 +3,7 @@
 
 MAIN = main
 LATEX = pdflatex
-BIBTEX = bibtex
+BIBER = biber
 MAKEGLOSSARIES = makeglossaries
 
 # LaTeX flags
@@ -22,8 +22,8 @@ all: pdf
 pdf: $(MAIN).tex
 	@echo "=== First LaTeX pass ==="
 	$(LATEX) $(LATEXFLAGS) $(MAIN).tex
-	@echo "=== Running BibTeX ==="
-	-$(BIBTEX) $(MAIN)
+	@echo "=== Running Biber ==="
+	-$(BIBER) $(MAIN)
 	@echo "=== Running makeglossaries ==="
 	-$(MAKEGLOSSARIES) $(MAIN)
 	@echo "=== Second LaTeX pass ==="

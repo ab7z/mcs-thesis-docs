@@ -23,8 +23,8 @@
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}[frame number]
 
-\title{Implementierung von UDP Options}
-\subtitle{RFC 9868 in Rust mit eBPF-Monitoring}
+\title{UDP Transport Options}
+\subtitle{Implementierung und Analyse von RFC 9868 in Rust}
 \author{Alan Bernstein}
 \date{}
 \institute{FernUniversität in Hagen}
@@ -88,11 +88,11 @@
 
     \item \textbf{Performance-Anforderungen} \\
     Echtzeit-Anwendungen benötigen minimale Latenz. \\
-    UDP Options arbeiten direkt auf Transportebene -- ohne zusätzliche Schicht.
+    UDP Options arbeiten direkt auf Transportebene, ohne zusätzliche Schicht.
 
     \item \textbf{Middlebox-Traversal} \\
     NATs und Firewalls müssen UDP-Pakete korrekt weiterleiten. \\
-    RFC 9868 definiert dafür die Options Checksum (OCS).
+    RFC 9868 definiert dafür die Option Checksum (OCS).
 \end{itemize}
 
 \vspace{1em}
@@ -166,14 +166,14 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
 \end{itemize}
 
 \vspace{0.5em}
-{\small Definierte Typen: OCS, FRAG, TIME, AUTH, EOL, NOP}
+{\small Umgesetzt: OCS, EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES \quad (TIME, AUTH: nicht im Umfang)}
 \end{column}
 \begin{column}{0.4\textwidth}
 \centering
 \textbf{Option Format (TLV)}
 
 \vspace{1em}
-\begin{tikzpicture}[scale=0.8]
+\begin{tikzpicture}[scale=0.75]
     % Kind
     \draw[thick, mainblue, fill=mainblue!30] (0,0) rectangle (1.5,0.8);
     \node at (0.75,0.4) {\small Kind};
@@ -187,7 +187,7 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
     % Data
     \draw[thick, mainblue, fill=mainblue!10] (3.0,0) rectangle (7.0,0.8);
     \node at (5.0,0.4) {\small Data};
-    \node[below] at (5.0,0) {\footnotesize 0--255 Bytes};
+    \node[below] at (5.0,0) {\footnotesize 0 bis 255 Bytes};
 \end{tikzpicture}
 
 \vspace{1.5em}
@@ -200,17 +200,18 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
 \begin{frame}{Anwendungsfälle für UDP Options}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
-\textbf{Sicherheit \& Integrität:}
+\textbf{In dieser Arbeit umgesetzt:}
 \begin{itemize}
-    \item Authentifizierung und Integritätsschutz (AUTH)
-    \item Path MTU Discovery ohne Payload-Beeinflussung
+    \item Integritätsschutz der Surplus Area (OCS)
+    \item UDP-Level Fragmentierung statt IP (FRAG)
 \end{itemize}
 \end{column}
 \begin{column}{0.48\textwidth}
-\textbf{Echtzeit \& Performance:}
+\textbf{Vom RFC vorgesehen, nicht im Umfang:}
 \begin{itemize}
-    \item Präzise RTT-Messung mit Timestamps (TIME)
-    \item UDP-Level Fragmentierung statt IP (FRAG)
+    \item Authentifizierung (AUTH)
+    \item Path MTU Discovery (RFC 9869)
+    \item RTT-Messung mit Timestamps (TIME)
 \end{itemize}
 \end{column}
 \end{columns}
@@ -233,7 +234,7 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
 \vspace{1em}
 \textbf{Vorteile:}
 \begin{itemize}
-    \item Abwärtskompatibel -- Legacy-Empfänger ignorieren Options
+    \item Abwärtskompatibel: Legacy-Empfänger ignorieren Options
     \item Kein zusätzlicher Protokoll-Overhead wie bei DTLS
     \item Erweiterbar durch neue Option-Typen
 \end{itemize}
@@ -260,7 +261,7 @@ QUIC (HTTP/3) \quad | \quad WebRTC \quad | \quad DNS
     \ganttbar{Literaturrecherche}{1}{1} \\
     \ganttbar{Architekturentwurf}{2}{2} \\
     \ganttbar{Implementierung (Rust)}{2}{4} \\
-    \ganttbar{eBPF Monitoring}{4}{5} \\
+    \ganttbar{Netzpfad-Erprobung}{4}{5} \\
     \ganttbar{Evaluation}{5}{6} \\
     \ganttbar{Dokumentation}{1}{6}
 \end{ganttchart}
