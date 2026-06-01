@@ -2,10 +2,10 @@
 % Kapitel 3: Analyse
 % =============================================================================
 
-\chapter{Analyse}
+\chapter{Anforderungsanalyse und Technologieauswahl}
 \label{chap:analyse}
 
-\section{Anforderungsanalyse}
+\section{Anforderungen}
 \label{sec:anforderungen}
 
 \subsection{Funktionale Anforderungen}
@@ -40,13 +40,254 @@
 
 \subsection{Alternative Implementierungsansätze}
 \label{subsec:alternativen}
-% eBPF/XDP, Kernel Module vs. Raw Sockets
+% Kernel Module vs. Raw Sockets
 
 \section{Technologieauswahl}
 \label{sec:technologieauswahl}
 
-\subsection{Begründung für Rust}
-\label{subsec:begruendung-rust}
+Die vorangegangene Analyse hat den Rahmen definiert, innerhalb dessen die Implementierung
+zu realisieren ist. Dieser Abschnitt überführt diese Analyse in die tragenden Technologie-
+und Methodenentscheidungen und begründet sie entlang der herausgearbeiteten Anforderungen.
 
-\subsection{Architekturentscheidungen}
-\label{subsec:architekturentscheidungen}
+\subsection{Programmiersprache Rust}
+\label{subsec:rust}
+
+Die Wahl der Implementierungssprache wird nicht vorausgesetzt, sondern als Konsequenz der zuvor
+formulierten funktionalen und nicht-funktionalen Anforderungen entwickelt. Der Argumentationsbogen
+verläuft dabei in mehreren Schritten: von den Anforderungen, die das Vorhaben an eine geeignete
+Programmiersprache stellt, über die begriffliche Einordnung in die Klasse der Systemprogrammiersprachen
+und die Begründung der konkreten Sprachwahl bis zu einem Vergleich mit den Alternativen.
+
+\paragraph{""}
+Aus dem RFC~9868 ergeben sich mehrere Anforderungen an die Programmiersprache, noch bevor eine konkrete Sprache
+benannt wird. Sie leiten sich unmittelbar aus den nicht-funktionalen Anforderungen ab. Zunächst wird ein direkter
+Zugriff auf \textit{Raw Sockets} und damit auf rohe IP-Datagramme benötigt, da die Optionen von RFC~9868 in der
+\textit{Surplus Area} jenseits des regulären UDP-Nutzdatenendes liegen und nur über selbst konstruierte
+Datagramme mit eigenem IP-Header (etwa mittels \texttt{IP\_HDRINCL}) vollständig kontrolliert werden können.
+Hinzu kommt der Bedarf an einer bytegenauen Kontrolle in der \textit{Surplus Area}, da die TLV-kodierten Optionen
+exakt an den durch den RFC vorgegebenen Bytegrenzen ausgerichtet sein müssen und jede implizite Umordnung oder
+Auffüllung durch die Sprache oder ihre Laufzeitumgebung die Korrektheit gefährden würde. Ebenso müssen potentiell
+bösartige eingehende Pakete ohne nennenswerten Laufzeit-Overhead verarbeitet werden, denn der Parser bildet die
+Vertrauensgrenze gegenüber dem Netz und darf weder durch präparierte Längenfelder zum Absturz gebracht noch durch
+defensive Schutzmechanismen verlangsamt werden. Schließlich wird ein deterministisches Speicherverhalten ohne
+Garbage Collector vorausgesetzt, da solche Pausen das Laufzeitverhalten nichtdeterministisch machen würden. Diese
+Anforderungen bilden die Voraussetzungen zur Auswahl einer geeigneten Programmiersprache.
+
+\paragraph{""}
+Sprachen, die diese Anforderungen erfüllen können, werden üblicherweise als \textit{Systemprogrammiersprachen}
+zusammengefasst. Kennzeichnend für diese Klasse ist hardwarenahe Kontrolle über Speicher und Ausführung: direkter
+Zugriff auf Speicheradressen, Bitmuster und Betriebssystemschnittstellen ohne vermittelnde Abstraktionsschicht. Hinzu
+kommt eine explizite Speicherverwaltung ohne obligatorische Laufzeitumgebung und insbesondere ohne Garbage Collector,
+sodass Allokation und Freigabe dem Programm und nicht einem im Hintergrund laufenden Prozess obliegen; der Quelltext
+wird zu nativem Maschinencode übersetzt, der ohne zwischengeschaltete virtuelle Maschine ausgeführt wird, woraus ein
+weitgehend deterministisches Laufzeitverhalten folgt. Eben diese Eigenschaften prädestinieren die Klasse für Aufgaben
+mit unmittelbarem Hardware- und Systembezug wie die Entwicklung von Betriebssystemen, Gerätetreibern und
+Netzwerkstacks. Genau in diese Schicht fällt die Implementierung eines Transportprotokoll-Mechanismus.
+
+\paragraph{""}
+Die Definition wird von einer überschaubaren Gruppe etablierter Sprachen erfüllt, insbesondere von C, C++,
+Zig und Rust. Alle genannten Kandidaten bieten den geforderten hardwarenahen Zugriff und die Kompilation
+zu nativem Code; sie unterscheiden sich jedoch grundlegend darin, welche Sicherheitsgarantien sie dabei
+gewähren. Das entscheidende Kriterium ergibt sich daher nicht aus der Sprachklasse selbst, sondern aus der
+folgenden Anforderung: der sicheren Verarbeitung potentiell bösartiger Eingaben. Da der Parser die
+Vertrauensgrenze gegenüber dem Netz bildet, wird die standardmäßige Speichersicherheit zum entscheidenden
+Auswahlkriterium erhoben, denn eine Sprache, die Speicherfehler bereits konstruktiv ausschließt, verlagert
+eine ganze Klasse sicherheitskritischer Fehler von der Laufzeit in die Übersetzungsphase.
+
+Dass diese Fehlerklasse kein akademisches Detail, sondern den weitaus größten Teil schwerwiegender
+Schwachstellen ausmacht, ist empirisch breit belegt: Sowohl bei Microsoft als auch im Chromium-Projekt werden
+übereinstimmend rund 70 Prozent der schwerwiegenden Sicherheitslücken auf Speichersicherheitsfehler
+zurückgeführt \cite{microsoft-memory,chromium-memory}, weshalb selbst die US-amerikanische National Security
+Agency (NSA) den Umstieg auf speichersichere Sprachen ausdrücklich empfiehlt und dabei Rust namentlich nennt
+\cite{nsa-memory-safety}. Legt man die standardmäßige Speichersicherheit als Auswahlkriterium an das Feld an,
+so bleibt unter den etablierten Systemprogrammiersprachen Rust als einzige übrig, die diese Garantie ohne
+Garbage Collector und bereits zur Übersetzungsphase erbringt; die Wahl fällt folglich auf \textbf{Rust}.
+
+\paragraph{""}
+\textit{Rust} ist eine kompilierte, statisch und stark typisierte Systemprogrammiersprache, die ohne Garbage
+Collector und ohne obligatorische Laufzeitumgebung auskommt \cite{rust-lang,rust-book}. Die statische Typisierung
+bedeutet dabei, dass die Typen aller Werte bereits zur Übersetzungszeit feststehen und vom Compiler geprüft werden,
+sodass eine ganze Klasse von Typfehlern vor der Ausführung und ohne Laufzeitkosten ausgeschlossen wird. Zugleich
+besteht über ein C-kompatibles \textit{Foreign Function Interface} ein direkter Zugang zu den POSIX-Systemaufrufen,
+über die die benötigten \textit{Raw Sockets} eingerichtet und die in der ersten Anforderung genannten IP-Datagramme
+kontrolliert werden. Damit erfüllt Rust sämtliche Merkmale der zuvor entwickelten Definition: Es bietet hardwarenahe
+Kontrolle, verzichtet auf eine obligatorische Laufzeitumgebung und erzeugt deterministisch ausführbaren nativen Code.
+
+\paragraph{""}
+Charakteristisch für Rust ist eine bewusste Auswahl der vorhandenen wie der absichtlich nicht vorhandenen Sprachmittel.
+Vorhanden sind das im nächsten Block ausführlich behandelte System aus \textit{Ownership} und \textit{Borrowing}; ferner
+algebraische Datentypen in Gestalt von \texttt{enum} mit vom Compiler auf Vollständigkeit geprüftem \textit{Pattern
+Matching}; eine auf dem Typ \texttt{Result} aufbauende explizite Fehlerbehandlung; eine starke statische Typisierung;
+sowie das Schlüsselwort \texttt{unsafe} als bewusst markierte und eng begrenzte Brücke für jene Operationen, deren
+Sicherheit der Compiler nicht selbst nachweisen kann. Nicht vorhanden sind hingegen ein \texttt{null}-Wert, implizite
+Typkonvertierungen, klassische \textit{Exceptions} sowie die Implementierungsvererbung objektorientierter Sprachen.
+
+Gerade das Fehlen dieser Konstrukte verringert die Zahl der Fehlerquellen in einem sicherheitskritischen
+Parser erheblich. Diese Sprachmittel prägen den Aufbau der vorliegenden Implementierung unmittelbar.
+Sämtliche \texttt{unsafe}-Blöcke sind in der Socket-Schicht (\texttt{src/socket/}) konzentriert und dort
+hinter sichere Wrapper gekapselt, sodass der übrige Code ausschließlich mit sicheren Abstraktionen arbeitet.
+
+Algebraische Datentypen und \textit{Pattern Matching} bilden die TLV-kodierten Optionen der
+\textit{Surplus Area} typsicher und erschöpfend ab, und die \texttt{Result}-basierte Fehlerbehandlung
+zwingt dazu, fehlerhafte oder bösartige Eingaben an jeder Verarbeitungsstelle explizit zu behandeln.
+Parser, Serialisierer und Prüfsummenberechnung sind dabei bewusst handgeschrieben und greifen nicht auf
+etablierte Bibliotheken wie \texttt{nom} oder \texttt{zerocopy} zurück, da die Mechanik von RFC~9868
+selbst Gegenstand der Untersuchung ist und durch eine fertige Abstraktion nicht verdeckt werden soll.
+
+\paragraph{""}
+Den Kern der Sprachwahl bildet die Art und Weise, in der Rust \textit{Memory Safety} erzwingt: zum überwiegenden
+Teil bereits zur Übersetzungszeit durch das Typsystem, ergänzt um wenige, eng umrissene Laufzeitprüfungen. Unter
+\textit{Memory Safety} wird die Abwesenheit einer
+Klasse von Speicherzugriffsfehlern verstanden, zu der insbesondere der \textit{Buffer Overflow} (ein Zugriff
+jenseits der Grenzen eines reservierten Speicherbereichs), das \textit{Use-after-free} (ein Zugriff auf bereits
+freigegebenen Speicher) und der \textit{Data Race} (ein unsynchronisierter, nebenläufiger Zugriff mehrerer
+Ausführungsstränge, von denen mindestens einer schreibt) zählen. Rust begegnet diesen Fehlerklassen auf zwei Wegen:
+Das \textit{Use-after-free} und der \textit{Data Race} werden durch ein statisches Regelwerk ausgeschlossen, das aus
+drei aufeinander aufbauenden Konzepten besteht und das der Compiler vor der Codeerzeugung durchsetzt
+\cite{rust-book,rust-reference}; der Zugriff jenseits der Grenzen eines Speicherbereichs hingegen wird, soweit er
+nicht ohnehin statisch ausgeschlossen ist, durch automatisch eingefügte Schrankenprüfungen abgefangen, die bei einer
+Verletzung einen kontrollierten Programmabbruch (\textit{panic}) auslösen, statt wie in C undefiniertes Verhalten
+zuzulassen \cite[Kap.~9]{rust-book}.
+
+Das erste ist \textit{Ownership}: Jeder Wert besitzt zu jedem Zeitpunkt genau einen Eigentümer; wird der
+Wert einer anderen Bindung zugewiesen oder an eine Funktion übergeben, so geht das Eigentum über
+(\textit{move}), und die ursprüngliche Bindung ist anschließend nicht mehr verwendbar, was ein doppeltes
+Freigeben desselben Speichers ausschließt; verlässt der Eigentümer seinen Gültigkeitsbereich, wird der
+zugehörige Speicher deterministisch freigegeben, ohne dass es dafür eines Garbage Collectors bedürfte.
+
+Das zweite ist \textit{Borrowing}: Anstelle einer Eigentumsübertragung kann ein Wert über Referenzen
+geborgt werden, wobei zu jedem Zeitpunkt entweder beliebig viele geteilte, ausschließlich lesende
+Referenzen oder genau eine exklusive, schreibende Referenz bestehen dürfen, niemals jedoch beides
+zugleich; diese Regel schließt \textit{Data Races} konstruktiv aus, da ein unsynchronisierter
+schreibender Zugriff bei gleichzeitig bestehenden weiteren Referenzen nicht typisierbar ist.
+
+Das dritte sind \textit{Lifetimes}: Sie binden die Gültigkeitsdauer jeder Referenz an jene des referenzierten Wertes und
+stellen so sicher, dass keine Referenz ihren Referenten überdauert, womit \textit{Use-after-free} ausgeschlossen wird.
+
+Die Gesamtheit dieser Regeln erzwingt der \textit{Borrow Checker} vollständig zur
+Übersetzungszeit: Code, der gegen eine der Regeln verstößt, wird nicht übersetzt, und es entstehen
+keinerlei Laufzeitkosten für diese Prüfung. Das nachstehende Beispiel zeigt den Mechanismus an
+einem minimalen Fall, in dem eine geteilte und eine exklusive Referenz koexistieren sollen.
+
+\paragraph{""}
+\begin{lstlisting}[language=Rust]
+let mut buf = vec![1u8, 2, 3];
+let view = &buf[0];        // geteilte (lesende) Referenz auf buf
+buf.push(4);               // Fehler: exklusiver Borrow, solange `view` lebt
+println!("{view}");        // Nutzung von `view` haelt den Borrow am Leben
+\end{lstlisting}
+
+\paragraph{""}
+Der Borrow Checker verweigert hier die Übersetzung mit dem Fehlercode \texttt{E0502}, weil
+\texttt{buf.push} eine exklusive Referenz auf den Puffer benötigt, während die geteilte Referenz
+\texttt{view} noch gebraucht wird; ein in C oder C++ an dieser Stelle möglicher Zugriff über einen durch
+die Reallokation ungültig gewordenen Zeiger ist damit bereits zur Übersetzungszeit ausgeschlossen:
+
+\paragraph{""}
+\begin{lstlisting}
+ --> src/main.rs:4:1
+  |
+3 | let view = &buf[0];        // geteilte (lesende) Referenz auf buf
+  |             --- immutable borrow occurs here
+4 | buf.push(4);               // Fehler: exklusiver Borrow, solange `view` lebt
+  | ^^^^^^^^^^^ mutable borrow occurs here
+5 | println!("{view}");        // Nutzung von `view` haelt den Borrow am Leben
+  |            ---- immutable borrow later used here
+
+For more information about this error, try `rustc --explain E0502`.
+\end{lstlisting}
+
+\paragraph{""}
+Darauf aufbauend lässt sich die Wahl gegen die übrigen Kandidaten der
+Klasse präzise begründen, ohne deren jeweilige Stärken zu übergehen.
+
+C bietet maximale, unverstellte Kontrolle über Speicher und Hardware und besitzt das mit Abstand reifste
+Ökosystem für hardwarenahe Netzprogrammierung; diese Kontrolle wird jedoch ohne jede sprachseitige
+Sicherheitsgarantie gewährt, denn weder Schranken- noch Lebensdauerprüfungen für Zeiger sind Bestandteil
+der Sprachdefinition, und der Standard kennt eine große Zahl von Fällen mit \textit{Undefined Behavior},
+darunter gerade Pufferüberläufe und Zugriffe auf freigegebenen Speicher \cite{iso-c}.
+
+C++ erweitert dieses Fundament um mächtige Abstraktionsmittel und mildert mit \textit{RAII} sowie Smart Pointern einen
+Teil der manuellen Speicherverwaltung, bleibt jedoch unsicher per Voreinstellung, da diese Werkzeuge optional sind und
+neben den unsicheren C-Altlasten fortbestehen, und erkauft seine Ausdrucksstärke mit erheblicher Sprachkomplexität.
+
+Zig ist eine moderne, bewusst einfach und explizit gehaltene Systemsprache, die mit \textit{comptime} eine
+ausdrucksstarke Auswertung zur Übersetzungszeit bietet und versteckte Allokationen vermeidet, indem Speicher
+ausschließlich über explizit übergebene Allocator-Objekte angefordert wird \cite{zig-lang}; eine compilergarantierte
+Speichersicherheit nach Art des Borrow Checkers kennt Zig jedoch nicht, sondern erkennt nur eine Teilmenge
+unzulässiger Zugriffe durch Laufzeitprüfungen in den sicheren Build-Modi, die in den auf Geschwindigkeit oder Größe
+optimierten Modi entfallen, und befindet sich mit Version 0.16.0 noch in vor-stabiler Entwicklung
+\cite{zig-lang}\footnote{Welche praktische Relevanz dieser Unterschied besitzt, zeigt die JavaScript-Laufzeit Bun,
+lange das größte Produktivprojekt in Zig: Nachdem allein in Version~1.3.14 vierzig Speicherlecks und zahlreiche
+Abstürze einzeln behoben worden waren, portierte das Team um Jarred Sumner den Kern von Zig nach Rust, um derartige
+Fehler strukturell auszuschließen, statt sie dauerhaft nachzubessern \cite{bun-rust-port}.}.
+
+Rust nimmt in diesem Feld die Stellung ein, C-vergleichbare Kontrolle und Performance mit einer bereits
+zur Übersetzungszeit erzwungenen Speicher- und Data-Race-Freiheit zu verbinden; der Preis dafür ist die
+Einarbeitung in das Ownership-Modell, die jedoch durch präzise Compiler-Diagnosen unterstützt wird.
+
+Abschließend stellt \tabref{tab:sprachvergleich} die entscheidungsrelevanten Eigenschaften der vier Kandidaten
+gegenüber.
+
+\begin{table}[H]
+  \centering
+  \caption{Vergleich der betrachteten Systemprogrammiersprachen anhand der für die RFC~9868-Implementierung
+    maßgeblichen Kriterien.}
+  \label{tab:sprachvergleich}
+  \small
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}*{4}{>{\raggedright\arraybackslash}X}@{}}
+    \toprule
+    \textbf{Kriterium} & \textbf{C} & \textbf{C++} & \textbf{Zig} & \textbf{Rust} \\
+    \midrule
+    Speichersicherheit standardmäßig
+      & nein
+      & nein
+      & nur in sicheren Build-Modi
+      & \checkmark{} (Compiler) \\
+    Data-Race-Freiheit zur Übersetzungszeit
+      & nein
+      & nein
+      & nein
+      & \checkmark \\
+    Speicherverwaltung
+      & manuell
+      & manuell, RAII
+      & manuell, explizite Allocator
+      & Ownership, kein GC \\
+    Laufzeit-Overhead
+      & keiner, da ungeprüft
+      & keiner, da ungeprüft
+      & nur in sicheren Build-Modi
+      & minimal (Schrankenprüfung) \\
+    Compiler-Diagnostik als Rückkopplungsschleife
+      & begrenzt
+      & begrenzt, oft unübersichtlich
+      & solide
+      & ausgeprägt, fehlercodiert \\
+    Reife des Ökosystems (hardwarenahe Netze)
+      & sehr hoch
+      & sehr hoch
+      & gering, vor-stabil
+      & hoch, wachsend \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{""}
+Über die reinen Sicherheitsgarantien hinaus erweist sich der Rust-Compiler als eine starke, deterministische und
+maschinenlesbare Rückkopplungsschleife, was im Rahmen dieser Arbeit aus einem zweiten Grund bedeutsam ist. Seine
+Diagnosen benennen den Fehlerort nicht nur präzise, sondern tragen stabile Fehlercodes der Form \texttt{E0xxx} und
+ergänzen häufig konkrete, mit \texttt{help:} eingeleitete Korrekturvorschläge; ergänzt wird dies durch \texttt{cargo
+check} für eine schnelle Prüfung ohne vollständige Codegenerierung und durch den Linter \texttt{clippy} für eine
+weitergehende statische Analyse stilistischer und semantischer Schwachstellen \cite{rust-reference}.
+
+Diese Eigenschaft gewinnt jenseits der reinen Entwicklerergonomie an Bedeutung: Ein Compiler, der Fehler nicht
+nur meldet, sondern präzise lokalisiert und benennt, stellt ein hartes, automatisch und ohne menschliches
+Zutun prüfbares Ziel bereit, gegen das sich jede einzelne Codeänderung verifizieren lässt, sodass fehlerhafte
+Konstruktionen nicht erst zur Laufzeit, sondern bereits an der Übersetzungsgrenze zurückgewiesen werden; genau
+das ist der Mechanismus, den maschinell erzeugter Quelltext benötigt. Wie sich diese Verbindung aus statischen
+Garantien und maschinenlesbarem Feedback methodisch nutzen lässt und in welchen Entwicklungsrahmen sie sich
+einfügt, behandelt der folgende Abschnitt (\secref{subsec:agentic-coding}).
+
+\subsection{Agentengestützte Entwicklung (Agentic Coding)}
+\label{subsec:agentic-coding}
