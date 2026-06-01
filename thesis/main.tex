@@ -168,8 +168,11 @@
     pdftitle={Masterarbeit - UDP Transport Options (RFC 9868)},
     pdfauthor={Alan Bernstein}
 }
+\usepackage{bookmark}           % Stabile PDF-Outline (vermeidet main.out-Rerun)
 
 % Abkürzungsverzeichnis
+% datatool (via glossaries) hat keine ngerman-Lokalisierung; Sprachwarnung unterdrücken.
+\PassOptionsToPackage{lang-warn=false}{datatool-base}
 \usepackage[
     acronym,
     toc,
@@ -207,8 +210,6 @@
 % =============================================================================
 
 % Textauszeichnung
-\newcommand{\term}[1]{\textit{#1}}
-\newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\file}[1]{\texttt{#1}}
 \newcommand{\filepath}[1]{\texttt{#1}}
 \newcommand{\env}[1]{\texttt{\$#1}}
@@ -219,15 +220,6 @@
 \newcommand{\figref}[1]{Abbildung~\ref{#1}}
 \newcommand{\tabref}[1]{Tabelle~\ref{#1}}
 \newcommand{\lstref}[1]{Listing~\ref{#1}}
-
-% Fachbegriffe für UDP Options
-\newcommand{\surplusarea}{\term{Surplus Area}}
-\newcommand{\optionchecksum}{\term{Option Checksum (OCS)}}
-\newcommand{\fragoption}{\term{FRAG Option}}
-\newcommand{\timeoption}{\term{TIME Option}}
-\newcommand{\authoption}{\term{AUTH Option}}
-\newcommand{\rfcref}[1]{RFC~#1}
-\newcommand{\rfcnine}{\rfcref{9868}}
 
 % TODO-Markierungen
 \newcommand{\todoref}[1]{\todo[color=yellow!40]{Referenz: #1}}
@@ -259,7 +251,7 @@
 \newcommand{\thesisprogram}{Master Informatik}
 
 \newcommand{\thesisdate}{\today}
-\newcommand{\thesissubmissiondate}{[Datum der Abgabe]}
+\newcommand{\thesissubmissiondate}{15.09.2026}
 
 
 % =============================================================================
@@ -318,10 +310,9 @@
 \input{chapters/01_einleitung}
 \input{chapters/02_grundlagen}
 \input{chapters/03_analyse}
-\input{chapters/04_konzeption}
-\input{chapters/05_realisierung}
-\input{chapters/06_evaluation}
-\input{chapters/07_fazit}
+\input{chapters/04_entwurf_implementierung}
+\input{chapters/05_evaluation}
+\input{chapters/06_fazit}
 
 % -----------------------------------------------------------------------------
 % BACKMATTER
