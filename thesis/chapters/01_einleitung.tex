@@ -63,10 +63,10 @@ Arbeit adressiert werden.
 Anders als TCP, dessen Header ein explizites Optionsfeld vorsieht, bietet der ursprüngliche UDP-Header keinen Raum
 für Erweiterungen. RFC~9868 nutzt stattdessen die \textit{Surplus Area}: den Bereich zwischen dem Ende der durch das
 UDP-Length-Feld begrenzten Nutzdaten und dem Ende der vom IP-Header implizierten Transportnutzlast. Der genaue
-Aufbau dieses Bereichs, der mit der \textit{Option Checksum (OCS)} beginnt und die Optionen im TLV-Format aufnimmt, wird in den
-Grundlagen behandelt (\secref{subsec:surplus-area}). Für die Problemstellung genügt die Feststellung, dass hier ein
-bislang ungenutzter, abwärtskompatibler Erweiterungsraum entsteht, dessen Nutzung im Userspace jedoch nicht
-vorgesehen ist.
+Aufbau dieses Bereichs, der mit der \textit{Option Checksum (OCS)} beginnt und die Optionen im TLV-Format aufnimmt,
+wird in den Grundlagen behandelt (\secref{subsec:surplus-area}). Für die Problemstellung genügt die Feststellung,
+dass hier ein bislang ungenutzter, abwärtskompatibler Erweiterungsraum entsteht, dessen Nutzung im Userspace jedoch
+nicht vorgesehen ist.
 
 \subsection{Unidirektionalität}
 
@@ -129,12 +129,15 @@ umfasst Parser sowie Serializer für TLV-kodierte UDP Options, OCS-Validierung g
 Unterstützung der Must-Support Options (EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES) sowie Raw-Socket-Programmierung
 für den Zugriff auf die \textit{Surplus Area}.
 
-Die Verifikation der Implementierung erfolgt durch Unit Tests für die einzelnen Komponenten sowie Integrationstests
-über das Loopback-Interface. Darauf aufbauend wird die Bibliothek in mehreren Umgebungen mit zunehmender
-Realitätsnähe erprobt: einer lokal virtualisierten Umgebung, einer tunnelbasierten Kopplung zweier Endpunkte, einer
-Verbindung zwischen zwei Hosts innerhalb Deutschlands sowie einer interkontinentalen Verbindung. Der Vergleich
-dieser Umgebungen erlaubt Aussagen darüber, inwieweit Annahmen aus kontrollierten Testbedingungen auf reale
-Netzpfade übertragbar sind, und beantwortet damit FF2.
+Die Verifikation der Implementierung erfolgt mehrstufig: Unit Tests prüfen die einzelnen Komponenten,
+Integrationstests prüfen den Loopback-Pfad, und für die reinen, speicher- und systemeffektfreien Wire-Regeln wird
+ergänzend eine Lean-Spezifikation gepflegt. Lean dient dabei als formale Gegenprobe für modellierbare Invarianten
+wie Checksum-Arithmetik, Längen- und Layoutregeln; Raw-Socket-Verhalten, Betriebssystemeffekte und Middlebox-
+Verhalten bleiben empirische Prüfpunkte. Darauf aufbauend wird die Bibliothek in mehreren Umgebungen mit
+zunehmender Realitätsnähe erprobt: einer lokal virtualisierten Umgebung, einer tunnelbasierten Kopplung zweier
+Endpunkte, einer Verbindung zwischen zwei Hosts innerhalb Deutschlands sowie einer interkontinentalen Verbindung.
+Der Vergleich dieser Umgebungen erlaubt Aussagen darüber, inwieweit Annahmen aus kontrollierten Testbedingungen auf
+reale Netzpfade übertragbar sind, und beantwortet damit FF2.
 
 Auf dieser Grundlage erfolgt eine Evaluierung der praktischen Implementierung hinsichtlich Funktionsfähigkeit,
 Beobachtbarkeit der \textit{Surplus Area} entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
@@ -154,9 +157,9 @@ Implementierung hinausgeht.
 \label{sec:abgrenzung}
 
 Diese Arbeit setzt einen bewussten Rahmen. Sie beschränkt sich auf den im Userspace realisierbaren Kern des
-RFC~9868: das TLV-Options-Framework, die \textit{Option Checksum (OCS)} sowie die Must-Support Options. Die Beschränkung auf den
-Userspace ist eine vorab gesetzte Rahmenbedingung der Aufgabenstellung. Die konkrete Mechanik des Zugriffs (Raw
-Sockets gegenüber kernelnahen Verfahren) wird dabei nicht vorweggenommen, sondern erst in
+RFC~9868: das TLV-Options-Framework, die \textit{Option Checksum (OCS)} sowie die Must-Support Options. Die
+Beschränkung auf den Userspace ist eine vorab gesetzte Rahmenbedingung der Aufgabenstellung. Die konkrete Mechanik
+des Zugriffs (Raw Sockets gegenüber kernelnahen Verfahren) wird dabei nicht vorweggenommen, sondern erst in
 \secref{sec:technologieauswahl} abgewogen und begründet.
 
 Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES"=Anwendungsfall für Path MTU Discovery, welcher in
@@ -174,8 +177,8 @@ Internet Protocol, UDP, Middleboxes und Protokoll-Ossifikation sowie RFC~9868 mi
 \chapref{chap:analyse} analysiert die Anforderungen, sichtet bestehende Implementierungen, arbeitet die
 Herausforderungen heraus und trifft die Technologie- und Architekturentscheidung. \chapref{chap:entwurf} führt
 Entwurf und Implementierung der Bibliothek komponentenweise zusammen. \chapref{chap:evaluation} berichtet die
-funktionale Verifikation und die Erprobung auf den vier Netzpfaden. \chapref{chap:fazit} fasst die Ergebnisse
-entlang der Forschungsfragen zusammen.
+funktionale und formale Verifikation sowie die Erprobung auf den vier Netzpfaden. \chapref{chap:fazit} fasst die
+Ergebnisse entlang der Forschungsfragen zusammen.
 
 Diese lineare Kapitelfolge ist eine rekonstruktive Darstellungsstruktur und kein Abbild des tatsächlichen
 Arbeitsprozesses. Die Umsetzung verlief iterativ und agentengestützt, sodass Entwurf, Implementierung und Test
