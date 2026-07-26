@@ -116,10 +116,9 @@ ausrichten:
     Sockets vollständig, welche nur eingeschränkt und welche gar nicht erfüllen?
 
     \item \textbf{FF2:} In welchem Umfang ist die \textit{Surplus Area} entlang realer Netzpfade zunehmender
-    Realitätsnähe beobachtbar und unverändert zustellbar, und wie verhalten sich NAT- und
-    Filtergeräte\footnote{Mit Filtergeräten sind Middleboxes gemeint, die Pakete anhand ihres Inhalts durchlassen
-    oder verwerfen, etwa Firewalls, DPI- sowie IDS/IPS-Systeme und Paketnormalisierer.} gegenüber Paketen mit
-    \textit{Surplus Area}?
+    Realitätsnähe beobachtbar und unverändert zustellbar, und wie verhalten sich NAT-Geräte sowie Middleboxes,
+    die Pakete anhand ihres Inhalts durchlassen oder verwerfen\footnote{Etwa Firewalls, DPI- sowie IDS/IPS-Systeme
+    und Paketnormalisierer.}, gegenüber Paketen mit \textit{Surplus Area}?
 \end{itemize}
 
 Um diese Fragen zu beantworten, entsteht zunächst eine RFC~9868-konforme Bibliothek für UDP Transport Options in
@@ -140,10 +139,10 @@ reale Netzpfade übertragbar sind, und beantwortet damit FF2.
 
 Auf dieser Grundlage erfolgt eine Evaluierung der praktischen Implementierung hinsichtlich Funktionsfähigkeit,
 Beobachtbarkeit der \textit{Surplus Area} entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
-(insbesondere NAT- und Filtergeräten). Abschließend werden Spezifikation und tatsächliche Umsetzung
-gegenübergestellt: Welche Anforderungen des RFC~9868 konnten vollständig, welche nur eingeschränkt und welche nicht
-im Userspace umgesetzt werden, und welche Diskrepanzen zwischen Soll- und Ist-Verhalten ergeben sich aus den
-Beschränkungen der eingesetzten Schnittstellen. Dieser Soll-Ist-Abgleich beantwortet FF1.
+(insbesondere NAT-Geräten, Firewalls und IDS/IPS-Systemen). Abschließend werden Spezifikation und tatsächliche
+Umsetzung gegenübergestellt: Welche Anforderungen des RFC~9868 konnten vollständig, welche nur eingeschränkt und
+welche nicht im Userspace umgesetzt werden, und welche Diskrepanzen zwischen Soll- und Ist-Verhalten ergeben sich
+aus den Beschränkungen der eingesetzten Schnittstellen. Dieser Soll-Ist-Abgleich beantwortet FF1.
 
 Der Beitrag dieser Arbeit ist damit zweigeteilt und in beiden Teilen gleichgewichtig: Zum einen entsteht eine
 quelloffene, RFC~9868-konforme Referenzimplementierung der Kern-Mechanismen für den Userspace; zum anderen liefert
@@ -161,11 +160,11 @@ Beschränkung auf den Userspace ist eine vorab gesetzte Rahmenbedingung der Aufg
 des Zugriffs (Raw Sockets gegenüber kernelnahen Verfahren) wird dabei nicht vorweggenommen, sondern erst in
 \secref{sec:technologieauswahl} abgewogen und begründet.
 
-Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES"=Anwendungsfall für Path MTU Discovery, welcher in
-nachfolge RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar das
-Optionsformat und den Anwendungszweck (RTT-Schätzung) beschreibt, aber kein konkretes nutzendes Protokoll
-festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Kind-Werte in RFC~9868 bisher nur reserviert sind
-(AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}).
+Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES"=Anwendungsfall für Path MTU Discovery, welcher im
+Nachfolge-RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar
+das Optionsformat und den Anwendungszweck (RTT-Schätzung) beschreibt, aber kein konkretes nutzendes Protokoll
+festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Optionstypen (\textit{Kind}) in RFC~9868 bisher nur
+reserviert sind (AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}).
 Kernel-Module werden nicht entwickelt.
 
 Ebenfalls nicht betrachtet wird IPv6. Der Mechanismus des RFC~9868 (\textit{Surplus Area}, OCS, TLV-Optionen und

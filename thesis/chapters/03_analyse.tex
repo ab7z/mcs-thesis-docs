@@ -62,7 +62,7 @@ und die Begründung der konkreten Sprachwahl bis zu einem Vergleich mit den Alte
 Aus dem RFC~9868 ergeben sich mehrere Anforderungen an die Programmiersprache, noch bevor eine konkrete Sprache
 benannt wird. Sie leiten sich unmittelbar aus den nicht-funktionalen Anforderungen ab. Zunächst wird ein direkter
 Zugriff auf \textit{Raw Sockets} und damit auf rohe IP-Datagramme benötigt, da die Optionen von RFC~9868 in der
-\textit{Surplus Area} jenseits des regulären UDP-Nutzdatenendes liegen und nur über selbst konstruierte
+\textit{Surplus Area} jenseits der regulären UDP-Nutzdaten liegen und nur über selbst konstruierte
 Datagramme mit eigenem IP-Header (etwa mittels \texttt{IP\_HDRINCL}) vollständig kontrolliert werden können.
 Hinzu kommt der Bedarf an einer bytegenauen Kontrolle in der \textit{Surplus Area}, da die TLV-kodierten Optionen
 exakt an den durch den RFC vorgegebenen Bytegrenzen ausgerichtet sein müssen und jede implizite Umordnung oder
@@ -131,7 +131,7 @@ hinter sichere Wrapper gekapselt, sodass der übrige Code ausschließlich mit si
 Algebraische Datentypen und \textit{Pattern Matching} bilden die TLV-kodierten Optionen der
 \textit{Surplus Area} typsicher und erschöpfend ab, und die \texttt{Result}-basierte Fehlerbehandlung
 zwingt dazu, fehlerhafte oder bösartige Eingaben an jeder Verarbeitungsstelle explizit zu behandeln.
-Parser, Serialisierer und Prüfsummenberechnung sind dabei bewusst handgeschrieben und greifen nicht auf
+Parser, Serializer und Prüfsummenberechnung sind dabei bewusst handgeschrieben und greifen nicht auf
 etablierte Bibliotheken wie \texttt{nom} oder \texttt{zerocopy} zurück, da die Mechanik von RFC~9868
 selbst Gegenstand der Untersuchung ist und durch eine fertige Abstraktion nicht verdeckt werden soll.
 
@@ -146,7 +146,7 @@ Ausführungsstränge, von denen mindestens einer schreibt) zählen. Rust begegne
 Das \textit{Use-after-free} und der \textit{Data Race} werden durch ein statisches Regelwerk ausgeschlossen, das aus
 drei aufeinander aufbauenden Konzepten besteht und das der Compiler vor der Codeerzeugung durchsetzt
 \cite{rust-book,rust-reference}; der Zugriff jenseits der Grenzen eines Speicherbereichs hingegen wird, soweit er
-nicht ohnehin statisch ausgeschlossen ist, durch automatisch eingefügte Schrankenprüfungen abgefangen, die bei einer
+nicht ohnehin statisch ausgeschlossen ist, durch automatisch eingefügte Bereichsprüfungen abgefangen, die bei einer
 Verletzung einen kontrollierten Programmabbruch (\textit{panic}) auslösen, statt wie in C undefiniertes Verhalten
 zuzulassen \cite[Kap.~9]{rust-book}.
 
@@ -213,12 +213,12 @@ C++ erweitert dieses Fundament um mächtige Abstraktionsmittel und mildert mit \
 Teil der manuellen Speicherverwaltung, bleibt jedoch unsicher per Voreinstellung, da diese Werkzeuge optional sind und
 neben den unsicheren C-Altlasten fortbestehen, und erkauft seine Ausdrucksstärke mit erheblicher Sprachkomplexität.
 
-Zig ist eine moderne, bewusst einfach und explizit gehaltene Systemsprache, die mit \textit{comptime} eine
+Zig ist eine moderne, bewusst einfach und explizit gehaltene Systemprogrammiersprache, die mit \textit{comptime} eine
 ausdrucksstarke Auswertung zur Übersetzungszeit bietet und versteckte Allokationen vermeidet, indem Speicher
 ausschließlich über explizit übergebene Allocator-Objekte angefordert wird \cite{zig-lang}; eine compilergarantierte
 Speichersicherheit nach Art des Borrow Checkers kennt Zig jedoch nicht, sondern erkennt nur eine Teilmenge
 unzulässiger Zugriffe durch Laufzeitprüfungen in den sicheren Build-Modi, die in den auf Geschwindigkeit oder Größe
-optimierten Modi entfallen, und befindet sich mit Version 0.16.0 noch in vor-stabiler Entwicklung
+optimierten Modi entfallen, und hat mit Version 0.16.0 noch keine stabile Fassung erreicht
 \cite{zig-lang}\footnote{Welche praktische Relevanz dieser Unterschied besitzt, zeigt die JavaScript-Laufzeit Bun,
 lange das größte Produktivprojekt in Zig: Nachdem allein in Version~1.3.14 vierzig Speicherlecks und zahlreiche
 Abstürze einzeln behoben worden waren, portierte das Team um Jarred Sumner den Kern von Zig nach Rust, um derartige
@@ -260,16 +260,16 @@ gegenüber.
       & keiner, da ungeprüft
       & keiner, da ungeprüft
       & nur in sicheren Build-Modi
-      & minimal (Schrankenprüfung) \\
+      & minimal (Bereichsprüfung) \\
     Compiler-Diagnostik als Rückkopplungsschleife
       & begrenzt
       & begrenzt, oft unübersichtlich
       & solide
-      & ausgeprägt, fehlercodiert \\
+      & ausgeprägt, mit stabilen Fehlercodes \\
     Reife des Ökosystems (hardwarenahe Netze)
       & sehr hoch
       & sehr hoch
-      & gering, vor-stabil
+      & gering, noch nicht stabil
       & hoch, wachsend \\
     \bottomrule
   \end{tabularx}
@@ -283,10 +283,10 @@ ergänzen häufig konkrete, mit \texttt{help:} eingeleitete Korrekturvorschläge
 check} für eine schnelle Prüfung ohne vollständige Codegenerierung und durch den Linter \texttt{clippy} für eine
 weitergehende statische Analyse stilistischer und semantischer Schwachstellen \cite{rust-reference}.
 
-Diese Eigenschaft gewinnt jenseits der reinen Entwicklerergonomie an Bedeutung: Ein Compiler, der Fehler nicht
+Diese Eigenschaft gewinnt über den reinen Komfort beim Entwickeln hinaus an Bedeutung: Ein Compiler, der Fehler nicht
 nur meldet, sondern präzise lokalisiert und benennt, stellt ein hartes, automatisch und ohne menschliches
 Zutun prüfbares Ziel bereit, gegen das sich jede einzelne Codeänderung verifizieren lässt, sodass fehlerhafte
-Konstruktionen nicht erst zur Laufzeit, sondern bereits an der Übersetzungsgrenze zurückgewiesen werden; genau
+Konstruktionen nicht erst zur Laufzeit, sondern bereits bei der Übersetzung zurückgewiesen werden; genau
 das ist der Mechanismus, den maschinell erzeugter Quelltext benötigt. Wie sich diese Verbindung aus statischen
 Garantien und maschinenlesbarem Feedback methodisch nutzen lässt und in welchen Entwicklungsrahmen sie sich
 einfügt, behandelt der folgende Abschnitt (\secref{subsec:agentic-coding}).
