@@ -31,3 +31,6 @@
 .vscode
 *.swp
 *~
+
+# Lernnotizen (lokal, nicht versioniert)
+lernnotizen/
