@@ -11,9 +11,6 @@
 \subsection{IPv4}
 \label{subsec:ipv4}
 
-\subsection{IPv6}
-\label{subsec:ipv6}
-
 \section{Das User Datagram Protocol (UDP)}
 \label{sec:udp}
 
@@ -65,24 +62,19 @@ Die vier Felder des Headers haben jeweils eine Breite von 16~Bit:
 
     \item \texttt{Length} -- Die Gesamtlänge des UDP-Datagramms in Byte, bestehend aus Header \emph{und} Nutzdaten.
     Der Minimalwert beträgt~8, was einem Datagramm ohne Nutzdaten entspricht \cite{rfc768}. Da das Feld 16~Bit
-    breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte\footnote{Für IPv6-Jumbogramme wird
-    das \texttt{Length}-Feld auf null gesetzt; die tatsächliche Länge ergibt sich aus dem Jumbo Payload Option Header
-    \cite{rfc2675}.}.
+    breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte.
 
     \item \texttt{Checksum} -- Eine Prüfsumme über einen Pseudo-Header, den UDP-Header und die Nutzdaten. Die
     Berechnung verwendet das \textit{Einerkomplement}-Verfahren: Alle 16-Bit-Wörter werden addiert und das
-    Einerkomplement der Summe bildet den Prüfsummenwert \cite{rfc1071}. Bei IPv4 ist die Prüfsumme optional --
-    wird sie nicht berechnet, wird das Feld auf null gesetzt \cite{rfc768}. Bei IPv6 hingegen ist die Prüfsumme
-    verpflichtend, da IPv6 selbst keine Header-Prüfsumme besitzt \cite[Sec.~8.1]{rfc8200}\footnote{RFC~6936
-    definiert eine Ausnahme für bestimmte Tunnelprotokolle, bei denen ein Zero-Checksum-Modus erlaubt ist
-    \cite{rfc6936}.}.
+    Einerkomplement der Summe bildet den Prüfsummenwert \cite{rfc1071}. Die Prüfsumme ist optional: wird sie
+    nicht berechnet, wird das Feld auf null gesetzt \cite{rfc768}.
 \end{itemize}
 
 \paragraph{Pseudo-Header.}
 Die UDP-Prüfsumme schützt nicht nur die Transportschichtdaten, sondern bezieht über einen \textit{Pseudo-Header}
 auch Informationen der Vermittlungsschicht ein. Dieses Konzept stellt sicher, dass ein Datagramm, das durch einen
 IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt und verworfen werden kann.
-Für IPv4 definiert RFC~768 den folgenden Pseudo-Header \cite{rfc768}:
+RFC~768 definiert den folgenden Pseudo-Header \cite{rfc768}:
 
 \begin{center}
 \begin{BVerbatim}
@@ -96,10 +88,6 @@ Für IPv4 definiert RFC~768 den folgenden Pseudo-Header \cite{rfc768}:
 +--------+--------+--------+--------+
 \end{BVerbatim}
 \end{center}
-
-Bei IPv6 erweitert sich der Pseudo-Header analog auf die 128-Bit-Adressen; an die Stelle des
-8-Bit-Protokollfeldes treten ein 8-Bit-\texttt{Next Header}-Feld (Wert~17 für UDP) und ein 32-Bit-Feld für die
-Paketlänge der Transportschicht, der verbleibende Rest wird mit Nullen aufgefüllt \cite[Sec.~8.1]{rfc8200}.
 
 \subsection{Eigenschaften}
 \label{subsec:udp-eigenschaften}
@@ -134,7 +122,7 @@ als Transportschicht und realisiert auf Anwendungsebene ein Stream-Multiplexing,
 nur den betroffenen Stream blockiert, nicht jedoch andere parallele Streams \cite[Sec.~1]{rfc9000}.
 
 \paragraph{Multicast und Broadcast.}
-UDP ist verbindungslos und wird häufig als Transport für IP-Multicast und (unter IPv4) IP-Broadcast verwendet.
+UDP ist verbindungslos und wird häufig als Transport für IP-Multicast und IP-Broadcast verwendet.
 Ein UDP-Datagramm kann an eine Multicast-Gruppe oder eine Broadcast-Adresse gesendet und von mehreren Empfängern
 empfangen werden, sofern Netzwerk und Hosts entsprechend konfiguriert sind. Dabei gelten die üblichen
 Eigenschaften von UDP: keine Garantie für Zustellung, Reihenfolge oder Duplikaterkennung. Diese Kombination
@@ -187,8 +175,8 @@ Da Empfänger, die UDP Options nicht unterstützen, ausschließlich die durch da
 verarbeiten, bleibt die Erweiterung abwärtskompatibel.
 
 Wesentlich für die Einordnung ist, dass RFC~9868 kein neues Verhalten der Vermittlungsschicht einführt: Es
-definiert weder neue IP-Header-Felder noch verändert es die Verarbeitung von IPv4 oder IPv6. Für die IP-Schicht
-sind die Bytes der \textit{Surplus Area} reine Transportnutzlast innerhalb der durch \texttt{IP Total Length} (IPv4)
+definiert weder neue IP-Header-Felder noch verändert es die Verarbeitung von IPv4. Für die IP-Schicht
+sind die Bytes der \textit{Surplus Area} reine Transportnutzlast innerhalb der durch \texttt{IP Total Length}
 begrenzten Datagramm-Größe; sie liegen lediglich hinter dem durch \texttt{UDP Length} markierten Ende der
 UDP-Nutzdaten. RFC~9868 ist damit ein reines Transport-Feature, das ausschließlich die zuvor ungenutzte Differenz
 zwischen \texttt{UDP Length} und der IP-Transportnutzlast belegt \cite{rfc9868}.

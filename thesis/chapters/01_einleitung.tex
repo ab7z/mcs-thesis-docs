@@ -10,9 +10,8 @@
 
 Das User Datagram Protocol (UDP) wurde 1980 in RFC~768 spezifiziert und ist seitdem praktisch unverändert
 geblieben \cite{rfc768}. Als minimalistisches Transportprotokoll bietet UDP lediglich Portnummern zur
-Demultiplexierung und eine Prüfsumme zur Fehlererkennung\footnote{Die Prüfsumme ist bei IPv4 optional
-\cite{rfc768} und bei IPv6 grundsätzlich verpflichtend \cite[Sec.~8.1]{rfc8200}; für bestimmte
-Tunnelszenarien ist eine Null-Prüfsumme zugelassen \cite{rfc6936}.}. Diese bewusste Einfachheit macht UDP zu einem
+Demultiplexierung und eine Prüfsumme zur Fehlererkennung\footnote{Die Prüfsumme ist optional; wird sie nicht
+berechnet, wird das Feld auf null gesetzt \cite{rfc768}.}. Diese bewusste Einfachheit macht UDP zu einem
 der am häufigsten genutzten Transportprotokolle im Internet.
 
 Moderne Anwendungen nutzen UDP zunehmend für zeitkritische Kommunikation. Protokolle wie QUIC und WebRTC sowie
@@ -168,6 +167,12 @@ Optionsformat und den Anwendungszweck (RTT-Schätzung) beschreibt, aber kein kon
 festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Kind-Werte in RFC~9868 bisher nur reserviert sind
 (AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}).
 Kernel-Module werden nicht entwickelt.
+
+Ebenfalls nicht betrachtet wird IPv6. Der Mechanismus des RFC~9868 (\textit{Surplus Area}, OCS, TLV-Optionen und
+FRAG) ist gegenüber der IP-Version neutral und lässt sich vollständig über IPv4 zeigen. Der IPv6-spezifische Anteil
+beschränkt sich im Wesentlichen auf die abweichende Semantik des Raw-Socket-Zugriffs, die zusätzliche
+Plattformabhängigkeiten einbringt, ohne zum Erkenntnisgewinn über das Options-Framework beizutragen. Alle
+Implementierungs- und Messergebnisse dieser Arbeit beziehen sich daher auf IPv4.
 
 \section{Aufbau der Arbeit}
 \label{sec:aufbau}
