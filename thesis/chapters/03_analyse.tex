@@ -115,12 +115,13 @@ Kontrolle, verzichtet auf eine obligatorische Laufzeitumgebung und erzeugt deter
 
 \paragraph{""}
 Charakteristisch für Rust ist eine bewusste Auswahl der vorhandenen wie der absichtlich nicht vorhandenen Sprachmittel.
-Vorhanden sind das im nächsten Block ausführlich behandelte System aus \textit{Ownership} und \textit{Borrowing}; ferner
-algebraische Datentypen in Gestalt von \texttt{enum} mit vom Compiler auf Vollständigkeit geprüftem \textit{Pattern
-Matching}; eine auf dem Typ \texttt{Result} aufbauende explizite Fehlerbehandlung; eine starke statische Typisierung;
-sowie das Schlüsselwort \texttt{unsafe} als bewusst markierte und eng begrenzte Brücke für jene Operationen, deren
-Sicherheit der Compiler nicht selbst nachweisen kann. Nicht vorhanden sind hingegen ein \texttt{null}-Wert, implizite
-Typkonvertierungen, klassische \textit{Exceptions} sowie die Implementierungsvererbung objektorientierter Sprachen.
+Vorhanden sind das im nächsten Block ausführlich behandelte System aus \textit{Ownership} und \textit{Borrowing};
+ferner algebraische Datentypen in Gestalt von \texttt{enum} mit vom Compiler auf Vollständigkeit geprüftem
+\textit{Pattern Matching}; eine auf dem Typ \texttt{Result} aufbauende explizite Fehlerbehandlung; eine starke
+statische Typisierung; sowie das Schlüsselwort \texttt{unsafe} als bewusst markierte und eng begrenzte Brücke für
+jene Operationen, deren Sicherheit der Compiler nicht selbst nachweisen kann. Nicht vorhanden sind hingegen ein
+\texttt{null}-Wert, implizite Typkonvertierungen, klassische \textit{Exceptions} sowie die
+Implementierungsvererbung objektorientierter Sprachen.
 
 Gerade das Fehlen dieser Konstrukte verringert die Zahl der Fehlerquellen in einem sicherheitskritischen
 Parser erheblich. Diese Sprachmittel prägen den Aufbau der vorliegenden Implementierung unmittelbar.
@@ -161,8 +162,9 @@ Referenzen oder genau eine exklusive, schreibende Referenz bestehen dürfen, nie
 zugleich; diese Regel schließt \textit{Data Races} konstruktiv aus, da ein unsynchronisierter
 schreibender Zugriff bei gleichzeitig bestehenden weiteren Referenzen nicht typisierbar ist.
 
-Das dritte sind \textit{Lifetimes}: Sie binden die Gültigkeitsdauer jeder Referenz an jene des referenzierten Wertes und
-stellen so sicher, dass keine Referenz ihren Referenten überdauert, womit \textit{Use-after-free} ausgeschlossen wird.
+Das dritte sind \textit{Lifetimes}: Sie binden die Gültigkeitsdauer jeder Referenz an jene des referenzierten Wertes
+und stellen so sicher, dass keine Referenz ihren Referenten überdauert, womit \textit{Use-after-free} ausgeschlossen
+wird.
 
 Die Gesamtheit dieser Regeln erzwingt der \textit{Borrow Checker} vollständig zur
 Übersetzungszeit: Code, der gegen eine der Regeln verstößt, wird nicht übersetzt, und es entstehen
