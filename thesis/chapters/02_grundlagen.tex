@@ -2,7 +2,7 @@
 % Kapitel 2: Grundlagen
 % =============================================================================
 
-\chapter{Grundlagen}
+\chapter{Technische und methodische Grundlagen}
 \label{chap:grundlagen}
 
 \section{Internet Protocol (IP)}
@@ -52,19 +52,19 @@ RFC~768 definiert den Header wie folgt \cite{rfc768}:
 Die vier Felder des Headers haben jeweils eine Breite von 16~Bit:
 
 \begin{itemize}
-    \item \texttt{Source Port} -- Die Portnummer des sendenden Prozesses. Dieses Feld ist optional; wird es nicht
+    \item \texttt{Source Port}: Die Portnummer des sendenden Prozesses. Dieses Feld ist optional; wird es nicht
     benötigt, wird es auf null gesetzt \cite{rfc768}. In der Praxis nutzen Anwendungen den \textit{Source Port}
     zur Identifikation des Absenders, damit der Empfänger Antworten an den korrekten Port zurücksenden kann.
 
-    \item \texttt{Destination Port} -- Die Portnummer des Zielprozesses auf dem empfangenden Host. Zusammen mit der
+    \item \texttt{Destination Port}: Die Portnummer des Zielprozesses auf dem empfangenden Host. Zusammen mit der
     IP-Zieladresse ermöglicht dieses Feld die \textit{Demultiplexierung} eingehender Datagramme an die korrekte
     Anwendung.
 
-    \item \texttt{Length} -- Die Gesamtlänge des UDP-Datagramms in Byte, bestehend aus Header \emph{und} Nutzdaten.
+    \item \texttt{Length}: Die Gesamtlänge des UDP-Datagramms in Byte, bestehend aus Header \emph{und} Nutzdaten.
     Der Minimalwert beträgt~8, was einem Datagramm ohne Nutzdaten entspricht \cite{rfc768}. Da das Feld 16~Bit
     breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte.
 
-    \item \texttt{Checksum} -- Eine Prüfsumme über einen Pseudo-Header, den UDP-Header und die Nutzdaten. Die
+    \item \texttt{Checksum}: Eine Prüfsumme über einen Pseudo-Header, den UDP-Header und die Nutzdaten. Die
     Berechnung verwendet das \textit{Einerkomplement}-Verfahren: Alle 16-Bit-Wörter werden addiert und das
     Einerkomplement der Summe bildet den Prüfsummenwert \cite{rfc1071}. Die Prüfsumme ist optional: wird sie
     nicht berechnet, wird das Feld auf null gesetzt \cite{rfc768}.
@@ -168,11 +168,14 @@ Aufnahme der UDP Options \cite{rfc9868}:
                         UDP Length
 \end{verbatim}
 
-Die \textit{Surplus Area} beginnt mit der \textit{Option Checksum (OCS)}, gefolgt von den eigentlichen Optionen im
+Die \textit{Surplus Area} beginnt, gegebenenfalls nach einem einzelnen Nullbyte zur Ausrichtung, mit der
+\textit{Option Checksum (OCS)}, gefolgt von den eigentlichen Optionen im
 TLV-Format (\secref{subsec:options-struktur}). Diese Struktur ermöglicht variable Optionslängen und zukünftige
 Erweiterungen.
 Da Empfänger, die UDP Options nicht unterstützen, ausschließlich die durch das UDP-Length-Feld begrenzten Nutzdaten
-verarbeiten, bleibt die Erweiterung abwärtskompatibel.
+verarbeiten, bleibt die Erweiterung für Endsysteme typischerweise abwärtskompatibel; Ausnahmen bei Bestandssystemen
+und das Verhalten von Zwischensystemen behandeln \cite[Sec.~18]{rfc9868} beziehungsweise die Evaluation
+(\chapref{chap:evaluation}).
 
 Wesentlich für die Einordnung ist, dass RFC~9868 kein neues Verhalten der Vermittlungsschicht einführt: Es
 definiert weder neue IP-Header-Felder noch verändert es die Verarbeitung von IPv4. Für die IP-Schicht
