@@ -94,10 +94,12 @@ Entwurfs durch dasselbe Modell zählt nicht als unabhängige Prüfung.
 Der \emph{Autor} entscheidet, gewichtet, gibt frei und verantwortet das Ergebnis. Die beiden
 \emph{LLM-Werkzeuge} sind Claude Code (Anthropic) als führendes Werkzeug und Codex (OpenAI) als Zweitprüfer;
 beide sind sogenannte \emph{Harnesses}, also Programme, die ein Sprachmodell mit Dateizugriff,
-Kommandoausführung und dem Repository verbinden. Claude Code entwirft Code, Texte und Analysen. Codex prüft nur
-lesend, mit dem ausdrücklichen Auftrag, Fehler und Gegenbeispiele zu finden. Für die Zweitprüfung ist bewusst
-ein Modell eines anderen Herstellers gewählt: Dadurch sollen sich die Fehlermuster der beiden Prüfer möglichst
-wenig überschneiden.
+Kommandoausführung und dem Repository verbinden. Claude Code entwirft Code, Texte und Analysen. Codex dient
+vorrangig als unabhängiger Zweitprüfer und arbeitet in dieser Rolle nur lesend, mit dem ausdrücklichen Auftrag,
+Fehler und Gegenbeispiele zu finden. Änderungen durch Codex erfolgen ausschließlich in getrennten, vom Autor
+ausdrücklich freigegebenen Arbeitsaufträgen und zählen nicht als unabhängige Zweitprüfung. Für die Zweitprüfung
+ist bewusst ein Modell eines anderen Herstellers gewählt: Dadurch sollen sich die Fehlermuster der beiden Prüfer
+möglichst wenig überschneiden.
 
 Die \emph{Lean-Verifikation} liefert maschinengeprüfte Beweise, allerdings nur über handgeschriebene Modelle:
 Für ausgewählte Invarianten des Wire-Formats, der OCS, der Fragmentierung und der Empfangslogik existieren

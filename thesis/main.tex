@@ -268,10 +268,10 @@
 % -----------------------------------------------------------------------------
 % FRONTMATTER
 % -----------------------------------------------------------------------------
-\pagenumbering{roman}
 \pagestyle{plain}
 
 % --- TITELSEITE ---
+\hypersetup{pageanchor=false}
 \begin{titlepage}
     \centering
     \vspace*{1cm}
@@ -293,6 +293,8 @@
     \vfill
     {\large Hagen, \thesissubmissiondate}
 \end{titlepage}
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
 
 % --- VERZEICHNISSE ---
 \tableofcontents
@@ -310,6 +312,7 @@
 % -----------------------------------------------------------------------------
 % MAINMATTER (Inhalt)
 % -----------------------------------------------------------------------------
+\clearpage
 \pagenumbering{arabic}
 \pagestyle{plain}
 

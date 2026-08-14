@@ -8,28 +8,19 @@
 \section{Motivation}
 \label{sec:motivation}
 
-Die ursprüngliche Spezifikation des User Datagram Protocol (UDP) kommt mit 663 Wörtern aus: RFC~768 aus dem
-Jahr 1980 definiert ein Transportprotokoll, das seitdem praktisch unverändert geblieben ist \cite{rfc768}.
-Seine jüngste Erweiterung benötigt 18.311 Wörter\footnote{Gezählt über die vollständigen Klartextfassungen
-des RFC Editor.}: RFC~9868, veröffentlicht im Oktober 2025, führt unter dem Titel \emph{Transport Options
-for UDP} erstmals einen allgemeinen Optionsmechanismus für UDP ein \cite{rfc9868}. Zwischen beiden
-Dokumenten liegen 45 Jahre und mehr als das Siebenundzwanzigfache an Normtext; wie ein bewusst einfaches
-Protokoll eine solche Erweiterung aufnimmt, ohne seinen Charakter zu verlieren, ist das Thema dieser Arbeit.
+Die ursprüngliche Spezifikation des User Datagram Protocol (UDP), RFC~768 aus dem Jahr 1980, umfasst 663 Wörter
+\cite{rfc768}. Die Erweiterung RFC~9868 wurde im Oktober 2025 veröffentlicht und führt unter dem Titel
+\emph{Transport Options for UDP} erstmals einen allgemeinen Optionsmechanismus für UDP ein \cite{rfc9868}.
+Zwischen beiden Dokumenten liegen 45 Jahre; die Klartextfassung des RFC~9868 ist mehr als 27-mal so umfangreich
+wie die des RFC~768.
 
 Die Einfachheit von UDP ist dabei kein Mangel, sondern Entwurfsziel: Das Protokoll bietet lediglich
 Portnummern zur Demultiplexierung und eine Prüfsumme zur Fehlererkennung.
 Genau diese Einfachheit macht UDP zu einem der am häufigsten genutzten Transportprotokolle im Internet.
 
-Moderne Anwendungen nutzen UDP zunehmend für zeitkritische Kommunikation. Protokolle wie QUIC und WebRTC sowie
-zahlreiche Spiele- und IoT-Anwendungen setzen auf UDP, um die Latenz des TCP-Handshakes zu vermeiden und mehr
-Kontrolle über die Übertragungsmechanismen zu erhalten.
-
-Diese Anwendungen stoßen jedoch wiederholt an Grenzen, die UDP allein nicht behandelt: eine Integritätsprüfung
-über die einfache 16-Bit-Prüfsumme hinaus, eine transportbezogene Fragmentierung unabhängig von der IP-Schicht
-sowie
-Mechanismen zum Austausch von Laufzeit- oder MTU-Informationen zwischen Endpunkten. Historisch wurden solche
-Bedürfnisse entweder den Anwendungen überlassen oder blieben offen. Für eine Abhilfe kommen grundsätzlich
-drei Wege in Betracht:
+RFC~9868 greift Funktionen auf, die UDP ursprünglich der Anwendung oder einer darüberliegenden Schicht überließ:
+Transportfragmentierung, eine zusätzliche Nutzdatenprüfsumme sowie Optionen für Größen- und Zeitinformationen
+\cite[Sec.~5, 11.3 und 11.8]{rfc9868}. Für ihre Bereitstellung kommen grundsätzlich drei Wege in Betracht:
 
 \begin{itemize}
     \item Erweiterung innerhalb der Nutzdaten: Jede Anwendung definiert ein eigenes Rahmenformat
@@ -44,124 +35,120 @@ nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich zwischen
 und dem Ende des IP-Datagramms. Da das UDP-Length-Feld die Länge des UDP-Datagramms
 angibt und diese kleiner sein kann als die vom IP-Header implizierte Transportnutzlast, entsteht ein bisher
 ungenutzter Bereich für Erweiterungen. Auf dieser Grundlage definiert RFC~9868 ein erweiterbares
-Transport-Options-Framework.
+Rahmenwerk für Transportoptionen.
 
 Damit steht das minimalistische UDP vor seiner bislang größten Erweiterung. Nun stellt sich die Frage, die
 diese Arbeit als Leitfrage begleitet:
 
 \begin{quote}
-    \textbf{\emph{Wie viele Funktionen verträgt UDP, ohne seinen Charakter zu verlieren?}}
+    \textbf{\emph{Wie lässt sich UDP um Transportoptionen erweitern, ohne seine grundlegenden
+    Eigenschaften aufzugeben?}}
 \end{quote}
 
-Diese Frage wird nicht im Normtext, sondern in Implementierungen und auf realen Netzpfaden beantwortet.
-Genau dort setzt die vorliegende Arbeit an.
+Die Arbeit untersucht diese Frage anhand einer Referenzimplementierung und auf ausgewählten realen Netzpfaden.
 
 
 \section{Problemstellung}
 \label{sec:problemstellung}
 
-Die Implementierung von UDP Options gemäß RFC~9868 wirft drei Problemfelder auf, die in dieser Arbeit
-adressiert werden: die Beschaffenheit der Surplus Area selbst, die bewusste Unidirektionalität des
-Protokolls sowie die praktischen Implementierungsherausforderungen vom Zugriff aus dem Userspace bis zum
-Verhalten von Middleboxes. Die folgenden Abschnitte behandeln sie in dieser Reihenfolge.
+Die Implementierung von UDP-Optionen gemäß RFC~9868 wirft drei Problemfelder auf, die diese Arbeit behandelt:
+die Beschaffenheit der Surplus Area selbst, die bewusste Unidirektionalität des Protokolls sowie die praktischen
+Implementierungsherausforderungen vom Zugriff aus dem Benutzerraum bis zum Verhalten von Zwischensystemen. Die
+folgenden Abschnitte behandeln sie in dieser Reihenfolge.
 
 \subsection{Die Surplus Area als ungenutzter Erweiterungsraum}
 
-Anders als TCP, dessen Header ein explizites Optionsfeld vorsieht, bietet der ursprüngliche UDP-Header keinen Raum
-für Erweiterungen. RFC~9868 nutzt stattdessen die \textit{Surplus Area}: den Bereich zwischen dem Ende der durch das
-UDP-Length-Feld begrenzten Nutzdaten und dem Ende der vom IP-Header implizierten Transportnutzlast. Der genaue
-Aufbau dieses Bereichs wird in den Grundlagen behandelt (\secref{subsec:surplus-area}).
+Anders als TCP besitzt der ursprüngliche UDP-Header kein explizites Optionsfeld. RFC~9868 platziert die Optionen
+deshalb außerhalb der durch das UDP-Length-Feld begrenzten Nutzdaten, aber noch innerhalb des IP-Datagramms. Damit
+bleibt der UDP-Header unverändert, die Implementierung muss jedoch zwei unterschiedliche Längengrenzen zuverlässig
+auswerten. Den genauen Aufbau der Surplus Area behandelt \secref{subsec:surplus-area}.
 
 \subsection{Unidirektionalität}
 
-RFC~9868 stellt explizit klar: \emph{``UDP is unidirectional; UDP Options do not change that fact.''}
+RFC~9868 stellt explizit klar: \emph{\enquote{UDP is unidirectional; UDP Options do not change that fact.}}
 \cite[Sec.~6]{rfc9868}.
 
-Für Anwendungsfälle, die bidirektionale Kommunikation oder garantierte Antworten erfordern, wird
-auf separate Dokumente verwiesen~\cite[Sec.~6]{rfc9868}; ein solches Dokument liegt inzwischen mit
-RFC~9869 vor \cite{rfc9869}.
-Dies unterstreicht, dass UDP Options bewusst auf der unidirektionalen Natur von UDP aufbauen.
-
-Für die Implementierung bedeutet dies, dass Optionen je Senderichtung eigenständig gesetzt und ausgewertet
-werden: Antworten auf Optionen löst nicht das Protokoll aus, sondern die Anwendung oder eine Bibliothek in
-ihrem Auftrag.
+Für Mechanismen, die Bidirektionalität voraussetzen, fordert RFC~9868 eine getrennte Spezifikation
+\cite[Sec.~6]{rfc9868}. RFC~9869 definiert einen solchen Einsatz von REQ und RES für die Pfad-MTU-Ermittlung
+\cite[Sec.~3]{rfc9869}. Diese Vorgabe schließt einen Datenaustausch in beiden Richtungen nicht aus. Sie bedeutet,
+dass die UDP-Optionsschicht keine Antwort selbstständig erzeugt. Nicht das Protokoll, sondern die Anwendung oder
+eine in ihrem Auftrag arbeitende Bibliothek löst eine Antwort aus.
 
 \subsection{Herausforderungen}
 
-Die zentrale Herausforderung bei der Implementierung von UDP Options liegt im Zugriff auf die Surplus Area.
+Die zentrale Herausforderung bei der Implementierung von UDP Optionen liegt im Zugriff auf die Surplus Area.
 Existierende Betriebssystem-Stacks liefern über Standard-Socket-APIs ausschließlich die durch das UDP-Length-Feld
 begrenzten Nutzdaten an die Anwendungsschicht; die Surplus Area wird stillschweigend verworfen
 \cite[Sec.~18]{rfc9868}. Den Weg eines UDP-Pakets durch den Linux-Kernel bis zu dieser Socket-Schnittstelle
 dokumentieren Stephan und Wüstrich \cite{stephan2024packetpath}.
 
-Eine weitere Herausforderung stellt die Kompatibilität mit Middleboxes dar. RFC~9868 berichtet
+Eine weitere Herausforderung stellt die Kompatibilität mit Zwischensystemen dar. RFC~9868 berichtet
 Interoperabilitätstests, in denen Pakete mit Surplus Area Geräte zur Netzadressübersetzung (NAT,
 \textit{Network Address Translation}) passierten, nennt aber auch ein Intrusion Detection System, das die
 Diskrepanz zwischen UDP-Length und IP-Length in der Standardeinstellung als Angriff meldet
-\cite[Sec.~18]{rfc9868}. Ob reale Pfade solche Pakete tatsächlich durchlassen, ist eine empirische Frage
+\cite[Sec.~18]{rfc9868}. Ob reale Netzpfade solche Pakete tatsächlich durchlassen, ist eine empirische Frage
 dieser Arbeit (FF2).
 
 \section{Zielsetzung}
 \label{sec:zielsetzung}
 
-Die Problemstellung verdichtet sich zu zwei getrennten Hürden, die ein UDP-Options-Paket nehmen muss: Es
-muss normgerecht erzeugt und empfangen werden, und es muss reale Netzpfade unverändert überstehen.
+Die Problemstellung verdichtet sich zu zwei getrennten Hürden: Ein UDP-Options-Paket muss normgerecht erzeugt und
+empfangen werden, und seine Surplus Area muss die untersuchten Netzpfade unverändert überstehen.
 
-Eine normgerechte Implementierung sagt nichts darüber aus, ob Zwischensysteme die \emph{Surplus Area} passieren
-lassen, und ein durchlässiger Netzpfad nützt wenig, wenn Erzeugung und Auswertung der Optionen fehlerhaft
-sind. Aus dieser Trennung ergeben sich zwei Forschungsfragen, an denen sich Umsetzung und Evaluation dieser
-Arbeit ausrichten:
+Eine normgerechte Implementierung sagt nichts darüber aus, ob Zwischensysteme Datagramme mit Surplus Area
+unverändert passieren lassen. Ebenso nützt ein durchlässiger Netzpfad wenig, wenn Erzeugung und Auswertung der
+Optionen fehlerhaft sind. Aus dieser Trennung ergeben sich zwei Forschungsfragen:
 
 \begin{itemize}
-    \item \textbf{FF1:} Welche Anforderungen des RFC~9868 lassen sich implementieren?
+    \item \textbf{FF1:} Welche Anforderungen des RFC~9868 lassen sich unter Linux und IPv4 mit einer
+        Raw-Socket-Implementierung im Benutzerraum vollständig, teilweise oder nicht erfüllen?
 
-    \item \textbf{FF2:} In welchem Umfang ist die \textit{Surplus Area} entlang realer Netzpfade zustellbar?
+    \item \textbf{FF2:} In welchem Umfang bleibt die \textit{Surplus Area} auf den untersuchten realen
+        Netzpfaden bis zur Gegenstelle unverändert erhalten?
 \end{itemize}
 
-Das Ziel dieser Arbeit ist es, beide Fragen zu beantworten. Dazu entsteht zunächst eine an RFC~9868
-ausgerichtete und systematisch auf Konformität geprüfte Bibliothek für UDP Transport Options in der
-Programmiersprache Rust. Die Implementierung fokussiert auf eine Userspace-Lösung mittels Raw Sockets und
-umfasst Parser sowie Serializer für TLV-kodierte UDP Options (\textit{Type-Length-Value}), Validierung der
-\textit{Option Checksum (OCS)} gemäß Section~9 des RFC~9868 und Unterstützung der Must-Support Options
-(EOL, NOP, APC, FRAG, MDS, MRDS, REQ, RES).
+Das Ziel dieser Arbeit ist es, beide Fragen zu beantworten. Dazu entsteht zunächst eine an RFC~9868 ausgerichtete
+und systematisch auf Konformität geprüfte Bibliothek für UDP-Transportoptionen in Rust. Die auf Linux und IPv4
+begrenzte Implementierung arbeitet im Benutzerraum mit Raw Sockets. Sie umfasst Parser und Serialisierer für
+UDP-Optionen nach dem TLV-Schema (\textit{Type-Length-Value}), die Validierung der Optionsprüfsumme
+(\textit{Option Checksum}, OCS) gemäß Abschnitt~9 des RFC~9868 sowie die verpflichtend zu unterstützenden Optionen
+EOL, NOP, APC, FRAG, MDS, MRDS, REQ und RES \cite[Sec.~10]{rfc9868}.
 
-Die Verifikation der Implementierung erfolgt mehrstufig: Unit Tests prüfen die einzelnen Komponenten,
-Integrationstests prüfen den Loopback-Pfad, und für die reinen Regeln wird
-ergänzend eine Lean-Spezifikation gepflegt. Lean dient dabei als formale Gegenprobe für
-Checksum-Arithmetik, Längen- und Layoutregeln; Raw-Socket-Verhalten, Betriebssystemeffekte und Middlebox-Verhalten
-bleiben empirische Prüfpunkte. Dies beantwortet FF1.
+Die Verifikation erfolgt mehrstufig: Komponententests prüfen die einzelnen Bestandteile, Integrationstests den
+Loopback-Pfad, und für reine Regeln wird ergänzend eine Lean-Spezifikation gepflegt. Lean dient als formale
+Gegenprobe für Prüfsummenarithmetik sowie Längen- und Anordnungsregeln; das Verhalten von Raw Sockets,
+Betriebssystemen und Zwischensystemen bleibt Gegenstand empirischer Prüfungen. Dieses Prüfprogramm schafft die
+Grundlage für die Beantwortung von FF1.
 
-Auf dieser Grundlage erfolgt eine Evaluierung der Implementierung hinsichtlich Funktionsfähigkeit,
-Beobachtbarkeit der \textit{Surplus Area} entlang des Pfades sowie Kompatibilität mit bestehender Netzinfrastruktur
-(insbesondere NAT-Geräten, Firewalls, Intrusion-Detection- und Intrusion-Prevention-Systemen). Diese
-Evaluierung beantwortet FF2.
+Für FF2 vergleicht die Evaluation gewöhnliche UDP-Datagramme mit gleich großen Datagrammen, die eine Surplus Area
+enthalten, auf ausgewählten realen Netzpfaden. Sie unterscheidet zwischen unveränderter Zustellung, Entfernung der
+Surplus Area und Paketverlust. Die Schlussfolgerungen bleiben auf die beobachteten Pfade begrenzt.
 
 \section{Abgrenzung und Umfang}
 \label{sec:abgrenzung}
 
-Diese Arbeit setzt einen bewussten Rahmen. Sie beschränkt sich auf den im Userspace realisierbaren Kern des
-RFC~9868: das TLV-Options-Framework, die OCS sowie die Must-Support Options. Die
-Beschränkung auf den Userspace ist eine vorab gesetzte Rahmenbedingung der Aufgabenstellung. Die konkrete Mechanik
-des Zugriffs (Raw Sockets gegenüber kernelnahen Verfahren) wird dabei nicht vorweggenommen, sondern erst in
-\secref{sec:technologieauswahl} abgewogen und begründet.
+Diese Arbeit setzt einen bewussten Rahmen. Sie beschränkt sich auf eine Umsetzung des RFC~9868 im
+Linux-Benutzerraum für IPv4. Gegenstand sind das TLV-Rahmenwerk, die OCS sowie die verpflichtend zu unterstützenden
+Optionen. Die Beschränkung auf den Benutzerraum ist eine vorab gesetzte Rahmenbedingung der Aufgabenstellung.
+\secref{sec:technologieauswahl} begründet die dafür gewählte Umsetzung mit Raw Sockets gegenüber kernelnahen
+Verfahren.
 
-Explizit außerhalb des Umfangs dieser Arbeit liegen der REQ/RES"=Anwendungsfall für Path MTU Discovery, welcher im
-Nachfolge-RFC~9869 (DPLPMTUD for UDP Options) definiert ist \cite{rfc9869}, die TIME-Option, für die RFC~9868 zwar
-das Optionsformat und den Anwendungszweck (Schätzung der \textit{Round Trip Time}, RTT) beschreibt, aber kein
-konkretes nutzendes Protokoll
-festlegt, sowie die Optionen AUTH, UCMP und UENC, deren Optionstypen (\textit{Kind}) in RFC~9868 bisher nur
-reserviert sind (AUTH \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}).
-Kernel-Module werden nicht entwickelt.
+Außerhalb des Umfangs liegt der REQ/RES"=Anwendungsfall zur Pfad-MTU-Ermittlung, den RFC~9869 definiert
+\cite{rfc9869}. Die Implementierung unterstützt nur die in RFC~9868 festgelegten Formate von REQ und RES. Ebenfalls
+nicht implementiert wird die TIME-Option. RFC~9868 beschreibt zwar ihr Format und den Anwendungszweck, die Schätzung
+der Paketumlaufzeit (\textit{Round-Trip Time}, RTT), legt aber kein nutzendes Protokoll fest. Die Kennungen für AUTH,
+UCMP und UENC sind in RFC~9868 lediglich reserviert und werden daher ebenfalls nicht implementiert (AUTH
+\cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}). Kernel-Module werden
+nicht entwickelt.
 
-Ebenfalls nicht betrachtet wird IPv6. Die hier untersuchten Mechanismen des RFC~9868 (\textit{Surplus Area},
-OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen; IPv6-spezifische Regelungen des RFC
-(etwa die abweichende Längenberechnung und der Sonderfall einer UDP Length von null) werden nur benannt.
-Die Implementierung und ihre Konformitätsprüfung beziehen sich daher auf IPv4.
+IPv6 wird weder implementiert noch evaluiert. Die hier untersuchten Mechanismen des RFC~9868 (\textit{Surplus Area},
+OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen. Die Implementierung
+und ihre Konformitätsprüfung beziehen sich daher auf IPv4.
 
 \section{Aufbau der Arbeit}
 \label{sec:aufbau}
 
-Die Arbeit gliedert sich in sieben Kapitel, die drei Blöcke bilden:
+Nach dieser Einleitung folgen sechs Kapitel, die drei Blöcke bilden:
 
 \begin{itemize}
     \item \textbf{Grundlagen und Methodik:} \chapref{chap:grundlagen} führt die technischen und methodischen
@@ -185,14 +172,12 @@ einander fortlaufend bedingten.
 \section{KI-Einsatz}
 \label{sec:ki-offenlegung}
 
-Diese Arbeit ist unter durchgehendem Einsatz künstlicher Intelligenz (KI) entstanden, und dieser Einsatz soll
-von Beginn an klar benannt werden. Er betrifft beide Bestandteile der Arbeit: den Text und die Software. Auf
-der Textseite erfolgten die LaTeX-Formatierung und die Bedienung der LaTeX-Werkzeugkette vollständig mit KI;
-hinzu kommen die grammatische und sprachliche Glättung der Kapitel sowie die wiederholte Überprüfung des
-Textes gegen den Normtext des RFC~9868. Auf der Softwareseite sind Implementierung, Tests und Verifikation
-der Bibliothek KI-gestützt entstanden.
+Diese Arbeit ist unter durchgehendem Einsatz künstlicher Intelligenz (KI) entstanden. Der Einsatz betrifft Text
+und Software. Auf der Textseite erstellten KI-Werkzeuge Entwürfe, überarbeiteten Formulierungen, übernahmen die
+LaTeX-Formatierung und bedienten die LaTeX-Werkzeugkette. Zudem prüften sie den Text wiederholt gegen den Primärtext
+des RFC~9868. Auf der Softwareseite unterstützten sie Planung, Implementierung, Tests und Verifikation der
+Bibliothek. Der Autor entschied über die Übernahme der Ergebnisse und verantwortet sie.
 
-Zum Einsatz kommen dabei zwei \emph{Harnesses}, also Programme, die ein Sprachmodell mit Dateizugriff und
-Kommandoausführung verbinden: Claude Code von Anthropic und Codex von OpenAI. Ihre Rollenverteilung, die
-bekannten Schwächen dieser Arbeitsweise und die Prüfkette, die jede KI-Aussage vor der Übernahme
-durchläuft, behandelt \chapref{chap:methodik}.
+Zum Einsatz kommen zwei KI-Werkzeuge (harness), die ein Sprachmodell mit Dateizugriff und Kommandoausführung verbinden:
+Claude Code von Anthropic und Codex von OpenAI. Ihre Rollenverteilung, die bekannten Schwächen dieser Arbeitsweise
+und die Prüfkette vor der Übernahme eines Ergebnisses behandelt \chapref{chap:methodik}.
