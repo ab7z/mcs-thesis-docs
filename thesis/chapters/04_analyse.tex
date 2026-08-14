@@ -1,8 +1,8 @@
 % =============================================================================
-% Kapitel 3: Analyse
+% Kapitel 4: RFC-Analyse und Anforderungsmodell
 % =============================================================================
 
-\chapter{Anforderungsanalyse und Technologieauswahl}
+\chapter{RFC-Analyse und Anforderungsmodell}
 \label{chap:analyse}
 
 \section{Anforderungen}
@@ -222,7 +222,9 @@ optimierten Modi entfallen, und hat mit Version 0.16.0 noch keine stabile Fassun
 \cite{zig-lang}\footnote{Welche praktische Relevanz dieser Unterschied besitzt, zeigt die JavaScript-Laufzeit Bun,
 lange das größte Produktivprojekt in Zig: Nachdem allein in Version~1.3.14 vierzig Speicherlecks und zahlreiche
 Abstürze einzeln behoben worden waren, portierte das Team um Jarred Sumner den Kern von Zig nach Rust, um derartige
-Fehler strukturell auszuschließen, statt sie dauerhaft nachzubessern \cite{bun-rust-port}.}.
+Fehler strukturell auszuschließen, statt sie dauerhaft nachzubessern \cite{bun-rust-port,bun-in-rust}. Bun ist
+dabei kein Einzelfall: Auch der Paketmanager pnpm portiert seine Installations-Engine offiziell nach Rust; das
+zunächst separate Projekt pacquet wird seit Juli 2026 im pnpm-Hauptrepositorium weitergeführt \cite{pacquet}.}.
 
 Rust nimmt in diesem Feld die Stellung ein, C-vergleichbare Kontrolle und Performance mit einer bereits
 zur Übersetzungszeit erzwungenen Speicher- und Data-Race-Freiheit zu verbinden; der Preis dafür ist die
@@ -234,7 +236,7 @@ gegenüber.
 \begin{table}[H]
   \centering
   \caption{Vergleich der betrachteten Systemprogrammiersprachen anhand der für die RFC~9868-Implementierung
-    maßgeblichen Kriterien.}
+    maßgeblichen Kriterien}
   \label{tab:sprachvergleich}
   \small
   \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}*{4}{>{\raggedright\arraybackslash}X}@{}}
@@ -289,7 +291,4 @@ Zutun prüfbares Ziel bereit, gegen das sich jede einzelne Codeänderung verifiz
 Konstruktionen nicht erst zur Laufzeit, sondern bereits bei der Übersetzung zurückgewiesen werden; genau
 das ist der Mechanismus, den maschinell erzeugter Quelltext benötigt. Wie sich diese Verbindung aus statischen
 Garantien und maschinenlesbarem Feedback methodisch nutzen lässt und in welchen Entwicklungsrahmen sie sich
-einfügt, behandelt der folgende Abschnitt (\secref{subsec:agentic-coding}).
-
-\subsection{Agentengestützte Entwicklung (Agentic Coding)}
-\label{subsec:agentic-coding}
+einfügt, behandelt \chapref{chap:methodik}.

@@ -160,8 +160,8 @@
 }
 
 @techreport{rfc9869,
-    author      = {J. Touch},
-    title       = {{Datagram Packetization Layer Path MTU Discovery for UDP Options}},
+    author      = {G. Fairhurst and T. Jones},
+    title       = {{Datagram Packetization Layer Path MTU Discovery (DPLPMTUD) for UDP Options}},
     institution = {Internet Engineering Task Force},
     type        = {RFC},
     number      = {9869},
@@ -324,4 +324,208 @@
     note         = {Frei verfügbarer Arbeitsentwurf zu ISO/IEC 9899:2018 (C17)},
     url          = {https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2310.pdf},
     urldate      = {2026-05-31},
+}
+
+% BCP 14 (normative Schlüsselwörter)
+@techreport{rfc2119,
+    author      = {S. Bradner},
+    title       = {{Key words for use in RFCs to Indicate Requirement Levels}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {2119},
+    year        = {1997},
+    month       = mar,
+    doi         = {10.17487/RFC2119},
+    url         = {https://www.rfc-editor.org/info/rfc2119},
+}
+
+@techreport{rfc8174,
+    author      = {B. Leiba},
+    title       = {{Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words}},
+    institution = {Internet Engineering Task Force},
+    type        = {RFC},
+    number      = {8174},
+    year        = {2017},
+    month       = may,
+    doi         = {10.17487/RFC8174},
+    url         = {https://www.rfc-editor.org/info/rfc8174},
+}
+
+@online{rfc9868-errata,
+    author       = {{RFC Editor}},
+    title        = {{RFC Errata for RFC 9868}},
+    organization = {RFC Editor},
+    year         = {2026},
+    url          = {https://www.rfc-editor.org/errata/rfc9868},
+    urldate      = {2026-08-13},
+}
+
+% KI-gestützte Arbeit: Gefahrenmodell und externe Referenzfälle
+@online{kalai2025hallucinate,
+    author  = {Kalai, Adam Tauman and Nachum, Ofir and Vempala, Santosh S. and Zhang, Edwin},
+    title   = {{Why Language Models Hallucinate}},
+    year    = {2025},
+    note    = {arXiv:2509.04664},
+    url     = {https://arxiv.org/abs/2509.04664},
+    urldate = {2026-08-13},
+}
+
+@online{perez2022evals,
+    author  = {Perez, Ethan and others},
+    title   = {{Discovering Language Model Behaviors with Model-Written Evaluations}},
+    year    = {2022},
+    note    = {arXiv:2212.09251},
+    url     = {https://arxiv.org/abs/2212.09251},
+    urldate = {2026-08-13},
+}
+
+@article{cheng2026sycophancy,
+    author       = {Cheng, Myra and Lee, Cinoo and Khadpe, Pranav and others},
+    title        = {{Sycophantic AI decreases prosocial intentions and promotes dependence}},
+    journaltitle = {Science},
+    volume       = {391},
+    number       = {6792},
+    year         = {2026},
+    note         = {Artikelkennung eaec8352},
+    doi          = {10.1126/science.aec8352},
+}
+
+@article{jumper2021alphafold,
+    author       = {Jumper, John and Evans, Richard and Pritzel, Alexander and others},
+    title        = {{Highly accurate protein structure prediction with AlphaFold}},
+    journaltitle = {Nature},
+    volume       = {596},
+    pages        = {583-589},
+    year         = {2021},
+    doi          = {10.1038/s41586-021-03819-2},
+}
+
+@article{davies2021intuition,
+    author       = {Davies, Alex and Veličković, Petar and Buesing, Lars and others},
+    title        = {{Advancing mathematics by guiding human intuition with AI}},
+    journaltitle = {Nature},
+    volume       = {600},
+    pages        = {70-74},
+    year         = {2021},
+    doi          = {10.1038/s41586-021-04086-x},
+}
+
+@article{romera2024funsearch,
+    author       = {Romera-Paredes, Bernardino and Barekatain, Mohammadamin and Novikov, Alexander and others},
+    title        = {{Mathematical discoveries from program search with large language models}},
+    journaltitle = {Nature},
+    volume       = {625},
+    pages        = {468-475},
+    year         = {2024},
+    doi          = {10.1038/s41586-023-06924-6},
+}
+
+@article{alphaproof2026,
+    author       = {Hubert, Thomas and Mehta, Rishi and Sartran, Laurent and others},
+    title        = {{Olympiad-level formal mathematical reasoning with reinforcement learning}},
+    journaltitle = {Nature},
+    volume       = {651},
+    number       = {8106},
+    pages        = {607-613},
+    year         = {2026},
+    note         = {Online veröffentlicht am 12.11.2025},
+    doi          = {10.1038/s41586-025-09833-y},
+}
+
+% Fallstudie Bun (Zig-nach-Rust-Migration)
+@online{bun-in-rust,
+    title        = {{Rewriting Bun in Rust}},
+    organization = {Oven (Bun)},
+    year         = {2026},
+    url          = {https://bun.com/blog/bun-in-rust},
+    urldate      = {2026-08-13},
+}
+
+@online{bun-pr30412,
+    title        = {{Rewrite Bun in Rust}},
+    organization = {GitHub},
+    year         = {2026},
+    note         = {oven-sh/bun, Pull Request 30412. Gemergt am 14.05.2026; 1.009.257 hinzugefügte Zeilen.
+                    Metadaten per GitHub-API verifiziert},
+    url          = {https://github.com/oven-sh/bun/pull/30412},
+    urldate      = {2026-08-13},
+}
+
+@online{bun-issue30719,
+    title        = {{PathString::slice dangling reference UB - add Miri to CI (oven-sh/bun, Issue 30719)}},
+    organization = {GitHub},
+    year         = {2026},
+    note         = {Gemeldet am 14.05.2026, nach dem Merge des Rust-Ports},
+    url          = {https://github.com/oven-sh/bun/issues/30719},
+    urldate      = {2026-08-13},
+}
+
+@online{bun-release-1314,
+    title        = {{Bun v1.3.14}},
+    organization = {GitHub},
+    year         = {2026},
+    note         = {Release vom 13.05.2026; letzte in Zig geschriebene stabile Fassung},
+    url          = {https://github.com/oven-sh/bun/releases/tag/bun-v1.3.14},
+    urldate     = {2026-08-13},
+}
+
+% Linux-Kernelpfad (Grundlagen Betriebssystem und Netzpfad)
+@inproceedings{stephan2024packetpath,
+    author    = {Stephan, Alexander and W{\"u}strich, Lars},
+    title     = {{The Path of a Packet Through the Linux Kernel}},
+    booktitle = {Seminar Innovative Internet Technologies and Mobile Communications (IITM), WS 23},
+    publisher = {Technische Universit{\"a}t M{\"u}nchen, Chair of Network Architectures and Services},
+    year      = {2024},
+    pages     = {89-93},
+    doi       = {10.2313/NET-2024-04-1_16},
+    url       = {https://www.net.in.tum.de/fileadmin/TUM/NET/NET-2024-04-1/NET-2024-04-1_16.pdf},
+    urldate   = {2026-08-13},
+}
+
+% Weitere externe Referenzfälle KI-gestützter Ergebnisse (2026)
+@online{knuth2026cycles,
+    author  = {Knuth, Donald E.},
+    title   = {{Claude's Cycles}},
+    year    = {2026},
+    note    = {Vom 28.02.2026, überarbeitet am 14.04.2026},
+    url     = {https://cs.stanford.edu/~knuth/papers/claude-cycles.pdf},
+    urldate = {2026-08-13},
+}
+
+@online{anthropic2026zeta,
+    author  = {{Anthropic}},
+    title   = {{Learning more about Claude's mathematical capabilities}},
+    year    = {2026},
+    note    = {Vom 10.08.2026},
+    url     = {https://www.anthropic.com/research/riemann-zeta},
+    urldate = {2026-08-13},
+}
+
+@online{openai2026unitdistance,
+    author  = {{OpenAI}},
+    title   = {{An OpenAI model has disproved a central conjecture in discrete geometry}},
+    year    = {2026},
+    note    = {Vom 20.05.2026},
+    url     = {https://openai.com/index/model-disproves-discrete-geometry-conjecture/},
+    urldate = {2026-08-13},
+}
+
+@online{schwartz2026cparameter,
+    author  = {Schwartz, Matthew D.},
+    title   = {{Resummation of the C-Parameter Sudakov Shoulder Using Effective Field Theory}},
+    year    = {2026},
+    note    = {arXiv:2601.02484, eingereicht am 05.01.2026},
+    url     = {https://arxiv.org/abs/2601.02484},
+    urldate = {2026-08-13},
+}
+
+@online{pacquet,
+    author       = {{pnpm-Projekt}},
+    title        = {{pacquet}},
+    organization = {GitHub},
+    year         = {2026},
+    note         = {Offizielle Rust-Portierung der Installations-Engine von pnpm; Repositorium archiviert
+                    am 21.07.2026, Weiterentwicklung im Hauptrepositorium von pnpm},
+    url          = {https://github.com/pnpm/pacquet},
+    urldate      = {2026-08-13},
 }

@@ -1,0 +1,96 @@
+% =============================================================================
+% Anhang A: Provenienzregister
+% =============================================================================
+
+\chapter{Provenienzregister}
+\label{app:provenienz}
+
+Dieses Register setzt das in \secref{sec:provenienz} beschriebene Schema um. Es wird fortlaufend und
+rückwirkend gefüllt; Lücken tragen die Werte \zitat{unbekannt} oder \zitat{nicht protokolliert}. Interne
+Belege (Freeze-Dossiers, Sitzungsprotokolle, Kampagnenverzeichnisse) liegen aus Datenschutzgründen
+unversioniert beim Autor; Archive in \file{thesis/evidence/} sind über ihre SHA-256-Prüfsummen identifizierbar.
+
+\begin{footnotesize}
+\begin{longtable}{@{}L{3.7cm}L{1.7cm}L{2.3cm}L{1.5cm}L{2.0cm}L{1.3cm}@{}}
+  \caption{Provenienzregister (Arbeitsstand 2026-08-13)}
+  \label{tab:provenienzregister} \\
+  \toprule
+  \textbf{Aussage / Artefakt} & \textbf{Erzeugung} & \textbf{unabh. Prüfung} & \textbf{Datum} &
+    \textbf{Beleg} & \textbf{Status} \\
+  \midrule
+  \endfirsthead
+  \toprule
+  \textbf{Aussage / Artefakt} & \textbf{Erzeugung} & \textbf{unabh. Prüfung} & \textbf{Datum} &
+    \textbf{Beleg} & \textbf{Status} \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  Zählung: 103 normative \texttt{>{}>}-Absätze in RFC~9868
+    & Werkzeug und Modell
+    & unabhängige Nachzählung mit zweitem Verfahren; früherer Wert 96 verworfen
+    & 2026-08-13 (letzte Prüfung)
+    & \path{literature/rfc9868.txt}
+    & bestätigt \\
+  drei handgerechnete OCS-Referenzvektoren, nicht palindromisch
+    & Autor und Modell
+    & unabhängige Nachrechnung; externe Bestätigung offen
+    & 2026-08-13
+    & Impl.-Repo, Commit \texttt{6fa4ca1}
+    & offen \\
+  Kampagnenarchiv\newline\path{external-campaign-}\newline\path{20260810T200118Z}\newline\path{.tar.zst}
+    & Messwerkzeuge
+    & SHA-256 gegen \file{.sha256}-Datei
+    & 2026-08-13 (Prüfung)
+    & \path{thesis/evidence/}
+    & bestätigt \\
+  Kampagnenarchiv\newline\path{bidir-campaign-}\newline\path{20260811.tar.zst}
+    & Messwerkzeuge
+    & SHA-256 gegen \file{.sha256}-Datei; Prüfsummen dreifach nachgerechnet
+    & 2026-08-13 (Prüfung)
+    & \path{thesis/evidence/}
+    & bestätigt \\
+  GitHub-Zustand beider Repositories (Rulesets, Workflows, kein verpflichtender Check)
+    & Werkzeug (API-Abfrage)
+    & zweite Abfrage an zwei Tagen
+    & 2026-08-12 und 2026-08-13
+    & Freeze-Dossier (lokal, unversioniert)
+    & bestätigt \\
+  Audit-Bericht des Zweitmodells zum Implementierungsstand
+    & Zweitmodell
+    & Wiederherstellung aus Sitzungsprotokoll nach Bedienfehler
+    & 2026-07-10 bis 2026-08-13
+    & Impl.-Repo, \file{review.md} (unversioniert)
+    & vorhanden \\
+  Kapitelstart-Entscheidung (Methodik zuerst)
+    & Autor und führendes Modell
+    & ein unabhängiges Claude- und zwei Codex-Gutachten, nur lesend
+    & 2026-08-13
+    & Sitzungsprotokoll (lokal)
+    & bestätigt \\
+  Kapitel-3-Entwurf (Methodik)
+    & führendes Modell
+    & adversariale Prüfung durch das Zweitmodell; Befunde eingearbeitet
+    & 2026-08-13
+    & Sitzungsprotokoll (lokal)
+    & bestätigt \\
+  Quellenprüfung der externen Referenzfälle (3.7)
+    & Werkzeug und Modell
+    & Autor-Hinweis deckte einen vom Abrufwerkzeug ausgelassenen Abstract-Satz auf; Erstbewertung korrigiert
+    & 2026-08-13
+    & Sitzungsprotokoll (lokal)
+    & bestätigt \\
+  Kampagnen-Kontrollzahl in Abschnitt~3.4 (Notiz 15, belegt 18)
+    & führendes Modell
+    & Zweitmodell-Befund; eigene Nachprüfung am Kampagnenbericht (Erratum E1)
+    & 2026-08-13
+    & Impl.-Repo, Kampagnenbericht
+    & bestätigt \\
+  Modell- und Konfigurationsprovenienz früher Projektphasen
+    & unbekannt
+    & entfällt
+    & nicht protokolliert
+    & entfällt
+    & offen \\
+\end{longtable}
+\end{footnotesize}

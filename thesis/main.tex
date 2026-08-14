@@ -201,6 +201,8 @@
 \usepackage{etoolbox}           % Zum Patchen von Befehlen
 \usepackage{caption}            % Bildunterschriften anpassen
 \usepackage{subcaption}         % Subfigures
+\usepackage{tikz}               % Diagramme (z. B. Prüfprozess)
+\usetikzlibrary{arrows.meta, positioning, fit}
 \usepackage{pdfpages}           % PDF-Seiten einbinden
 \setlength{\marginparwidth}{2cm} % benötigt von todonotes
 \usepackage[disable]{todonotes} % TODO-Notizen deaktiviert
@@ -208,6 +210,10 @@
 % =============================================================================
 % 2. EIGENE BEFEHLE (ehemals config/commands.tex)
 % =============================================================================
+
+% Tabellenspalten mit Flattersatz und Umbruch am Wortanfang
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash\hspace{0pt}}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash\hspace{0pt}}X}
 
 % Textauszeichnung
 \newcommand{\file}[1]{\texttt{#1}}
@@ -309,10 +315,11 @@
 
 \input{chapters/01_einleitung}
 \input{chapters/02_grundlagen}
-\input{chapters/03_analyse}
-\input{chapters/04_entwurf_implementierung}
-\input{chapters/05_evaluation}
-\input{chapters/06_fazit}
+\input{chapters/03_methodik}
+\input{chapters/04_analyse}
+\input{chapters/05_entwurf_implementierung}
+\input{chapters/06_evaluation}
+\input{chapters/07_fazit}
 
 % -----------------------------------------------------------------------------
 % BACKMATTER
@@ -320,6 +327,10 @@
 
 % Literaturverzeichnis
 \printbibliography[heading=bibintoc, title=Literaturverzeichnis]
+
+% Anhang
+\appendix
+\input{chapters/anhang_provenienz}
 
 % --- EIDESSTATTLICHE ERKLÄRUNG (ehemals frontmatter/declaration.tex) ---
 \chapter*{Eidesstattliche Erklärung}
