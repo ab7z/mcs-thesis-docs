@@ -5,410 +5,329 @@
 \chapter{Methodik und KI-gestützte Entwicklung}
 \label{chap:methodik}
 
-Diese Arbeit ist durchgehend mit Unterstützung großer Sprachmodelle (LLMs) entstanden: bei der Auswertung des
-RFC-Primärtexts, beim Entwurf und bei der Implementierung, bei der Analyse der Messkampagnen und bei der Prüfung
-von Zwischenergebnissen. Wissenschaftlich haltbar ist das nur, wenn die Arbeit offenlegt, wie sie Modellausgaben
-prüft und wer die Ergebnisse verantwortet. Diese Regeln müssen feststehen, bevor die Ergebnisse bewertet werden;
-aus diesem Grund steht dieses Kapitel vor der RFC-Analyse. Die KI-gestützte Entwicklung ist dabei Teil der
-Methode, keine eigene Forschungsfrage; \chapref{chap:evaluation} wertet sie nur beschreibend aus. Das Kapitel
-beschreibt dazu zunächst das Forschungsdesign und die RFC-Auswertung, danach die Beteiligten mit ihren Rollen
-und die bekannten Schwächen der Sprachmodelle, anschließend die Testarchitektur der Entwicklung und externe
-Referenzfälle und abschließend Reproduzierbarkeit, Provenienz und Grenzen.
+Große Sprachmodelle unterstützten die Auswertung des RFC-Primärtexts, den Entwurf und die Implementierung,
+die Analyse der Messkampagnen und die Prüfung von Zwischenergebnissen. Wissenschaftlich belastbar ist dieses
+Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet.
+Diese Regeln müssen vor der Ergebnisbewertung feststehen. Deshalb steht dieses Kapitel vor der RFC-Analyse.
+
+Die KI-gestützte Entwicklung ist Teil der Methode, aber keine eigene Forschungsfrage. Dieses Kapitel beschreibt
+zunächst das Forschungsdesign und die Auswertung der Norm. Danach folgen die Rollen der Beteiligten, die
+bekannten Schwächen der Sprachmodelle und der Prüfprozess. Abschließend ordnen externe Referenzfälle das
+Vorgehen ein, und die Regeln für Provenienz und Reproduzierbarkeit schließen das Kapitel ab. Die Darstellung
+beschreibt den aktuellen Sollprozess. Sie behauptet nicht, dass jede Stufe seit dem Beginn des Projekts in
+dieser Form bestand.
 
 \section{Forschungsdesign}
 \label{sec:forschungsdesign}
 
-Die Arbeit besteht aus drei Teilen, die aufeinander aufbauen und getrennt geprüft werden:
+Die Untersuchung verbindet die Auswertung der Norm, die Referenzimplementierung und eine empirische
+Pfaduntersuchung. \figref{fig:forschungsdesign} zeigt, wie die beiden Forschungsfragen auf diesen Teilen
+aufbauen:
 
-\begin{enumerate}
-  \item \textbf{Referenzimplementierung}: Es entsteht eine eigene Implementierung der UDP Transport Options in
-    Rust, in dieser Arbeit \emph{Referenzimplementierung} genannt.
-  \item \textbf{Konformitätsprüfung}: Es wird geprüft, ob diese Implementierung die Anforderungen von RFC~9868
-    erfüllt. Maßstab ist das Anforderungsmodell, das \chapref{chap:analyse} mit der Methode aus
-    \secref{sec:rfc-auswertung} aus dem Primärtext ableitet; das Ergebnis beantwortet Forschungsfrage FF1.
-  \item \textbf{Empirische Pfaduntersuchung}: Auf realen Netzpfaden wird gemessen, ob Pakete mit
-    \textit{Surplus Area} unverändert ankommen; das Ergebnis beantwortet FF2.
-\end{enumerate}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{03_forschungsdesign.pdf}
+  \caption{Aufbau der Untersuchung und Zuordnung der Forschungsfragen}
+  \label{fig:forschungsdesign}
+\end{figure}
 
-Dabei ist die Referenzimplementierung zugleich der Prüfgegenstand des zweiten und das Messinstrument des
-dritten Teils. Sprachmodelle sind in allen drei Teilen Werkzeug, aber in keinem die bewertende Instanz. Was
-gilt, entscheiden allein der RFC-Primärtext, Messdaten, ausführbare Prüfungen (Compiler, Tests, unabhängige
-Prüfprogramme) und der Autor. Jede Aussage eines Sprachmodells ist zunächst nur ein Vorschlag: In die Arbeit
-geht sie erst ein, wenn eine dieser Instanzen sie bestätigt hat. In dem nächsten Abschnitt wird beschrieben,
-wie die Anforderungen aus dem RFC gewonnen und in Arbeitsschritte zerlegt werden.
+Aus \figref{fig:forschungsdesign} geht die Doppelrolle der Referenzimplementierung hervor: Für FF1 ist sie der
+Prüfgegenstand, und das aus den Normquellen abgeleitete Anforderungsmodell bildet den Maßstab; für FF2 dient
+dieselbe Implementierung als Messmittel. Beide Bewertungen bleiben getrennt: Eine konforme Implementierung
+belegt keine Zustellbarkeit entlang realer Netzpfade, und eine unveränderte Zustellung belegt keine
+RFC-Konformität.
+
+Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und Entscheidungsregeln.
+\tabref{tab:operationalisierung} legt diese Regeln fest, bevor die Ergebnisse betrachtet werden:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Operationalisierung der Forschungsfragen}
+  \label{tab:operationalisierung}
+  \small
+  \begin{tabularx}{\textwidth}{@{}L{0.7cm}L{3.2cm}YL{4.4cm}@{}}
+    \toprule
+    \textbf{FF} & \textbf{Untersuchungseinheit} & \textbf{Nachweis} & \textbf{Entscheidungsregel und Grenze} \\
+    \midrule
+    FF1
+      & jede anwendbare normative Anforderung im Projektumfang
+      & je nach Status: Normfundstelle sowie Quelltext und Prüfung oder Beleg einer technischen Grenze
+      & Umsetzungsstand getrennt von vollständig, teilweise oder nicht erfüllbar; nicht anwendbar bleibt eine
+        eigene Klasse \\
+    FF2
+      & kontrolliertes Szenario; extern ein Paar aus Kontroll- und Optionsdatagramm je Pfad, Richtung und
+        Messzeitpunkt
+      & Paketmitschnitte an Sender und Empfänger, Sendeprotokoll und dokumentierte maschinelle Auswertung
+      & Surplus erhalten, verändert oder entfernt, Paket verworfen oder Lauf ungültig; keine Übertragung auf
+        unbeobachtete Pfade, Richtungen oder Zeitpunkte \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Aus \tabref{tab:operationalisierung} geht hervor, dass FF1 je Anforderung und FF2 je beobachtetem Paketpaar
+entschieden wird. Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
+\texttt{SHOULD}-Aussagen gehen
+in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine Begründung. Eine \texttt{MAY}-Funktion
+wird nur bewertet, wenn sie für die Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
+Umfangs liegende Aussagen bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich.
+
+Der Matrixstatus und die FF1-Klasse beantworten verschiedene Fragen. \zitat{Implemented} belegt den
+Umsetzungsstand. \zitat{Partially implemented} bezeichnet eine Implementierungslücke und bestimmt die
+technische Erfüllbarkeit noch nicht. \zitat{Partial-in-userspace} wird als teilweise erfüllbar und
+\zitat{Not-feasible-in-userspace} als nicht erfüllbar gewertet. \zitat{Delegated} gilt nur dann als
+vollständig erfüllbar, wenn der RFC die Pflicht der oberen Schicht zuweist und die Schnittstelle sie als
+dokumentierten Vertrag abbildet; andernfalls lautet die Klasse teilweise erfüllbar. Für implementierte
+Funktionen dienen Quelltext und Tests als Nachweis. Technische Grenzen werden stattdessen durch dokumentiertes
+Betriebssystem- oder Schnittstellenverhalten belegt.
+
+Die kontrollierten lokalen Läufe werten jedes Szenario aus; die Szenarien sind über eigene Zielports markiert
+und können wie beim FRAG-Fall des RFC mehrere Datagramme enthalten. Diese Läufe validieren die Messwerkzeuge
+und liefern Befunde zu den lokalen Topologien, beantworten aber nicht unmittelbar FF2 zu realen Netzpfaden.
+Dafür vergleichen die externen Kampagnen zeitnah gesendete, gleich große Kontroll- und Optionsdatagramme auf
+demselben gerichteten Pfad.
+
+Ein externer Lauf ist nur auswertbar, wenn die Senderaufzeichnung den Versand und die erwartete Surplus Area
+belegt. Sender- und Empfängeraufzeichnung werden paketweise verglichen. Die maschinelle Auswertung ordnet jedes
+Paar einer Ergebnisklasse zu: Die Surplus Area kommt erhalten, verändert oder entfernt an, oder das Paket wird
+verworfen; nicht eindeutig auswertbare Läufe, etwa bei abweichenden Paketzahlen, gelten als ungültig.
+IP-fragmentierte Datagramme gelten ebenfalls als ungültig, weil der Auswerter sie nicht zusammensetzt.
+Einzelne Vorversuche werden als solche gekennzeichnet und nicht zu allgemeinen Aussagen über das Internet oder
+ein nicht beobachtetes Gerät erweitert.
+
+Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
+Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Der nächste Abschnitt
+beschreibt, wie aus den Normquellen ein prüfbares Anforderungsmodell entsteht.
 
 \section{RFC-Auswertung und schrittweise Umsetzung}
 \label{sec:rfc-auswertung}
 
-Alle Anforderungen an die Implementierung stammen aus dem Primärtext von RFC~9868. Normative Schlüsselwörter
-wie \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach
-BCP~14\footnote{BCP~14 fasst die beiden Regeldokumente RFC~2119 und RFC~8174 zusammen.} gelesen: Sie sind nur
-in Großschreibung normativ \cite{rfc2119,rfc8174}. Zusätzlich stellt RFC~9868 Absätzen mit solchen
-Schlüsselwörtern das Zeichenpaar \texttt{>{}>} voran. Dadurch sind die Anforderungen mechanisch auffindbar:
-Die eigene Zählung ergibt 103 solcher Absätze, und sie bilden das Gerüst der Anforderungsmatrix in
-\chapref{chap:analyse}.
+Die normativen Protokollanforderungen stammen hauptsächlich aus RFC~9868. Ergänzende Anforderungen an
+Prüfsummen und das UDP-Format stammen aus RFC~1071 und RFC~768. Daneben enthält die Matrix ausdrücklich
+gekennzeichnete Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
+Entwurfsentscheidung nachträglich als Forderung des RFC erscheint.
 
-Dass solche Kontrollzahlen selbst fehleranfällig sind, zeigte sich früh: Eine erste Zählung ergab 96, weil sie
-tiefer eingerückte Markierungen in Listen übersah. Erst ein zweites, unabhängiges Zählverfahren deckte den
-Fehler auf. Aus diesem Grund gilt seither die Regel, Kontrollzahlen mit zwei unabhängigen Verfahren zu erheben.
+Normative Schlüsselwörter wie \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach
+BCP~14\footnote{BCP~14 fasst RFC~2119 und RFC~8174 zusammen.} gelesen. Sie sind nur in Großschreibung normativ
+\cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Schlüsselwörtern zusätzlich das Zeichenpaar
+\texttt{>{}>} voran. Die eigene Zählung ergibt 103 markierte Absätze. Diese Zahl ist eine Kontrollzahl für
+mögliche Anforderungen, nicht die Zahl der abschließend anwendbaren Anforderungen.
 
-Drei weitere Regeln sichern die Quellenarbeit:
+Eine erste Zählung hatte nur 96 Absätze ergeben, weil tiefer eingerückte Markierungen übersehen wurden. Ein
+zweites Zählverfahren deckte den Fehler auf. Kontrollzahlen werden deshalb mit zwei getrennten Verfahren
+ermittelt. Jede gefundene Aussage erhält außerdem eine genaue Fundstelle, eine Normstärke, eine Beurteilung der
+Anwendbarkeit und eine Kennzeichnung des Projektumfangs.
 
-\begin{enumerate}
-  \item Fundstellen werden satzgenau angegeben.
-  \item RFC~9868 und RFC~9869 bleiben strikt getrennt, denn RFC~9869 regelt die Pfad-MTU-Bestimmung
-    (DPLPMTUD) für UDP-Optionen und liegt außerhalb dieser Arbeit \cite{rfc9869}.
-  \item Der Errata-Stand des RFC Editors wird einbezogen \cite{rfc9868-errata}; zum Stand 2026-08-13 sind
-    das ein verifiziertes technisches Erratum zu Abschnitt~14 und ein redaktionelles zu Abschnitt~11.4.
-\end{enumerate}
+RFC~9868 und RFC~9869 bleiben in der Quellenarbeit getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung
+(DPLPMTUD, \textit{Datagram Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des
+Implementierungsumfangs dieser Arbeit \cite{rfc9869}. Zusätzlich wird der Errata-Stand des RFC Editors
+berücksichtigt \cite{rfc9868-errata}. Das verifizierte technische Erratum EID~8834 löst den Widerspruch
+zwischen den Abschnitten 10 und 14 zur Behandlung überlanger Optionen. EID~8708 ist als redaktionelles Erratum
+für eine spätere Dokumentausgabe zurückgestellt. Die Anforderungsmatrix verwendet diese beiden Einstufungen und
+dokumentiert die daraus abgeleitete Behandlung.
 
-\textit{[Offene Stelle: Beim Erreichen der Abschnitte 11.4 und 14 in der Anforderungsanalyse wird der dann
-aktuelle Errata-Stand erneut geprüft.]}
-
-Die gewonnenen Anforderungen werden nicht auf einmal umgesetzt, sondern in nummerierte Arbeitsschritte zerlegt.
-Die Schritte bauen aufeinander auf und sind wie folgt geordnet:
-
-\begin{enumerate}
-  \item Prüfsummenmodul
-  \item Modell des Wire-Formats
-  \item TLV-Parser
-  \item Serialisierer
-  \item Options-Prüfsumme (OCS)
-  \item typisierte Optionen
-  \item Sende- und Empfangspfad
-  \item Fragmentierung mit Wiederzusammensetzung
-  \item öffentliche API
-\end{enumerate}
-
-Jeder Schritt hat ein dokumentiertes Ziel und wird implementiert und geprüft, bevor der nächste beginnt; die
-Zerlegung liegt als Planverzeichnis im Implementierungs"=Repository. Wer diese Schritte ausführt und wer sie
-prüft, regelt der nächste Abschnitt.
+Die Umsetzung erfolgte schrittweise. Der Projektplan beginnt mit den Schritten 0 und 0.5 und reicht bis Schritt
+18. Schritt 9 ging in Schritt 8 auf, Schritt 16 wurde mit der IPv6-Unterstützung aus dem Umfang entfernt. Die
+verbleibenden Schritte behandeln unter anderem Prüfsummen, Wire-Format, Parser, Serialisierung, typisierte
+Optionen, Raw Sockets, Fragmentierung, Schnittstellen und die Messumgebung. Die genaue Zuordnung und der
+jeweilige Abschlussnachweis stehen im Projektplan.\footnote{Implementierungs-Repository, Commit
+\texttt{f1cfe52}, \path{docs/plan/ROADMAP.md}.} Diese Darstellung bildet den tatsächlichen Plan ab und ersetzt
+eine nachträglich vereinfachte Folge von neun Stufen. Welche Rollen bei der Erzeugung und Prüfung dieser Ergebnisse
+wirken, klärt der folgende Abschnitt.
 
 \section{Beteiligte und ihre Rollen}
 \label{sec:rollen}
 
-Vier Arten von Akteuren wirken an der Arbeit mit: der Autor, zwei LLM-Werkzeuge, die Lean-Verifikation und die
-Prüfwerkzeuge. Dabei gelten zwei Regeln durchgehend: Kein Modell gibt Ergebnisse frei, und die Prüfung eines
-Entwurfs durch dasselbe Modell zählt nicht als unabhängige Prüfung.
+Der Autor entscheidet, gewichtet, gibt frei und verantwortet das Ergebnis. Claude Code von Anthropic dient
+vorwiegend als führendes Werkzeug für Entwürfe, Quelltext und Analysen. Codex von OpenAI dient vorwiegend als
+getrennter Zweitprüfer mit dem Auftrag, Fehler und Gegenbeispiele zu suchen. Beide Programme verbinden ein
+Sprachmodell mit Dateizugriff, Kommandoausführung und dem Repository.
 
-Der \emph{Autor} entscheidet, gewichtet, gibt frei und verantwortet das Ergebnis. Die beiden
-\emph{LLM-Werkzeuge} sind Claude Code (Anthropic) als führendes Werkzeug und Codex (OpenAI) als Zweitprüfer;
-beide sind sogenannte \emph{Harnesses}, also Programme, die ein Sprachmodell mit Dateizugriff,
-Kommandoausführung und dem Repository verbinden. Claude Code entwirft Code, Texte und Analysen. Codex dient
-vorrangig als unabhängiger Zweitprüfer und arbeitet in dieser Rolle nur lesend, mit dem ausdrücklichen Auftrag,
-Fehler und Gegenbeispiele zu finden. Änderungen durch Codex erfolgen ausschließlich in getrennten, vom Autor
-ausdrücklich freigegebenen Arbeitsaufträgen und zählen nicht als unabhängige Zweitprüfung. Für die Zweitprüfung
-ist bewusst ein Modell eines anderen Herstellers gewählt: Dadurch sollen sich die Fehlermuster der beiden Prüfer
-möglichst wenig überschneiden.
+Eine Prüfung durch dasselbe Modell gilt nicht als getrennte Zweitprüfung. Auch die Prüfung durch ein Modell
+eines anderen Herstellers beweist keine Unabhängigkeit. Die Herstellertrennung ist eine bewusste Maßnahme gegen
+vollständig gleiche Fehlermuster, deren Wirkung in dieser Arbeit jedoch nicht gemessen wird. Änderungen durch
+den Zweitprüfer erfolgen nur in einem eigenen, vom Autor freigegebenen Arbeitsauftrag. Sie zählen dann nicht als
+Zweitprüfung desselben Ergebnisses.
 
-Die \emph{Lean-Verifikation} liefert maschinengeprüfte Beweise, allerdings nur über handgeschriebene Modelle:
-Für ausgewählte Invarianten des Wire-Formats, der OCS, der Fragmentierung und der Empfangslogik existieren
-Lean-Modelle; ein Prüfskript baut ihre Beweise und kontrolliert, dass keine unzulässigen Axiome einfließen.
-Dennoch besteht eine wichtige Grenze: Nicht bewiesen ist, dass der Rust-Code diesen Modellen entspricht; die
-Kopplung besteht nur aus gespiegelten Konstanten und aus Tests. Somit ist die Aussage zulässig, dass
-ausgewählte Invarianten in Lean-Modellen bewiesen sind, nicht die Aussage, die Implementierung sei formal
-verifiziert.
+Lean liefert maschinengeprüfte Beweise für handgeschriebene Modelle ausgewählter Invarianten des Wire-Formats,
+der OCS, der Fragmentierung und der Empfangslogik. Ein Prüfskript baut die Beweise und kontrolliert die
+verwendeten Axiome. Nicht bewiesen ist die Übereinstimmung des Rust-Codes mit diesen Modellen. Zulässig ist daher
+die Aussage, dass ausgewählte Invarianten in Lean-Modellen bewiesen sind. Die gesamte Implementierung ist nicht
+formal verifiziert.
 
-Die \emph{Prüfwerkzeuge} sind teils deterministisch (Compiler, Formatierungs- und Lint-Prüfung, Unit-Tests),
-teils arbeiten sie mit zufälligen Eingaben (Property- und Fuzz-Tests) oder von außen am fertigen Programm
-(Blackbox-Prüfung mit Paketmitschnitt). \secref{sec:pruefkette} definiert diese Testarten und ihre
-Einsatzzeitpunkte.
+Die Art der Prüfung richtet sich nach der Art der Aussage. Protokollaussagen werden gegen RFC-Primärtext und
+Errata geprüft. Aussagen über die Implementierung werden durch Quelltext und ausführbare Prüfungen gestützt.
+Pfadbefunde benötigen Paketmitschnitte und Kampagnenprotokolle. Literaturbehauptungen werden an der jeweiligen
+Primärquelle geprüft. Ein Hashwert belegt nur die Unverändertheit eines Artefakts, nicht die Wahrheit seines
+Inhalts.
 
 Im Umgang mit den Modellen gilt die Haltung, sie wie fähige, aber unerfahrene Entwickler zu behandeln, deren
 Arbeit grundsätzlich geprüft wird. Aus diesem Grund hat der Autor drei Arbeitsregeln schriftlich festgehalten:
 
 \begin{enumerate}
-  \item Jedes Modellergebnis wird gegen den RFC-Primärtext geprüft, nie gegen eigene Zusammenfassungen.
+  \item Modellergebnisse werden gegen die jeweilige Primärquelle geprüft, nie gegen eigene Zusammenfassungen.
   \item Aufträge werden neutral formuliert, ohne das Modell in eine gewünschte Richtung zu lenken.
   \item Widerspruch wird ausdrücklich ermutigt: Ein Modell, das \zitat{nein} sagt oder Unsicherheit meldet,
     ist wertvoller als eines, das gefällig zustimmt.
 \end{enumerate}
 
-Diese Regeln beschreiben den Sollprozess; welche Durchläufe tatsächlich belegt sind, verzeichnet das
-Provenienzregister (\secref{sec:provenienz}).
-
-Aus diesen Rollen ergaben sich drei dokumentierte Arbeitsformen: die Entwicklung mit Pull-Request-Prüfung
-(\secref{sec:pruefkette}), die abschnittsweise RFC-Lektüre, bei der vor jedem neuen Abschnitt grundsätzlich
-genau eine nur lesende Zweitmeinung des jeweils anderen Modells eingeholt wird, und die Messkampagnen, bei
-denen Erzeugung, Auswertung und Nachprüfung getrennt besetzt sind. Für frühere Projektphasen gilt eine Grenze:
-Arbeitsformen werden nur dort behauptet, wo sie protokolliert sind (\secref{sec:provenienz}). Warum diese
-Vorsicht durchgehend nötig ist, begründet der nächste Abschnitt.
+Diese Regeln beschreiben den Sollprozess. Welche Prüfungen tatsächlich stattfanden, wird nicht aus ihm
+abgeleitet, sondern aus den vorhandenen Protokollen rekonstruiert (\secref{sec:provenienz}). Warum diese
+Trennung nötig ist, zeigt der folgende Abschnitt.
 
 \section{Bekannte Schwächen der Sprachmodelle}
 \label{sec:gefahrenmodell}
 
-Der Einsatz von Sprachmodellen bringt bekannte Schwächen mit, auf die die Methodik direkt antwortet. Drei
-davon betreffen diese Arbeit besonders:
+Der Einsatz von Sprachmodellen bringt bekannte Schwächen mit, auf die die Methodik direkt antwortet.
 
 \paragraph{Halluzination.}
-Eine Halluzination ist ein überzeugend formulierter, aber falscher Inhalt. Kalai u.\,a. führen einen
-wesentlichen Teil dieser Fehler auf Trainings- und Bewertungsverfahren zurück, die sicheres Raten gegenüber
-eingestandener Unsicherheit belohnen \cite{kalai2025hallucinate}.
+Eine Halluzination ist ein überzeugend formulierter, aber falscher Inhalt. Kalai u.\,a. führen solche Fehler auf
+Trainings- und Bewertungsverfahren zurück, die Raten gegenüber eingestandener Unsicherheit belohnen
+\cite{kalai2025hallucinate}.
 
-\paragraph{Sycophancy (Gefälligkeit).}
-Sycophancy bezeichnet die Neigung, sich der erkennbaren Erwartung des Gegenübers anzuschließen; sie ist bei
-größeren Modellen und nach Training mit menschlicher Rückmeldung verstärkt beobachtet worden
-\cite{perez2022evals,cheng2026sycophancy}. Beide Schwächen verstärken sich gegenseitig: Halluzination erzeugt
-falsche Aussagen, Sycophancy verhindert, dass sie auffallen.
+\paragraph{Gefälligkeit.}
+Sycophancy bezeichnet die Neigung, sich der erkennbaren Erwartung des Gegenübers anzuschließen. Sie wurde bei
+größeren Modellen und nach Training mit menschlicher Rückmeldung verstärkt beobachtet
+\cite{perez2022evals,cheng2026sycophancy}. Halluzination kann falsche Aussagen erzeugen. Gefälligkeit kann
+verhindern, dass ein Modell ihnen widerspricht.
 
 \paragraph{Verfügbarkeit.}
-Beide LLM-Werkzeuge sind Cloud-Dienste, die ausfallen, gedrosselt oder verändert werden können. Die Arbeit
-hängt deshalb an keiner Stelle von einem verfügbaren Dienst ab: Alle in die Arbeit übernommenen Ergebnisse
-liegen als Quelltext, Tests, Protokolle und Messdaten vor und sind ohne die Dienste prüfbar.
+Beide Sprachmodellwerkzeuge sind Cloud-Dienste. Sie können ausfallen, gedrosselt oder verändert werden. Die
+Ergebnisse liegen deshalb als Quelltext, Tests, Protokolle und Messdaten vor. Diese Artefakte bleiben ohne die
+Dienste prüfbar. Der genaue Entstehungsvorgang einer Modellausgabe ist wegen wechselnder Modelle und
+nichtdeterministischer Antworten dagegen nicht vollständig reproduzierbar.
 
-Die wichtigste Konsequenz folgt aus dem Nichtdeterminismus: Dieselbe Anfrage kann verschiedene Antworten
-liefern, und keine Antwort ist dadurch richtig, dass das Modell sie behauptet. Aus diesem Grund wird nie dem
-Modell geglaubt, ob die Implementierung die Norm erfüllt: Geprüft und belegt wird das mit der Testarchitektur
-aus \secref{sec:pruefkette} und der Konformitätsprüfung gegen den RFC; ein Beweis allgemeiner Korrektheit ist
-auch das nicht.
+Die wichtigste Konsequenz ist einfach: Keine Aussage ist richtig, weil ein Modell sie behauptet. Ob die
+Implementierung die Norm erfüllt, wird mit der Konformitätsprüfung und der Testarchitektur beurteilt. Auch diese
+Prüfungen belegen nur die jeweils untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
-Dass diese Schwächen real auftreten, zeigen zwei Befunde aus dem Projekt. Eine Gegenprüfung der eigenen
-Sekundärdokumente gegen den RFC-Primärtext fand vier inhaltliche Abweichungen, unter anderem beim beschriebenen
-Berechnungsverfahren der OCS, während die Implementierung an den betroffenen Stellen konform war: Eigene
-Zusammenfassungen driften, deshalb wird immer am Primärtext geprüft. Und eine Kampagnennotiz nannte 15
-Kontrollmessungen, tatsächlich waren es 18; drei Prüfinstanzen übersahen den Fehler zunächst. Keine
-Gegenmaßnahme ist eine Garantie: Was alle Prüfer teilen, etwa gleichgerichtete Fehlermuster zweier Modelle,
-bleibt als Restrisiko bestehen.
+Zwei Projektbefunde zeigen die praktische Bedeutung. Eine Gegenprüfung eigener Sekundärdokumente am
+RFC-Primärtext fand vier inhaltliche Abweichungen, obwohl die Implementierung an den betroffenen Stellen konform
+war. Eine Kampagnennotiz nannte außerdem 15 Kontrollmessungen, tatsächlich waren es 18. Drei Prüfinstanzen
+übersahen diesen Fehler zunächst. Eigene Zusammenfassungen bleiben daher Suchhilfen, und auch mehrere Prüfer
+sind keine Garantie.
 
 \section{Testarchitektur und Prüfprozess}
 \label{sec:pruefkette}
 
-Damit stellt sich die Frage, wie eine Implementierung zu prüfen ist, deren Entwürfe von einem nicht
-deterministischen Werkzeug stammen. Die Antwort ist eine mehrstufige Testarchitektur: Sie läuft vollständig
-lokal vor jedem Pull Request, und einen Teil der Stufen wiederholt die kontinuierliche Integration (CI) auf
-GitHub. Tabelle~\ref{tab:pruefkette} definiert die Testarten, ihren Zweck und ihren Einsatzzeitpunkt:
+Die aktuelle Prüfkette wird lokal gestartet, verbindet aber lokale und entfernte Prüfungen. Sie ist der
+Sollzustand vor dem Öffnen oder Aktualisieren eines Pull Requests. Historisch entstand diese Kette
+schrittweise. Aussagen über frühere Pull Requests beziehen sich deshalb nur auf die damals protokollierten
+Prüfungen.
 
-\begin{table}[H]
-  \centering
-  \caption{Testarten der Entwicklung: Definition, Zweck und Einsatzzeitpunkt}
-  \label{tab:pruefkette}
-  \small
-  \begin{tabularx}{\textwidth}{@{}L{2.6cm}YL{3.3cm}@{}}
-    \toprule
-    \textbf{Testart} & \textbf{Definition und Zweck} & \textbf{Einsatzzeitpunkt} \\
-    \midrule
-    Unit-Tests
-      & prüfen einzelne Funktionen gegen erwartete Werte, darunter drei handgerechnete OCS-Referenzvektoren
-      & vor jedem Pull Request und in der CI \\
-    Property-Tests
-      & erzeugen zufällige Eingaben und prüfen Invarianten, etwa dass Serialisieren und anschließendes Parsen
-        die Eingabe unverändert zurückliefern; lokal mit 1024 Fällen je Eigenschaft
-      & vor jedem Pull Request und in der CI \\
-    Fuzz-Tests
-      & füttern neun Zielprogramme zeitbegrenzt mit zufälligen Bytefolgen und suchen Abstürze; gefundene
-        Gegenbeispiele sind als Regressionstests eingefroren
-      & vor jedem Pull Request; die Regressionstests bei jedem Testlauf \\
-    Integrationstests
-      & prüfen Sende- und Empfangsweg über echte Sockets, einschließlich eines Testlaufs mit Root-Rechten für
-        Raw Sockets
-      & vor jedem Pull Request \\
-    Blackbox-Prüfung
-      & das fertige Testprogramm sendet festgelegte Szenarien auf einem Linux-Zielsystem; \texttt{tcpdump}
-        zeichnet die Bytes nach dem Kernel auf, ein eigenständiges Python-Prüfprogramm dekodiert sie
-        vollständig, \texttt{tshark} bestätigt die IPv4- und UDP-Felder
-      & vor jedem Pull Request \\
-    Lean-Prüfung
-      & baut die Beweise der Lean-Modelle und kontrolliert die verwendeten Axiome
-      & vor jedem Pull Request und in der CI \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+Zu den deterministischen Prüfungen gehören Formatierung, statische Analyse, Dokumentationsbau, Unit-Tests und
+Integrationstests. Property-Tests erzeugen für jede Eigenschaft lokal 1024 Fälle. Neun zeitlich begrenzte
+Fuzz-Ziele suchen mit beliebigen Bytefolgen nach Abstürzen und verletzten Invarianten. Gefundene Gegenbeispiele
+werden als Regressionstests aufbewahrt. Die Lean-Prüfung baut die formalen Modelle und kontrolliert ihre Axiome.
 
-Aus Tabelle~\ref{tab:pruefkette} geht hervor, dass jede Testart vor jedem Pull Request läuft. Dabei ist zu
-beachten, dass die CI nur einen Teil der Stufen wiederholt: Die Blackbox-Prüfung und der Testlauf mit
-Root-Rechten\footnote{Raw Sockets geben einem Programm direkten Zugriff auf IP-Pakete ohne die übliche
-Transportschicht des Betriebssystems; unter Linux erfordern sie deshalb erhöhte Rechte.} bleiben an das lokale
-Umfeld gebunden, weil sie ein Linux-Zielsystem beziehungsweise erhöhte Rechte benötigen.
+Die systemnahen Stufen laufen auf dem entfernten Linux-Zielsystem. Dort prüfen sie die Cross-Kompilierung, die
+Raw-Socket-Integration mit erhöhten Rechten und das tatsächlich gesendete Paketbild. Das lokal gestartete
+Skript und die Reihenfolge seiner Prüfschritte sind im Implementierungs-Repository festgehalten.\footnote{
+Implementierungs-Repository, Commit \texttt{f1cfe52}, \path{scripts/pre-pr.sh}.} Die kontinuierliche
+Integration (CI) wiederholt Formatierung, statische Analyse und Rust-Tests. Nach deren Erfolg baut sie die
+Lean-Modelle und stellt anschließend zwei getrennte Prüfanfragen: an Claude Code zu Codequalität und Sicherheit
+und an Codex zur RFC-9868-Semantik.
 
-Dabei richtet sich die Blackbox-Prüfung gegen eine besonders schwer erkennbare Fehlerklasse: Fehler, die
-Implementierung und Test teilen. Sender und Empfänger der Bibliothek nutzen denselben Serialisierungscode; ein
-beidseitig gleicher Fehler bestünde jeden Round-Trip-Test.
+Eine besondere Gefahr sind Fehler, die Implementierung und Test gemeinsam haben. Sender und Empfänger der
+Bibliothek verwenden denselben Serialisierungscode. Ein beidseitig gleicher Fehler kann deshalb jeden
+Round-Trip-Test bestehen. Die Wire-Prüfung durchbricht diese Selbstbezüglichkeit: \texttt{tcpdump} zeichnet die
+tatsächlich gesendeten Bytes auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
+berechnet die Prüfsummen mit eigener Faltung nach RFC~1071 \cite{rfc1071} und einer eigenen CRC32C-Tabelle.
+\texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Es besitzt jedoch keinen Dissektor für UDP-Optionen.
 
-Aus diesem Grund wird hier ohne Code der
-Implementierung geprüft: \texttt{tcpdump} zeichnet die tatsächlich gesendeten Bytes auf, und das
-Python-Prüfprogramm dekodiert IPv4, UDP und die UDP-Optionen selbst und leitet alle Prüfsummen mit eigener
-Faltung nach RFC~1071 \cite{rfc1071} und eigener CRC32C-Tabelle her; \texttt{tshark} bestätigt zusätzlich die
-IPv4- und UDP-Felder mit einem fremden Dissektor, einen Dissektor für UDP-Optionen besitzt es nicht. Ganz
-unabhängig ist auch das nicht: Die erwarteten Referenzbytes stammen aus der projekteigenen
-Formatdokumentation; die Unabhängigkeit gilt also für den Code, nicht für den Entwurf.
+Auch diese Prüfung ist nicht vollständig unabhängig. Die erwarteten Referenzbytes stammen aus der
+projekteigenen Formatdokumentation. Die Unabhängigkeit gilt für den Prüfcode, nicht für den Entwurf. Dasselbe
+gilt für die drei handgerechneten OCS-Referenzvektoren. Sie sind nicht palindromisch und wurden getrennt
+nachgerechnet, damit Bytevertauschungen auffallen. RFC~9868 enthält jedoch keinen veröffentlichten Referenzwert;
+eine externe Bestätigung dieser Vektoren steht noch aus.
 
-Aus demselben Grund existieren die OCS-Referenzvektoren: RFC~9868 enthält keinen Referenzwert für diese
-Prüfsumme, und ein beidseitig gleicher Rechenfehler wäre unsichtbar geblieben. Die drei handgerechneten,
-unabhängig nachgerechneten Vektoren sind bewusst nicht palindromisch, damit bytevertauschende Fehler
-auffallen. \textit{[Offene Stelle: Eine externe Bestätigung dieser Vektoren steht aus; Wiedervorlage nach dem
-RFC-Prüftor zu Abschnitt~9.]}
-
-Der Prüfprozess selbst hat zwei Stufen und wird in \figref{fig:pruefprozess} dargestellt: Lokal bündelt ein
-Skript alle Testarten der Tabelle als Kontrollliste vor jedem Pull Request. Auf GitHub durchläuft jeder Pull
-Request danach eine Pipeline aus drei Schritten: ein Rust-Prüfschritt (Formatierung, statische Analyse,
-Tests), ein Lean-Prüfschritt und erst nach deren Erfolg ein Schritt, der zwei getrennte Prüfanfragen stellt,
-an Claude Code zu Codequalität und Sicherheit und an Codex gezielt zur RFC-9868-Semantik.
+Der aktuelle Sollprozess ist in \figref{fig:pruefprozess} bewusst auf seine Kontrollpunkte und die Grenze
+ihrer technischen Erzwingung reduziert:
 
 \begin{figure}[H]
   \centering
-  \begin{tikzpicture}[
-    font=\small,
-    box/.style={draw, rounded corners=1pt, align=center, inner sep=2mm},
-    pfeil/.style={-{Stealth[length=2.5mm]}, thick},
-    node distance=6mm and 7mm
-  ]
-    \node[box, text width=2.9cm] (entwurf) {Entwurf\\ (führendes Modell)};
-    \node[box, text width=3.6cm, right=of entwurf] (lokal)
-      {lokale Prüfkette\\ (alle Testarten aus Tabelle~\ref{tab:pruefkette})};
-    \node[box, text width=2.4cm, right=of lokal] (pr) {Pull Request};
-    \node[box, text width=3.4cm, below=14mm of entwurf.south west, anchor=north west] (rust)
-      {Rust-Prüfschritt\\ (Formatierung, statische Analyse, Tests)};
-    \node[box, text width=2.9cm, right=of rust] (lean) {Lean-Prüfschritt};
-    \node[box, text width=3.4cm, right=of lean] (review) {Prüfanfragen an\\ Claude Code und Codex};
-    \node[box, text width=3.2cm, below=12mm of review] (merge) {Merge durch den Autor};
-    \draw[pfeil] (entwurf) -- (lokal);
-    \draw[pfeil] (lokal) -- (pr);
-    \draw[pfeil] (pr.south) -- ++(0,-5.5mm) -| (rust.north);
-    \draw[pfeil] (rust) -- (lean);
-    \draw[pfeil] (lean) -- (review);
-    \draw[pfeil, dashed] (review) -- (merge);
-    \node[align=right, font=\footnotesize, anchor=east, xshift=-2mm] at (merge.west)
-      {nicht technisch\\ erzwungen};
-    \node[draw, dashed, inner sep=2.5mm, fit=(rust)(lean)(review),
-      label={[font=\footnotesize, anchor=south west]above left:{CI auf GitHub}}] {};
-  \end{tikzpicture}
-  \caption{Prüfprozess eines Pull Requests: lokale Prüfkette, CI-Pipeline und Freigabe}
+  \includegraphics[width=\textwidth]{03_pruefarchitektur.pdf}
+  \caption{Prüfprozess im Sollzustand}
   \label{fig:pruefprozess}
 \end{figure}
 
-Aus \figref{fig:pruefprozess} geht zugleich die wichtigste Grenze hervor: Die Prüfanfragen belegen nicht, dass beide
-Prüfungen auch abgeschlossen wurden, und kein Schritt ist als Merge-Bedingung technisch erzwungen; das
-Thesis-Repository hat gar keine solchen Prüfschritte. Dass diese Lücke real ist, zeigt Pull Request 27 des
-Implementierungs"=Repositories: Der Merge erfolgte, bevor die Prüfungen abgeschlossen waren, und ein Befund des
-Zweitprüfers traf erst danach ein. Die Arbeit behauptet deshalb kein technisch erzwungenes Vier-Augen-Prinzip;
-Aussagen über den Prüfprozess stützen sich auf Protokolle tatsächlich gelaufener Prüfungen.
+Aus \figref{fig:pruefprozess} geht hervor, dass die durchgezogene Hauptlinie nur die vorgesehene Reihenfolge
+vom Prüfskript über Pull Request und Rust/Lean-CI bis zur Freigabe durch den Autor zeigt; eine technische
+Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt. Die
+gestrichelte Verbindung hebt hervor, dass auch deren Abschluss nicht erzwungen ist; das Thesis-Repository
+besitzt überhaupt keine solchen Prüfschritte. Pull Request 27 zeigt die Folge: Er wurde vor Abschluss aller
+Prüfungen zusammengeführt; ein Befund traf danach ein.\footnote{
+Implementierungs-Repository,
+\url{https://github.com/ab7z/udp-transport-options/pull/27}.} Daher wird kein technisch erzwungenes
+Vier-Augen-Prinzip behauptet.
 
-Zwei Abgrenzungen schließen den Abschnitt ab. Erstens gehört diese Testarchitektur zur Entwicklung; die
-Pfaduntersuchung für FF2 nutzt eine eigene Messinfrastruktur (das fertige Binary auf entfernten Linux-Servern,
-Paketmitschnitte mit \texttt{tcpdump}, unabhängige Nachrechnung der Prüfsummen), die \chapref{chap:evaluation}
-beschreibt. Ein bestandener Entwicklungstest sagt nichts über reale Netzpfade aus, und eine Messung ersetzt
-keinen Test. Zweitens setzt das Projekt bewusst kein Mutation-Testing am Quellcode ein; die Güte der Testsuite
-wird also nicht durch künstlich eingebaute Codefehler gemessen. Gezielt verfälschte Paketdaten kommen dagegen
-vor, etwa ein gekipptes Bit im Mitschnitt, mit dem die Blackbox-Prüfung ihre eigene Wachsamkeit belegt. Diese
-Grenze bleibt bestehen und wird im Ausblick wieder aufgegriffen.
+Diese Testarchitektur gehört zur Entwicklung. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme,
+Sendeprotokolle sowie Paketmitschnitte an Sender und Empfänger. Ein bestandener Entwicklungstest sagt nichts
+über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen Entwicklungstest. Das Projekt setzt außerdem kein
+Mutation-Testing am Rust-Quelltext ein. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der jeweilige
+Auswerter bekannte Manipulationen erkennt. Der folgende Abschnitt ordnet diesen Prüfgedanken durch externe
+Vergleichsfälle ein.
 
 \section{Externe Referenzfälle}
 \label{sec:externe-faelle}
 
-Das Muster dieser Methodik, dass ein generatives System vorschlägt, eine unabhängige Instanz prüft und
-Menschen freigeben, ist nicht projektspezifisch. Tabelle~\ref{tab:externe-faelle} ordnet acht publizierte
-Fälle KI-gestützter Ergebnisse danach, was die KI beitrug, wer unabhängig prüfte und welche Rolle Menschen
-behielten:
+Das Muster dieser Methodik, dass ein generatives System vorschlägt, eine unabhängige Instanz prüft und ein
+Mensch freigibt, ist nicht projektspezifisch. Zur methodischen Einordnung dienen acht publizierte Fälle
+KI-gestützter Ergebnisse; sie bilden keine systematische Literaturübersicht und erlauben keine Aussage über
+die Häufigkeit oder Wirksamkeit eines bestimmten Prüfprozesses.
 
-\begin{table}[H]
-  \centering
-  \caption{Externe Referenzfälle KI-gestützter Ergebnisse mit unabhängiger Prüfinstanz}
-  \label{tab:externe-faelle}
-  \small
-  \begin{tabularx}{\textwidth}{@{}L{2.6cm}YYL{3.0cm}@{}}
-    \toprule
-    \textbf{Fall} & \textbf{KI-Beitrag} & \textbf{unabhängige Prüfinstanz} & \textbf{menschliche Rolle} \\
-    \midrule
-    AlphaFold \cite{jumper2021alphafold}
-      & Vorhersage von Proteinstrukturen
-      & blinder CASP14-Vergleich mit experimentell bestimmten Strukturen
-      & Bewertung, Einordnung \\
-    Davies u.\,a. \cite{davies2021intuition}
-      & Hypothesen und Kandidatenmuster für mathematische Zusammenhänge
-      & Gegenbeispielsuche; klassischer Beweis
-      & Beweis durch Mathematiker \\
-    FunSearch \cite{romera2024funsearch}
-      & Programmkandidaten für offene Probleme
-      & deterministischer Auswerter bewertet jede Ausgabe
-      & Problemwahl, Analyse \\
-    AlphaProof \cite{alphaproof2026}
-      & Beweiskandidaten in formaler Sprache
-      & der Lean-Kern verifiziert jeden Beweis maschinell
-      & Aufgabenstellung, Bewertung \\
-    Knuths Zyklenproblem \cite{knuth2026cycles}
-      & Konstruktion für ein offenes Zerlegungsproblem gerichteter Hamiltonkreise
-      & Programmtests über viele Fälle; menschlicher Beweis; Lean-Formalisierung durch Dritte
-      & Problemwahl, Beweis, Bericht \\
-    Zeta-Schranke (Anthropic) \cite{anthropic2026zeta}
-      & verbesserte Schranke zur Lage der Nullstellen der Riemannschen Zetafunktion
-      & Lean-formalisierter Beweis; interne und externe Fachbegutachtung
-      & Begutachtung, Veröffentlichung \\
-    Einheitsabstände (OpenAI) \cite{openai2026unitdistance}
-      & Gegenbeispiel zur Einheitsabstands-Vermutung von Erdős
-      & Extraktion aus dem Modellprotokoll und mathematische Nachprüfung
-      & Extraktion, Nachbeweis \\
-    C-Parameter-Resummation \cite{schwartz2026cparameter}
-      & vollständige QCD-Rechnung, Numerik und Manuskript unter Physiker-Aufsicht
-      & Validierung gegen Monte-Carlo-Simulationen; fachliche Aufsicht
-      & Aufsicht, Verantwortung, Publikation \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+Vier Fälle zeigen die Bandbreite der Prüfinstanzen: AlphaFold wurde im blinden CASP14-Vergleich an
+experimentell bestimmten Proteinstrukturen gemessen \cite{jumper2021alphafold}. Bei Davies u.\,a. lieferte das
+Modell Hypothesen und Kandidatenmuster, geprüft durch Gegenbeispielsuche und den klassischen Beweis der
+beteiligten Mathematiker \cite{davies2021intuition}. Bei FunSearch bewertet ein deterministischer Auswerter
+jeden Programmkandidaten des Sprachmodells \cite{romera2024funsearch}, und bei AlphaProof verifiziert der
+Lean-Kern jeden formalen Beweiskandidaten maschinell \cite{alphaproof2026}.
 
-Aus der Tabelle wird ersichtlich, dass die Prüfinstanz je nach Fachgebiet wechselt, das Muster aber gleich
-bleibt: Die KI schlägt vor, geprüft wird woanders. Die vier Fälle aus dem Jahr 2026 benennen ihre
-Prüfinstanzen besonders klar. Bei Knuth stammte die Konstruktion vom Modell, der Beweis vom Menschen und die
-Lean-Formalisierung von einem unabhängigen Dritten \cite{knuth2026cycles}. Die verbesserte Zeta-Schranke wurde
-als Lean-Beweis formalisiert und intern wie extern begutachtet \cite{anthropic2026zeta}.
+Vier weitere Fälle benennen ihre Prüfinstanzen besonders klar. Bei Knuths Zyklenproblem stammte die
+Konstruktion vom Modell, der Beweis vom Menschen und die Lean-Formalisierung von einem unabhängigen Dritten
+\cite{knuth2026cycles}. Die verbesserte Schranke zur Lage der Nullstellen der Riemannschen Zetafunktion wurde
+als Lean-Beweis formalisiert und intern wie extern begutachtet \cite{anthropic2026zeta}. Beim Gegenbeispiel
+zur Einheitsabstands-Vermutung entnahmen Mathematiker die Konstruktion dem Modellprotokoll und führten den
+Nachweis selbst \cite{openai2026unitdistance}. Der Physik-Preprint zur C-Parameter-Resummation legt im
+Abstract offen, dass Rechnungen, Numerik und Manuskript von Claude unter Aufsicht eines Physikers entstanden
+und gegen Monte-Carlo-Simulationen geprüft wurden \cite{schwartz2026cparameter}; dieser ausdrücklichen
+Offenlegung in der Publikation selbst folgt auch die vorliegende Arbeit (\secref{sec:ki-offenlegung}).
 
-Beim Gegenbeispiel
-zur Einheitsabstands-Vermutung extrahierten Mathematiker die Konstruktion aus dem Modellprotokoll und führten
-den Nachbeweis selbst \cite{openai2026unitdistance}. Am weitesten geht der Physik-Preprint zur
-C-Parameter-Resummation: Sein Abstract legt offen, dass Rechnungen, Numerik und Manuskript von Claude unter
-Aufsicht eines Physikers erstellt wurden; geprüft wurde gegen Monte-Carlo-Simulationen
-\cite{schwartz2026cparameter}. Diese ausdrückliche Offenlegung in der Publikation selbst entspricht dem
-Prinzip, dem auch diese Arbeit folgt.
+Als neunter Fall liegt die Migration der JavaScript-Laufzeit Bun von Zig nach Rust dem Softwareteil dieser
+Arbeit am nächsten. Das Projekt trennte Erzeugungs- und Prüfrollen, besetzte beide aber mit Modellen derselben
+Familie \cite{bun-in-rust,bun-pr30412}. Nach dem Merge wurde dennoch ein Fall undefinierten Verhaltens
+gemeldet; als Reaktion nahm das Projekt das Prüfwerkzeug Miri in die CI auf \cite{bun-issue30719}. Daraus
+folgen zwei Lehren für diese Arbeit: Die Zweitprüfung besetzt bewusst ein Modell eines anderen Herstellers,
+und auch eine mehrstufige Prüfung gilt nicht als Garantie.
 
-Als neunter Fall kommt die Migration der JavaScript-Laufzeit Bun von Zig nach Rust dem Zuschnitt dieser Arbeit
-am nächsten: agentengestützte Codeerzeugung mit getrennten Erzeuger- und Prüfrollen, allerdings alle aus
-derselben Modellfamilie besetzt \cite{bun-in-rust,bun-pr30412}. Trotz mehrstufiger Prüfung wurde nach dem Merge
-ein Fall undefinierten Verhaltens gemeldet; als Reaktion nahm das Projekt ein Prüfwerkzeug für undefiniertes
-Verhalten (Miri) in die kontinuierliche Integration auf \cite{bun-issue30719}.
-
-Für diese Arbeit folgen daraus
-zwei Lehren: Die Zweitprüfung besetzt bewusst ein Modell eines anderen Herstellers, und auch eine mehrstufige
-Prüfung gilt nicht als Garantie. Alle neun Fälle teilen den Kern: Modellausgaben gelten erst nach unabhängiger
-Prüfung (Referenzdaten, mechanische Auswertung, formale Verifikation oder fachliche Begutachtung) und
-menschlicher Freigabe; keiner stützt sein Ergebnis allein auf die Zahl der eingesetzten Agenten.
+Alle neun Fälle teilen den Kern, dass Modellausgaben erst nach unabhängiger Prüfung und menschlicher Freigabe
+gelten; keiner stützt sein Ergebnis allein auf die Zahl der eingesetzten Agenten. Ein Erfolgsbeleg für die
+hier gewählte Modellkombination folgt daraus nicht. Das übertragbare Prinzip ist enger: Die Prüfinstanz muss
+zum Artefakt passen. Normtext, ausführbare Tests, formale Beweise, Messdaten und menschliche Freigabe erfüllen
+dabei unterschiedliche Aufgaben. Ob sie das im Projekt tatsächlich getan haben, muss dokumentiert sein; diese
+Dokumentation regelt der folgende Abschnitt.
 
 \section{Reproduzierbarkeit, Provenienz und Grenzen}
 \label{sec:provenienz}
 
-Aussagen über den Entstehungsprozess sind nur so belastbar wie ihre Protokollierung. Die Arbeit führt deshalb
-ein Provenienzregister; \emph{Provenienz} bezeichnet die dokumentierte Herkunft einer Aussage: wer oder was sie
-erzeugt hat, wer sie unabhängig geprüft hat und worauf sie sich stützt. Jede Zeile des Registers nennt Aussage
-oder Artefakt, Erzeugung, unabhängige Prüfung, Datum, Beleg und Status; die Werte \zitat{unbekannt} und
-\zitat{nicht protokolliert} sind zulässige, ehrliche Einträge. Die fortlaufend gefüllte Tabelle steht in
-Anhang~\ref{app:provenienz}.
+Aussagen über den Entstehungsprozess sind nur so belastbar wie ihre Protokollierung. Das Provenienzregister in
+Anhang~\ref{app:provenienz} nennt für jede erfasste Aussage oder jedes Artefakt die Erzeugung, die getrennte
+Prüfung, das Datum, den Beleg und den Status. Die Werte \zitat{unbekannt} und \zitat{nicht protokolliert} sind
+zulässige Einträge. Der Status \zitat{bestätigt} bedeutet, dass die dort beschriebene Prüfung belegt ist. Er
+bedeutet nicht, dass die Aussage allgemein wahr oder vollständig ist.
 
-Für den Umgang damit gelten drei Grundsätze:
+Eigene Zusammenfassungen und Arbeitsnotizen dienen nur als Suchhilfe. Die Prüfung erfolgt am Repository, am
+Primärtext oder an den Messdaten. Pannen werden nicht geglättet: Ein verlorener Prüfbericht wurde aus einem
+Sitzungsprotokoll wiederhergestellt und als Wiederherstellung gekennzeichnet. Eine versehentlich doppelte
+Zweitprüfung blieb ebenfalls erhalten. Auch Knuth berichtet, dass Zwischenstände einer Modellsitzung verloren
+gingen und die Fortschrittsdokumentation erneut eingefordert werden musste \cite{knuth2026cycles}.
 
-\begin{enumerate}
-  \item Eigene Zusammenfassungen und Arbeitsnotizen sind nur Suchhilfe, nie Beleg; geprüft wird am
-    Repository, am Primärtext oder an den Messdaten selbst.
-  \item Pannen werden dokumentiert statt geglättet: Ein verlorener Prüfbericht wurde aus dem
-    Sitzungsprotokoll wiederhergestellt und als Wiederherstellung gekennzeichnet, und eine versehentlich
-    doppelt eingeholte Zweitprüfung wurde aufbewahrt und ausgewertet. Auch Knuth berichtet aus seinen
-    Modellsitzungen, dass Zwischenstände verloren gingen und das Modell an die Fortschrittsdokumentation
-    erinnert werden musste \cite{knuth2026cycles}.
-  \item Lücken werden benannt: Für frühe Projektphasen ist nicht protokolliert, welche Modelle und
-    Konfigurationen im Einsatz waren; die betroffenen Registerzeilen tragen den Wert
-    \zitat{nicht protokolliert}.
-\end{enumerate}
+Technische Ergebnisse sind reproduzierbar, soweit Quellstand, Werkzeuge, Eingaben und Ausgaben archiviert sind.
+Die genaue Folge nichtdeterministischer Modellausgaben ist es nicht. Für frühe Projektphasen fehlen zudem
+vollständige Angaben zu Modellen und Konfigurationen. Diese Lücke wird im Register benannt und nicht durch den
+heutigen Sollprozess ersetzt.
 
-Damit sind auch die Grenzen der Methodik benannt. Die Prüfung mit zwei Modellen verschiedener Hersteller soll
-das Risiko gleichgerichteter Fehler verringern. Ob diese Wirkung eintritt, wird nicht gemessen; sie beweist
-weder die Unabhängigkeit der Prüfer noch die Fehlerfreiheit des Ergebnisses. Welche Befunde die Prüfungen im
-Projektverlauf tatsächlich lieferten und was sie übersahen, wertet \chapref{chap:evaluation} beschreibend aus.
-Aussagen über die Wirksamkeit der KI-Kollaboration werden nicht getroffen.
-
-\paragraph{Offene Stellen dieses Kapitels.}
-Dieses Kapitel ist ein Arbeitsstand. Vier Punkte sind noch offen:
-
-\begin{enumerate}
-  \item die Errata-Wiedervorlage zu den Abschnitten 11.4 und 14 (\secref{sec:rfc-auswertung}),
-  \item die externe Bestätigung der OCS-Referenzvektoren (\secref{sec:pruefkette}),
-  \item die rückwirkende Füllung des Provenienzregisters in Anhang~\ref{app:provenienz},
-  \item die beschreibenden Kennzahlen der Kooperation, die erst nach Abschluss der Evaluation in
-    \chapref{chap:evaluation} berichtet werden.
-\end{enumerate}
+Zum Abschluss dieses Kapitels bleiben die externe Bestätigung der OCS-Vektoren, die rückwirkende
+Ergänzung früher Provenienzeinträge und die beschreibenden Kennzahlen der Zusammenarbeit offen. Die
+Errata-Wiedervorlage ist dagegen mit der Prüfung von EID~8834 und EID~8708 abgeschlossen.
+\chapref{chap:analyse} verwendet die hier festgelegten Quellen- und Bewertungsregeln, um aus RFC~9868 das
+Anforderungsmodell für FF1 abzuleiten.
