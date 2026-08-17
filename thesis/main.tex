@@ -104,7 +104,6 @@
 
 % Code-Listings
 \usepackage{listings}
-\usepackage{fancyvrb}            % Zentrierbare Verbatim-Umgebungen
 \usepackage{xcolor}
 
 % Farben für Listings
@@ -157,6 +156,25 @@
     morecomment=[l]{|}
 }
 
+% Abbildungsstil für Paket- und Headerdiagramme (Palette des Lernkompendiums)
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{feldgrau}{HTML}{EDEDE7}     % neutrale Felder (Füllung)
+\definecolor{feldlinie}{HTML}{66707A}    % Feldrahmen und gedämpfte Beschriftung
+\definecolor{akzent}{HTML}{0E7C86}       % hervorgehobene Felder (Rahmen)
+\definecolor{akzenthell}{HTML}{E2EFF0}   % hervorgehobene Felder (Füllung)
+\definecolor{warnton}{HTML}{A64B22}      % Warn- und Kontrastfelder (Rahmen)
+\definecolor{warnhell}{HTML}{F5E3D9}     % Warn- und Kontrastfelder (Füllung)
+\tikzset{
+  feld/.style={draw=feldlinie, fill=feldgrau, rounded corners=2pt, thin},
+  feldakzent/.style={draw=akzent, fill=akzenthell, rounded corners=2pt, semithick},
+  feldwarn/.style={draw=warnton, fill=warnhell, rounded corners=2pt, semithick},
+  feldoptional/.style={draw=feldlinie, fill=feldgrau, rounded corners=2pt, thin, dashed},
+  feldtext/.style={font=\scriptsize},
+  bitindex/.style={font=\tiny\ttfamily, text=feldlinie},
+  klammer/.style={decorate, decoration={brace, amplitude=4pt}, draw=feldlinie, thin},
+}
+
 % Hyperlinks
 \usepackage{hyperref}
 \hypersetup{
@@ -201,6 +219,8 @@
 \usepackage{etoolbox}           % Zum Patchen von Befehlen
 \usepackage{caption}            % Bildunterschriften anpassen
 \usepackage{subcaption}         % Subfigures
+% Beschriftungen abgesetzt vom Fließtext: kleiner, gedämpftes Grau, fettes Label (Palette des Hausstils)
+\captionsetup{font=small, labelfont={bf,color=feldlinie}, textfont={color=feldlinie}, skip=8pt}
 \usepackage{pdfpages}           % PDF-Seiten einbinden
 \setlength{\marginparwidth}{2cm} % benötigt von todonotes
 \usepackage[disable]{todonotes} % TODO-Notizen deaktiviert
@@ -224,6 +244,7 @@
 \newcommand{\figref}[1]{Abbildung~\ref{#1}}
 \newcommand{\tabref}[1]{Tabelle~\ref{#1}}
 \newcommand{\lstref}[1]{Listing~\ref{#1}}
+\newcommand{\eqnref}[1]{Gleichung~\ref{#1}}
 
 % TODO-Markierungen
 \newcommand{\todoref}[1]{\todo[color=yellow!40]{Referenz: #1}}

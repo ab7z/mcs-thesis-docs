@@ -2,20 +2,228 @@
 % Kapitel 2: Grundlagen
 % =============================================================================
 
-\chapter{Technische und methodische Grundlagen}
+\chapter{Grundlagen}
 \label{chap:grundlagen}
 
-\section{Internet Protocol (IP)}
-\label{sec:ip}
+Dieses Kapitel stellt die Grundlagen bereit, die zum Verständnis von RFC~9868 und zur Beurteilung der
+späteren Implementierung und Messungen nötig sind: IPv4 und UDP als die beiden beteiligten Protokolle
+(\secref{sec:ipv4}, \secref{sec:udp}), die Erweiterungsmuster im Vergleich (\secref{sec:erweiterungsmuster}),
+die Surplus Area samt Entwurfsprinzipien (\secref{sec:surplus-area}) sowie Betriebssystem und Netzpfad der
+Messungen (\secref{sec:netzpfad}).
 
-\subsection{IPv4}
-\label{subsec:ipv4}
+\section{IPv4}
+\label{sec:ipv4}
+
+Das Internet Protocol (IP) vermittelt Datagramme über die Grenzen einzelner Netze hinweg zwischen Endsystemen
+und bildet damit die Vermittlungsschicht, auf der UDP aufsetzt \cite{rfc791}. Dass diese Arbeit eine Schicht
+unterhalb ihres eigentlichen Gegenstands beginnt, hat einen konkreten Grund: Die \textit{Surplus Area}, in der
+RFC~9868 seine Optionen ablegt, ist allein durch das Zusammenspiel beider Schichten definiert. Das
+UDP-Length-Feld markiert das Ende der UDP-Nutzdaten; wo das umgebende IP-Datagramm endet, ergibt sich dagegen
+ausschließlich aus dem IP-Header. Ohne die Längenangaben von IPv4 lässt sich daher weder feststellen, ob eine
+Surplus Area vorhanden ist, noch wie groß sie ausfällt \cite[Sec.~7]{rfc9868}.
+
+Dabei genügt der Blick auf die Version~4 des Protokolls. RFC~9868 definiert die Surplus Area für IPv4 und IPv6
+gleichermaßen, und sämtliche Optionsmechanismen sind in beiden Fällen identisch; die Versionen unterscheiden
+sich nur darin, wie das Ende der Nutzlast bestimmt wird \cite[Sec.~7]{rfc9868}. Bei IPv4 reichen dafür
+zwei Felder des Headers, während bei IPv6 die Kette der Extension Header durchlaufen werden muss \cite{rfc8200}.
+Da somit kein Mechanismus des Standards von der
+IP-Version abhängt, lässt er sich vollständig an IPv4 zeigen. Implementierung und Evaluation dieser Arbeit sind
+entsprechend auf IPv4 begrenzt (\secref{sec:abgrenzung}).
+
+Auch IPv4 selbst wird in diesem Unterkapitel nicht vollständig erklärt und dargestellt.
+Dieser Abschnitt behandelt ausschließlich die Themen,
+Header-Elemente und Eigenschaften, die RFC~9868 und die spätere Implementierung tatsächlich berühren: die
+beiden Längenangaben des Headers, das Protokollfeld, die Adressen, die Header-Prüfsumme, das
+Fragmentierungsverhalten sowie das Feld \texttt{Time to Live} als Messgröße der Evaluation.
+
+Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header} \cite{rfc791}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[x=0.365cm, y=1cm]
+    \node[bitindex, anchor=south west] at (0,0.06) {0};
+    \node[bitindex, anchor=south] at (8,0.06) {8};
+    \node[bitindex, anchor=south] at (16,0.06) {16};
+    \node[bitindex, anchor=south] at (24,0.06) {24};
+    \node[bitindex, anchor=south east] at (32,0.06) {31};
+    \draw[feld] (0,-0.72) rectangle (4,0);
+    \node[feldtext] at (2,-0.36) {Version};
+    \draw[feldakzent] (4,-0.72) rectangle (8,0);
+    \node[feldtext] at (6,-0.36) {IHL};
+    \draw[feld] (8,-0.72) rectangle (16,0);
+    \node[feldtext] at (12,-0.36) {Type of Service};
+    \draw[feldakzent] (16,-0.72) rectangle (32,0);
+    \node[feldtext] at (24,-0.36) {Total Length};
+    \draw[feld] (0,-1.54) rectangle (16,-0.82);
+    \node[feldtext] at (8,-1.18) {Identification};
+    \draw[feld] (16,-1.54) rectangle (19,-0.82);
+    \node[feldtext] at (17.5,-1.18) {Flags};
+    \draw[feld] (19,-1.54) rectangle (32,-0.82);
+    \node[feldtext] at (25.5,-1.18) {Fragment Offset};
+    \draw[feld] (0,-2.36) rectangle (8,-1.64);
+    \node[feldtext] at (4,-2.00) {Time to Live};
+    \draw[feld] (8,-2.36) rectangle (16,-1.64);
+    \node[feldtext] at (12,-2.00) {Protocol};
+    \draw[feld] (16,-2.36) rectangle (32,-1.64);
+    \node[feldtext] at (24,-2.00) {Header Checksum};
+    \draw[feld] (0,-3.18) rectangle (32,-2.46);
+    \node[feldtext] at (16,-2.82) {Source Address};
+    \draw[feld] (0,-4.00) rectangle (32,-3.28);
+    \node[feldtext] at (16,-3.64) {Destination Address};
+    \draw[feldoptional] (0,-4.82) rectangle (24,-4.10);
+    \node[feldtext] at (12,-4.46) {IP-Optionen (falls vorhanden)};
+    \draw[feldoptional] (24,-4.82) rectangle (32,-4.10);
+    \node[feldtext] at (28,-4.46) {Padding};
+    \draw[klammer] (32.35,0) -- (32.35,-4.00)
+      node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {fester Header\\20~Byte};
+    \draw[klammer] (32.35,-4.10) -- (32.35,-4.82)
+      node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {$(\textit{IHL}-5) \times 4$~Byte};
+  \end{tikzpicture}
+  \caption{Der IPv4-Header nach RFC~791 \cite{rfc791}. Hervorgehoben sind die beiden Längenangaben, auf denen
+    die Bestimmung der Surplus Area beruht; gestrichelte Felder sind nur vorhanden, wenn \texttt{IHL} über dem
+    Minimalwert~5 liegt.}
+  \label{fig:ipv4-header}
+\end{figure}
+
+Im Zentrum stehen die beiden Längenangaben der ersten Zeile. \texttt{Total Length} gibt die Gesamtlänge des
+Datagramms in Byte an, Header und Nutzlast zusammen; als 16-Bit-Feld erlaubt es höchstens 65\,535~Byte.
+
+Die zweite Längenangabe, die \texttt{IHL} (Internet Header Length), beziffert die Länge des Headers. Sie zählt
+dabei nicht in Byte, sondern in 32-Bit-Wörtern zu je 4~Byte. Der Grund liegt in der Breite des Feldes: Mit
+seinen 4~Bit kann es höchstens den Wert~15 darstellen. In Byte gezählt würde das nicht einmal für den festen
+Headeranteil von 20~Byte reichen; in 32-Bit-Wörtern gezählt beschreibt derselbe Wertebereich dagegen Header bis
+60~Byte \cite{rfc791}. Die Headerlänge ergibt sich daher als
+\begin{equation}
+  \textit{Headerlänge} = \textit{IHL} \times 4~\mbox{Byte}.
+  \label{eq:ihl-headerlaenge}
+\end{equation}
+Der Minimalwert~5 entspricht dem optionslosen 20-Byte-Header, der Maximalwert~15 einem Header von 60~Byte.
+Eine IPv4-Headerlänge ist damit stets ein Vielfaches von~4; diese unscheinbare Eigenschaft kehrt bei der
+Ausrichtung der UDP Options wieder.
+
+Zwischen festem Header und Nutzlast können zudem IP-Optionen liegen. Sie stellen Steuerfunktionen für
+Sonderfälle bereit, die die gewöhnliche Kommunikation nicht braucht \cite{rfc791} und dienen als zusätzliche
+Felder zur Erweiterung der IP-Header: \texttt{Record Route}
+etwa sammelt die Adressen der durchlaufenen Router ein, \texttt{Internet Timestamp} deren Zeitstempel. In
+der Praxis werden solche Optionen kaum genutzt: Optionstragende Pakete fallen aus dem schnellen
+Weiterleitungspfad der Router heraus, gelten deshalb als Überlastrisiko und werden verbreitet gefiltert
+\cite[Sec.~1 und 3.1]{rfc7126}; zudem fasst der 40-Byte-Optionsraum höchstens neun Adressen und damit viele
+reale Pfade nicht. Abschließend gilt, dass erst die \texttt{IHL} und keine Konstante den Beginn der
+Nutzlast festlegt.
+
+Aus den beiden Längenangaben \texttt{Total Length} und \texttt{IHL} ergibt sich die Größe, auf die sich
+RFC~9868 durchgängig bezieht: Die Nutzlast eines IPv4-Datagramms beginnt nach \texttt{IHL} $\times$ 4 Byte
+und endet bei \texttt{Total Length}. Für ein
+UDP-Datagramm fordert RFC~9868 deshalb \cite[Sec.~7]{rfc9868}\footnote{In Ausnahmefällen liegen zwischen
+IPv4- und UDP-Header noch Shim-Header, etwa bei IPsec oder IPComp; das Feld \texttt{Protocol} zeigt dann
+nicht UDP an, und die Obergrenze verringert sich zusätzlich um die Gesamtlänge dieser Shim-Header
+\cite[Sec.~7]{rfc9868}. Diese Arbeit betrachtet solche Ketten nicht weiter.}
+\begin{equation}
+  \textit{UDP Length} \leq \textit{Total Length} - \textit{Headerlänge}.
+  \label{eq:udp-length-obergrenze}
+\end{equation}
+Die rechte Seite der Ungleichung ist die Länge dieser Nutzlast, also der Platz hinter dem IP-Header.
+Die linke Seite ist die Länge, die das UDP-Datagramm für sich beansprucht. Die Bedingung verlangt damit, dass
+das UDP-Datagramm vollständig in die Nutzlast des IP-Datagramms passt; UDP darf nie mehr Platz beanspruchen, als
+das IP-Datagramm hergibt. Bei Gleichheit füllt das UDP-Datagramm die Nutzlast exakt aus; so arbeiten
+klassische Sender. Bleibt \texttt{UDP Length} dagegen zurück, ist die Differenz genau der Raum, den
+\secref{sec:surplus-area} als Surplus Area einführt.
+
+Von den übrigen Feldern braucht die Arbeit nur wenige. \texttt{Protocol} benennt das Transportprotokoll der
+Nutzlast; der Wert~17 steht für UDP. Die \texttt{Header Checksum} sichert ausschließlich den Header, nicht die
+Nutzlast; deren Fehlererkennung bleibt der UDP-Prüfsumme überlassen (\secref{subsec:udp-struktur}). Quell- und
+Zieladresse geben Absender und Empfänger des Datagramms an. Sie werden später noch einmal wichtig: Die
+UDP-Prüfsumme bezieht beide Adressen über einen sogenannten Pseudo-Header in ihre Berechnung ein.
+\texttt{Version} und \texttt{Type of Service} berühren den Optionsmechanismus nicht und werden nicht weiter
+vertieft.
+
+Auch \texttt{Time to Live} spielt für die Optionen keine Rolle, kehrt in der Evaluation aber als
+Messgröße wieder: Jeder Router verringert den Wert beim Weiterleiten um eins und verwirft das Datagramm, wenn
+null erreicht ist \cite{rfc791}. Aus der Differenz zwischen gesendetem und empfangenem Wert liest
+\chapref{chap:evaluation} daher die Zahl der durchlaufenen IPv4-Router ab und prüft damit die Stabilität der
+Messpfade. Die zweite Zeile des Headers schließlich (\texttt{Identification}, \texttt{Flags},
+\texttt{Fragment Offset}) gehört vollständig zur Fragmentierung, der sich der Rest dieses Abschnitts widmet.
+
+Wie groß ein Datagramm praktisch werden kann, entscheidet allerdings nicht das 16-Bit-Längenfeld, sondern der
+Übertragungsweg. Jede Technik der Sicherungsschicht begrenzt die Nutzlast eines einzelnen Rahmens; diese
+Obergrenze heißt Maximum Transmission Unit (MTU) und liegt für Ethernet üblicherweise bei 1500~Byte. Streng
+genommen ist die MTU also eine Eigenschaft der Sicherungsschicht. Ihre Folgen trägt jedoch die
+Vermittlungsschicht, denn ein Datagramm durchquert auf dem Weg zum Ziel mehrere Netze mit möglicherweise
+unterschiedlichen MTUs, und IP muss festlegen, was mit einem Datagramm geschieht, das nicht in den nächsten
+Rahmen passt \cite{rfc791}.
+
+IPv4 beantwortet das mit Fragmentierung. Ist ein Datagramm größer als die MTU und das Flag \texttt{DF} (Don't
+Fragment) nicht gesetzt, zerlegt die IP-Schicht es in mehrere Fragmente. Das übernimmt nicht nur der
+Absender: Bei IPv4 darf auch jeder Router unterwegs ein Datagramm zerlegen, das nicht in sein nächstes Netz
+passt \cite{rfc791}. Jedes Fragment erhält einen eigenen IP-Header, übernimmt die \texttt{Identification} des
+Originals, trägt in \texttt{Fragment Offset} seine Position in Einheiten von 8~Byte und setzt das Flag
+\texttt{MF} (More Fragments), das nur beim letzten Fragment fehlt. Der Empfänger sammelt zusammengehörige
+Fragmente anhand von Quelladresse, Zieladresse, Protokoll und
+\texttt{Identification} und setzt das Datagramm vor der Übergabe an die Transportschicht wieder zusammen
+\cite{rfc791}. Ist \texttt{DF} dagegen gesetzt, verwirft ein Router das zu große Datagramm und meldet dies dem
+Absender per ICMP; auf dieser Rückmeldung baut die Path MTU Discovery auf, mit der ein Sender die kleinste MTU
+seines Pfades ermittelt \cite[Sec.~3.2]{rfc8085}.
+
+Für diese Arbeit ist an der Fragmentierung vor allem eine Konsequenz bedeutsam: Der UDP-Header gehört aus Sicht
+von IP zur Nutzlast und landet deshalb vollständig im ersten Fragment. Was das für die übrigen Fragmente
+bedeutet, zeigt \figref{fig:ip-fragmentierung} am Beispiel eines in drei Teile zerlegten Datagramms.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[font=\tiny, text=feldlinie, anchor=south west] at (0,0.06) {Original-Datagramm};
+    \draw[feld] (0,-0.72) rectangle (1.7,0);
+    \node[feldtext] at (0.85,-0.36) {IP-Header};
+    \draw[feldakzent] (1.7,-0.72) rectangle (3.4,0);
+    \node[feldtext] at (2.55,-0.36) {UDP-Header};
+    \draw[feld] (3.4,-0.72) rectangle (10.4,0);
+    \node[feldtext] at (6.9,-0.36) {UDP-Nutzdaten};
+    \draw[feldlinie, thin, dashed] (5.4,-0.72) -- (5.4,-2.70);
+    \draw[feldlinie, thin, dashed] (8.0,-0.72) -- (8.0,-3.85);
+    \node[font=\tiny, text=feldlinie, anchor=south west] at (0,-1.53) {Fragment 1};
+    \draw[feld] (0,-2.27) rectangle (1.7,-1.55);
+    \node[feldtext] at (0.85,-1.91) {IP-Header};
+    \draw[feldakzent] (1.7,-2.27) rectangle (3.4,-1.55);
+    \node[feldtext] at (2.55,-1.91) {UDP-Header};
+    \draw[feld] (3.4,-2.27) rectangle (5.4,-1.55);
+    \node[feldtext] at (4.4,-1.91) {Teil 1};
+    \node[font=\tiny, text=feldlinie, anchor=south west] at (3.7,-2.68) {Fragment 2};
+    \draw[feld] (3.7,-3.42) rectangle (5.4,-2.70);
+    \node[feldtext] at (4.55,-3.06) {IP-Header};
+    \draw[feld] (5.4,-3.42) rectangle (8.0,-2.70);
+    \node[feldtext] at (6.7,-3.06) {Teil 2};
+    \node[font=\scriptsize, text=warnton, anchor=west, align=left] at (8.25,-3.06) {keine\\Portnummern};
+    \node[font=\tiny, text=feldlinie, anchor=south west] at (6.3,-3.83) {Fragment 3};
+    \draw[feld] (6.3,-4.57) rectangle (8.0,-3.85);
+    \node[feldtext] at (7.15,-4.21) {IP-Header};
+    \draw[feld] (8.0,-4.57) rectangle (10.4,-3.85);
+    \node[feldtext] at (9.2,-4.21) {Teil 3};
+    \node[font=\scriptsize, text=warnton, anchor=west, align=left] at (10.65,-4.21) {keine\\Portnummern};
+  \end{tikzpicture}
+  \caption{Schematische Zerlegung eines UDP-Datagramms in drei IPv4-Fragmente}
+  \label{fig:ip-fragmentierung}
+\end{figure}
+
+Aus \figref{fig:ip-fragmentierung} geht hervor, dass nur das erste Fragment den UDP-Header enthält: Alle
+Folgefragmente tragen keine Portnummern. Zwischensysteme wie NATs und Firewalls, die Pakete anhand
+vollständiger Header zuordnen oder prüfen, können solche Fragmente nicht einordnen und verwerfen sie teils
+pauschal; zudem macht der Verlust eines einzelnen Fragments das gesamte Datagramm unbrauchbar. RFC~8085 wertet
+beides als grundsätzliches Problem der IP-Fragmentierung, das jedes Transportprotokoll trifft, und rät
+UDP-Anwendungen deshalb, IP-Fragmentierung zu vermeiden \cite[Sec.~3.2]{rfc8085}. Dass der Rat gerade an UDP
+geht, hat einen Grund: Während TCP seinen Datenstrom selbst in passende Segmente zerlegt und der
+IP-Fragmentierung so meist entgeht \cite{rfc9293}, erzeugt UDP je Nachricht genau ein Datagramm
+(\secref{subsec:udp-eigenschaften}); ein zu großes Datagramm kann bislang nur die IP-Schicht zerteilen. Genau
+diese Lücke schließt die FRAG-Option von RFC~9868: Sie verlagert die Fragmentierung auf die Transportschicht
+und wiederholt die Portnummern in jedem Fragment \cite[Sec.~11.4]{rfc9868}; den Verlust einzelner Fragmente
+behebt allerdings auch FRAG nicht. Darauf kommt \chapref{chap:analyse} zurück.
+
+Der folgende Abschnitt wendet sich dem Protokoll zu, das RFC~9868 tatsächlich erweitert: UDP.
 
 \section{Das User Datagram Protocol (UDP)}
 \label{sec:udp}
 
 Das User Datagram Protocol (UDP) ist neben dem Transmission Control Protocol (TCP) eines der beiden zentralen
-Transportprotokolle der TCP/IP-Protokollfamilie. Im Gegensatz zu TCP verfolgt UDP ein bewusst minimalistisches Design:
+Transportprotokolle der Transportschicht. Im Gegensatz zu TCP verfolgt UDP ein bewusst minimalistisches Design:
 Es sendet Datagramme ohne vorherigen Handshake oder Zustandsabgleich mit dem Empfänger, bietet keine Garantien
 für Zustellung, Reihenfolge oder Duplikaterkennung und verzichtet
 auf jeglichen Flusskontroll- oder Staukontrollmechanismus \cite{rfc768}. Mit der Protokollnummer~17 im IP-Header
@@ -27,29 +235,43 @@ UDP-Standard erstmalig direkt \cite{rfc9868}.
 Historisch geht UDP auf die Aufspaltung des ursprünglichen \emph{Transmission Control Program} zurück, das
 Cerf, Dalal und Sunshine Ende 1974 noch als monolithische Einheit aus Netzwerk- und Transportfunktionen
 beschrieben \cite{rfc675}. Mit deren Trennung in IP und TCP entstand der Bedarf nach einer schlanken,
-transaktionsorientierten Alternative ohne den Overhead von TCP, die Jon Postel 1980 spezifizierte
-\cite{rfc768}. Während der UDP-Kern über die folgenden Jahrzehnte unverändert blieb und nur
+transaktionsorientierten Alternative ohne den Overhead von TCP.
+Während der UDP-Kern über die folgenden Jahrzehnte unverändert blieb und nur
 Begleitdokumente Randfragen klärten, ließ erst die wachsende Bedeutung UDP-basierter Protokolle wie QUIC
 \cite{rfc9000} und HTTP/3 \cite{rfc9114} mit RFC~9868 die erste direkte Erweiterung des Standards entstehen.
 
 \subsection{Protokollstruktur}
 \label{subsec:udp-struktur}
 
-Ein UDP-Datagramm besteht aus einem Header mit fester Länge von 8~Byte und den darauf folgenden Nutzdaten.
-RFC~768 definiert den Header wie folgt \cite{rfc768}:
+Ein UDP-Datagramm besteht aus einem Header mit fester Länge von 8~Byte und den darauf folgenden Nutzdaten;
+den Aufbau des Headers zeigt \figref{fig:udp-header} \cite{rfc768}.
 
-\begin{verbatim}
-   0                             15 16                           31
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |          Source Port          |       Destination Port        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |            Length             |           Checksum            |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        data octets ...                        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-\end{verbatim}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[x=0.365cm, y=1cm]
+    \node[bitindex, anchor=south west] at (0,0.06) {0};
+    \node[bitindex, anchor=south] at (8,0.06) {8};
+    \node[bitindex, anchor=south] at (16,0.06) {16};
+    \node[bitindex, anchor=south] at (24,0.06) {24};
+    \node[bitindex, anchor=south east] at (32,0.06) {31};
+    \draw[feld] (0,-0.72) rectangle (16,0);
+    \node[feldtext] at (8,-0.36) {Source Port};
+    \draw[feld] (16,-0.72) rectangle (32,0);
+    \node[feldtext] at (24,-0.36) {Destination Port};
+    \draw[feld] (0,-1.54) rectangle (16,-0.82);
+    \node[feldtext] at (8,-1.18) {Length};
+    \draw[feld] (16,-1.54) rectangle (32,-0.82);
+    \node[feldtext] at (24,-1.18) {Checksum};
+    \draw[klammer] (32.35,0) -- (32.35,-1.54)
+      node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {fester Header\\8~Byte};
+  \end{tikzpicture}
+  \caption{Der UDP-Header nach RFC~768 \cite{rfc768}}
+  \label{fig:udp-header}
+\end{figure}
 
-Die vier Felder des Headers haben jeweils eine Breite von 16~Bit:
+Aus \figref{fig:udp-header} geht hervor, dass der gesamte Header aus genau vier Feldern zu je 16~Bit
+besteht; unter ihnen das Längenfeld, für das \secref{sec:ipv4} mit \eqnref{eq:udp-length-obergrenze} bereits
+die Obergrenze aufgestellt hat. Die vier Felder im Einzelnen:
 
 \begin{itemize}
     \item \texttt{Source Port}: Die Portnummer des sendenden Prozesses. Dieses Feld ist optional; wird es nicht
@@ -64,30 +286,77 @@ Die vier Felder des Headers haben jeweils eine Breite von 16~Bit:
     Der Minimalwert beträgt~8, was einem Datagramm ohne Nutzdaten entspricht \cite{rfc768}. Da das Feld 16~Bit
     breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte.
 
-    \item \texttt{Checksum}: Eine Prüfsumme über einen Pseudo-Header, den UDP-Header und die Nutzdaten. Die
-    Berechnung verwendet das \textit{Einerkomplement}-Verfahren: Alle 16-Bit-Wörter werden addiert und das
-    Einerkomplement der Summe bildet den Prüfsummenwert \cite{rfc1071}. Die Prüfsumme ist optional: wird sie
-    nicht berechnet, wird das Feld auf null gesetzt \cite{rfc768}.
+    \item \texttt{Checksum}: Eine Prüfsumme zur Fehlererkennung über einen Pseudo-Header, den UDP-Header
+    und die Nutzdaten; ihr Verfahren und ihre Sonderwerte erläutert der folgende Absatz.
 \end{itemize}
+
+\paragraph{Prüfsumme.}
+Die Prüfsumme dient der Fehlererkennung: Mit ihr erkennt der Empfänger, ob einzelne Bits des Datagramms auf
+dem Weg verändert wurden. Diese Prüfung auf der Transportschicht ist nötig, weil nicht jede Teilstrecke
+eines Pfades eigene Fehlererkennung bietet und Bits auch im Speicher eines Routers kippen können
+\cite{kurose2021topdown}. Dennoch ist die Prüfsumme optional.
+Für die Berechnung summiert der Sender Pseudo-Header, UDP-Header und Nutzdaten
+als 16-Bit-Wörter im Einerkomplement auf (ein Übertrag wird am niederwertigen Ende wieder hinzugezählt);
+das invertierte Ergebnis bildet den Feldwert \cite{rfc768,rfc1071}. Der Empfänger summiert dieselben Wörter
+einschließlich des Prüfsummenfelds und erwartet lauter Einsen, also \texttt{0xFFFF}; jedes andere Ergebnis
+zeigt einen Übertragungsfehler an \cite{rfc1071}.
+
+Dabei hilft eine Eigenheit des Einerkomplements: Es kennt zwei Darstellungen der Null, \texttt{0x0000} und
+\texttt{0xFFFF}. Diese Doppelrolle nutzt UDP für die Sonderwerte des Feldes:
+eine übertragene \texttt{0x0000} bedeutet, dass der Sender keine berechnet hat. Ergibt die
+Berechnung selbst den Wert null, wird stattdessen \texttt{0xFFFF} übertragen.
+Dadurch bleibt im Einerkomplement die Zahl Null erhalten, und der Sonderwert bleibt eindeutig \cite{rfc768}.
+Dabei ist zu beachten, dass UDP Fehler nur erkennen und nicht beheben kann;
+ein beschädigtes Datagramm wird typischerweise verworfen \cite{kurose2021topdown}.
 
 \paragraph{Pseudo-Header.}
 Die UDP-Prüfsumme schützt nicht nur die Transportschichtdaten, sondern bezieht über einen \textit{Pseudo-Header}
-auch Informationen der Vermittlungsschicht ein. Dieses Konzept stellt sicher, dass ein Datagramm, das durch einen
-IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt und verworfen werden kann.
-RFC~768 definiert den folgenden Pseudo-Header \cite{rfc768}:
+auch Informationen der Vermittlungsschicht ein. Dieser Pseudo-Header ist kein Teil des Datagramms und steht an
+keiner Stelle im Paket: Sender und Empfänger bauen ihn jeweils nur für die Berechnung im Speicher auf und
+stellen ihn dem UDP-Header dabei gedanklich voran \cite{rfc768}. Dieses Konzept stellt sicher, dass ein
+Datagramm, das durch einen IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt
+und verworfen werden kann. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header} \cite{rfc768}.
 
-\begin{center}
-\begin{BVerbatim}
- 0      7 8     15 16    23 24    31
-+--------+--------+--------+--------+
-|          Source Address           |
-+--------+--------+--------+--------+
-|        Destination Address        |
-+--------+--------+--------+--------+
-|  Zero  |Protocol|   UDP Length    |
-+--------+--------+--------+--------+
-\end{BVerbatim}
-\end{center}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[x=0.365cm, y=1cm]
+    \node[bitindex, anchor=south west] at (0,0.06) {0};
+    \node[bitindex, anchor=south] at (8,0.06) {8};
+    \node[bitindex, anchor=south] at (16,0.06) {16};
+    \node[bitindex, anchor=south] at (24,0.06) {24};
+    \node[bitindex, anchor=south east] at (32,0.06) {31};
+    \draw[feldoptional] (0,-0.72) rectangle (32,0);
+    \node[feldtext] at (16,-0.36) {Source Address};
+    \draw[feldoptional] (0,-1.54) rectangle (32,-0.82);
+    \node[feldtext] at (16,-1.18) {Destination Address};
+    \draw[feldoptional] (0,-2.36) rectangle (8,-1.64);
+    \node[feldtext] at (4,-2.00) {Zero};
+    \draw[feldoptional] (8,-2.36) rectangle (16,-1.64);
+    \node[feldtext] at (12,-2.00) {Protocol};
+    \draw[feldoptional] (16,-2.36) rectangle (32,-1.64);
+    \node[feldtext] at (24,-2.00) {UDP Length};
+    \draw[klammer] (32.35,0) -- (32.35,-2.36)
+      node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {12~Byte};
+  \end{tikzpicture}
+  \caption{Der Pseudo-Header der UDP-Prüfsumme für IPv4 \cite{rfc768}}
+  \label{fig:udp-pseudo-header}
+\end{figure}
+
+Aus \figref{fig:udp-pseudo-header} geht hervor, dass der Pseudo-Header ausschließlich aus Werten besteht,
+die beiden Seiten ohnehin vorliegen: den beiden Adressen und dem Feld \texttt{Protocol} aus dem IP-Header
+(\secref{sec:ipv4}), einem Nullbyte als Füllung sowie einer Wiederholung des UDP-Längenfelds. Nur deshalb
+können Sender und Empfänger unabhängig voneinander dieselben zwölf Byte zusammensetzen; die gestrichelte
+Darstellung kennzeichnet, dass keines dieser Felder je übertragen wird \cite{rfc768}.
+
+Ein letzter Blick gilt dem Feld \texttt{Zero}: Es trägt keine Information, sondern stellt die Ausrichtung
+her. Die Prüfsummenarithmetik arbeitet ausschließlich auf 16-Bit-Wörtern \cite{rfc1071}, das Protokollfeld
+aus dem IP-Header ist aber nur 8~Bit breit; das vorangestellte Nullbyte ergänzt es zu einem vollen Wort.
+Nach demselben Prinzip werden auch Nutzdaten ungerader Länge für die Berechnung am Ende mit einem Nulloktett
+aufgefüllt \cite{rfc768}. Durch ein anderes Feld aus dem IP-Header, etwa \texttt{Time to Live}, lässt sich
+das Nullbyte dagegen nicht ersetzen: Jeder Router verringert diesen Wert beim Weiterleiten
+(\secref{sec:ipv4}); der Empfänger würde also mit einem anderen Wert rechnen als der Sender, und die
+Prüfung ginge selbst bei fehlerfreier Übertragung nie auf. In den Pseudo-Header gehören nur Werte, die
+unterwegs unverändert bleiben; ein festes Nullbyte erfüllt das von selbst.
 
 \subsection{Eigenschaften}
 \label{subsec:udp-eigenschaften}
@@ -98,9 +367,13 @@ für welche Anwendungsfälle das Protokoll geeignet ist.
 
 \paragraph{Nachrichtenorientierung.}
 UDP ist ein \textit{nachrichtenorientiertes} Protokoll: Jede Sendeoperation erzeugt genau ein Datagramm, und der
-Empfänger erhält jede Nachricht als atomare Einheit. RFC~768 beschreibt UDP als Verfahren, mit dem Programme
-Nachrichten an andere Programme senden können (\zitat{a procedure to send [...] messages to other programs})
-\cite{rfc768}.
+Empfänger erhält jede Nachricht als atomare Einheit. TCP arbeitet dagegen \textit{stromorientiert}: Es bietet der
+Anwendung einen fortlaufenden Bytestrom, den es für die Übertragung selbst in Segmente zerlegt
+\cite[Sec.~2.2]{rfc9293}. Sendet eine Anwendung etwa nacheinander \texttt{\dq hello\dq}, \texttt{\dq world\dq}
+und \texttt{\dq !\dq}, stellt UDP drei Datagramme mit genau diesen Nachrichten zu; ein TCP-Empfänger kann
+denselben Strom auch als \texttt{\dq hellowo\dq} und \texttt{\dq rld!\dq} erhalten \cite[Sec.~3.7]{rfc9293}.
+Eine Anwendung, die über TCP einzelne Nachrichten austauschen will, muss deren Grenzen deshalb selbst
+kennzeichnen, etwa durch Längenfelder; bei UDP entfällt das, weil jedes Datagramm genau eine Nachricht trägt.
 
 \paragraph{Zustandslosigkeit.}
 UDP verwaltet keinen protokollspezifischen Zustand für einzelne Kommunikationsbeziehungen und hält keinerlei
@@ -109,54 +382,102 @@ Datenstrukturen wie Sequenznummern, Fenstergrößen oder Retransmission-Timer vo
 \paragraph{Minimale Latenz.}
 Da UDP verbindungslos arbeitet, entfällt jeglicher Handshake vor der Datenübertragung. Die erste Nachricht kann
 unmittelbar gesendet werden, ohne dass ein vorheriger Verbindungsaufbau abgewartet werden muss
-\cite[Sec.~1]{rfc8085}. Ebenso existiert kein Verbindungsabbau, der
-zusätzliche Latenz verursachen könnte.
+\cite[Sec.~1]{rfc8085}.
 
 \paragraph{Unabhängigkeit der Datagramme.}
 Jedes UDP-Datagramm ist eine eigenständige, von allen anderen Datagrammen unabhängige Einheit. Der Verlust eines
 Datagramms hat daher keine Auswirkung auf die Verarbeitung nachfolgender Datagramme. Diese Eigenschaft vermeidet
 das sogenannte \textit{Head-of-Line-Blocking} (HoL-Blocking), bei dem verlorene Pakete die Auslieferung
 nachfolgender Daten verzögern. Diese Eigenschaft von UDP war eine der Motivationen für die Entwicklung von QUIC:
-QUIC nutzt UDP
-als Transportschicht und realisiert auf Anwendungsebene ein Stream-Multiplexing, bei dem der Verlust eines Pakets
-nur den betroffenen Stream blockiert, nicht jedoch andere parallele Streams \cite[Sec.~1]{rfc9000}.
+QUIC nutzt UDP als Transportschicht und realisiert auf Anwendungsebene ein Stream-Multiplexing, bei dem der Verlust
+eines Pakets nur den betroffenen Stream blockiert, nicht jedoch andere parallele Streams \cite[Sec.~1]{rfc9000}.
 
-\paragraph{Multicast und Broadcast.}
-UDP ist verbindungslos und wird häufig als Transport für IP-Multicast und IP-Broadcast verwendet.
-Ein UDP-Datagramm kann an eine Multicast-Gruppe oder eine Broadcast-Adresse gesendet und von mehreren Empfängern
-empfangen werden, sofern Netzwerk und Hosts entsprechend konfiguriert sind. Dabei gelten die üblichen
-Eigenschaften von UDP: keine Garantie für Zustellung, Reihenfolge oder Duplikaterkennung. Diese Kombination
-eignet sich besonders für lokale Mechanismen wie Service Discovery sowie für bestimmte
-Echtzeitanwendungen in kontrollierten Netzen.
-
-Diese Eigenschaften machen UDP zu einem attraktiven Transportprotokoll für latenzempfindliche, verlusttolerante
-oder gruppenbasierte Anwendungen. Allerdings fehlt UDP jede Form der protokolleigenen Erweiterbarkeit. Genau
+Diese Eigenschaften machen UDP zu einem attraktiven Transportprotokoll für latenzempfindliche oder
+verlusttolerante Anwendungen. Allerdings fehlt UDP jede Form der protokolleigenen Erweiterbarkeit. Genau
 diese Lücke adressiert RFC~9868 durch die Nutzung der
-\textit{Surplus Area} (siehe \secref{subsec:surplus-area}), um Optionen zu transportieren, ohne den bestehenden
+\textit{Surplus Area} (siehe \secref{sec:surplus-area}), um Optionen zu transportieren, ohne den bestehenden
 UDP-Header zu verändern.
 
-\section{Middleboxes und Protokoll-Ossifikation}
-\label{sec:middlebox}
+\section{Erweiterungsmuster im Vergleich}
+\label{sec:erweiterungsmuster}
 
-\subsection{Internet-Ossifikation}
-\label{subsec:ossifikation}
+Nun stellt sich die Frage, wie ein Protokoll nachträglich erweitert werden kann, dessen Header weder freie Bits
+noch ein Versionsfeld bietet. Das klassische Muster ist ein Optionsbereich zwischen festem Header und Nutzdaten:
+Ein Offsetfeld gibt an, wo die Nutzdaten beginnen, und der Raum dazwischen steht für Optionen zur Verfügung. TCP
+arbeitet genau so. Sein Feld \texttt{Data Offset} zählt wie die \texttt{IHL} in 32-Bit-Wörtern und ist 4~Bit
+breit; vom 60-Byte-Maximum bleiben nach dem festen 20-Byte-Header höchstens 40~Byte für Optionen wie Maximum
+Segment Size, Window Scale oder Timestamps \cite{rfc9293}. Dasselbe Muster kennt auch IPv4: Die IP-Optionen
+aus \secref{sec:ipv4} liegen genauso zwischen festem Header und Nutzlast. TCP und IPv4 teilen dabei sogar das
+Füllmuster aus den Ein-Byte-Codes \texttt{NOP} (No Operation) und \texttt{EOL} (End of Option List).
 
-\subsection{Auswirkungen auf Protokollerweiterungen}
-\label{subsec:ossifikation-auswirkungen}
+Für UDP steht dieser Weg nicht offen. Sein Header besteht aus genau vier 16-Bit-Feldern
+(\secref{subsec:udp-struktur}); es gibt kein Offsetfeld, kein Versionsfeld und kein reserviertes Bit, das einen
+Optionsbereich ankündigen könnte. Jede Änderung am Headerformat würde sämtliche bestehenden Implementierungen
+brechen und scheidet damit aus.
 
-\section{RFC 9868: Transport Options for UDP}
-\label{sec:rfc9868}
+Ein erster Ausweg verzichtet auf jede Änderung am Protokoll und legt die Optionen in die Nutzdaten selbst.
+Diesen Weg gehen die Teredo-Erweiterungen: Teredo tunnelt IPv6-Pakete über UDP \cite{rfc4380}, und die
+Erweiterungen hängen ihre Zusatzfelder als Trailer hinter das getunnelte Paket, noch innerhalb der
+UDP-Nutzdaten. Gefunden werden sie über eine Längendifferenz: Das getunnelte Paket trägt in seinem Header
+ein eigenes Längenfeld, der Empfänger weiß daher, wo es endet, und liest alles dahinter als Trailer
+\cite{rfc6081}. Die Stärke dieses Ansatzes liegt auf der Hand: UDP und IP bleiben unangetastet, das
+Datagramm ist nach außen ein gewöhnliches Datagramm, und ein Empfänger, der nur das innere Paket auswertet,
+stoppt an dessen Ende und stört sich nicht an den Trailern. Die Schwäche liegt in der Voraussetzung: Das
+Verfahren funktioniert nur, wenn die Nutzdaten ein eigenes Längenfeld mitbringen, das ihr Ende markiert.
+Beliebige UDP-Anwendungen erfüllen das nicht; ihnen bliebe nur, Zusatzfelder per Konvention innerhalb der
+Nutzdaten von den Anwendungsdaten zu unterscheiden. Solche In-Band-Kodierung verwirft RFC~9868 jedoch, weil
+Altempfänger die Konvention nicht kennen und die Zusatzfelder als Nutzdaten lesen \cite[Sec.~4]{rfc9868}.
 
-\subsection{Überblick}
-\label{subsec:rfc9868-overview}
+Den Weg zur Surplus Area öffnet schließlich eine Eigenheit, die UDP von TCP unterscheidet: UDP trägt eine
+eigene Längenangabe. TCP leitet die Länge seiner Nutzlast aus der IP-Datagrammlänge ab; UDP wiederholt sie
+im eigenen Header \cite[Sec.~4]{rfc9868}. Damit beschreiben
+zwei unabhängige Angaben dasselbe Ende der Nutzdaten: das UDP-Length-Feld und die IP-Längenangaben aus
+\secref{sec:ipv4}. Genau diese Redundanz überträgt den Trailer-Gedanken auf beliebige UDP-Anwendungen, denn
+das Längenfeld, das das Ende der Daten markiert, muss nun nicht mehr in den Nutzdaten stecken: UDP selbst
+bringt es mit. Bleibt \texttt{UDP Length} hinter der Nutzlast des IP-Datagramms zurück, entsteht hinter den
+Nutzdaten Platz, den ein Altempfänger nie zu Gesicht bekommt, weil er nur bis \texttt{UDP Length} liest.
+Mit den Teredo-Trailern hat dieser Bereich nichts zu tun; beide Mechanismen bleiben deshalb kompatibel
+\cite[Sec.~4]{rfc9868}. Warum RFC~768 das Längenfeld überhaupt vorsieht, ist bemerkenswerterweise
+ungeklärt: Die kursierenden Erklärungen (mehrere UDP-Pakete je IP-Datagramm; Abgrenzung der Nutzdaten von
+erzwungenem Null-Padding) hält RFC~9868 für unvereinbar mit früheren UDP-Entwürfen und den
+Multiplexing-Protokollen jener Zeit, der wahre Grund bleibt unbekannt \cite[Sec.~4]{rfc9868}. Ein Feld,
+dessen Zweck sich nie klärte, wird damit 45~Jahre nach seiner Definition zum Erweiterungspunkt des
+Protokolls.
 
-\subsection{Die Surplus Area}
-\label{subsec:surplus-area}
+Die drei Muster lassen sich damit unmittelbar vergleichen:
 
-Da das UDP-Length-Feld die Länge des UDP-Datagramms (Header und Nutzdaten) angibt und diese kleiner sein kann als
-die vom IP-Header implizierte Transportnutzlast, entsteht zwischen dem Ende der UDP-Nutzdaten und dem Ende des
-IP-Datagramms ein bislang ungenutzter Bereich. RFC~9868 bezeichnet ihn als \textit{Surplus Area} und verwendet ihn zur
-Aufnahme der UDP Options \cite{rfc9868}:
+\begin{table}[htbp]
+  \centering
+  \caption{Erweiterungsmuster im Vergleich}
+  \label{tab:erweiterungsmuster}
+  \small
+  \begin{tabularx}{\textwidth}{@{}L{2.9cm}L{3.1cm}YL{3.3cm}@{}}
+    \toprule
+    \textbf{Muster} & \textbf{Beispiele} & \textbf{Ort der Optionen} & \textbf{Grenze des Optionsraums} \\
+    \midrule
+    Header-Optionen & TCP, IPv4 & zwischen festem Header und Nutzdaten, per Offsetfeld & 40~Byte
+      (4-Bit-Offsetfeld) \\
+    In-Band-Kodierung & verworfene Prototypen & innerhalb der Nutzdaten, per Konvention & Länge der Nutzdaten \\
+    Trailer & Teredo-Erweiterungen, RFC~9868 & hinter den Nutzdaten, per Längendifferenz & Ende des
+      IP-Datagramms \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Aus \tabref{tab:erweiterungsmuster} geht hervor, dass für UDP allein der Trailer-Weg gangbar ist:
+Header-Optionen scheitern am unveränderlichen Headerformat, die In-Band-Kodierung an den Altempfängern, denen
+die Konvention unbekannt ist. Der Trailer bleibt für Altempfänger unsichtbar und erbt zugleich keine feste
+Obergrenze für den Optionsraum, denn seine Grenze ist das Ende des IP-Datagramms. Wie dieser Bereich im
+Einzelnen aufgebaut ist, zeigt der folgende Abschnitt.
+
+\section{Die Surplus Area}
+\label{sec:surplus-area}
+
+Da das UDP-Length-Feld die Länge des UDP-Datagramms (Header und Nutzdaten) angibt und diese kleiner sein kann
+als die Nutzlast, die das IP-Datagramm laut seinen Längenangaben transportiert (\secref{sec:ipv4}), entsteht
+zwischen dem Ende der UDP-Nutzdaten und dem Ende des IP-Datagramms ein bislang ungenutzter Bereich. RFC~9868
+nennt die gesamte Nutzlast hinter dem IP-Header \textit{IP Transport Payload} und ihren ungenutzten Teil
+hinter den UDP-Nutzdaten \textit{Surplus Area}; dort liegen die UDP Options \cite{rfc9868}:
 
 \begin{verbatim}
                        IP transport payload
@@ -170,7 +491,7 @@ Aufnahme der UDP Options \cite{rfc9868}:
 
 Die \textit{Surplus Area} beginnt, gegebenenfalls nach einem einzelnen Nullbyte zur Ausrichtung, mit der
 \textit{Option Checksum (OCS)}, gefolgt von den eigentlichen Optionen im
-TLV-Format (\secref{subsec:options-struktur}). Diese Struktur ermöglicht variable Optionslängen und zukünftige
+TLV-Format (Type-Length-Value). Diese Struktur ermöglicht variable Optionslängen und zukünftige
 Erweiterungen.
 Da Empfänger, die UDP Options nicht unterstützen, ausschließlich die durch das UDP-Length-Feld begrenzten Nutzdaten
 verarbeiten, bleibt die Erweiterung für Endsysteme typischerweise abwärtskompatibel; Ausnahmen bei Bestandssystemen
@@ -179,16 +500,53 @@ und das Verhalten von Zwischensystemen behandeln \cite[Sec.~18]{rfc9868} beziehu
 
 Wesentlich für die Einordnung ist, dass RFC~9868 kein neues Verhalten der Vermittlungsschicht einführt: Es
 definiert weder neue IP-Header-Felder noch verändert es die Verarbeitung von IPv4. Für die IP-Schicht
-sind die Bytes der \textit{Surplus Area} reine Transportnutzlast innerhalb der durch \texttt{IP Total Length}
+sind die Bytes der \textit{Surplus Area} reine IP Transport Payload innerhalb der durch \texttt{IP Total Length}
 begrenzten Datagramm-Größe; sie liegen lediglich hinter dem durch \texttt{UDP Length} markierten Ende der
 UDP-Nutzdaten. RFC~9868 ist damit ein reines Transport-Feature, das ausschließlich die zuvor ungenutzte Differenz
-zwischen \texttt{UDP Length} und der IP-Transportnutzlast belegt \cite{rfc9868}.
+zwischen \texttt{UDP Length} und der IP Transport Payload belegt \cite{rfc9868}.
 
-\subsection{Options-Struktur}
-\label{subsec:options-struktur}
+Wie dieser Bereich genutzt werden darf, bindet RFC~9868 an sechs Entwurfsprinzipien, die ein gemeinsames Ziel
+haben: UDP soll durch die Optionen seinen Charakter nicht verlieren \cite[Sec.~6]{rfc9868}:
 
-\subsection{Definierte Options-Typen}
-\label{subsec:options-typen}
+\begin{itemize}
+    \item \textbf{Zustandslos:} Nötiger Zustand gehört in die Anwendung oder in eine Bibliothek, die in ihrem
+    Auftrag arbeitet. Die einzige, ausdrücklich begrenzte Ausnahme ist die Reassemblierung von Fragmenten.
 
-\subsection{SAFE und UNSAFE Options}
-\label{subsec:safe-unsafe}
+    \item \textbf{Unidirektional:} Die UDP-Schicht beantwortet keine Option selbstständig; Antworten löst die
+    Anwendung aus. Andernfalls ließe sich die Schicht mit gefälschter Absenderadresse als Reflektor
+    missbrauchen, denn UDP prüft die Herkunft eines Datagramms nicht. Verfahren, die Bidirektionalität
+    benötigen, gehören in ein eigenes Dokument.
+
+    \item \textbf{Keine eigene Längengrenze:} Für Optionen gilt allein die Grenze des UDP-Pakets. Feste
+    Grenzen werden erfahrungsgemäß überschritten; der RFC verweist auf die 40~Byte des TCP-Optionsraums und
+    die 32-Bit-Adressen von IPv4. Grenzen darf eine Implementierung setzen, nicht die Spezifikation.
+
+    \item \textbf{Kein Protokollersatz:} Optionen liefern Funktionen für den eigenen Verkehr einer Anwendung;
+    sie sollen NTP, ICMP (insbesondere Echo) und Netzwerk-Testgeräte weder ersetzen noch nachbauen.
+
+    \item \textbf{Rahmenwerk statt Protokoll:} RFC~9868 definiert Optionsformate auch dann, wenn sie noch
+    kein vollständiges Verfahren ergeben; die Nutzung regeln andere Dokumente. Für REQ/RES übernimmt das
+    RFC~9869 \cite{rfc9869}, für TIME bleibt sie bewusst offen. Das entspricht dem Muster von TCP, dessen
+    Basisnorm den Optionsmechanismus festlegt, während einzelne Optionen in eigenen Dokumenten folgten.
+
+    \item \textbf{Voreinstellung wie beim Altempfänger:} Empfangene Pakete werden standardmäßig auch dann
+    zugestellt, wenn Prüfsummen-, Authentifizierungs- oder Entschlüsselungsprüfungen der Optionen scheitern;
+    einzige Ausnahme sind UDP-Fragmente. Strengeres Verhalten muss die Anwendung ausdrücklich anfordern.
+    Optionen sind ein Angebot, kein Filter.
+\end{itemize}
+
+Der gemeinsame Nenner der sechs Prinzipien: RFC~9868 legt nur die Optionsformate fest. UDP bleibt ein
+minimales Transportprotokoll, und jede zusätzliche Fähigkeit wird von der Anwendung ausdrücklich aktiviert
+\cite[Sec.~6]{rfc9868}. An das letzte Prinzip knüpft zudem die zentrale Zweiteilung der Optionen an:
+SAFE-Optionen sind so entworfen, dass ein Empfänger, der sie nicht versteht, sie gefahrlos ignorieren kann;
+UNSAFE-Optionen können dagegen die Nutzdaten verändern und unterliegen deshalb Übertragungsbeschränkungen
+\cite{rfc9868}. Die einzelnen Optionen und ihre Pflichten behandelt \chapref{chap:analyse}.
+
+Zwei Folgen dieser Prinzipien verdienen eine eigene Erwähnung. Erstens umspannt ein user datagram künftig
+gegebenenfalls mehrere IP-Datagramme, wenn es per FRAG-Option fragmentiert wird. Zweitens opfert der RFC an
+genau einer Stelle bewusst Kompatibilität: Ein Altempfänger sieht jedes UDP-Fragment als leeres Datagramm,
+ein optionsfähiger Empfänger das reassemblierte Datagramm mit Inhalt. Diese Zählungen gleicht der RFC nicht
+an, weil leere Datagramme als Lebenszeichen ohnehin unzuverlässig sind \cite[Sec.~6]{rfc9868}.
+
+\section{Betriebssystem und Netzpfad}
+\label{sec:netzpfad}
