@@ -33,8 +33,8 @@ Transportfragmentierung, eine zusätzliche Nutzdatenprüfsumme sowie Optionen f�
 RFC~9868 wählt den dritten Weg (die Muster hinter diesen Wegen vergleicht \chapref{chap:grundlagen}) und
 nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich zwischen dem Ende der UDP-Nutzdaten
 und dem Ende des IP-Datagramms. Da das UDP-Length-Feld die Länge des UDP-Datagramms
-angibt und diese kleiner sein kann als die vom IP-Header implizierte Transportnutzlast, entsteht ein bisher
-ungenutzter Bereich für Erweiterungen. Auf dieser Grundlage definiert RFC~9868 ein erweiterbares
+angibt und diese kleiner sein kann als die \emph{IP Transport Payload}, also alles, was im IP-Datagramm auf
+den IP-Header folgt, entsteht ein bisher ungenutzter Bereich für Erweiterungen (\secref{sec:surplus-area}). Auf dieser Grundlage definiert RFC~9868 ein erweiterbares
 Rahmenwerk für Transportoptionen.
 
 Damit steht das minimalistische UDP vor seiner bislang größten Erweiterung. Nun stellt sich die Frage, die
@@ -151,7 +151,7 @@ und ihre Konformitätsprüfung beziehen sich daher auf IPv4.
 Nach dieser Einleitung folgen sechs Kapitel, die drei Blöcke bilden:
 
 \begin{itemize}
-    \item \textbf{Grundlagen und Methodik:} \chapref{chap:grundlagen} führt die technischen und methodischen
+    \item \textbf{Grundlagen und Methodik:} \chapref{chap:grundlagen} führt die technischen
         Grundlagen ein: das Internet Protocol, UDP, Erweiterungsmuster von Transportprotokollen sowie
         RFC~9868 mit der \textit{Surplus Area} und seinen
         Entwurfsprinzipien. \chapref{chap:methodik} legt die Forschungsmethodik offen, bevor mit ihr
@@ -178,8 +178,7 @@ LaTeX-Formatierung und bedienten die LaTeX-Werkzeugkette. Zudem prüften sie den
 des RFC~9868. Auf der Softwareseite unterstützten sie Planung, Implementierung, Tests und Verifikation der
 Bibliothek. Der Autor entschied über die Übernahme der Ergebnisse und verantwortet sie.
 
-Zum Einsatz kommen zwei KI-Werkzeuge (harness\footnote{Der Harness verbindet ein Sprachmodell mit den Werkzeugen,
-die es zum eigenständigen Handeln statt bloßem Antworten braucht.}), die ein Sprachmodell mit Dateizugriff und
+Zum Einsatz kommen zwei KI-Werkzeuge (harness), die ein Sprachmodell mit Dateizugriff und
 Kommandoausführung verbinden:
 Claude Code von Anthropic und Codex von OpenAI. Ihre Rollenverteilung, die bekannten Schwächen dieser Arbeitsweise
 und die Prüfkette vor der Übernahme eines Ergebnisses behandelt \chapref{chap:methodik}.
