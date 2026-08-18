@@ -98,7 +98,6 @@
 \usepackage{float}
 \usepackage{booktabs}           % Schöne Tabellen
 \usepackage{tabularx}           % Flexible Tabellen
-\usepackage{longtable}          % Mehrseitige Tabellen
 \usepackage{multirow}           % Mehrzeilige Zellen
 \usepackage{amssymb}            % Für \checkmark Symbol
 
@@ -158,7 +157,7 @@
 
 % Abbildungsstil für Paket- und Headerdiagramme (Palette des Lernkompendiums)
 \usepackage{tikz}
-\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathreplacing,arrows.meta}
 \definecolor{feldgrau}{HTML}{EDEDE7}     % neutrale Felder (Füllung)
 \definecolor{feldlinie}{HTML}{66707A}    % Feldrahmen und gedämpfte Beschriftung
 \definecolor{akzent}{HTML}{0E7C86}       % hervorgehobene Felder (Rahmen)
@@ -174,6 +173,13 @@
   bitindex/.style={font=\tiny\ttfamily, text=feldlinie},
   klammer/.style={decorate, decoration={brace, amplitude=4pt}, draw=feldlinie, thin},
 }
+% Palette der Kapitel-3-Abbildungen (an die draw.io-Exporte angelehnt)
+\definecolor{sqgold}{HTML}{FFF0C5}\definecolor{sqgoldrand}{HTML}{B88A2D}
+\definecolor{sqblau}{HTML}{D5E5FC}\definecolor{sqblaurand}{HTML}{6C8EBF}
+\definecolor{sqteal}{HTML}{B4CEE0}\definecolor{sqtealrand}{HTML}{527A92}
+\definecolor{sqrose}{HTML}{E2B0C2}\definecolor{sqroserand}{HTML}{9D5F78}
+\definecolor{sqdunkel}{HTML}{4A4A4A}\definecolor{sqgrau}{HTML}{B7B7B7}
+\definecolor{sqhell}{HTML}{FAFAFA}
 
 % Hyperlinks
 \usepackage{hyperref}
@@ -349,10 +355,6 @@
 
 % Literaturverzeichnis
 \printbibliography[heading=bibintoc, title=Literaturverzeichnis]
-
-% Anhang
-\appendix
-\input{chapters/anhang_provenienz}
 
 % --- EIDESSTATTLICHE ERKLÄRUNG (ehemals frontmatter/declaration.tex) ---
 \chapter*{Eidesstattliche Erklärung}
