@@ -40,6 +40,10 @@
 \usepackage{setspace}
 \onehalfspacing
 
+% Kleiner Abstand zwischen Absätzen; der Erstzeileneinzug der Klasse (1.5em) bleibt erhalten
+\usepackage[skip=7pt plus 2pt]{parskip}
+\setlength{\parindent}{1.5em}
+
 % Kompakte Kapitelüberschriften (ohne titlesec - verursacht leere Seiten)
 % Kapitelformat direkt über LaTeX-Befehle anpassen
 \makeatletter
@@ -91,6 +95,10 @@
     maxbibnames=99
 ]{biblatex}
 \addbibresource{literatur.bib}
+% URLs im Literaturverzeichnis auch innerhalb von Wortsegmenten umbrechen (verhindert Overfull-Boxen)
+\setcounter{biburlnumpenalty}{100}
+\setcounter{biburlucpenalty}{100}
+\setcounter{biburllcpenalty}{100}
 
 % Grafiken und Tabellen
 \usepackage{graphicx}
@@ -99,6 +107,7 @@
 \usepackage{booktabs}           % Schöne Tabellen
 \usepackage{tabularx}           % Flexible Tabellen
 \usepackage{multirow}           % Mehrzeilige Zellen
+\renewcommand{\arraystretch}{1.2} % Etwas luftigere Tabellenzeilen
 \usepackage{amssymb}            % Für \checkmark Symbol
 
 % Code-Listings
@@ -131,6 +140,18 @@
     frame=single
 }
 \lstset{style=codestyle}
+
+% Fließtext-Snippets (BA-Muster): unnummeriert, rahmenlos, ohne Beschriftung; Doppelpunkt-Lead-in und
+% Auswertungssatz übernehmen den Textbezug. Referenzierbare Listings nutzen weiterhin style=codestyle
+% mit Caption und Label.
+\lstdefinestyle{snippet}{
+    style=codestyle,
+    backgroundcolor={},
+    numbers=none,
+    frame=none,
+    breaklines=false,
+    xleftmargin=1em
+}
 
 % Sprachdefinitionen für Code
 \lstdefinelanguage{Rust}{

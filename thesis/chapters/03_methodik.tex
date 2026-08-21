@@ -26,7 +26,57 @@ aufbauen:
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{03_forschungsdesign.pdf}
+  \begin{tikzpicture}[
+      x=1cm, y=1cm,
+      >={Stealth[length=5pt, width=4pt]},
+      block/.style={draw, semithick, rounded corners=3pt, align=center,
+        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
+      fluss/.style={->, draw=sqdunkel, thin},
+      flusstext/.style={font=\scriptsize, inner sep=1.5pt, fill=white},
+    ]
+    % Rahmen und Ebenen
+    \draw[draw=sqgrau, semithick, rounded corners=6pt] (0.15,0.85) rectangle (14.85,-5.75);
+    \draw[draw=sqgrau, dashed, thin] (0.15,-1.15) -- (14.85,-1.15);
+    \draw[draw=sqgrau, dashed, thin] (0.15,-3.3) -- (14.85,-3.3);
+    \node[font=\scriptsize, text=sqdunkel] at (0.95,0)     {Norm};
+    \node[font=\scriptsize, text=sqdunkel] at (0.95,-2.2)  {Software};
+    \node[font=\scriptsize, text=sqdunkel] at (0.95,-4.62) {Messung};
+    % Norm-Ebene
+    \node[block, draw=sqgoldrand, fill=sqgold, minimum height=0.8cm] (quellen) at (3.1,0) {Normquellen};
+    \draw[draw=sqblaurand, semithick, fill=sqblau, rounded corners=2pt] (5.55,0.55) rectangle (8.85,-0.55);
+    \node[font=\scriptsize\bfseries] at (7.2,0.24) {Anforderungsmodell};
+    \foreach \i/\f in {0/white, 1/sqblau, 2/white, 3/sqblau}
+      \draw[draw=sqblaurand, thin, fill=\f] (5.8+\i*0.7,-0.38) rectangle (6.5+\i*0.7,-0.02);
+    \node[block, draw=sqroserand, fill=sqrose, minimum height=0.8cm] (ffeins) at (12.8,0)
+      {\textbf{FF1}\\ \textbf{Konformität}};
+    \draw[fluss] (quellen) -- node[flusstext, above] {ableiten} (5.55,0);
+    \draw[fluss] (8.85,0) -- node[flusstext, above] {Maßstab} (ffeins);
+    % Software-Ebene
+    \draw[draw=sqtealrand, semithick, fill=white] (5.7,-1.75) rectangle (8.7,-2.65);
+    \draw[draw=sqtealrand, semithick, fill=white] (5.55,-1.98) rectangle (5.85,-2.16);
+    \draw[draw=sqtealrand, semithick, fill=white] (5.55,-2.24) rectangle (5.85,-2.42);
+    \node[font=\scriptsize] at (7.25,-2.2) {Rust-Bibliothek};
+    \draw[fluss] (7.2,-0.55) -- node[flusstext, anchor=west, xshift=2pt] {umsetzen} (7.2,-1.75);
+    \draw[fluss] (8.7,-2.2) -| node[flusstext, pos=0.25, above] {Prüfobjekt} (ffeins.south);
+    % Messungs-Ebene
+    \draw[fluss] (7.2,-2.65) -- node[flusstext, anchor=west, xshift=2pt] {Messmittel} (7.2,-3.9);
+    \draw[draw=sqblaurand, semithick, fill=white, rounded corners=2pt] (3.6,-3.9) rectangle (11.2,-5.35);
+    \fill[sqblau] (3.64,-3.94) rectangle (11.16,-4.32);
+    \node[font=\scriptsize\bfseries] at (7.4,-4.13) {Netzpfad};
+    \node[block, draw=sqdunkel, fill=sqblau, minimum height=0.55cm, inner sep=3pt]
+      (spcap) at (4.85,-4.85) {Sender-PCAP};
+    \node[block, draw=sqblaurand, fill=white, minimum height=0.55cm, inner sep=3pt]
+      (epcap) at (9.9,-4.85) {Empfänger-PCAP};
+    \foreach \i in {0,1,2}
+      \draw[draw=sqdunkel, thin, fill=white] (6.75+\i*0.75,-4.85) circle (0.18);
+    \draw[fluss] (spcap) -- (6.55,-4.85);
+    \draw[fluss] (6.95,-4.85) -- (7.3,-4.85);
+    \draw[fluss] (7.7,-4.85) -- (8.05,-4.85);
+    \draw[fluss] (8.45,-4.85) -- (epcap);
+    \node[block, draw=sqroserand, fill=sqrose, minimum height=0.8cm] (ffzwei) at (12.8,-4.62)
+      {\textbf{FF2}\\ \textbf{Durchlässigkeit}};
+    \draw[fluss] (11.2,-4.62) -- (ffzwei);
+  \end{tikzpicture}
   \caption{Aufbau der Untersuchung und Zuordnung der Forschungsfragen}
   \label{fig:forschungsdesign}
 \end{figure}
@@ -87,12 +137,16 @@ Dafür vergleichen die externen Kampagnen zeitnah gesendete, gleich große Kontr
 demselben gerichteten Pfad.
 
 Ein externer Lauf ist nur auswertbar, wenn die Senderaufzeichnung den Versand und die erwartete Surplus Area
-belegt. Sender- und Empfängeraufzeichnung werden paketweise verglichen. Die maschinelle Auswertung ordnet jedes
-Paar einer Ergebnisklasse zu: Die Surplus Area kommt erhalten, verändert oder entfernt an, oder das Paket wird
-verworfen; nicht eindeutig auswertbare Läufe, etwa bei abweichenden Paketzahlen, gelten als ungültig.
-IP-fragmentierte Datagramme gelten ebenfalls als ungültig, weil der Auswerter sie nicht zusammensetzt.
-Einzelne Vorversuche werden als solche gekennzeichnet und nicht zu allgemeinen Aussagen über das Internet oder
-ein nicht beobachtetes Gerät erweitert.
+belegt. Die maschinelle Auswertung vergleicht Sender- und Empfängeraufzeichnung nach je Kampagne dokumentierten
+Zuordnungsregeln: Der lokale Referenzauswerter gruppiert die Pakete je Zielport und vergleicht Anzahl und
+Surplus-Inhalt, die Kampagnenauswerter ordnen die Pakete über eine im Payload mitgeführte Sequenznummer zu.
+Jedes zugeordnete Datagramm erhält eine Ergebnisklasse: Die Surplus Area kommt erhalten, verändert oder
+entfernt an, oder das Paket wird verworfen. Abweichende Paketzahlen meldet der Referenzauswerter als eigene
+Befundklasse; sie machen einen Lauf nur dann ungültig, wenn die Auswertung ein bestimmtes Sollergebnis
+erzwingt. Auch die Behandlung IP-fragmentierter Datagramme ist auswerterspezifisch: Der Referenzauswerter
+bricht bei IPv4-Fragmenten ab, weil er sie nicht zusammensetzt; die Kampagnenauswerter überspringen nur
+Folgefragmente. Einzelne Vorversuche werden als solche gekennzeichnet und nicht zu allgemeinen Aussagen über
+das Internet oder ein nicht beobachtetes Gerät erweitert.
 
 Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
 Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Der nächste Abschnitt
@@ -172,8 +226,9 @@ dokumentiert die daraus abgeleitete Behandlung. Den Weg von den Quellen zur Matr
 
 Aus \figref{fig:rfc-auswertung} geht hervor, dass die Matrix aus zwei getrennt gehaltenen Zuflüssen entsteht:
 den normativen Quellen mit ihrem Errata-Stand und den ausdrücklich gekennzeichneten eigenen Vorgaben. Die
-Kontrollzahl sichert den normativen Zufluss mit zwei unabhängigen Zählverfahren ab, und RFC~9869 bleibt ohne
-Verbindung zur Matrix.
+Kontrollzahl sichert den normativen Zufluss mit zwei unabhängigen Zählverfahren ab. RFC~9869 bleibt außerhalb
+des Implementierungsumfangs; die Matrix führt seine Anwendungsfälle nur als ausdrücklich gekennzeichnete
+Einträge außerhalb des Umfangs, damit die Grenze des Beitrags sichtbar bleibt.
 
 Die Umsetzung erfolgte schrittweise. Der Projektplan beginnt mit den Schritten 0 und 0.5 und reicht bis Schritt
 18. Schritt 9 ging in Schritt 8 auf, Schritt 16 wurde mit der IPv6-Unterstützung aus dem Umfang entfernt. Die
@@ -272,8 +327,10 @@ Trainings- und Bewertungsverfahren zurück, die Raten gegenüber eingestandener 
 \cite{kalai2025hallucinate}.
 
 \paragraph{Gefälligkeit.}
-Sycophancy bezeichnet die Neigung, sich der erkennbaren Erwartung des Gegenübers anzuschließen. Sie wurde bei
-größeren Modellen und nach Training mit menschlicher Rückmeldung verstärkt beobachtet
+Sycophancy bezeichnet die Neigung, sich der erkennbaren Erwartung des Gegenübers anzuschließen. Perez u.\,a.
+beobachteten, dass größere Modelle die bevorzugte Antwort des Nutzers häufiger wiederholen; das Verhalten
+zeigt sich schon bei reinen Vortrainingsmodellen, und Training mit menschlicher Rückmeldung beseitigt es
+nicht. Cheng u.\,a. belegen die Verbreitung über elf aktuelle Modelle und in Experimenten messbare Schäden
 \cite{perez2022evals,cheng2026sycophancy}. Halluzination kann falsche Aussagen erzeugen. Gefälligkeit kann
 verhindern, dass ein Modell ihnen widerspricht.
 
@@ -323,25 +380,27 @@ nichtdeterministischer Antworten dagegen nicht vollständig reproduzierbar.
       \draw[fluss] (w\i) -- (a\i);
     }
     \draw[draw=sqdunkel, dashed, thin, ->] (w2) --
-      node[font=\scriptsize, anchor=west, xshift=2pt] {lässt die falsche Aussage stehen} (w1);
+      node[font=\scriptsize, anchor=west, xshift=2pt] {kann die falsche Aussage stehen lassen} (w1);
   \end{tikzpicture}
   \caption{Schwächen der Sprachmodelle und methodische Antworten}
   \label{fig:schwaechen}
 \end{figure}
 
-Aus \figref{fig:schwaechen} geht hervor, dass die ersten beiden Schwächen zusammenwirken: Halluzination
-erzeugt die falsche Aussage, und Gefälligkeit lässt sie unwidersprochen stehen. Die Antworten setzen deshalb
-nicht am Modell an, sondern an der Prüfinstanz und an der Form der Ergebnisse.
+Aus \figref{fig:schwaechen} geht hervor, dass die ersten beiden Schwächen zusammenwirken können: Eine
+halluzinierte Aussage kann durch Gefälligkeit unwidersprochen bleiben. Die Antworten setzen deshalb nicht am
+Modell an, sondern an der Prüfinstanz und an der Form der Ergebnisse.
 
 Die wichtigste Konsequenz ist einfach: Keine Aussage ist richtig, weil ein Modell sie behauptet. Ob die
 Implementierung die Norm erfüllt, wird mit der Konformitätsprüfung und der Testarchitektur beurteilt. Auch diese
 Prüfungen belegen nur die jeweils untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
 Zwei Projektbefunde zeigen die praktische Bedeutung. Eine Gegenprüfung eigener Sekundärdokumente am
-RFC-Primärtext fand vier inhaltliche Abweichungen, obwohl die Implementierung an den betroffenen Stellen konform
-war. Eine Kampagnennotiz nannte außerdem 15 Kontrollmessungen, tatsächlich waren es 18. Drei Prüfinstanzen
-übersahen diesen Fehler zunächst. Eigene Zusammenfassungen bleiben daher Suchhilfen, und auch mehrere Prüfer
-sind keine Garantie.
+RFC-Primärtext fand vier inhaltliche Abweichungen; die Konformität der Implementierung wird davon getrennt
+anhand von Quelltext und Tests beurteilt. Eine Kampagnennotiz nannte außerdem 15 Kontrollmessungen,
+tatsächlich waren es 18. Eine dreiköpfige Prüfung ließ diesen Fehler zunächst bestehen, weil die vorgelegten
+Prüfaussagen die Gesamtzahl nicht umfassten; eine spätere getrennte Durchsicht fand ihn. Eigene
+Zusammenfassungen bleiben daher Suchhilfen, und eine Prüfung belegt nur die Aussagen, die ihr tatsächlich
+vorgelegt wurden.
 
 \section{Testarchitektur und Prüfprozess}
 \label{sec:pruefkette}
@@ -353,8 +412,9 @@ Prüfungen.
 
 Zu den deterministischen Prüfungen gehören Formatierung, statische Analyse, Dokumentationsbau, Unit-Tests und
 Integrationstests. Property-Tests erzeugen für jede Eigenschaft lokal 1024 Fälle. Neun zeitlich begrenzte
-Fuzz-Ziele suchen mit beliebigen Bytefolgen nach Abstürzen und verletzten Invarianten. Gefundene Gegenbeispiele
-werden als Regressionstests aufbewahrt. Die Lean-Prüfung baut die formalen Modelle und kontrolliert ihre Axiome.
+Fuzz-Ziele suchen mit beliebigen Bytefolgen nach Abstürzen und verletzten Invarianten. Der dokumentierte
+Sollprozess verlangt, gefundene Gegenbeispiele zu minimieren und als Regressionstests einzuchecken. Die
+Lean-Prüfung baut die formalen Modelle und kontrolliert ihre Axiome.
 
 Die systemnahen Stufen laufen auf dem entfernten Linux-Zielsystem. Dort prüfen sie die Cross-Kompilierung, die
 Raw-Socket-Integration mit erhöhten Rechten und das tatsächlich gesendete Paketbild. Das lokal gestartete
@@ -365,11 +425,14 @@ Lean-Modelle und stellt anschließend zwei getrennte Prüfanfragen: an Claude Co
 und an Codex zur RFC-9868-Semantik.
 
 Eine besondere Gefahr sind Fehler, die Implementierung und Test gemeinsam haben. Sender und Empfänger der
-Bibliothek verwenden denselben Serialisierungscode. Ein beidseitig gleicher Fehler kann deshalb jeden
-Round-Trip-Test bestehen. Die Wire-Prüfung durchbricht diese Selbstbezüglichkeit: \texttt{tcpdump} zeichnet die
-tatsächlich gesendeten Bytes auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
+Bibliothek verwenden getrennte Module für Serialisierung und Parsing, beruhen aber auf denselben
+projektspezifischen Formatannahmen, etwa der gemeinsamen Tabelle der \texttt{Kind}-Werte und der
+Längenkonstanten. Ein gemeinsamer Entwurfsfehler in diesen Annahmen kann deshalb jeden Round-Trip-Test
+bestehen. Die Wire-Prüfung verringert diese Selbstbezüglichkeit: \texttt{tcpdump} zeichnet die tatsächlich
+gesendeten Bytes auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
 berechnet die Prüfsummen mit eigener Faltung nach RFC~1071 \cite{rfc1071} und einer eigenen CRC32C-Tabelle.
-\texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Es besitzt jedoch keinen Dissektor für UDP-Optionen.
+\texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Die im Projekt verwendete Version 4.6.4
+besitzt jedoch keinen Dissektor für UDP-Optionen.
 
 Auch diese Prüfung ist nicht vollständig unabhängig. Die erwarteten Referenzbytes stammen aus der
 projekteigenen Formatdokumentation. Die Unabhängigkeit gilt für den Prüfcode, nicht für den Entwurf. Dasselbe
@@ -458,32 +521,36 @@ Vier-Augen-Prinzip behauptet.
 
 Diese Testarchitektur gehört zur Entwicklung. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme,
 Sendeprotokolle sowie Paketmitschnitte an Sender und Empfänger. Ein bestandener Entwicklungstest sagt nichts
-über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen Entwicklungstest. Das Projekt setzt außerdem kein
-Mutation-Testing am Rust-Quelltext ein. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der jeweilige
-Auswerter bekannte Manipulationen erkennt. Der folgende Abschnitt ordnet diesen Prüfgedanken durch externe
-Vergleichsfälle ein.
+über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen Entwicklungstest. Das Projekt setzt außerdem
+kein systematisches Mutation-Testing am Rust-Quelltext ein; in einem dokumentierten Einzelfall wurde ein
+früherer Quelltextfehler gezielt wieder eingeführt, und drei Property-Tests sowie ein Fuzz-Ziel erkannten
+diese Mutation. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der jeweilige Auswerter bekannte
+Manipulationen erkennt. Der folgende Abschnitt ordnet diesen Prüfgedanken durch externe Vergleichsfälle ein.
 
 \section{Externe Referenzfälle}
 \label{sec:externe-faelle}
 
-Das Muster dieser Methodik, dass ein generatives System vorschlägt, eine unabhängige Instanz prüft und ein
-Mensch freigibt, ist nicht projektspezifisch. Zur methodischen Einordnung dienen acht publizierte Fälle
-KI-gestützter Ergebnisse; sie bilden keine systematische Literaturübersicht und erlauben keine Aussage über
-die Häufigkeit oder Wirksamkeit eines bestimmten Prüfprozesses.
+Diese Methodik trennt Erzeugung, Prüfung und Freigabe. Zur methodischen Einordnung dienen acht publizierte
+Fälle KI-gestützter Ergebnisse mit unterschiedlichen Formen der Validierung; sie bilden keine systematische
+Literaturübersicht, belegen keine einheitliche Prüfkette und erlauben keine Aussage über die Häufigkeit oder
+Wirksamkeit eines bestimmten Prüfprozesses.
 
 Vier Fälle zeigen die Bandbreite der Prüfinstanzen: AlphaFold wurde im blinden CASP14-Vergleich an
 experimentell bestimmten Proteinstrukturen gemessen \cite{jumper2021alphafold}. Bei Davies u.\,a. lieferte das
 Modell Hypothesen und Kandidatenmuster, geprüft durch Gegenbeispielsuche und den klassischen Beweis der
-beteiligten Mathematiker \cite{davies2021intuition}. Bei FunSearch bewertet ein deterministischer Auswerter
-jeden Programmkandidaten des Sprachmodells \cite{romera2024funsearch}, und bei AlphaProof verifiziert der
-Lean-Kern jeden formalen Beweiskandidaten maschinell \cite{alphaproof2026}.
+beteiligten Mathematiker \cite{davies2021intuition}. Bei FunSearch bewertet ein systematischer, ausführbarer
+Auswerter jeden Programmkandidaten des Sprachmodells \cite{romera2024funsearch}, und bei AlphaProof prüft der
+Lean-Kern jeden gefundenen formalen Beweis maschinell \cite{alphaproof2026}.
 
 Vier weitere Fälle benennen ihre Prüfinstanzen besonders klar. Bei Knuths Zyklenproblem stammte die
-Konstruktion vom Modell, der Beweis vom Menschen und die Lean-Formalisierung von einem unabhängigen Dritten
-\cite{knuth2026cycles}. Die verbesserte Schranke zur Lage der Nullstellen der Riemannschen Zetafunktion wurde
-als Lean-Beweis formalisiert und intern wie extern begutachtet \cite{anthropic2026zeta}. Beim Gegenbeispiel
-zur Einheitsabstands-Vermutung entnahmen Mathematiker die Konstruktion dem Modellprotokoll und führten den
-Nachweis selbst \cite{openai2026unitdistance}. Der Physik-Preprint zur C-Parameter-Resummation legt im
+Konstruktion vom Modell, der Beweis von Knuth und die Lean-Formalisierung von Kim Morrison aus der
+Lean-Community, der seine Verifikation veröffentlichte, bevor Knuth davon erfuhr \cite{knuth2026cycles}. Die
+verbesserte untere Schranke für den Anteil der Nullstellen der Riemannschen Zetafunktion auf der kritischen
+Linie wurde gemeinsam mit einem Anthropic-Mitarbeiter in Lean formalisiert; zwei Mathematiker von Anthropic
+prüften die Arbeit, und zwei externe Fachleute begutachteten sie zusätzlich \cite{anthropic2026zeta}. Beim
+Gegenbeispiel zur Einheitsabstands-Vermutung erzeugte das Modell den Beweis; externe Mathematiker prüften ihn
+und veröffentlichten eine verdichtete, von Menschen verifizierte Fassung als Begleitpapier
+\cite{openai2026unitdistance}. Der Physik-Preprint zur C-Parameter-Resummation legt im
 Abstract offen, dass Rechnungen, Numerik und Manuskript von Claude unter Aufsicht eines Physikers entstanden
 und gegen Monte-Carlo-Simulationen geprüft wurden \cite{schwartz2026cparameter}; dieser ausdrücklichen
 Offenlegung in der Publikation selbst folgt auch die vorliegende Arbeit (\secref{sec:ki-offenlegung}).
@@ -495,12 +562,11 @@ gemeldet; als Reaktion nahm das Projekt das Prüfwerkzeug Miri in die CI auf \ci
 folgen zwei Lehren für diese Arbeit: Die Zweitprüfung besetzt bewusst ein Modell eines anderen Herstellers,
 und auch eine mehrstufige Prüfung gilt nicht als Garantie.
 
-Alle neun Fälle teilen den Kern, dass Modellausgaben erst nach unabhängiger Prüfung und menschlicher Freigabe
-gelten; keiner stützt sein Ergebnis allein auf die Zahl der eingesetzten Agenten. Ein Erfolgsbeleg für die
-hier gewählte Modellkombination folgt daraus nicht. Das übertragbare Prinzip ist enger: Die Prüfinstanz muss
-zum Artefakt passen. Normtext, ausführbare Tests, formale Beweise, Messdaten und menschliche Freigabe erfüllen
-dabei unterschiedliche Aufgaben. Ob sie das im Projekt tatsächlich getan haben, muss dokumentiert sein; diese
-Dokumentation regelt der folgende Abschnitt.
+Die neun Fälle zeigen unterschiedliche Prüfverfahren; sie belegen weder eine in allen Fällen gleiche
+unabhängige Prüfung mit menschlicher Freigabe noch einen Erfolg der hier gewählten Modellkombination. Das
+übertragbare Prinzip ist enger: Die Prüfinstanz muss zum Artefakt passen. Normtext, ausführbare Tests, formale
+Beweise, Messdaten und menschliche Freigabe erfüllen dabei unterschiedliche Aufgaben. Ob sie das im Projekt
+tatsächlich getan haben, muss dokumentiert sein; diese Dokumentation regelt der folgende Abschnitt.
 
 \section{Reproduzierbarkeit und Grenzen}
 \label{sec:reproduzierbarkeit}
@@ -511,10 +577,12 @@ Messdaten. Eine Prüfung, die dort nicht belegt ist, wird nicht nachträglich al
 belegter Prüfschritt bedeutet umgekehrt nicht, dass die geprüfte Aussage allgemein wahr oder vollständig ist.
 
 Eigene Zusammenfassungen und Arbeitsnotizen dienen nur als Suchhilfe. Die Prüfung erfolgt am Repository, am
-Primärtext oder an den Messdaten. Pannen werden nicht geglättet: Ein verlorener Prüfbericht wurde aus einem
-Sitzungsprotokoll wiederhergestellt und als Wiederherstellung gekennzeichnet. Eine versehentlich doppelte
-Zweitprüfung blieb ebenfalls erhalten. Auch Knuth berichtet, dass Zwischenstände einer Modellsitzung verloren
-gingen und die Fortschrittsdokumentation erneut eingefordert werden musste \cite{knuth2026cycles}.
+Primärtext oder an den Messdaten. Pannen werden nicht geglättet: Die verlorenen Berichte dreier
+Kampagnenprüfer wurden aus erhaltenen Arbeitsdateien der Sitzung wiederhergestellt und als Wiederherstellung
+gekennzeichnet; das vollständige Sitzungstranskript ist nicht archiviert. Beim Wechsel des Prüfablaufs
+entstand außerdem ausnahmsweise eine doppelte Zweitprüfung; beide Läufe blieben dokumentiert. Auch Knuth
+berichtet, dass Zwischenstände einer Modellsitzung verloren gingen und die Fortschrittsdokumentation erneut
+eingefordert werden musste \cite{knuth2026cycles}.
 
 Technische Ergebnisse sind reproduzierbar, soweit Quellstand, Werkzeuge, Eingaben und Ausgaben archiviert sind.
 Die genaue Folge nichtdeterministischer Modellausgaben ist es nicht. Für frühe Projektphasen fehlen zudem
