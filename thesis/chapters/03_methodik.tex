@@ -155,20 +155,22 @@ beschreibt, wie aus den Normquellen ein prüfbares Anforderungsmodell entsteht.
 \section{RFC-Auswertung und schrittweise Umsetzung}
 \label{sec:rfc-auswertung}
 
-Die normativen Protokollanforderungen stammen hauptsächlich aus RFC~9868. Ergänzende Anforderungen an
-Prüfsummen und das UDP-Format stammen aus RFC~1071 und RFC~768. Daneben enthält die Matrix ausdrücklich
+Die normativen Protokollanforderungen stammen hauptsächlich aus RFC~9868. Ergänzende Anforderungen an das
+UDP-Format stammen aus RFC~768; die Rechenregeln der Prüfsummen liefert als informative Referenz RFC~1071.
+Daneben enthält die Matrix ausdrücklich
 gekennzeichnete Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
 Entwurfsentscheidung nachträglich als Forderung des RFC erscheint.
 
 Normative Schlüsselwörter wie \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach
-BCP~14\footnote{BCP~14 fasst RFC~2119 und RFC~8174 zusammen.} gelesen. Sie sind nur in Großschreibung normativ
+BCP~14\footnote{BCP steht für Best Current Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung
+RFC~8174.} gelesen. Sie sind nur in Großschreibung normativ
 \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Schlüsselwörtern zusätzlich das Zeichenpaar
 \texttt{>{}>} voran. Die eigene Zählung ergibt 103 markierte Absätze. Diese Zahl ist eine Kontrollzahl für
 mögliche Anforderungen, nicht die Zahl der abschließend anwendbaren Anforderungen.
 
 Eine erste Zählung hatte nur 96 Absätze ergeben, weil tiefer eingerückte Markierungen übersehen wurden. Ein
 zweites Zählverfahren deckte den Fehler auf. Kontrollzahlen werden deshalb mit zwei getrennten Verfahren
-ermittelt. Jede gefundene Aussage erhält außerdem eine genaue Fundstelle, eine Normstärke, eine Beurteilung der
+ermittelt. Jede gefundene Aussage erhält außerdem eine genaue Fundstelle, eine Normstufe, eine Beurteilung der
 Anwendbarkeit und eine Kennzeichnung des Projektumfangs.
 
 RFC~9868 und RFC~9869 bleiben in der Quellenarbeit getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung
@@ -192,11 +194,11 @@ dokumentiert die daraus abgeleitete Behandlung. Den Weg von den Quellen zur Matr
     ]
     % Hauptfluss
     \node[block, draw=sqgoldrand, fill=sqgold] (quellen) at (1.75,0)
-      {\textbf{Normquellen}\\ RFC 9868 (normativ)\\ RFC 1071, RFC 768\\ (ergänzend)};
+      {\textbf{Normquellen}\\ RFC 9868 (normativ)\\ RFC 768 (ergänzend)\\ RFC 1071 (informativ)};
     \node[block, draw=sqblaurand, fill=sqblau] (lesung) at (5.6,0)
       {\textbf{BCP-14-Lesung}\\ \texttt{>{}>}-markierte Absätze\\ Kontrollzahl: 103\\ zwei Zählverfahren};
     \node[block, draw=sqblaurand, fill=sqblau] (erfassung) at (9.45,0)
-      {\textbf{Erfassung je Aussage}\\ Fundstelle, Normstärke,\\ Anwendbarkeit,\\ Projektumfang};
+      {\textbf{Erfassung je Aussage}\\ Fundstelle, Normstufe,\\ Anwendbarkeit,\\ Projektumfang};
     \node[block, draw=sqroserand, fill=sqrose] (matrix) at (13.3,0)
       {\textbf{Anforderungs-}\\ \textbf{matrix}\\ Maßstab für FF1};
     \draw[fluss] (quellen) -- (lesung);

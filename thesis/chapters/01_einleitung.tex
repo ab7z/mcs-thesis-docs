@@ -141,9 +141,10 @@ UCMP und UENC sind in RFC~9868 lediglich reserviert und werden daher ebenfalls n
 \cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}). Kernel-Module werden
 nicht entwickelt.
 
-IPv6 wird weder implementiert noch evaluiert. Die hier untersuchten Mechanismen des RFC~9868 (\textit{Surplus Area},
-OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen. Die Implementierung
-und ihre Konformitätsprüfung beziehen sich daher auf IPv4.
+IPv6 wird weder implementiert noch auf Konformität geprüft. Die hier untersuchten Mechanismen des RFC~9868
+(\textit{Surplus Area}, OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen. Die
+Implementierung und ihre Konformitätsprüfung beziehen sich daher auf IPv4; in den Pfadmessungen erscheint
+IPv6 nur als Kontrollgröße der Messumgebung (\secref{sec:ff2-pfadmodell}).
 
 \section{Aufbau der Arbeit}
 \label{sec:aufbau}
