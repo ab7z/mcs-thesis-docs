@@ -848,3 +848,37 @@ Arbeit nicht.
 
 \section{Diskussion und Grenzen der Aussagekraft}
 \label{sec:diskussion-grenzen}
+
+Zusammengenommen ergeben die beiden Ergebnisteile eine Pointe, die keiner allein trägt. Der
+Soll-Ist-Abgleich zeigt, dass RFC~9868 im Benutzerraum implementierbar ist: 51 der 67 normativen
+Aussagen vollständig, sechs teilweise, keine grundsätzlich unerfüllbar. Die Pfadmessungen zeigen
+zugleich, dass diese Konformität die Zustellung nicht sichert: Ob eine Surplus Area ankommt,
+entscheiden Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer entlang des konkreten Pfads, und
+darum ist Erreichbarkeit eine Eigenschaft des Paars aus Quelle und Ziel, nicht des Ziels und nicht des
+Endpunkts. Dieselben Messungen bestätigen umgekehrt den Entwurfskern des Standards: Die
+Prüfsummenneutralität der OCS ist genau die Eigenschaft, die regelkonforme Datagramme durch die
+beobachteten Gates trägt, während jedes regelwidrige Pad zur Zustellfrage wird.
+
+Für die Betroffenen heißt das Folgendes. Wer UDP Options in einer Anwendung einsetzt, muss mit
+klassenbasiertem Totalverlust und mit stiller Inhaltsvernichtung rechnen, denn ein leeres Datagramm
+statt eines fehlenden erzeugt kein Signal; Ende-zu-Ende-Bestätigung, die Auswertung der
+Empfangsberichte und im Zweifel eine Kapselung, die die Klasse vor dem Pfad verbirgt, sind deshalb
+Teil des Betriebs und nicht Kür. Wer Netze betreibt, muss beide Richtungen getrennt prüfen, weil eine
+Adressumsetzung einen dahinterliegenden Verwerfer maskieren kann, und sollte wissen, dass beobachtete
+Prüfsummen-Gates gerade die regelkonformen Datagramme mit beschädigtem Pad verwerfen, bevor ein
+Empfänger urteilen kann.
+
+Diesen Aussagen stehen klare Grenzen gegenüber. Jeder Pfadbefund gilt für das beobachtete Paar, die
+Richtung und das Messfenster; eine Aussage über \zitat{das Internet} trifft diese Arbeit nicht, und
+als Zugangsnetz wurde nur ein Mobilfunk-Hotspot-Pfad untersucht. Ohne Messpunkt im Betreibernetz
+endet jede Ursachenzuordnung an einem Intervall zwischen zwei eigenen Messpunkten; Formulierungen wie
+Hetzner-Kante oder NAT-Vermittler sind sparsame Modelle, keine Gerätenachweise. Die Realpfadergebnisse
+gelten für saubere, kalibrierte Pfade, und das Zusammenspiel der Störmechanismen wurde nach dem
+begründeten Verzicht nur einzeln geprüft. Auf der Prüfseite beweisen die Lean-Theoreme Modelle statt
+des Programms, findet Fuzzing Fehler statt Fehlerfreiheit, und bleibt die Folge der Modellausgaben
+samt der Provenienz früher Projektphasen nicht reproduzierbar; eine Wirksamkeitsaussage zur
+Arbeitsweise erhebt \secref{sec:ki-reflexion} bewusst nicht. Offen bleibt schließlich benannte
+Nacharbeit der Bibliothek, allen voran die nur teilweise eingelöste Paarbindung des
+Reassemblierungs-Caches auf der Komfortebene. Mit diesen Ergebnissen und Grenzen ist die Evaluation
+vollständig; die wörtliche Beantwortung beider Forschungsfragen und die daraus folgenden Empfehlungen
+übernimmt \chapref{chap:fazit} (\secref{sec:ff-beantwortung}).
