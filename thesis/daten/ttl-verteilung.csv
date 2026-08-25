@@ -1,0 +1,49 @@
+# Datenschicht fuer fig:eval-ttl. Aggregiert aus den ttl-report.py-Tabellen der Messkampagnen.
+# Rohdaten (PCAPs) in thesis/evidence/: p0p1p2-kampagnen-1blu-mcs-20260814-15.tar.zst
+#   (SHA-256 644955e5bf51d03dd353273a5606e7e2bc9150c723393ddc9a2e889e85566dad),
+#   hel-kampagne-20260815.tar.zst (SHA-256 1545f30a5f2d1c97d0a55d657c7615f035fecb0fd6c7841a0944ce9ecf5bb063);
+#   Tabellenkopien in ff2-ttl-pfadanalyse-20260815.tar.zst
+#   (SHA-256 0e9cbbcd1391756e6e3f64a24058b571177b1ec5d0dd6b84710657b57e7aedca).
+# Werkzeug: scripts/ttl-report.py (Implementierungsrepo, Auswertungsstand f847895).
+richtung,seite,klasse,ttl,pakete
+1blu->hel,egress,canary,64,50
+1blu->hel,egress,frag,64,1920
+1blu->hel,egress,normal,64,5236
+1blu->hel,ingress,canary,53,40
+1blu->hel,ingress,canary,54,10
+1blu->hel,ingress,frag,53,20
+1blu->hel,ingress,frag,54,1900
+1blu->hel,ingress,normal,53,10
+1blu->hel,ingress,normal,54,5226
+1blu->mcs,egress,canary,64,51
+1blu->mcs,egress,frag,64,1920
+1blu->mcs,egress,normal,64,5426
+1blu->mcs,ingress,canary,53,41
+1blu->mcs,ingress,canary,54,10
+1blu->mcs,ingress,frag,53,1920
+1blu->mcs,ingress,normal,53,5237
+1blu->mcs,ingress,normal,54,137
+hel->1blu,egress,canary,64,50
+hel->1blu,egress,frag,64,1920
+hel->1blu,egress,normal,64,5236
+hel->1blu,ingress,canary,52,50
+hel->1blu,ingress,frag,52,1920
+hel->1blu,ingress,normal,52,5236
+hel->mcs,egress,canary,64,50
+hel->mcs,egress,frag,64,1920
+hel->mcs,egress,normal,64,5236
+hel->mcs,ingress,canary,51,50
+hel->mcs,ingress,frag,51,1920
+hel->mcs,ingress,normal,51,5236
+mcs->1blu,egress,canary,64,51
+mcs->1blu,egress,frag,64,1920
+mcs->1blu,egress,normal,64,5426
+mcs->1blu,ingress,canary,53,51
+mcs->1blu,ingress,frag,53,1920
+mcs->1blu,ingress,normal,53,5374
+mcs->hel,egress,canary,64,50
+mcs->hel,egress,frag,64,1920
+mcs->hel,egress,normal,64,5236
+mcs->hel,ingress,canary,51,50
+mcs->hel,ingress,frag,51,1920
+mcs->hel,ingress,normal,51,5236

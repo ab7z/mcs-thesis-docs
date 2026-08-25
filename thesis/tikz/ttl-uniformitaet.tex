@@ -1,0 +1,33 @@
+% Generiert von thesis/tikz/gen/ttl-uniformitaet.py aus thesis/daten/ttl-verteilung.csv.
+% Nicht von Hand aendern; Aenderungen im Skript oder in der Datenschicht vornehmen.
+\begin{tikzpicture}[
+  dominant/.style={draw=akzent, fill=akzenthell, rounded corners=2pt, semithick},
+  nebenzweig/.style={draw=sqgoldrand, fill=sqgold, rounded corners=2pt, semithick},
+  reihe/.style={font=\footnotesize\ttfamily},
+  wert/.style={font=\footnotesize},
+  kopf/.style={font=\footnotesize\bfseries}]
+  \node[kopf, anchor=west] at (0,0.9) {Richtung};
+  \node[kopf, anchor=west] at (3.35,0.9) {Ankunfts-TTL (Pakete)};
+  \node[kopf, anchor=east] at (12.9,0.9) {Router\textsuperscript{*}};
+  \node[reihe, anchor=west] at (0,0.00) {mcs $\rightarrow$ 1blu};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,0.00) {TTL 53: 7345};
+  \node[wert, anchor=east] at (12.9,0.00) {11};
+  \node[reihe, anchor=west] at (0,-0.82) {1blu $\rightarrow$ mcs};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,-0.82) {TTL 53: 7198};
+  \node[nebenzweig, wert, anchor=west, minimum height=5.4mm, minimum width=2.6cm] at (6.60,-0.82) {TTL 54: 147};
+  \node[wert, anchor=east] at (12.9,-0.82) {11 / 10};
+  \node[reihe, anchor=west] at (0,-1.64) {mcs $\rightarrow$ hel};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,-1.64) {TTL 51: 7206};
+  \node[wert, anchor=east] at (12.9,-1.64) {13};
+  \node[reihe, anchor=west] at (0,-2.46) {hel $\rightarrow$ mcs};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,-2.46) {TTL 51: 7206};
+  \node[wert, anchor=east] at (12.9,-2.46) {13};
+  \node[reihe, anchor=west] at (0,-3.28) {hel $\rightarrow$ 1blu};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,-3.28) {TTL 52: 7206};
+  \node[wert, anchor=east] at (12.9,-3.28) {12};
+  \node[reihe, anchor=west] at (0,-4.10) {1blu $\rightarrow$ hel};
+  \node[dominant, wert, anchor=west, minimum height=5.4mm, minimum width=3.0cm] at (3.35,-4.10) {TTL 54: 7136};
+  \node[nebenzweig, wert, anchor=west, minimum height=5.4mm, minimum width=2.6cm] at (6.60,-4.10) {TTL 53: 70};
+  \node[wert, anchor=east] at (12.9,-4.10) {10 / 11};
+  \node[wert, anchor=north west, text=feldlinie, text width=12.6cm, align=left] at (0,-5.07) {Gesendet: alle 43618 erfassten Egress-Pakete einheitlich TTL 64; \textsuperscript{*}abgeleitet unter der Annahme von genau einem Dekrement je Weiterleitung};
+\end{tikzpicture}

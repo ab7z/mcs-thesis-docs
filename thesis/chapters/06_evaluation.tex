@@ -5,8 +5,162 @@
 \chapter{Evaluation und Diskussion}
 \label{chap:evaluation}
 
+Mit \chapref{chap:entwurf} liegt die Referenzimplementierung vor und ist als Messinstrument beschrieben.
+Dieses Kapitel setzt das Instrument auf die beiden Forschungsfragen aus \secref{sec:zielsetzung} an: FF1
+fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum erfüllen lassen; FF2
+fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten bleibt. Der
+Maßstab dafür steht seit \chapref{chap:analyse} fest: die Konformitätsmatrix mit ihren 67 normativen
+Aussagen, die Bewertungskategorien aus \secref{sec:ff1-kriterien} und das Pfad- und Fehlermodell aus
+\secref{sec:ff2-pfadmodell}.
+
+Das Kapitel arbeitet in vier Schritten: Zunächst legt \secref{sec:testkonzept} das Test- und Messkonzept
+fest, also Begriffe, Messläufe, Eingabestände, Werkzeuge und Verzichte. Ferner berichtet
+\secref{sec:beobachtbarkeit-eval} die Pfadergebnisse zu FF2, denn ein verlorenes oder verändertes
+Datagramm ist zuerst der Kette der Zwischensysteme zuzuordnen, bevor es der Implementierung oder dem
+Standard angelastet wird (\secref{sec:netzpfad}). Erst danach bewertet \secref{sec:soll-ist} die
+Anforderungen für FF1, weil mehrere Negativfälle auf realen Pfaden nur vor dem Hintergrund der
+Pfadbefunde messbar und deutbar sind. Abschließend beschreibt \secref{sec:ki-reflexion} die
+KI-gestützte Arbeitsweise anhand belegter Fälle, bevor \secref{sec:diskussion-grenzen} die Ergebnisse
+und ihre Grenzen bündelt.
+
 \section{Test- und Messkonzept}
 \label{sec:testkonzept}
+
+Für die Ergebnisse gelten die in \chapref{chap:analyse} definierten Begriffe unverändert. Ein
+Optionsdatagramm kommt je Pfad, Richtung und Messzeitpunkt \textbf{erhalten}, \textbf{verändert} oder
+\textbf{entfernt} an, oder es wird \textbf{verworfen} (\secref{sec:ff2-pfadmodell}); Anforderungen werden
+als \textbf{vollständig}, \textbf{teilweise} oder \textbf{nicht erfüllbar} bewertet, die Sonderklasse
+\textbf{nicht anwendbar} bleibt sichtbar, wird aber nicht bewertet (\secref{sec:ff1-kriterien}). Dabei
+dürfen Kategorien leer bleiben: Findet die Bewertung keine grundsätzlich unerfüllbare Anforderung, ist
+das ein Ergebnis und kein Mangel des Maßstabs.
+
+Die Messläufe selbst tragen unterschiedliche Beweiskraft, und genau diese Abstufung legt das Testkonzept
+vorab fest. Eine \textbf{Kampagne} umfasst beidseitige Mitschnitte, ein Sendemanifest, einen
+Auswerterlauf und ein versiegeltes Archiv; eine \textbf{vorregistrierte Messreihe} folgt einem vorab
+festgelegten Zellplan, verzichtet aber auf einen Teil dieses Vollpakets; ein \textbf{Pilot} ist eine
+Funktionsprobe ohne Mitschnitt oder Manifest; eine \textbf{Vorstufe} prüft eine Richtung mit einem
+Datagramm je Klasse. Alle Läufe dieser Arbeit ordnet \tabref{tab:eval-messlaeufe} ein:
+
+\begin{table}[!htb]
+    \centering
+    \caption{Messläufe der Arbeit mit Pfad, Quellstand, Umfang und Einstufung}
+    \label{tab:eval-messlaeufe}
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{L{2.5cm} L{2.2cm} L{1.8cm} Y L{1.9cm} L{1.5cm}}
+        \toprule
+        \textbf{Messlauf} & \textbf{Pfad} & \textbf{Quellstand} & \textbf{Umfang} & \textbf{Einstufung} &
+        \textbf{Archiv} \\
+        \midrule
+        Lokale Lanes (Schritte 17, 18) & vier Namespace-Topologien & \file{f847895} &
+        5~Szenarien, 7~Verdikt-Klassen & Referenz\-läufe & Impl.-Repo \\
+        Externe Kampagne 10.08. & achim $\rightarrow$ mcs & \file{7b11140} &
+        je 1~Probe IPv4/IPv6, Tunnelkontrolle & Kampagne & extern \\
+        Bidirektionale Kampagne 11.08. & achim $\leftrightarrow$ mcs & \file{7b11140} &
+        Options\-datagramme 0/6 gegen Kontrollen 15/15; 18~Kontrollformen & Kampagne & bidir \\
+        Piloten 12./13.08. & achim, Mac, 1blu, mcs & \file{b12ba8e} &
+        0/13; 0/10; 1blu-Pfad je Richtung 6/6 & Piloten & piloten \\
+        Vorstufe S-00 14.08. & mcs $\rightarrow$ 1blu & Meta im Archiv &
+        11~Szenarien, 15~Datagramme, $n=1$ je Klasse & Vorstufe & piloten \\
+        P0/P1/P2 14./15.08. & 1blu $\leftrightarrow$ mcs & Meta im Archiv &
+        über 10\,000~Pakete (P0); 15~Klassen $\times$ 6 je Richtung (P1); S-49 570/570; S-50 12/12 &
+        Kampagnen & 1blu-mcs \\
+        Helsinki-Paare 15.08. & mcs $\leftrightarrow$ hel, hel $\leftrightarrow$ 1blu & \file{d7187eb} &
+        18~Szenarien je Paar, alle Läufe fehlerfrei & Kampagnen & hel \\
+        Prüfsummen-Gate-Zellen 15.08. & drei EU-Paare & \file{d7187eb} &
+        je Richtung 50~Pakete in drei Prüfformen; Erstlauf ohne Mitschnitt getrennt & Messzellen mit
+        Mitschnitt & hel \\
+        Hotspot-Reihen 2 bis 4, 15.08. & achim $\leftrightarrow$ mcs, 1blu & Meta im Archiv &
+        je Zelle $n=30$, atomare Zelle $n=10$, vorregistriert & Messreihen & hotspots \\
+        AWS-Suiten 16.08. & aws $\leftrightarrow$ mcs, hel, 1blu & \file{d7187eb}, \file{9d6c5bd} &
+        54~Szenarioläufe, alle fehlerfrei & Kampagnen & aws \\
+        GCP- und AWS-Zellen 16.08. & gcp, aws, aws2 & \file{d7187eb} &
+        Piloten; Diskriminator-Matrizen $n=20$ je Zelle & Piloten, Messreihen & gcp-us, aws-us \\
+        AP-Durchlauf 16.08. & 6~Regionen $\leftrightarrow$ mcs, 1blu & \file{d7187eb} &
+        Gate- und Kontrollzellen $n=20$, zwei Phasen & Messreihe mit Mitschnitt und Manifest & aws-ap \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Aus \tabref{tab:eval-messlaeufe} geht hervor, dass die tragenden Aussagen der Ergebnisabschnitte auf
+Kampagnen ruhen, während Piloten und Messreihen Lücken schließen und Mechanismen isolieren. Diese
+Trennung hat zur direkten Konsequenz, dass Pilotwerte nie mit Kampagnensummen verrechnet werden und
+jede Zahl im Folgenden die Einstufung ihres Laufs erbt. Gefahren wurden 43 der 45 Szenarien des
+Testkatalogs vollständig auf realen Pfaden; S-24 ist empfängerseitig durch die Ersatzzelle S-24r belegt
+und senderseitig eine begründete Grenze, S-51 wurde begründet gestrichen (dazu unten). Die Spalte
+Quellstand nennt den Commit der bitidentisch auf allen Endpunkten verteilten Messprogramme; wo mehrere
+Stände beteiligt waren, dokumentieren die Metadateien im Archiv jeden Lauf einzeln. Davon getrennt ist
+der Auswertungsstand der Implementierung: Alle Aussagen über Quelltext und Tests beziehen sich auf
+\file{f847895}. Die Spalte Archiv verweist auf die elf versiegelten Archive der Arbeit; jedes trägt eine
+SHA-256-Prüfsumme, deren Sollwerte das Archivverzeichnis dokumentiert.\footnote{Verzeichnis
+\file{thesis/evidence/} im Repositorium der Arbeit
+(\url{https://github.com/ab7z/mcs-thesis-docs}); die Kurzkennungen der Tabelle stehen für die dort
+abgelegten Archivdateien. Ein Hashwert belegt die Unverändertheit eines Artefakts, nicht die Wahrheit
+seines Inhalts (\chapref{chap:methodik}).}
+
+Die Werkzeugkette folgt \secref{subsec:mitschnittwerkzeuge}: \texttt{tcpdump} zeichnet auf, der eigene
+Prüfer deutet die Surplus Area, \texttt{tshark} liefert die fremde Gegenprobe der IPv4- und UDP-Felder.
+Der Messbetrieb ergänzt dazu vier Betriebsregeln, die aus Fehlversuchen auf der Loopback-Schnittstelle
+stammen: Ausgehende Pakete werden dort nicht über Richtungsfilter erfasst, Mitschnittdateien wechseln
+nach dem Rechteabstieg von \texttt{tcpdump} den Eigentümer, die Schnittstelle meldet sich mit einem
+künstlichen Ethernet-Rahmen, und ein vom Filter gezähltes Paket ist noch kein geschriebenes Paket.
+Aus diesem Grund beweist vor jedem Lauf ein Aufwärmpaket die Mitschnittbereitschaft, und ein Lauf endet
+erst, wenn die Mitschnittdatei nicht mehr wächst. Für die Deutung der Ergebnisse wichtig ist zudem die
+Arbeitsteilung im Sendeweg: Der Kernel schreibt auf dem \texttt{IP\_HDRINCL}-Pfad nur die
+IPv4-Gesamtlänge und die Kopfprüfsumme um und lässt UDP-Kopf und Surplus Area unangetastet; damit sind
+auch Grenzfälle wie ein Datagramm mit UDP-Prüfsumme null und OCS null exakt konstruierbar.
+
+Den Prüfumfang je Lauf legt der Szenarienkatalog fest: 18~Treiberszenarien je Hostpaar (elf P0, vier P1,
+drei P2), dazu ein vorregistrierter Zellplan mit 21 etikettierten Zellen, dessen Etiketten je Zelle
+festhalten, ob eine Erwartung aus dem RFC, aus dem Implementierungsstand oder aus einer Pfadannahme
+stammt.\footnote{Treiber \file{scripts/pair-campaign.sh}, Zellplan \file{scripts/p2-cellplan.json},
+Auswerter \file{scripts/p0-eval.py} bis \file{p2-eval.py} im Implementierungsrepositorium; die vier
+lokalen Topologien und die sieben Verdikt-Klassen definiert \file{docs/evaluation.md}.} Die lokalen
+Referenzläufe stellen denselben Katalog in vier Namespace-Topologien nach und liefern den Nullpunkt, an
+dem jeder Realpfadbefund gespiegelt wird.
+
+Ob die Messpfade während der Kampagnen stabil blieben, prüft eine eigene Auswertung der
+Lebensdauerfelder aller Mitschnitte:
+
+\begin{figure}[H]
+    \centering
+    \input{tikz/ttl-uniformitaet}
+    \caption{Ankunfts-TTL je Richtung über die Kampagnen-Mitschnitte der europäischen Messpfade}
+    \label{fig:eval-ttl}
+\end{figure}
+
+Aus \figref{fig:eval-ttl} geht hervor, dass Optionsdatagramme, Fragmente und Kontrollpakete auf keinem
+Pfad eine klassenspezifische TTL-Behandlung erfahren: Je Richtung tragen alle angekommenen Pakete
+denselben Wert, und die drei Abweichungsgruppen sind Pfadeigenschaften statt Klasseneffekte. Auf dem
+Rückweg von 1blu nach mcs liegen 137 Pakete eines einzigen zusammenhängenden Zeitfensters und zehn
+Einzelpakete mit eigenen Flusskennungen auf einer um einen Router kürzeren Variante, und von 1blu nach
+Helsinki teilt dieselbe Verzweigung den Verkehr dauerhaft in zwei Zweige; beide Effekte kehren in
+\secref{sec:beobachtbarkeit-eval} als Wegevielfalt des Rückpfads wieder. Die abgeleitete Routerzahl
+beruht dabei auf der Annahme, dass jede Weiterleitung den Wert um genau eins senkt
+(\secref{sec:netzpfad}). Dass je Richtung weniger Pakete ankommen als abgesendet wurden, ist kein
+Messverlust, sondern Ergebnis: Die Differenz besteht aus den Negativzellen, deren Verwerfen die
+Ergebnisabschnitte gerade nachweisen. Diese Beobachtung hat zur direkten Konsequenz, dass ein späterer
+Befund nicht als Nebenwirkung wechselnder Wegewahl im Messfluss erklärbar ist; sie gilt für die
+gemessenen Zeitfenster und ersetzt keine allgemeine Stabilitätsaussage über die Pfade.
+
+Zwei Verzichte gehören zum Konzept. Das Szenario S-24 (unterschiedliche Optionssätze je Fragment) wird
+senderseitig nicht erzeugt, weil die Bibliothek je Datagramm einen Optionssatz führt; die
+Empfängerpflicht ist mit der Ersatzzelle S-24r real belegt. Die netem-Störlane S-51 entfiel aus vier
+Gründen: Erstens ist jeder Mechanismus, den sie stochastisch anstoßen würde, bereits deterministisch mit
+exakten Sollwerten belegt (S-41 bis S-44, S-49, S-50); zweitens hätte ihre Verlustzelle den
+Prüfgegenstand verfehlt, weil unfragmentierter Verkehr keinen RFC-9868-Codepfad berührt; drittens ist
+die Verlustzuordnung am realen Objekt stärker demonstriert als unter künstlicher Störung; viertens stand
+das Betriebsrisiko eines Root-Qdisc auf dem einzigen Messserver, dessen Verwaltungszugang über
+dieselbe Schnittstelle läuft, ohne eigenen Messpunkt hinter der Störstufe in keinem Verhältnis zum
+Nutzen. Der Kampagnentreiber verweigert das Szenario seither ausdrücklich. Als Folge bleibt das
+Ende-zu-Ende-Verhalten unter stochastisch gestörtem Pfad ungemessen; die Ergebnisse gelten für saubere,
+kalibrierte Pfade, und \secref{sec:soll-ist} weist diese Grenze bei den betroffenen Aussagen aus.
+
+Mit diesen Läufen ist das Messprogramm abgeschlossen; weitere Kampagnen sind nicht vorgesehen. Zwei
+Grenzen begleiten deshalb alle Ergebniskapitel: Als Zugangsnetz wurde ausschließlich ein
+Mobilfunk-Hotspot-Pfad untersucht, und ohne Messpunkt im Betreibernetz endet jede Ursachenzuordnung an
+einem Intervall zwischen zwei eigenen Messpunkten. Der folgende Abschnitt wendet das Konzept auf die
+realen Pfade an.
 
 \section[Beobachtbarkeit und Middlebox-Verträglichkeit auf realen Pfaden]%
 {Beobachtbarkeit und Middlebox-\\Verträglichkeit auf realen Pfaden}
@@ -14,3 +168,9 @@
 
 \section{Soll-Ist-Abgleich mit RFC 9868}
 \label{sec:soll-ist}
+
+\section{Reflexion der KI-gestützten Arbeitsweise}
+\label{sec:ki-reflexion}
+
+\section{Diskussion und Grenzen der Aussagekraft}
+\label{sec:diskussion-grenzen}
