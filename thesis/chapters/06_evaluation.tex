@@ -10,19 +10,19 @@ Messinstrument beschrieben.
 Dieses Kapitel setzt das Instrument auf die beiden Forschungsfragen aus \secref{sec:zielsetzung} an: FF1
 fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum erfüllen lassen; FF2
 fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten bleibt. Der
-Maßstab dafür steht seit \chapref{chap:analyse} fest: die Konformitätsmatrix mit ihren 67 normativen
-Aussagen, die Bewertungskategorien aus \secref{sec:ff1-kriterien} und das Pfad- und Fehlermodell aus
+Maßstab dafür steht seit \chapref{chap:analyse} fest: die 67 Zeilen der Konformitätsmatrix, die
+Bewertungskategorien aus \secref{sec:ff1-kriterien} und das Pfad- und Fehlermodell aus
 \secref{sec:ff2-pfadmodell}.
 
-Das Kapitel arbeitet in vier Schritten: Zunächst legt \secref{sec:testkonzept} das Test- und Messkonzept
-fest, also Begriffe, Messläufe, Eingabestände, Werkzeuge und Verzichte. Ferner berichtet
+Das Kapitel arbeitet in fünf Schritten: Zunächst legt \secref{sec:testkonzept} das Test- und
+Messkonzept fest, also Begriffe, Messläufe, Eingabestände, Werkzeuge und Verzichte. Ferner berichtet
 \secref{sec:beobachtbarkeit-eval} die Pfadergebnisse zu FF2, denn ein verlorenes oder verändertes
 Datagramm ist zuerst der Kette der Zwischensysteme zuzuordnen, bevor es der Implementierung oder dem
 Standard angelastet wird (\secref{sec:netzpfad}). Erst danach bewertet \secref{sec:soll-ist} die
 Anforderungen für FF1, weil mehrere Negativfälle auf realen Pfaden nur vor dem Hintergrund der
-Pfadbefunde messbar und deutbar sind. Abschließend beschreibt \secref{sec:ki-reflexion} die
-KI-gestützte Arbeitsweise anhand belegter Fälle, bevor \secref{sec:diskussion-grenzen} die Ergebnisse
-und ihre Grenzen bündelt.
+Pfadbefunde messbar und deutbar sind. Anschließend beschreibt \secref{sec:ki-reflexion} die
+KI-gestützte Arbeitsweise anhand belegter Fälle. Abschließend bündelt \secref{sec:diskussion-grenzen}
+die Ergebnisse und ihre Grenzen.
 
 \section{Test- und Messkonzept}
 \label{sec:testkonzept}
@@ -58,7 +58,8 @@ Datagramm je Klasse. Alle Läufe dieser Arbeit ordnet \tabref{tab:eval-messlaeuf
         Externe Kampagne 10.08. & achim $\rightarrow$ mcs & \file{7b11140} &
         je 1~Probe IPv4/IPv6, Tunnelkontrolle & Kampagne & extern \\
         Bidirektionale Kampagne 11.08. & achim $\leftrightarrow$ mcs & \file{7b11140} &
-        Options\-datagramme 0/6 gegen Kontrollen 15/15; 18~Kontrollformen & Kampagne & bidir \\
+        Richtung A: 9/9 Options\-datagramme normalisiert, 18/18 FULL-Kontrollpakete intakt; Richtung B:
+        0/6 Options\-datagramme zugestellt, 15/15 FULL-Kontrollpakete intakt & Kampagne & bidir \\
         Piloten 12./13.08. & achim, Mac, 1blu, mcs & \file{b12ba8e} &
         0/13; 0/10; 1blu-Pfad je Richtung 6/6 & Piloten & piloten \\
         Vorstufe S-00 14.08. & mcs $\rightarrow$ 1blu & Meta im Archiv &
@@ -74,7 +75,8 @@ Datagramm je Klasse. Alle Läufe dieser Arbeit ordnet \tabref{tab:eval-messlaeuf
         Hotspot-Reihen 2 bis 4, 15.08. & achim $\leftrightarrow$ mcs, 1blu & Meta im Archiv &
         je Zelle $n=30$, atomare Zelle $n=10$, vorregistriert & Messreihen & hotspots \\
         AWS-Suiten 16.08. & aws $\leftrightarrow$ mcs, hel, 1blu & \file{d7187eb}, \file{9d6c5bd} &
-        54~Szenarioläufe, alle fehlerfrei & Kampagnen & aws \\
+        54~abschließende Katalogergebnisse mit Rückgabewert 0 nach Wiederholung eines S-35-Laufs;
+        ein S-50-Lauf verfehlte das 30-Sekunden-Zeitkriterium & Kampagnen & aws \\
         GCP- und AWS-Zellen 16.08. & gcp, aws, aws2 & \file{d7187eb} &
         Piloten; Diskriminator-Matrizen $n=20$ je Zelle & Piloten, Messreihen & gcp-us, aws-us \\
         AP-Durchlauf 16.08. & 6~Regionen $\leftrightarrow$ mcs, 1blu & \file{d7187eb} &
@@ -93,11 +95,10 @@ Quellstand nennt den Commit der bitidentisch auf allen Endpunkten verteilten Mes
 Stände beteiligt waren, dokumentieren die Metadateien im Archiv jeden Lauf einzeln. Davon getrennt ist
 der Auswertungsstand der Implementierung: Alle Aussagen über Quelltext und Tests beziehen sich auf
 \file{f847895}. Die Spalte Archiv verweist auf die elf versiegelten Archive der Arbeit; jedes trägt eine
-SHA-256-Prüfsumme, deren Sollwerte das Archivverzeichnis dokumentiert.\footnote{Verzeichnis
-\file{thesis/evidence/} im Repositorium der Arbeit
-(\url{https://github.com/ab7z/mcs-thesis-docs}); die Kurzkennungen der Tabelle stehen für die dort
-abgelegten Archivdateien. Ein Hashwert belegt die Unverändertheit eines Artefakts, nicht die Wahrheit
-seines Inhalts (\chapref{chap:methodik}).}
+SHA-256-Prüfsumme, deren Sollwerte das lokale Archivverzeichnis dokumentiert.\footnote{Verzeichnis
+\file{thesis/evidence/} im lokalen Repositorium der Arbeit; die Kurzkennungen der Tabelle stehen für die
+dort abgelegten Archivdateien. Ein Hashwert belegt die Unverändertheit eines Artefakts, nicht die
+Wahrheit seines Inhalts (\chapref{chap:methodik}).}
 
 Die Werkzeugkette folgt \secref{subsec:mitschnittwerkzeuge}: \texttt{tcpdump} zeichnet auf, der eigene
 Prüfer deutet die Surplus Area, \texttt{tshark} liefert die fremde Gegenprobe der IPv4- und UDP-Felder.
@@ -105,20 +106,26 @@ Der Messbetrieb ergänzt dazu vier Betriebsregeln, die aus Fehlversuchen auf der
 stammen: Ausgehende Pakete werden dort nicht über Richtungsfilter erfasst, Mitschnittdateien wechseln
 nach dem Rechteabstieg von \texttt{tcpdump} den Eigentümer, die Schnittstelle meldet sich mit einem
 künstlichen Ethernet-Rahmen, und ein vom Filter gezähltes Paket ist noch kein geschriebenes Paket.
-Aus diesem Grund beweist vor jedem Lauf ein Aufwärmpaket die Mitschnittbereitschaft, und ein Lauf endet
-erst, wenn die Mitschnittdatei nicht mehr wächst. Für die Deutung der Ergebnisse wichtig ist zudem die
-Arbeitsteilung im Sendeweg: Der Kernel schreibt auf dem \texttt{IP\_HDRINCL}-Pfad nur die
-IPv4-Gesamtlänge und die Kopfprüfsumme um und lässt UDP-Kopf und Surplus Area unangetastet; damit sind
-auch Grenzfälle wie ein Datagramm mit UDP-Prüfsumme null und OCS null exakt konstruierbar.
+Aus diesem Grund beweist vor jedem Lauf ein Aufwärmpaket die Mitschnittbereitschaft. Die Terminierung
+des Mitschnitts unterscheidet sich dabei je Lane: Die lokale Wire-Lane wartet vor dem Signal an
+\texttt{tcpdump} auf drei unveränderte Dateigrößen, die Namespace-Lane nutzt eine feste Wartezeit, und
+die öffentlichen Kampagnen senden \texttt{SIGINT}, warten eine Sekunde und prüfen anschließend, dass
+\texttt{tcpdump} keinen Kernelverlust meldet. Für die Deutung der Ergebnisse wichtig ist zudem die
+Arbeitsteilung im Sendeweg: Auf dem \texttt{IP\_HDRINCL}-Pfad setzt der Kernel die IPv4-Gesamtlänge und
+die Kopfprüfsumme, und da die Sendeseite der Bibliothek die IPv4-Identification null lässt, kann der
+Kernel auch dieses Feld füllen. UDP-Kopf und Surplus Area bleiben unverändert; deshalb sind Grenzfälle
+wie ein Datagramm mit UDP-Prüfsumme null und OCS null weiterhin exakt konstruierbar.
 
-Den Prüfumfang je Lauf legt der Szenarienkatalog fest: 18~Treiberszenarien je Hostpaar (elf P0, vier P1,
-drei P2), dazu ein vorregistrierter Zellplan mit 21 etikettierten Zellen, dessen Etiketten je Zelle
-festhalten, ob eine Erwartung aus dem RFC, aus dem Implementierungsstand oder aus einer Pfadannahme
-stammt.\footnote{Treiber \file{scripts/pair-campaign.sh}, Zellplan \file{scripts/p2-cellplan.json},
-Auswerter \file{scripts/p0-eval.py} bis \file{p2-eval.py} im Implementierungsrepositorium; die vier
-lokalen Topologien und die sieben Verdikt-Klassen definiert \file{docs/evaluation.md}.} Die lokalen
-Referenzläufe stellen denselben Katalog in vier Namespace-Topologien nach und liefern den Nullpunkt, an
-dem jeder Realpfadbefund gespiegelt wird.
+Den Prüfumfang der Realpfadkampagnen legt der Szenarienkatalog fest: 18~Treiberszenarien je Hostpaar
+(elf P0, vier P1, drei P2). Hinzu kommen 21 etikettierte Options- und FRAG-Zellen des P2-Zellplans
+(14~\texttt{p2opt}, sieben \texttt{p2frag}) sowie S-50 als eigene vorregistrierte Cache-Reihe mit zwölf
+Läufen. Der Zellplan hält je Zelle fest, ob die Erwartung aus dem RFC, aus dem Implementierungsstand
+oder aus einer Pfadannahme stammt.\footnote{Treiber \file{scripts/pair-campaign.sh}, Zellplan
+\file{scripts/p2-cellplan.json}, Auswerter \file{scripts/p0-eval.py} bis \file{p2-eval.py} im
+Implementierungsrepositorium; die lokalen Topologien und Verdikt-Klassen definiert
+\file{docs/evaluation.md}.} Die lokalen Referenzläufe verwenden dagegen fünf eigene Szenarien in vier
+Namespace-Topologien und sieben Verdikt-Klassen. Sie liefern einen kontrollierten Nullpunkt für
+ausgewählte Wire-, Options- und FRAG-Fälle, bilden den Realpfadkatalog aber nicht vollständig nach.
 
 Ob die Messpfade während der Kampagnen stabil blieben, prüft eine eigene Auswertung der
 Lebensdauerfelder aller Mitschnitte:
@@ -130,19 +137,20 @@ Lebensdauerfelder aller Mitschnitte:
     \label{fig:eval-ttl}
 \end{figure}
 
-Aus \figref{fig:eval-ttl} geht hervor, dass Optionsdatagramme, Fragmente und Kontrollpakete auf keinem
-Pfad eine klassenspezifische TTL-Behandlung erfahren: Je Richtung tragen alle angekommenen Pakete
-denselben Wert, und die drei Abweichungsgruppen sind Pfadeigenschaften statt Klasseneffekte. Auf dem
-Rückweg von 1blu nach mcs liegen 137 Pakete eines einzigen zusammenhängenden Zeitfensters und zehn
-Einzelpakete mit eigenen Flusskennungen auf einer um einen Router kürzeren Variante, und von 1blu nach
-Helsinki teilt dieselbe Verzweigung den Verkehr dauerhaft in zwei Zweige; beide Effekte kehren in
-\secref{sec:beobachtbarkeit-eval} als Wegevielfalt des Rückpfads wieder. Die abgeleitete Routerzahl
-beruht dabei auf der Annahme, dass jede Weiterleitung den Wert um genau eins senkt
-(\secref{sec:netzpfad}). Dass je Richtung weniger Pakete ankommen als abgesendet wurden, ist kein
+Aus \figref{fig:eval-ttl} ist nicht für jede Richtung eine einheitliche Ankunfts-TTL abzulesen. Auf dem Rückweg
+von 1blu nach mcs kommen 7198 Pakete mit TTL 53 und 147 mit TTL 54 an; die zweite Gruppe umfasst 137
+Pakete desselben Flusses in einem zusammenhängenden Zeitfenster sowie zehn Einzelpakete mit eigenen
+Flusskennungen. Das belegt zeitweises Rerouting des Messflusses, und die Einzelpakete passen zusätzlich
+zu flussabhängiger Wegewahl. Von 1blu nach Helsinki kommen 7136 Pakete mit TTL 54 und 70 mit TTL 53 an;
+dort liegen 40 der 70 Pakete auf Kontrollen mit jeweils eigener Flusskennung, was eine flussabhängige
+Aufteilung stützt, aber nur für die Messfenster gilt. Beide Effekte kehren in
+\secref{sec:beobachtbarkeit-eval} als Wegevielfalt des Rückpfads wieder. Keine der Gruppen liefert einen
+eigenständigen Beleg für eine klassenspezifische Behandlung oder für einen allgemein stabilen Pfad. Die
+abgeleitete Routerzahl beruht dabei auf der Annahme, dass jede Weiterleitung den Wert um genau eins
+senkt (\secref{sec:netzpfad}). Dass je Richtung weniger Pakete ankommen als abgesendet wurden, ist kein
 Messverlust, sondern Ergebnis: Die Differenz besteht aus den Negativzellen, deren Verwerfen die
-Ergebnisabschnitte gerade nachweisen. Diese Beobachtung hat zur direkten Konsequenz, dass ein späterer
-Befund nicht als Nebenwirkung wechselnder Wegewahl im Messfluss erklärbar ist; sie gilt für die
-gemessenen Zeitfenster und ersetzt keine allgemeine Stabilitätsaussage über die Pfade.
+Ergebnisabschnitte gerade nachweisen. Für die späteren Klassenbefunde sind deshalb die jeweiligen
+Kontrollpakete und Messfenster maßgeblich.
 
 Zwei Verzichte gehören zum Konzept. Das Szenario S-24 (unterschiedliche Optionssätze je Fragment) wird
 senderseitig nicht erzeugt, weil die Bibliothek je Datagramm einen Optionssatz führt; die
@@ -231,12 +239,14 @@ Umgebungen zeigt \figref{fig:eval-lokal}:
 
 Aus \figref{fig:eval-lokal} geht hervor, dass in den Stufen 1 und 2 jede Kante entweder bekannt oder
 absichtlich konfiguriert ist: Ein abweichender Befund wäre dort dem Endpunkt oder der ausdrücklich
-eingerichteten Lane zuzuordnen, nicht einem fremden Akteur. Genau diese Eigenschaft macht die Lanes zum
-Gegenbeleg für die Pfadbefunde der späteren Stufen: Dieselben absichtlich beschädigten Datagramme, die
-reale Pfade verwerfen, werden auf dem Loopback zugestellt und regelkonform behandelt. Die Tunnelstufe
-steuert eine einzelne Kontrolle bei: Durch die WireGuard-Kapselung erreichte das innere Datagramm die
-Gegenstelle mit unveränderten 26 Surplus-Bytes und gültiger OCS; wie in \secref{sec:netzpfad} festgehalten,
-belegt das die Zustellung nach der Entkapselung, nicht den nativen Transport.
+eingerichteten Lane zuzuordnen, nicht einem fremden Akteur. Die fünf lokalen Szenarien belegen die
+Zustellung ausgewählter gültiger Options- und FRAG-Formen sowie den vollständigen Verlust in der
+Filtertopologie. Die Negativzellen mit beschädigtem Pad, beschädigter OCS oder fehlerhafter TLV-Kodierung
+stammen dagegen aus den Realpfadkampagnen und werden durch Parser- und Pipeline-Tests ergänzt. Die
+Tunnelstufe steuert eine einzelne Kontrolle bei: Durch die WireGuard-Kapselung erreichte das innere
+Datagramm die Gegenstelle mit unveränderten 26 Surplus-Bytes und gültiger OCS; wie in
+\secref{sec:netzpfad} festgehalten, belegt das die Zustellung nach der Entkapselung, nicht den nativen
+Transport.
 
 \subsection{Öffentliche Pfade in Europa}
 \label{subsec:eval-europa}
@@ -336,25 +346,28 @@ Lumen-Variante. Diese Beobachtung hat zur direkten Konsequenz, dass ein Pfad sei
 jedes Verlustsignal ändern kann; jede Pfadaussage dieser Arbeit gilt deshalb nur für ihr Messfenster.
 
 Der zweite Befund ist das \textbf{Prüfsummen-Gate} aus \secref{sec:ff2-pfadmodell}, hier erstmals
-gemessen: Ein Datagramm mit Surplus Area kommt auf diesen Pfaden genau dann an, wenn sein
-UDP-Prüfsummenfeld null ist oder die Einerkomplementsumme über Pseudo-Header und gesamte IP-Nutzlast
-aufgeht, wobei die Pseudo-Header-Länge aus der IP-Gesamtlänge stammt statt aus dem UDP-Längenfeld. Der
-Nachweis gelang mit 248 einzeln nachgerechneten Paketen ohne eine einzige Abweichung, und der
-entscheidende Kreuztest bestand aus zwei Zellen: Zelle G trägt ein Pad-Byte \texttt{ff} bei rechnerisch
-gültiger OCS; sie ist wegen des Null-Pad-Gebots aus \secref{sec:extraktionsmethode} regelwidrig gebaut,
-ihre Legacy-Faltung geht nicht auf, und sie verschwindet vollständig. Zelle C kompensiert denselben
-Pad-Fehler durch eine gegenkorrigierte OCS \texttt{5b53}; sie ist ebenso regelwidrig, ihre Faltung geht
-auf, und sie kommt vollständig an. Der Pfad prüft also die Legacy-Summe und nicht die OCS. Algebraisch
-schließt sich das: Bei RFC-korrekter OCS ist die Legacy-Summe gleich dem Pad-Byte, denn der Längenzuschlag
-des Pseudo-Headers hebt sich exakt gegen den Längensummanden der OCS-Definition auf
+gemessen. Bei den 248 einzeln nachgerechneten Paketen stimmte die Zustellung ohne eine Abweichung mit
+folgender Bedingung überein: Das UDP-Prüfsummenfeld war null oder die Einerkomplementsumme über
+Pseudo-Header und gesamte IP-Nutzlast ging auf, wobei die Pseudo-Header-Länge aus der IP-Gesamtlänge
+stammte statt aus dem UDP-Längenfeld. Der entscheidende Kreuztest bestand aus zwei Zellen: Zelle G
+trägt ein Pad-Byte \texttt{ff} bei rechnerisch gültiger OCS; sie ist wegen des Null-Pad-Gebots aus
+\secref{sec:extraktionsmethode} regelwidrig gebaut, ihre Legacy-Faltung geht nicht auf, und sie
+verschwindet vollständig. Zelle C kompensiert denselben Pad-Fehler durch eine gegenkorrigierte OCS
+\texttt{5b53}; sie ist ebenso regelwidrig, ihre Faltung geht auf, und sie kommt vollständig an. In
+dieser Stichprobe folgt die Zustellung damit der Legacy-Summe und nicht der OCS. Algebraisch schließt
+sich das: Bei RFC-korrekter OCS ist die Legacy-Summe gleich dem Pad-Byte, denn der Längenzuschlag des
+Pseudo-Headers hebt sich exakt gegen den Längensummanden der OCS-Definition auf
 (\secref{subsec:surplus-ocs}). Damit ist die Frage aus \secref{sec:ff2-pfadmodell} beantwortet, ob
-regelkonform gebaute Datagramme ein solches Gate passieren: Ja. Ein Datagramm mit Null-Pad und korrekter
-OCS besteht die Legacy-Prüfung zwingend, und genau das erklärt die verlustfreie P0-Grundlast; die
-Prüfsummenneutralität der Surplus Area ist der gemessene Entwurfsgrund der OCS
+regelkonform gebaute Datagramme ein solches Gate passieren: Ja. Ein Datagramm mit Null-Pad und
+korrekter OCS besteht ein Gate dieses Typs zwingend, und genau das erklärt die verlustfreie
+P0-Grundlast; die Messung bestätigt das in Abschnitt~9 genannte Entwurfsziel der OCS, Datagramme durch
+Zwischensysteme zu tragen, die den Surplus fälschlich in die UDP-Prüfsumme einbeziehen
 \cite[Sec.~9]{rfc9868}. Zugleich folgt eine Prüfbarkeitsgrenze für \secref{sec:soll-ist}: Die
 Empfängerpflichten für verfälschte Pads und Prüfsummen sind auf solchen Pfaden nur messbar, wenn das
 Datagramm pfadneutral gehalten wird, entweder durch die kompensierte OCS oder durch eine genullte
-UDP-Prüfsumme; beide Umgehungen wurden mit je 40 Paketen validiert.
+UDP-Prüfsumme; beide Umgehungen wurden mit je 40 Paketen validiert.\footnote{Die 248-Paket-Stichprobe
+und ihr SHA-256-Manifest liegen nur im lokalen, von Git ignorierten Arbeitsverzeichnis. Sie sind damit
+nachgeprüft, aber nicht Bestandteil der elf versiegelten Evidenzarchive.}
 
 Wo dieses Gate sitzt, klärt die systematische Wiederholung des Kreuztests auf allen Paaren, ergänzt um
 einen reinen Amazon-Vergleichspfad; \figref{fig:eval-gate} stellt alle Richtungen zusammen:
@@ -367,8 +380,8 @@ einen reinen Amazon-Vergleichspfad; \figref{fig:eval-gate} stellt alle Richtunge
 \end{figure}
 
 Aus \figref{fig:eval-gate} geht hervor, dass die regelwidrige, aber faltungsgültige Zelle C jede der 14
-Richtungen vollständig passiert, während die faltungsungültige Zelle G in zehn Richtungen vollständig
-verschwindet und in vier Richtungen vollständig ankommt. Das Muster der Überlebensrichtungen trägt die
+Richtungen vollständig passiert, während die faltungsungültige Zelle G in elf Richtungen vollständig
+verschwindet und in drei Richtungen vollständig ankommt. Das Muster der Überlebensrichtungen trägt die
 Verortung: Der Amazon-Backbone lässt G beidseitig durch, ebenso der Weg von 1blu zu aws; die Ausfälle
 konzentrieren sich auf alle Richtungen mit Hetzner-Beteiligung und auf den 1blu-Eingang. Als sparsamstes
 Modell bleibt eine kanten- oder empfangsseitige Legacy-Prüfsummenvalidierung bei Hetzner in beiden
@@ -418,27 +431,29 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
         \node[mp] at (4.6,0.62) {$\triangle$ en0 (nur 10./11.08.)};
         \node[mp, anchor=north] at (ziel.south) {$\triangle$ Mitschnitt Ziel};
         \node[kante, anchor=north west, text width=7.6cm, align=left] at (0,-3.05) {Rückrichtung im
-            NAT-Modus: Antworten erreichen den Gast mit TTL 128, die NAT erzeugt sie als UDP-Vermittler
-            neu. Im Bridge-Modus echte End-zu-End-TTL (48 von mcs, 51 von 1blu); alle Ziel-TTLs des
-            Uplinks steigen um genau eins, der entfernte NAT-Sprung wird im Zahlenwerk sichtbar};
+            NAT-Modus: Antworten erreichen den Gast mit TTL 128. Dieses Bild ist mit einer Neuerzeugung
+            durch die NAT-Schicht vereinbar. Im Bridge-Modus kommt die Endpunkt-TTL an (48 von mcs, 51
+            von 1blu); alle Ziel-TTLs des Uplinks steigen um genau eins, weil der NAT-Sprung im
+            Messpfad entfällt};
     \end{tikzpicture}
     \caption{Zugangspfad über den Mobilfunk-Hotspot in den Betriebsarten NAT und Bridge}
     \label{fig:eval-heimpfad}
 \end{figure}
 
-Auf diesem Pfad scheiterte der erste Realpfadversuch dieser Arbeit zweifach, und beide Mechanismen ließen
-sich später sauber trennen. Im NAT-Modus kamen abgehende Optionsdatagramme zwar an, aber verändert: neun
-von neun ohne ihre Surplus Area, gegen 18 von 18 intakte Kontrollen (Fisher exakt, einseitig,
-$p = 2{,}13 \cdot 10^{-7}$). Der Mechanismus steckt im TTL-Bild aus \figref{fig:eval-heimpfad}: Die
-Rückantworten erreichen den Gast mit TTL 128 statt eines dekrementierten Werts, die NAT arbeitet also als
-UDP-Vermittler, der Datagramme aus seinem Verbindungszustand neu aufbaut; wer nur die UDP-Länge kennt,
-erzeugt zwangsläufig Pakete ohne Surplus Area. Nach \secref{sec:ff2-pfadmodell} ist das ein
-\textbf{Normalisierer} mit der Ergebnisklasse entfernt. Sein härtester Fall betrifft atomare
-FRAG-Datagramme, deren gesamter Inhalt in der Surplus Area liegt: Sie kommen als leere 28-Byte-Hüllen an
-und werden zugestellt, zehn von zehn; die Anwendung erhält leere statt fehlender Datagramme, ohne jedes
-Verlustsignal. In der Rückrichtung verschwanden Optionsdatagramme dagegen vollständig: null von sechs
-gegen 15 von 15 gleich große Kontrollen (Fisher exakt, einseitig, $p = 1{,}84 \cdot 10^{-5}$); offen
-blieb zunächst, welches Merkmal der Klasse den Ausschlag gibt.
+Auf diesem Pfad scheiterte der erste Realpfadversuch dieser Arbeit zweifach, und beide Mechanismen
+ließen sich später trennen. Im NAT-Modus kamen abgehende Optionsdatagramme zwar an, aber verändert:
+neun von neun ohne ihre Surplus Area, gegen 18 von 18 intakte Kontrollen (Fisher exakt, einseitig,
+$p = 2{,}13 \cdot 10^{-7}$). Rückantworten mit TTL 128 und neu geschriebenen IPv4-Kennungen sind mit
+einem Neuaufbau aus dem Verbindungszustand der NAT vereinbar (\figref{fig:eval-heimpfad}). Die
+Messpunkte trennen \texttt{vmnet-natd} jedoch nicht von der macOS-VMnet-API und legen das interne
+Längenmodell nicht offen. Direkt belegt ist allein die Normalisierung auf IPv4-Kopflänge plus
+UDP-Länge, bei unveränderten Nutzdaten und entfernter Surplus Area. Nach \secref{sec:ff2-pfadmodell}
+ist das ein \textbf{Normalisierer} mit der Ergebnisklasse entfernt. Sein deutlichster Fall betrifft
+atomare FRAG-Datagramme, deren gesamter Inhalt in der Surplus Area liegt: Sie kommen als leere
+28-Byte-Hüllen an und werden zugestellt, zehn von zehn; die Anwendung erhält leere statt fehlender
+Datagramme, ohne jedes Verlustsignal. In der Rückrichtung verschwanden Optionsdatagramme dagegen
+vollständig: null von sechs gegen 15 von 15 gleich große Kontrollen (Fisher exakt, einseitig,
+$p = 1{,}84 \cdot 10^{-5}$); offen blieb zunächst, welches Merkmal der Klasse den Ausschlag gibt.
 
 Diese Frage beantwortete die vorregistrierte Wiederholung mit Kontrollzellen zu je 30 Paketen: Kontrollen
 ohne Surplus Area passieren in beiden Größen (58 und 44 Byte) vollständig, während gültige Optionen,
@@ -499,22 +514,28 @@ Die fünfte Pfadstufe erweitert die Messbasis um zwei Hyperscaler-Fabrics und la
     \label{fig:eval-interkontinental}
 \end{figure}
 
-Die beiden Fabrics verhalten sich entgegengesetzt. Der komplette Amazon-Pfad aus Nitro-Fabrik,
-Adressumsetzung am Internet-Gateway und Transatlantik-Transit transportierte die Klasse in allen sechs
-Pilot-Lanes unversehrt (54 von 54 Datagrammen mit intaktem Surplus und gültiger OCS; die Zustellung mit
-gültiger OCS belegt nebenbei, dass die Adressumsetzung die UDP-Prüfsumme korrekt anpasst, ohne die
-Surplus Area anzutasten). Die anschließende Diskriminator-Matrix mit sechs Zellformen bestätigte das
-vollständig (240 von 240), und schließlich liefen die kompletten Suiten auf allen drei aws-Paaren
-fehlerfrei durch, einschließlich der MTU-Kante bei exakt 1500 auf jedem Paar. Damit ist zweierlei
-belegt: Der Präsenz-Verwerfer ist keine Eigenschaft von Hyperscaler-Fabrics an sich, und der
-EU-US-Transit verwirft die Klasse nicht; dies sind die ersten interkontinentalen Pfade dieser Arbeit,
-auf denen RFC~9868 in beiden Richtungen funktioniert. Die Google-Fabric dagegen verwarf die Klasse
-bidirektional und inhaltsblind: Baselines 40 von 40, alle fünf Surplus-Zellformen null von 200, keine
-leeren Hüllen; auch die Zelle, die jedes Legacy-Gate passieren würde, stirbt. Die Endpunktmitschnitte
-lokalisieren den Verlust vor beziehungsweise hinter der Gast-Schnittstelle, also in der Fabric; der
-Transit ist durch das direkte Peering mit nur sieben bis acht sichtbaren Routern und durch den
-identischen Befund gegen 1blu entlastet. Ein \textbf{Präsenz-Verwerfer} tritt hier folglich als
-Eigenschaft einer Cloud-Fabric auf, providerspezifisch statt klassentypisch.
+Die beiden Fabrics verhalten sich entgegengesetzt. Auf den Amazon-Pfaden aus Nitro-Fabrik,
+Adressumsetzung am Internet-Gateway und Transatlantik-Transit kamen in den sechs Pilot-Lanes 18 von 18
+Baselines und 36 von 36 Optionsdatagramme unversehrt an; die anschließende Diskriminator-Matrix mit
+sechs Zellformen bestätigte das mit 240 von 240 Paketen. Die erfolgreiche UDP-Prüfsummenprüfung nach
+der Adressumsetzung belegt deren Anpassung, während die übereinstimmenden Optionsbytes und die gültige
+OCS getrennt davon stützen, dass die Surplus Area unverändert blieb. Auch die vollständigen Suiten
+erreichten auf allen drei aws-Paaren die erwarteten funktionalen Zustellmengen einschließlich der
+MTU-Kante bei exakt 1500 Byte. Damit ist zweierlei belegt: Der Präsenz-Verwerfer ist keine Eigenschaft
+von Hyperscaler-Fabrics an sich, und der EU-US-Transit verwirft die Klasse nicht; dies sind die ersten
+interkontinentalen Pfade dieser Arbeit, auf denen RFC~9868 in beiden Richtungen funktioniert. Ein
+Lauf des Szenarios S-50 verfehlte allerdings wegen einer 47,448-sekündigen Sendepause das
+vorregistrierte 30-Sekunden-Kriterium: 32 der 64 Terminalfragmente folgten ihrem Erstfragment erst nach
+51,927 bis 52,749 Sekunden. In den sechs Läufen dieser Richtung kamen insgesamt 966 von 966 Fragmenten
+an, und im betroffenen Lauf wurden alle 64 erwarteten Sätze vor dem 60-Sekunden-Cachetimeout
+zugestellt; der funktionale Cachebefund blieb also erhalten, der Lauf war dennoch nicht
+abweichungsfrei. Die Google-Fabric dagegen verwarf die Klasse bidirektional und inhaltsblind: Baselines
+40 von 40, alle fünf Surplus-Zellformen null von 200, keine leeren Hüllen; auch die Zelle, die jedes
+Legacy-Gate passieren würde, stirbt. Die Endpunktmitschnitte grenzen den Verlust auf das Intervall nach
+der sendenden und vor der empfangenden Gast-Schnittstelle ein, und der gleiche Befund gegen mcs und
+1blu macht ein gemeinsames Google-seitiges Element zum sparsamsten Modell; die konkrete Komponente ist
+ohne Zwischenmesspunkt nicht nachgewiesen. Ein \textbf{Präsenz-Verwerfer} tritt hier als Eigenschaft
+einer Cloud-Fabric auf, providerspezifisch statt klassentypisch.
 
 Auf den Hinwegen nach Asien-Pazifik zeigte sich dieselbe Mechanismenklasse ein drittes Mal, nun im
 Transit und quellabhängig; \figref{fig:eval-opfermatrix} fasst die Lage zusammen:
@@ -526,29 +547,38 @@ Transit und quellabhängig; \figref{fig:eval-opfermatrix} fasst die Lage zusamme
     \label{fig:eval-opfermatrix}
 \end{figure}
 
-Aus \figref{fig:eval-opfermatrix} geht hervor, dass die Opfermenge von der Quelle abhängt: Beide
-Hetzner-Standorte verlieren die gesamte Surplus-Klasse nach Tokio und Seoul, 1blu zusätzlich nach
-Sydney, während der Amazon-Backbone alle vier getesteten Ziele erreicht und sämtliche Rückwege sauber
-blieben (120 von 120 in den Eskalationsmatrizen). Drei Kontrollen stützen die Deutung: Die
-Eskalationsmatrizen zeigen für die betroffenen Lanes exakt die inhaltsblinde Zellensignatur der
-Google-Fabric; Osaka teilt mit Tokio die sichtbare AS-Kette und bleibt dennoch transparent, die
-Verwerfer liegen also in zielspezifischen Teilpfaden hinter der sichtbaren Kette; und die
-Sydney-Anomalie blieb im zeitversetzten Gegentest quellabhängig. Interkontinentale Erreichbarkeit der
-Surplus Area ist damit eine Eigenschaft des konkreten Paars aus Quelle und Ziel, nicht des Ziels.
+Aus \figref{fig:eval-opfermatrix} geht hervor, dass die Opfermenge von der Quelle abhängt. In den drei
+Eskalationsmatrizen kamen von mcs nach Tokio und Seoul sowie von 1blu nach Sydney jeweils alle
+Baselines an, aber keine der fünf Surplus-Zellen; die jeweilige Gegenrichtung blieb mit 120 von 120
+Paketen sauber, zusammen also mit 360 von 360 Paketen. Die Helsinki-Piloten nach Tokio und Seoul
+lieferten je drei Baselines, aber keines der je sechs Optionsdatagramme, während die Amazon-Piloten
+nach Tokio, Seoul, Sydney und Osaka je drei Baselines und sechs Optionsdatagramme vollständig
+zustellten. Zwei Kontrollen stützen die Deutung: Osaka teilt mit Tokio die sichtbare AS-Kette und
+bleibt dennoch transparent, sodass die sichtbare Kette allein den Unterschied nicht erklärt, das
+Wirkintervall mit Endpunktmitschnitten aber auch nicht weiter zu trennen ist; und die Sydney-Anomalie
+blieb im zeitversetzten Gegentest quellabhängig. Interkontinentale Erreichbarkeit der Surplus Area ist
+damit für die beobachteten Messfenster eine Eigenschaft des konkreten Paars aus Quelle und Ziel, nicht
+des Ziels allein.
 
 \subsection{Mechanismenklassen und Folgen}
 \label{subsec:eval-mechanismen}
 
-Die Messungen füllen die drei Mechanismenklassen aus \secref{sec:ff2-pfadmodell} mit belegten Wirkorten,
-jeweils als Intervall zwischen zwei Messpunkten und nie als Gerät \cite[Sec.~25.6]{rfc9868}: der
-\textbf{Normalisierer} an der Grenze aus VMware-NAT und VMnet mit der Ergebnisklasse entfernt; das
-\textbf{Prüfsummen-Gate} an der Hetzner-Kante in beiden Richtungen und am 1blu-Eingang, während Amazon
-nirgends prüft, mit der Ergebnisklasse verworfen für alle faltungsungültigen Datagramme; der
+Die Messungen füllen die drei Mechanismenklassen aus \secref{sec:ff2-pfadmodell} mit beobachteten
+Wirkintervallen zwischen eigenen Messpunkten; die Zuordnung ist kein Gerätenachweis. Abschnitt~25.6 des
+RFC beschreibt sowohl das Entfernen von Optionen durch UDP-Vermittler als auch das Verwerfen
+optionsbehafteter Datagramme auf bestimmten Pfaden \cite[Sec.~25.6]{rfc9868}. Dazu passen der
+\textbf{Normalisierer} an der Grenze aus VMware-NAT und VMnet mit der Ergebnisklasse entfernt, das
+\textbf{Prüfsummen-Gate} in den Randintervallen der beiden Hetzner-Endpunkte und am 1blu-Eingang mit
+der Ergebnisklasse verworfen für alle faltungsungültigen Datagramme sowie der
 \textbf{Präsenz-Verwerfer} in drei Habitaten, nämlich Zugangsnetz, Cloud-Fabric und quellabhängigem
-Transit, mit der Ergebnisklasse verworfen für die gesamte Klasse. Dazu tritt der Maskierungseffekt als
-Wechselwirkung: Ein Normalisierer vor einem Präsenz-Verwerfer macht diesen unsichtbar, weil er dessen
-Auslöser entfernt. Was das für ein einzelnes Datagramm bedeutet, bündelt \figref{fig:eval-paketformen}
-am Beispieldatagramm aus \chapref{chap:entwurf} und seinen zwei härtesten Gegenstücken:
+Transit, mit der Ergebnisklasse verworfen für die gesamte Klasse. Die Amazon-seitigen Intervalle und
+der reine Amazon-Backbone zeigten kein Prüfsummen-Gate. Das macht die vollständigen Pfade zu Hetzner
+und von Amazon zu 1blu nicht gatefrei; dort begrenzen die Endpunktmessungen das Gate auf die jeweils
+entfernte Seite oder den letzten Transitabschnitt. Dazu tritt der Maskierungseffekt als Wechselwirkung:
+Ein Normalisierer vor einem Präsenz-Verwerfer entfernt dessen Auslöser und macht den nachgelagerten
+Verwerfer dadurch unsichtbar. Was das für ein einzelnes Datagramm bedeutet, bündelt
+\figref{fig:eval-paketformen} am Beispieldatagramm aus \chapref{chap:entwurf} und seinen zwei härtesten
+Gegenstücken:
 
 \begin{figure}[H]
     \centering
@@ -597,48 +627,49 @@ am Beispieldatagramm aus \chapref{chap:entwurf} und seinen zwei härtesten Gegen
     \label{fig:eval-paketformen}
 \end{figure}
 
-Aus \figref{fig:eval-paketformen} geht hervor, dass zwischen Erhalt und Verlust eine dritte, betrieblich
-gefährlichste Form liegt: das zugestellte leere Datagramm, bei dem der Inhalt ohne jedes Signal
-verschwindet. Für Anwendungsentwickler hat das zur direkten Konsequenz, dass ein Einsatz von UDP Options
-mit klassenbasiertem Totalverlust und mit stiller Inhaltsvernichtung rechnen muss; für Betreiber folgt
-die Pflicht, beide Richtungen getrennt zu prüfen, weil eine NAT einen dahinterliegenden Verwerfer
-maskieren kann. In der Summe bleibt die Surplus Area auf den untersuchten Pfaden dort vollständig
-erhalten, wo weder Normalisierer noch Verwerfer eingreifen, namentlich im europäischen Cloud-Dreieck und
-auf den Amazon-Pfaden; sie scheitert klassenrein an einem Mobilfunk-Zugangsnetz, an einer Cloud-Fabric
-und auf einzelnen Transitwegen, und sie verliert regelwidrige Pads an einem Prüfsummen-Gate. Ob die
-Anforderungen des Standards unter diesen Bedingungen erfüllbar bleiben, bewertet der folgende
-Soll-Ist-Abgleich.
+Aus \figref{fig:eval-paketformen} geht hervor, dass zwischen Erhalt und Verlust eine dritte, schwer
+erkennbare Form liegt: das zugestellte leere Datagramm, bei dem der Inhalt ohne Verlustsignal
+verschwindet. Regelkonforme Optionsdatagramme blieben im europäischen Cloud-Dreieck und auf den
+untersuchten Amazon-Pfaden erhalten; sie scheiterten dagegen am Mobilfunkzugang, im
+Google-Messintervall und auf einzelnen Transitwegen, und ein regelwidriges Pad scheiterte zusätzlich an
+einem Prüfsummen-Gate. Ob die Anforderungen des Standards unter diesen Bedingungen erfüllbar bleiben,
+bewertet der folgende Soll-Ist-Abgleich.
 
 \section{Soll-Ist-Abgleich mit RFC 9868}
 \label{sec:soll-ist}
 
 FF1 fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum vollständig,
-teilweise oder nicht erfüllen lassen (\secref{sec:zielsetzung}). Bewertet werden die 67 normativen
-Aussagen der Konformitätsmatrix aus \secref{sec:anforderungsmatrix}; die FR- und NFR-Kennungen dienen
-dabei als Nachweisindex und nicht als zweiter Nenner, denn 58 der 67 Zeilen verweisen auf sie. Je
-Aussage folgt der Nachweis einer festen Reihenfolge: zuerst die Notiz der Matrixzeile, dann die
-verknüpfte Anforderungskennung, dann Quelltext und Test, zuletzt, wo vorhanden, das Realpfadszenario.
-Die Abbildung des Repository-Status auf die Kategorien folgt \chapref{chap:methodik}: Nicht gewählte
-MAY-Funktionen, Aussagen außerhalb des Umfangs und Sätze ohne BCP-14-Schlüsselwort bleiben sichtbar,
-zählen aber weder als erfüllt noch als technisch unmöglich. Damit ist auch die aus
-\chapref{chap:entwurf} übergebene Frage zu beantworten, ob die zusammengefassten Empfangsberichte für
-die Messkampagnen ausreichen: allein nicht. Weil ein Pad-Fehler und eine fehlgeschlagene OCS-Rechnung
-im selben Status zusammenfallen und verworfene Ausgänge als \zitat{kein Datagramm} erscheinen, stützt
-sich jeder Realpfadnachweis auf das Kampagnenpaket aus Mitschnitten, Sendemanifest und Auswerterlauf;
-ein Ausbleiben (etwa der Reassemblierungs-Timeout, der keine eigene Verwerfmeldung erzeugt) ist nur
-über diese Negativevidenz messbar. Das Ergebnis der Einzelbewertung fasst \tabref{tab:eval-sollist}
-zusammen:\footnote{Die Einzelbewertung aller 67 Zeilen liegt als \file{thesis/daten/konformitaet"=kategorien.csv}
-im Repositorium der Arbeit; ein Prüfskript erzwingt die Übereinstimmung der Summen mit der Matrix.}
+teilweise oder nicht erfüllen lassen (\secref{sec:zielsetzung}). Bewertungsgrundlage sind die 67 Zeilen
+der Konformitätsmatrix aus \secref{sec:anforderungsmatrix}. Nach dem in dieser Arbeit gewählten
+Verfahren werden normative Anforderungen einschließlich unmarkierter normativer Sätze bewertet
+(\chapref{chap:analyse}); nicht gewählte MAY-Funktionen und Aussagen außerhalb des gewählten Umfangs
+bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich (\chapref{chap:methodik}).
+Die FR- und NFR-Kennungen dienen als Nachweisindex und nicht als zweiter Nenner, denn 58 der 67 Zeilen
+verweisen auf sie. Je bewerteter Zeile
+folgt der Nachweis einer festen Reihenfolge: zuerst die Notiz der Matrixzeile, dann die verknüpfte
+Anforderungskennung, dann Quelltext und Test, zuletzt, wo vorhanden, das Realpfadszenario. Damit ist
+auch die aus \chapref{chap:entwurf} übergebene Frage zu beantworten, ob die zusammengefassten
+Empfangsberichte für die Messkampagnen ausreichen: allein nicht. Weil ein Pad-Fehler und eine
+fehlgeschlagene OCS-Rechnung im selben Status zusammenfallen und verworfene Ausgänge als \zitat{kein
+Datagramm} erscheinen, stützt sich jeder Realpfadnachweis auf das Kampagnenpaket aus Mitschnitten,
+Sendemanifest und Auswerterlauf; ein Ausbleiben (etwa der Reassemblierungs-Timeout, der keine eigene
+Verwerfmeldung erzeugt) ist nur über diese Negativevidenz messbar. Die repository-interne
+Einzelzuordnung fasst \tabref{tab:eval-sollist} zusammen. Vor einem unabhängigen FF1-Ergebnis ist ihre
+Normstufenzuordnung gegen den Primärtext zu berichtigen, denn \chapref{chap:analyse} hält für die
+Abschnitte 7 und 8 bereits zwei Einstufungsabweichungen fest, und die unmarkierten API-Sätze aus
+Abschnitt 15 ordnet die Datenbasis bisher uneinheitlich ein.\footnote{Die Einzelzuordnung aller 67
+Zeilen liegt als \file{thesis/daten/konformitaet"=kategorien.csv} im Repositorium der Arbeit; ein
+Prüfskript erzwingt die Übereinstimmung der Summen mit der Matrix.}
 
 \begin{table}[!htb]
     \centering
-    \caption{Soll-Ist-Bewertung der 67 normativen Aussagen je RFC-Bereich}
+    \caption{Repository-interne Zuordnung der 67 Matrixzeilen vor der Korrektur anhand des Primärtexts}
     \label{tab:eval-sollist}
     \footnotesize
     \setlength{\tabcolsep}{4pt}
     \begin{tabularx}{\textwidth}{L{1.9cm} c c c c c Y}
         \toprule
-        \textbf{Bereich} & \textbf{Aussagen} & \textbf{vollst.} & \textbf{teilw.} & \textbf{n.\,erf.} &
+        \textbf{Bereich} & \textbf{Zeilen} & \textbf{vollst.} & \textbf{teilw.} & \textbf{n.\,erf.} &
         \textbf{n.\,anw.} & \textbf{stärkster Nachweis bzw. zentrale Grenze} \\
         \midrule
         Sec. 7 bis 9 & 8 & 8 & 0 & 0 & 0 & Wire-Prüfung mit drei Prüfern; Prüfsummenneutralität real
@@ -658,58 +689,74 @@ im Repositorium der Arbeit; ein Prüfskript erzwingt die Übereinstimmung der Su
     \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:eval-sollist} geht hervor, dass 51 der 67 Aussagen vollständig, sechs teilweise und
-keine als grundsätzlich unerfüllbar bewertet werden; zehn sind nicht anwendbar. Dass die Kategorie
-\zitat{nicht erfüllbar} leer bleibt, ist ein Ergebnis und kein Mangel des Maßstabs: Die harten Grenzen
-des Benutzerraum-Zugangs treffen den Betrieb des Sendewegs, aber keine einzelne Normaussage der Matrix.
-Diese Beobachtung hat zur direkten Konsequenz, dass RFC~9868 auf der gewählten Plattform als Ganzes
-implementierbar ist und die Streitfälle in den Randbedingungen liegen, nicht im Kern.
+Aus \tabref{tab:eval-sollist} geht hervor, dass die repository-interne Zuordnung 51 der 67 Matrixzeilen
+als vollständig und sechs als teilweise führt, keine als grundsätzlich unerfüllbar; zehn gelten als
+nicht anwendbar. Wegen der zuvor genannten Einstufungsabweichungen ist das noch kein unabhängiges
+FF1-Ergebnis. Auch nach deren Korrektur zeigt eine leere Kategorie \zitat{nicht erfüllbar} nur, dass
+innerhalb des gewählten Prüfrasters kein grundsätzlicher technischer Hinderungsgrund gefunden wurde:
+Die harten Grenzen des Benutzerraum-Zugangs treffen den Betrieb des Sendewegs, aber keine einzelne
+Normaussage der Matrix. Die leere Kategorie beweist damit weder die vollständige Umsetzung des RFC noch
+die Korrektheit jeder Normstufe der Ausgangsmatrix, und ihre Aussagekraft bleibt auf Linux, IPv4,
+Benutzerraum und den gewählten Funktionsumfang begrenzt.
 
-Die \textbf{vollständig} erfüllten Aussagen umfassen den gesamten Kern: Ortung und Ausrichtung der
-Surplus Area, die OCS-Arithmetik samt Nullregeln, die TLV-Rahmung mit allen Längen- und
+Davon getrennt bleibt der Implementierungsnachweis des geprüften Protokollkerns belastbar: Ortung und
+Ausrichtung der Surplus Area, die OCS-Arithmetik samt Nullregeln, die TLV-Rahmung mit ihren Längen- und
 Ordnungspflichten, die acht must-support-Optionen und die FRAG-Verarbeitung einschließlich
-Reassemblierung. Der Nachweis ruht auf den sechs Ebenen der Testarchitektur aus
-\secref{sec:pruefarchitektur} (211
-Testattributzeilen, zehn Property-Dateien mit 1024 Fällen je Eigenschaft, neun Fuzz-Ziele, 172
-Lean-Theoreme in elf Modulen, die Wire-Prüfung mit drei getrennten Prüfern) und zusätzlich auf den
-Realpfadläufen aus \secref{sec:beobachtbarkeit-eval}: Die Negativkampagne bestätigte alle 15
-Prüfklassen ohne eine einzige Abweichung von der RFC-Erwartung, darunter das Verwerfen bei Pad- und
-OCS-Fehlern, das stille Übergehen unbekannter SAFE-Optionen und die Nutzdatenkürzung bei einer
-UNSAFE-Option; die Robustheitswelle ergänzte, dass EOL-Füllbytes unverarbeitet bleiben, NOP-Leitern
-bis zur Schwelle sieben meldungsfrei durchlaufen und ein erweitert kodiertes Längenfeld unter 255 als
-Senderverstoß alle Optionen verwirft, während ein handgebautes atomares FRAG-Einzelfragment trägt,
-anhängige Fragmentsätze parallelen Verkehr vollständig isolieren und ungleiche Optionssätze je Fragment
-regelkonform reassemblieren. Dieselbe Suite lief anschließend unverändert auf den Helsinki-Paaren und
-transatlantisch auf drei aws-Paaren; die Bewertung stützt sich damit auf fünf reale Pfade.
+Reassemblierung. Er ruht auf den sechs Ebenen der Testarchitektur aus \secref{sec:pruefarchitektur}:
+Attributtests mit insgesamt 211 Testattributzeilen, zehn Property-Dateien mit 1024 Fällen je
+Eigenschaft, neun Fuzz-Ziele, Integrationstests, 172 Lean-Theoreme in elf Modulen und die Wire-Prüfung
+mit drei getrennten Prüfern. Sieben Integrationstests sind im normalen Hostlauf ignoriert und laufen in
+der getrennten sudo-Lane des Prüfskripts; sechs davon benötigen \texttt{CAP\_NET\_RAW} oder
+Root-Rechte, einer dient als Hilfsprozess. Hinzu kommen die Realpfadläufe aus
+\secref{sec:beobachtbarkeit-eval}: Die Empfänger-Negativkampagne erfüllte in allen 15 Klassen die im
+Auswerter hinterlegten Zellkriterien, darunter das Verwerfen bei Pad- und OCS-Fehlern, das stille
+Übergehen unbekannter SAFE-Optionen und die Nutzdatenkürzung bei einer UNSAFE-Option. Diese Klassen
+enthalten auch Kontrollen und bilden nicht alle berührten RFC-Anforderungen ab; insbesondere verarbeitet
+S-21 die NOP-Leiter trotz Überschreiten der lokalen Meldeschwelle weiter. Die Robustheitswelle ergänzte
+EOL-Füllbytes, NOP-Leitern, erweiterte Längenfelder, ein atomares FRAG-Einzelfragment, parallele
+Fragmentsätze und ungleiche Optionssätze je Fragment. Dieselbe Suite lief anschließend auf fünf
+weiteren Hostpaaren, nämlich auf beiden Helsinki-Paaren und transatlantisch auf drei aws-Paaren;
+zusammen mit dem Referenzpaar 1blu $\leftrightarrow$ mcs stützt sich die Bewertung damit auf sechs
+reale Hostpaare.
 
-Die sechs \textbf{teilweise} erfüllten Aussagen sind sämtlich SHOULD-Aussagen oder API-Zuschnitte,
-keine verletzten MUSTs. Die NOP-Begrenzung erkennt und meldet lange Läufe, bricht die Verarbeitung
-aber nicht ab; die Empfangs-API bündelt Pflichtoptionen je Datagramm oder Fragmentsatz, statt sie je
-Fragment und Quelle einzeln erzwingbar zu machen; die DoS-Abwägungen aus Abschnitt 25 sind teils
-umgesetzt, teils als begründeter Verzicht dokumentiert (kein Deckel für die Optionszahl); die
-Referenzordnung gilt beim Senden kanonisch, wird beim Empfang aber nicht erzwungen. Der sechste Fall
-ist der Cachevertrag der Reassemblierung: Die tiefe Schnittstelle verlangt einen Cache je
-Adress-und-Port-Paar als dokumentierte Aufruferpflicht, die mitgelieferte Komfortebene bindet ihren
-Empfänger jedoch nur an die Ports, sodass Datagramme verschiedener Adresspaare eine Mengengrenze
-teilen (\secref{sec:betriebsgrenzen}). Dazu treten die erwarteten Betriebsgrenzen außerhalb der
-Matrix: Der Sendeweg trägt bis exakt 1500 Byte Gesamtlänge und scheitert darüber am Kernel
-(\texttt{EMSGSIZE}, je Richtung 33 von 33 zugestellten Längenstufen bis 1500 und null darüber, auf
-allen Paaren bis hin zu den transatlantischen repliziert), eine Pfad-MTU-Ermittlung fehlt, und die
-Cache-Bereinigung bleibt aufrufergesteuert. Für den Einsatz heißt das: Die Bibliothek erfüllt die
-Norm, verlangt aber einen Betreiber, der Betriebsgrenzen kennt.
+Die sechs \textbf{teilweise} erfüllten Matrixzeilen der derzeitigen Zuordnung umfassen vier Zeilen mit
+SHOULD-Anteil und zwei Anforderungen an die Empfangs-API; von \zitat{keine verletzten MUSTs} kann
+deshalb keine Rede sein. Die unmarkierte API-Vorgabe verlangt eine Steuerung erforderlicher oder
+auszuschließender Optionen je Paket und Fragment, die markierte MUST-Anforderung das stille Verwerfen
+bei einer fehlenden Pflichtoption. Die Schnittstelle bietet dazu eine gebündelte Pflichtoptionsprüfung
+je Datagramm oder Fragmentsatz, aber keine getrennte Steuerung je Fragment und keine Ausschlussliste
+einzelner Optionsarten. Die NOP-Begrenzung erkennt und meldet lange Läufe, beendet die Verarbeitung
+aber nicht; die DoS-Abwägungen aus Abschnitt~25 sind teils umgesetzt, teils als begründeter Verzicht
+dokumentiert (kein Deckel für die Optionszahl); die Referenzordnung gilt beim Senden kanonisch, wird
+beim Empfang aber nicht erzwungen. Der sechste Fall ist der Cachevertrag der Reassemblierung: Die tiefe
+Schnittstelle verlangt einen Cache je Adress-und-Port-Paar als dokumentierte Aufruferpflicht, die
+mitgelieferte Komfortebene bindet ihren Empfänger jedoch nur an die Ports, sodass Datagramme
+verschiedener Adresspaare eine Mengengrenze teilen (\secref{sec:betriebsgrenzen}). Dazu treten die
+erwarteten Betriebsgrenzen außerhalb der Matrix: Der Sendeweg trägt bis exakt 1500 Byte Gesamtlänge und
+scheitert darüber am Kernel. Je Richtung wurden elf Längenstufen bis 1500 Byte geprüft, mit je drei
+Baseline- und drei Optionsdatagrammen, also 66 von 66 Zustellungen; in den fünf Längenstufen ab
+1504 Byte scheiterten je Richtung alle 30 Sendeversuche mit \texttt{EMSGSIZE}. Dieses Bild wiederholte
+sich auf allen sechs Hostpaaren einschließlich der transatlantischen. Eine Pfad-MTU-Ermittlung fehlt,
+und die Cache-Bereinigung bleibt aufrufergesteuert. Die Bibliothek setzt den geprüften Protokollkern
+also um, bildet aber nicht alle bewerteten API-Anforderungen vollständig ab.
 
-Die zehn \textbf{nicht anwendbaren} Aussagen bleiben sichtbar und begründet: die nicht gewählte
+Die derzeit als \textbf{nicht anwendbar} geführten Matrixzeilen bleiben sichtbar: die nicht gewählte
 Empfangsprüfung der Bytes nach EOL, die nicht implementierten Optionen TIME und EXP samt der
 reservierten AUTH- und UNSAFE-Kinds, die Entwurfs- und Namensregeln für neue Optionen, die
-Multicast-Betrachtungen sowie zwei Sätze des API-Abschnitts ohne BCP-14-Schlüsselwort. Dass diese
-Abgrenzung trägt, zeigte der Realpfad nebenbei: Eine formgültige TIME-Option lief als unbekannte
-SAFE-Option still mit, genau wie es die Einstufung als nicht gewählte Funktion verlangt.
+Multicast-Betrachtungen sowie zwei Sätze des API-Abschnitts ohne BCP-14-Schlüsselwort. Für diese beiden
+API-Sätze ist das fehlende Schlüsselwort allein keine tragfähige Begründung; ihr normativer Gehalt ist
+nach der Methode aus \chapref{chap:analyse} erneut zu prüfen. Eine formgültige TIME-Option lief auf dem
+Realpfad als unbekannte SAFE-Option still mit; das belegt ihre Verarbeitung als unbekannte Option,
+ändert aber die Umfangseinstufung nicht.
 
 Vier \textbf{Differenzen zwischen Spezifikation, Modell, Programm und Laufzeit} verdienen eigene
 Sätze. Erstens ist die Kombination aus UDP-Prüfsumme null und OCS null aus dem Benutzerraum exakt
 konstruierbar und wurde auf der Leitung nachgewiesen; in der Matrix aus UDP-Prüfsumme und OCS wird
-diese Zelle regelkonform verarbeitet, obwohl das Datagramm dann keinerlei Prüfsummenschutz trägt. Das
-ist normgetreues Verhalten und zugleich eine sichtbare Integritätslücke der Norm. Zweitens löst
+diese Zelle regelkonform verarbeitet. Das geprüfte Datagramm trug weder eine APC noch den
+Integritätsschutz einer anderen Schicht, sodass seine UDP-Nutzdaten und seine Surplus Area ungeschützt
+blieben. Eine APC kann allgemein die UDP-Nutzdaten zusätzlich schützen, aber weder die Surplus Area
+noch UDP-Kopf und Pseudo-Header \cite[Sec.~11.3]{rfc9868}; weiteren Schutz liefert nur eine andere
+Schicht. Zweitens löst
 Erratum~8834 den Widerspruch zwischen den Abschnitten 10 und 14 zugunsten des Sec.-10-Verfahrens auf
 (\chapref{chap:methodik}); die Laufzeit folgt dem nachweislich, denn im realen Überlängenfall wurde
 ein gültiges REQ vor der defekten Option nicht gemeldet, sondern der gesamte Optionsbereich verworfen.
@@ -719,19 +766,24 @@ Abweichung, sondern eine ausgewiesene Verschärfung. Viertens beweisen die Lean-
 Modelle der Wire-Regeln, nicht über das laufende Programm; die Brücke bleibt Prüfsache der Tests
 (\secref{sec:pruefarchitektur}), weshalb diese Arbeit keine formale Konformitätsaussage erhebt.
 
-Drei \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf und sind mit Ursache, Korrektur und
-Restrisiko dokumentiert. Der Raw-Empfänger beendete sich auf öffentlichen Hosts still beim ersten
-fremden UDP-Paket; Ursache war ein als Ende gewerteter Filterausgang, die Korrektur besteht aus dem
-Weiterlesen nach gefiltertem Rauschen und einer Gesamtfrist,\footnote{Commits \texttt{f3bf430} und
-\texttt{8f8c11b} im Implementierungsrepositorium.} und als Restrisiko bleibt, dass eine Messung ohne
-diese Korrektur Zustellungen unterschätzt hätte; alle Kampagnen dieser Arbeit liefen mit den
-korrigierten Binärdateien. Der Um-eins-Fehler der Surplus-Ortung überstand 23 Einzelfalltests und
-fiel erst der Zweitprüfung im Pull-Request auf; als Korrektur wurden Property-Tests und Fuzz-Ziele je
-Parsefläche verpflichtend, und das Restrisiko gleichartiger Lücken ist dadurch verkleinert, nicht
-beseitigt. Der RFC-Abgleich des Abschlussschritts fand schließlich trotz grüner Prüfkette weitere
-Konformitätslücken, darunter die Behandlung unbekannter UNSAFE-Optionen vor einem FRAG; die Korrektur
-erfolgte gesammelt und real nachgeprüft, und als Restrisiko bleibt die Erkenntnis, dass eine grüne
-Prüfkette Konformität nicht garantiert (\secref{sec:vorgehen}).
+Vier \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf. Erstens beendete sich der Raw-Empfänger
+auf öffentlichen Hosts still beim ersten fremden UDP-Paket; Ursache war ein als Ende gewerteter
+Filterausgang, und die Korrektur besteht aus dem Weiterlesen nach gefiltertem Rauschen und einer
+Gesamtfrist.\footnote{Commits \texttt{f3bf430} und \texttt{8f8c11b} im Implementierungsrepositorium.}
+Die externe Kampagne vom 10.08. und die bidirektionale Kampagne vom 11.08. nutzten noch
+\texttt{7b11140}, also einen Stand vor beiden Korrekturen. In der bidirektionalen Kampagne hielt eine
+äußere Neustartschleife den Empfänger verfügbar; die Ankunftszahlen beruhen deshalb auf den
+PCAP-Dateien, während die lückenhaften JSONL-Dateien dort nur die Decodierung belegen. Die
+vollständigen P0-, P1- und P2-Kampagnen ab dem 14.08. liefen mit beiden Korrekturen. Zweitens überstand
+der Um-eins-Fehler der Surplus-Ortung 23 Einzelfalltests und fiel erst der Zweitprüfung im
+Pull-Request auf; als Korrektur wurden Property-Tests und Fuzz-Ziele je Parsefläche verpflichtend.
+Drittens fand der RFC-Abgleich des Abschlussschritts trotz grüner Prüfkette weitere Konformitätslücken,
+darunter die Behandlung unbekannter UNSAFE-Optionen vor einem FRAG; die Korrektur erfolgte gesammelt
+und real nachgeprüft. Viertens verfehlte ein AWS-Lauf des Szenarios S-50 das vorregistrierte
+Zeitkriterium, obwohl der Kampagnentreiber Status 0 meldete, denn die Auswerter für P0, P1 und P2
+überführen semantische Abweichungen nicht in einen Fehlerstatus. Zusammen zeigen die vier Fälle, dass
+eine grüne Prüfkette weder Konformität noch die vollständige Erfüllung aller Zellkriterien garantiert
+(\secref{sec:vorgehen}).
 
 Damit kehrt die Bewertung zu der in \chapref{chap:grundlagen} offen gelassenen Frage zurück, was aus
 dem Verlust einzelner Fragmente wird, den auch FRAG nicht behebt. Die Messungen beantworten sie in
@@ -740,12 +792,15 @@ langen Serie aus 300 Zwei-Fragment-Sätzen mit gezielt zurückgehaltenem Termina
 die geplanten 270 Sätze an, die 30 beschädigten verhungerten still, und die Quote blieb über die
 Serie drittelgenau konstant (570 von 570 Fragmenten auf dem Draht, keine Drift). Der
 Reassemblierungs-Timeout wirkt real, ist aber nur über Negativevidenz messbar, denn das Auslaufen
-erzeugt keine eigene Verwerfmeldung. Die Eindeutigkeit der Identification ist reine Senderpflicht:
-Bei absichtlich gleicher Kennung und komplementären, nicht überlappenden Fragmenten setzte der
-Empfänger ein nie gesendetes Datagramm zusammen und lieferte es kommentarlos aus; das ist kein
-Implementierungsfehler, sondern eine Robustheitslücke der Norm, deren einzige vorgesehene Erkennung
-die optionale APC ist, und mit APC wird der Fehlschlag gemeldet, die Nutzdaten werden dennoch
-zugestellt. Die Grenze des Soft-State schließlich zeigt \figref{fig:eval-cachegrenze}:
+erzeugt keine eigene Verwerfmeldung. Die Eindeutigkeit der Identification ist eine markierte
+Senderpflicht aus Abschnitt~11.4 \cite[Sec.~11.4]{rfc9868}, und der Versuch mit gleicher Kennung
+verletzt sie absichtlich: Bei komplementären, nicht überlappenden Fragmenten setzte der Empfänger ein
+nie gesendetes Datagramm zusammen und lieferte es kommentarlos aus. Das ist keine Abweichung der
+Implementierung vom RFC, sondern eine Robustheitsgrenze gegenüber nichtkonformen Senderkennungen, denn
+der RFC schreibt dem Empfänger keine zusätzliche Erkennung solcher Kollisionen vor. Die APC bietet
+dafür eine optionale protokollinterne Erkennung beschädigter Nutzdaten; schlägt sie fehl, wird der
+Fehlschlag gemeldet und die Nutzlast standardmäßig dennoch zugestellt. Die Grenze des Soft-State
+schließlich zeigt \figref{fig:eval-cachegrenze}:
 
 \begin{figure}[H]
     \centering
@@ -767,11 +822,20 @@ zugestellt. Die Grenze des Soft-State schließlich zeigt \figref{fig:eval-cacheg
     \label{fig:eval-cachegrenze}
 \end{figure}
 
-Aus \figref{fig:eval-cachegrenze} geht hervor, dass die SHOULD-Grenze aus Abschnitt~25.4
-implementierbar und deterministisch ist und Bestandsverkehr wie atomare Zustellung schützt; was der
-RFC offen lässt, sind Zahlenwert und Überlaufverhalten, und die Folge ist stiller Verlust ohne jedes
-Signal an den Sender. Diese Beobachtung hat zur direkten Konsequenz, dass eine Anwendung mit
-Fragmentverlust, Kennungskollisionen und Cacheüberlauf selbst rechnen muss; die Norm liefert ihr dafür
+Aus \figref{fig:eval-cachegrenze} geht hervor, dass die Implementierung die als SHOULD formulierte
+Empfehlung aus Abschnitt~25.4 durch eine deterministische Mengengrenze umsetzt und dabei
+Bestandsverkehr wie atomare Zustellung schützt \cite[Sec.~25.4]{rfc9868}. Der RFC legt weder den Zahlenwert noch das
+Überlaufverfahren fest; dass neue Fragmentsätze hier still verhungern, folgt aus der gewählten
+Abweisungspolitik der Implementierung. Zwei weitere Vorgaben rahmen diesen Befund. Der RFC verbietet
+die Weitergabe einzelner Fragmente an die Anwendung, lässt aber Optionen je Fragment schon vor der
+Aufnahme in die Reassemblierung wirken \cite[Sec.~11.4]{rfc9868}; weil ein Fragment keine UDP-Nutzdaten
+trägt, ist eine APC nur je Datagramm sinnvoll. Die Bibliothek meldet währenddessen nur
+\texttt{Buffered} oder \texttt{Dropped}, und die gesammelten Optionsberichte werden erst nach
+vollständiger Reassemblierung sichtbar; scheitert sie, erreicht die Anwendung folglich kein leerer
+Rahmen, sondern gar nichts; damit erfüllt die Bibliothek zugleich die SHOULD-Vorgabe, dass eine
+fehlgeschlagene Reassemblierung keine leeren Rahmen an die Anwendung liefert
+\cite[Sec.~11.4]{rfc9868}. Diese Beobachtung hat zur direkten Konsequenz, dass eine Anwendung
+Ausbleiben, Kennungskollisionen und Cacheüberlauf selbst behandeln muss; die Norm liefert ihr dafür
 nur die APC und die Berichte.
 
 Zwei Geltungsgrenzen rahmen dieses Ergebnis. Alle Realpfadaussagen gelten für saubere, kalibrierte
@@ -780,11 +844,9 @@ Pfade; das Verhalten unter stochastisch gestörtem Pfad wurde nach dem begründe
 Cachegrenze), nicht als Mischung. Und die Empfängerpflichten für verfälschte Pads und Prüfsummen sind
 auf Pfaden mit Prüfsummen-Gate nur über die beschriebenen pfadneutralen Konstruktionen messbar; für
 den Pad-Fall ist das sogar beweisbar, weil ein regelwidriges Pad die Legacy-Faltung zwingend bricht.
-In der Summe beantwortet der Abgleich FF1 so: 51 der 67 normativen Aussagen sind unter Linux, IPv4
-und Benutzerraum vollständig erfüllt, sechs teilweise mit dokumentierten Gründen, keine ist
-grundsätzlich unerfüllbar, und zehn liegen außerhalb des gewählten Umfangs. Wie diese Bewertung
-zustande kam, und zwar unter durchgehender Beteiligung von Sprachmodellen, beschreibt der folgende
-Abschnitt.
+Damit ist der derzeitige Zuordnungsstand für FF1 zusammengefasst; die Einzelwerte stehen in
+\tabref{tab:eval-sollist}. Wie diese Zuordnung zustande kam, und zwar unter durchgehender Beteiligung
+von Sprachmodellen, beschreibt der folgende Abschnitt.
 
 \section{Reflexion der KI-gestützten Arbeitsweise}
 \label{sec:ki-reflexion}
@@ -821,22 +883,24 @@ Fallgruppen tragen das Bild:
         Prüfkette, und die zugehörige Gesamtfrist kam erst drei Tage später. Auch der Schlussaudit fand
         trotz durchgehend grüner Prüfkette weitere Konformitätslücken, und dort musste eine vom Modell
         vorgeschlagene Korrektur selbst noch einmal korrigiert werden (\secref{sec:vorgehen}).
-    \item \textbf{Gemeinsam übersehene Fehler.} Der Zählfehler der bidirektionalen Kampagne (15 statt
-        18 Kontrollformen) passierte drei Prüfende und wurde erst nachträglich als Erratum im
-        versiegelten Archiv berichtigt. Ein Faktencheck dieses Textes widerlegte zudem eine eigene
-        Kapitelaussage am Quelltext (der nur teilweise eingelöste Cachevertrag aus
-        \secref{sec:soll-ist}), und die Nachprüfung der Grundlagen führte zu zwei ausdrücklich als
-        lokale Politik dokumentierten Entscheidungen samt einer geschlossenen Testlücke. Außerhalb des
+    \item \textbf{Gemeinsam übersehene Fehler.} Der Zählfehler der bidirektionalen Kampagne betraf
+        15 statt 18 FULL-Kontrollpakete in Richtung A; er passierte drei Prüfende und wurde erst
+        nachträglich als Erratum im versiegelten Archiv berichtigt. Ein Faktencheck dieses Textes
+        widerlegte zudem eine eigene Kapitelaussage am Quelltext (der nur teilweise eingelöste
+        Cachevertrag aus \secref{sec:soll-ist}), und die Nachprüfung der Grundlagen führte zu zwei
+        ausdrücklich als lokale Politik dokumentierten Entscheidungen samt einer geschlossenen
+        Testlücke. Außerhalb des
         Quelltexts ließ ein Abrufwerkzeug den entscheidenden Satz eines geprüften Abstracts aus, sodass
         die Erstbewertung falsch war und nach einem Autorenhinweis berichtigt wurde
         (\chapref{chap:methodik}).
 \end{itemize}
 
 Als beschreibende Kennzahlen des Registers ergibt das: Zehn der zwölf Fälle endeten mit Übernahme,
-einer teils mit Übernahme und teils mit begründeter Ablehnung, einer vollständig mit Ablehnung; fünf
-Fälle lagen vor dem Merge, sechs danach, einer außerhalb des Repositoriums. Drei Funde stammen allein
-vom Zweitprüfer, die Übernahmenserie eines Falls allein vom führenden Werkzeug, und zwei Fehler wurden
-zunächst von allen Beteiligten übersehen. Für die frühen Projektphasen fehlen vollständige Modell- und
+einer teils mit Übernahme und teils mit begründeter Ablehnung, einer vollständig mit Ablehnung; sechs
+Fälle lagen vor dem Merge, fünf danach, einer außerhalb des Repositoriums. Drei Funde stammen allein
+vom Zweitprüfer, die Übernahmenserie eines Falls allein vom führenden Werkzeug. Das Register
+kennzeichnet nur den Kampagnen-Zählfehler ausdrücklich als zunächst von allen drei Beteiligten
+übersehen. Für die frühen Projektphasen fehlen vollständige Modell- und
 Konfigurationsangaben; diese Fälle tragen den Vermerk der lückenhaften Provenienz und werden nicht
 nachträglich vervollständigt (\chapref{chap:methodik}). Ebenso bleibt festgehalten, dass die
 KI-Prüfungen angefordert, aber nicht technisch erzwungen waren und Sammelcommits die innere Reihenfolge
@@ -851,24 +915,26 @@ Arbeit nicht.
 \section{Diskussion und Grenzen der Aussagekraft}
 \label{sec:diskussion-grenzen}
 
-Zusammengenommen ergeben die beiden Ergebnisteile eine Pointe, die keiner allein trägt. Der
-Soll-Ist-Abgleich zeigt, dass RFC~9868 im Benutzerraum implementierbar ist: 51 der 67 normativen
-Aussagen vollständig, sechs teilweise, keine grundsätzlich unerfüllbar. Die Pfadmessungen zeigen
-zugleich, dass diese Konformität die Zustellung nicht sichert: Ob eine Surplus Area ankommt,
-entscheiden Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer entlang des konkreten Pfads, und
-darum ist Erreichbarkeit eine Eigenschaft des Paars aus Quelle und Ziel, nicht des Ziels und nicht des
-Endpunkts. Dieselben Messungen bestätigen umgekehrt den Entwurfskern des Standards: Die
-Prüfsummenneutralität der OCS ist genau die Eigenschaft, die regelkonforme Datagramme durch die
-beobachteten Gates trägt, während jedes regelwidrige Pad zur Zustellfrage wird.
+Zusammengenommen ergeben die beiden Ergebnisteile eine Pointe, die keiner allein trägt: Was sich im
+Benutzerraum umsetzen lässt, sagt noch nichts darüber, was ein realer Pfad zustellt. Der
+Soll-Ist-Abgleich trennt im gewählten Umfang vollständig und teilweise umgesetzte Anforderungen; seine
+Einzelwerte stehen in \tabref{tab:eval-sollist}. Die Pfadmessungen zeigen zugleich, dass selbst
+regelkonform erzeugte Optionsdatagramme nicht auf jedem Pfad zugestellt werden: Ob eine Surplus Area
+ankommt, entscheiden Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer entlang des konkreten Pfads.
+Erreichbarkeit ist deshalb paarbezogen, also eine Eigenschaft aus Quelle und Ziel und nicht des Ziels
+allein. Umgekehrt stützen dieselben Gates den Entwurf der OCS: Ihre Prüfsummenneutralität lässt ein
+regelkonformes Datagramm an einem Gate dieses Typs passieren, während ein regelwidriges Pad die
+Zustellung verhindern kann.
 
-Für die Betroffenen heißt das Folgendes. Wer UDP Options in einer Anwendung einsetzt, muss mit
-klassenbasiertem Totalverlust und mit stiller Inhaltsvernichtung rechnen, denn ein leeres Datagramm
-statt eines fehlenden erzeugt kein Signal; Ende-zu-Ende-Bestätigung, die Auswertung der
-Empfangsberichte und im Zweifel eine Kapselung, die die Klasse vor dem Pfad verbirgt, sind deshalb
-Teil des Betriebs und nicht Kür. Wer Netze betreibt, muss beide Richtungen getrennt prüfen, weil eine
-Adressumsetzung einen dahinterliegenden Verwerfer maskieren kann, und sollte wissen, dass beobachtete
-Prüfsummen-Gates gerade die regelkonformen Datagramme mit beschädigtem Pad verwerfen, bevor ein
-Empfänger urteilen kann.
+Für die Betroffenen folgt daraus zweierlei. Wer UDP Options in einer Anwendung einsetzt, muss auf
+vergleichbaren Pfaden mit klassenbasiertem Totalverlust und mit stiller Inhaltsvernichtung rechnen, denn
+ein empfangenes leeres Datagramm zeigt nicht an, dass sein Inhalt unterwegs entfernt wurde;
+Ende-zu-Ende-Bestätigung, die Auswertung der Empfangsberichte und im Zweifel eine Kapselung, die die
+Klasse vor dem Pfad verbirgt, mindern dieses Risiko. Wer Netze betreibt, sollte beide Richtungen
+getrennt prüfen, weil eine Adressumsetzung einen dahinterliegenden Verwerfer maskieren kann. Die
+beobachteten Prüfsummen-Gates zeigen außerdem, dass ein beschädigtes Pad ein Datagramm bereits
+unzustellbar machen kann, bevor ein Empfänger darüber urteilt. Beide Folgerungen ziehen die Messbefunde
+dieser Arbeit; Betreiberpflichten des Standards sind sie nicht.
 
 Diesen Aussagen stehen klare Grenzen gegenüber. Jeder Pfadbefund gilt für das beobachtete Paar, die
 Richtung und das Messfenster; eine Aussage über \zitat{das Internet} trifft diese Arbeit nicht, und
@@ -879,8 +945,13 @@ gelten für saubere, kalibrierte Pfade, und das Zusammenspiel der Störmechanism
 begründeten Verzicht nur einzeln geprüft. Auf der Prüfseite beweisen die Lean-Theoreme Modelle statt
 des Programms, findet Fuzzing Fehler statt Fehlerfreiheit, und bleibt die Folge der Modellausgaben
 samt der Provenienz früher Projektphasen nicht reproduzierbar; eine Wirksamkeitsaussage zur
-Arbeitsweise erhebt \secref{sec:ki-reflexion} bewusst nicht. Offen bleibt schließlich benannte
-Nacharbeit der Bibliothek, allen voran die nur teilweise eingelöste Paarbindung des
-Reassemblierungs-Caches auf der Komfortebene. Mit diesen Ergebnissen und Grenzen ist die Evaluation
-vollständig; die wörtliche Beantwortung beider Forschungsfragen und die daraus folgenden Empfehlungen
-übernimmt \chapref{chap:fazit} (\secref{sec:ff-beantwortung}).
+Arbeitsweise erhebt \secref{sec:ki-reflexion} bewusst nicht. Als benannte Nacharbeit an der Bibliothek
+bleibt vor allem die auf der Komfortebene nur teilweise eingelöste Paarbindung des
+Reassemblierungs-Caches offen. Hinzu tritt eine Lücke der Prüfkette: Die Auswerter für P0, P1 und P2
+überführen semantische Abweichungen nicht in einen Fehlerstatus. P1 und P2 sammeln solche Befunde
+bereits, beenden den Lauf aber unabhängig von deren Zahl mit Status 0, und P0 gibt unter anderem
+negative Prüfresultate für S-14 und S-36 aus, ohne den Rückgabewert zu ändern. Bis diese Befunde den
+Rückgabewert beeinflussen, belegt ein grüner Status nur den Abschluss des Auswerterlaufs, nicht die
+Erfüllung aller Zellkriterien. Mit diesen Ergebnissen und Grenzen ist die Evaluation vollständig; die
+wörtliche Beantwortung beider Forschungsfragen und die daraus folgenden Empfehlungen übernimmt
+\chapref{chap:fazit} (\secref{sec:ff-beantwortung}).

@@ -3,9 +3,11 @@
 
 Quelle: docs/requirements.md Abschnitt 3 des Implementierungsrepos am Auswertungsstand f847895
 (Zeilen 162 bis 228; Spalten RFC area, Normative item, Level, Covered, Step, Notes). Die Kategorie
-je Zeile folgt der Abbildungsregel aus Kapitel 3 der Thesis (03_methodik.tex:118-134):
-Anwendbarkeit zuerst (nicht gewaehlte MAY-Funktionen und Aussagen ausserhalb des Umfangs sowie
-Aussagen ohne BCP-14-Schluesselwort zaehlen als nicht anwendbar); Partial-in-userspace = teilweise;
+je Zeile folgt der repository-internen Zuordnung, die Tabelle 6.2 als Stand vor der Korrektur
+ausweist (06_evaluation.tex, sec:soll-ist): Anwendbarkeit zuerst (nicht gewaehlte MAY-Funktionen
+und Aussagen ausserhalb des Umfangs zaehlen als nicht anwendbar; zwei unmarkierte API-Saetze aus
+Sec. 15 sind allein wegen fehlender BCP-14-Schluesselwoerter so eingeordnet, was das Kapitel als
+offene Einstufungsfrage kennzeichnet); Partial-in-userspace = teilweise;
 Not-feasible-in-userspace = nicht erfuellbar; Delegated nur mit dokumentiertem Vertrag vollstaendig;
 Partially implemented bestimmt die Erfuellbarkeit noch nicht und wird je Zeile entschieden.
 Sonderfaelle sind in der Spalte anmerkung begruendet. Das Skript schreibt
@@ -103,8 +105,9 @@ assert sorted(quellzeilen) == list(range(162, 229)), "Quellzeilen nicht lueckenl
 
 with CSV.open("w", newline="") as fh:
     fh.write("# Datenschicht fuer Tabelle 6.2 (FF1-Einzelbewertung). Quelle: docs/requirements.md\n")
-    fh.write("# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895; Abbildungsregel aus\n")
-    fh.write("# thesis/chapters/03_methodik.tex:118-134. Erzeugt und geprueft von\n")
+    fh.write("# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895; Kategorien nach der\n")
+    fh.write("# repository-internen Zuordnung vor der Korrektur (Tabelle 6.2, 06_evaluation.tex;\n")
+    fh.write("# offene Normstufenpruefung dort ausgewiesen). Erzeugt und geprueft von\n")
     fh.write("# thesis/tikz/gen/ff1-kategorien.py (Summen-Asserts: 67 Zeilen; Gruppen 8/17/22/9/7/4).\n")
     w = csv.writer(fh)
     w.writerow(["quellzeile", "gruppe", "rfc_bereich", "kurzinhalt", "level", "covered", "kategorie", "anmerkung"])

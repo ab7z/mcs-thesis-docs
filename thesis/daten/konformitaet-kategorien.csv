@@ -1,6 +1,7 @@
 # Datenschicht fuer Tabelle 6.2 (FF1-Einzelbewertung). Quelle: docs/requirements.md
-# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895; Abbildungsregel aus
-# thesis/chapters/03_methodik.tex:118-134. Erzeugt und geprueft von
+# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895; Kategorien nach der
+# repository-internen Zuordnung vor der Korrektur (Tabelle 6.2, 06_evaluation.tex;
+# offene Normstufenpruefung dort ausgewiesen). Erzeugt und geprueft von
 # thesis/tikz/gen/ff1-kategorien.py (Summen-Asserts: 67 Zeilen; Gruppen 8/17/22/9/7/4).
 quellzeile,gruppe,rfc_bereich,kurzinhalt,level,covered,kategorie,anmerkung
 162,Sec. 10,Sec. 10,"UDP Length in [8, IP-Nutzlast], sonst verwerfen und melden",MUST,yes,vollstaendig,
