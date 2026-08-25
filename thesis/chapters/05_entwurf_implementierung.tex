@@ -6,9 +6,13 @@
 \label{chap:entwurf}
 
 Dieses Kapitel baut das Messinstrument dieser Arbeit: die Bibliothek, die RFC~9868 unter den Vorgaben aus
-\chapref{chap:analyse} umsetzt, und die Prüfanlage, die diesen Bau absichert. Zunächst ordnet
-\secref{sec:architektur} die Komponenten der Bibliothek und verankert sie in den Anforderungskennungen aus
-\tabref{tab:anforderungsmatrix}. Danach folgen die beiden Verarbeitungswege: \secref{sec:sendepfad}
+\chapref{chap:analyse} umsetzt, und die Prüfanlage, die diesen Bau absichert. Zunächst zeigt \secref{sec:vorgehen},
+wie
+dieser
+Bau entstand; danach ordnet
+\secref{sec:architektur} die Komponenten der Bibliothek und verankert sie in den Anforderungskennungen
+des Implementierungs-Repositorys (\secref{sec:anforderungsmatrix}). Es folgen die beiden
+Verarbeitungswege: \secref{sec:sendepfad}
 verfolgt ein Beispieldatagramm von den Nutzdaten bis auf den Draht, \secref{sec:empfangspfad} den
 umgekehrten Weg vom Draht bis zur Auslieferung, und \secref{sec:optionsverarbeitung} vertieft das
 Serialisieren und Parsen der Optionen. Ferner zeigt \secref{sec:pruefarchitektur} die gebaute Prüfanlage
@@ -16,16 +20,57 @@ mit ihren Nachweisspuren und \secref{sec:betriebsgrenzen} die Betriebs- und Sich
 abschließend benennt \secref{sec:grenzen-implementierung} die bewussten Grenzen des Baus.
 
 Dabei bleibt die Trennung aus \secref{sec:forschungsdesign} bestehen: Dieses Kapitel beschreibt und
-begründet den Bau, es fällt keine Erfüllungsurteile und nimmt keine Messergebnisse vorweg; beides gehört zu
-\chapref{chap:evaluation}. Die vier Entscheidungen aus \secref{sec:technologieauswahl} werden hier
-angewandt und nicht neu begründet; ebenso setzt das Kapitel die Mechanik der Surplus Area aus
-\chapref{chap:grundlagen} voraus und greift sie nur dort auf, wo der Entwurf ihr eine konkrete Gestalt
-gibt.
+begründet den Bau; die abschließende Erfüllungsbewertung und die Ergebnisse der Messkampagnen gehören zu
+\chapref{chap:evaluation}. Befunde aus Vorversuch und Prüfbetrieb erscheinen nur dort, wo sie eine
+Entwurfsentscheidung begründen oder die Prüfanlage absichern. Die vier Entscheidungen aus
+\secref{sec:technologieauswahl} werden hier angewandt und nicht neu begründet; ebenso setzt das Kapitel die
+Mechanik der Surplus Area aus \chapref{chap:grundlagen} voraus und greift sie nur dort auf, wo der Entwurf
+ihr eine konkrete Gestalt gibt.
+
+\section{Vorgehen der Implementierung}
+\label{sec:vorgehen}
+
+Bevor die Architektur den fertigen Bau zeigt, gehört festgehalten, wie er entstand, denn das Vorgehen ist
+unter KI-Beteiligung selbst ein Schutzmechanismus (\secref{sec:gefahrenmodell}). Die Umsetzung begann mit
+dem Plan, nicht mit dem Code: Der erste Commit des Repositorys legte den vollständigen Projektplan an,
+achtzehn Schrittdateien mit je Ziel, Anforderungen, Plan, Aufgaben und Abschlusskriterien, dazu die
+Modulgerüste.\footnote{Commit \texttt{3c17252} vom 30.05.2026; die Detailpläne, der Anforderungskatalog
+(\secref{sec:anforderungsmatrix}) und die Architektur- und Formatreferenzen folgten am selben Tag mit
+Commit \texttt{36cc465}.} Der Plan bezeichnet sich selbst als schrittweise abzuarbeitenden Masterplan mit
+einem Menschen in der Schleife; der Anforderungskatalog stand damit vor dem ersten Funktionsschritt.
+
+Je Schritt lief der Kernzyklus aus \figref{fig:stepzyklus}: ein eigener Arbeitszweig, die Umsetzung mit
+Tests im selben Commit, das lokale Gate mit am Ende 18 Prüfläufen, der Pull-Request mit der kleineren
+CI-Kette und zwei angeforderten KI-Prüfungen, zuletzt die menschliche Durchsicht des Diffs und genau ein
+freigegebener Sammelcommit auf dem Hauptzweig; nur die Schritte 14, 15 und 17 teilten sich einen solchen
+Commit. Die Regeln dazu stehen versioniert im Repository selbst, einschließlich des Grundsatzes, dass jede
+Änderung vor der Übernahme von einem Menschen gelesen und verantwortet wird.
+
+Der Plan blieb dabei beweglich: Ein Machbarkeits-Vorversuch (Schritt 0.5, \secref{sec:empfangspfad}) und
+die unabhängige Wire-Prüfung (Schritt 10.5, \secref{sec:pruefarchitektur}) wurden eingeschoben, Schritt 9
+ging in Schritt 8 auf, und die zunächst mitgebaute IPv6-Unterstützung wurde mit Schritt 16 samt der
+Katalogzeile FR-47 wieder aus dem Umfang entfernt (\secref{sec:grenzen-implementierung}). Den Abschluss
+bildete kein Funktionsschritt, sondern eine Prüfung: Schritt 18 hielt die Befunde eines nachträglichen
+RFC-Abgleichs als eigene Schrittdatei fest und arbeitete sie gesammelt ab, darunter die Behandlung
+unbekannter UNSAFE-Optionen vor einem FRAG und den vollständigen Statusabgleich des
+Anforderungskatalogs.\footnote{Commit \texttt{4c82ab0} vom 02.08.2026 mit 53 geänderten Dateien; die
+Schrittdatei ist \path{docs/plan/steps/18-rfc9868-audit-remediation.md}.}
+
+Dass diese Schleifen nicht Förmelei waren, zeigen die Fänge: Die Prüfung gegen den RFC-Primärtext fand
+vier Fehler in der eigenen Regeldatei des Repositorys, darunter eine falsch wiedergegebene
+Ausrichtungsregel; die Zweitprüfung im Pull-Request fing den Um-eins-Fehler der Surplus-Ortung, den 23
+selbstgeschriebene Tests übersehen hatten (\secref{sec:pruefarchitektur}); und bei Schritt 18 musste eine
+erste, vom Sprachmodell vorgeschlagene Korrektur selbst noch einmal korrigiert werden, weil sie hinter der
+unbekannten UNSAFE-Option weiter nach FRAG suchte. Ebenso klar sind die Grenzen der Belegbarkeit: Die
+Sammelcommits verschmelzen die innere Reihenfolge eines Schritts, die KI-Prüfungen waren angefordert, aber
+nicht erzwungen, und für das Lean-Gate ist kein Fang eines echten Produktfehlers belegt; es sicherte den
+Modellbestand (\secref{sec:pruefarchitektur}). Mit diesem Vorgehen im Rücken zeigt der Rest des Kapitels
+den fertigen Bau.
 
 \section{Gesamtarchitektur}
 \label{sec:architektur}
 
-Den Rahmen des Baus legt \chapref{chap:analyse} fest: die Vorgabe V-01 mit Linux, IPv4 und dem Benutzerraum
+Den Rahmen des Baus legt \chapref{chap:analyse} fest: die Plattformvorgabe mit Linux, IPv4 und dem Benutzerraum
 mit Raw Sockets sowie die vier Entscheidungen aus \secref{sec:technologieauswahl}, die dort begründet sind
 und hier angewandt werden. Innerhalb dieses Rahmens entsteht das Artefakt aus
 \tabref{tab:scope-implementierung}: eine Bibliothek, die die Surplus Area baut, liest und prüft, samt zwei
@@ -38,8 +83,8 @@ aus acht Modulen und zwei Messprogrammen, zusammen rund 8.600 physische Rust-Zei
 Verzeichnisse sowie die Einzeldateien \texttt{error.rs} und \texttt{model.rs}), ohne die 40 Zeilen von
 \texttt{src/lib.rs}: genau 8.606 Zeilen.}: Sechs Module tragen je einen fachlichen Baustein, vom
 Wire-Format bis zur öffentlichen Schnittstelle, zwei liegen als Querschnitt unter allen. Komponente meint
-in diesem Kapitel einen solchen Baustein zusammen mit seiner Quelleinheit: Der Modulname ist zugleich der
-Pfad unter \texttt{src/}.
+in diesem Kapitel einen solchen Baustein zusammen mit seiner Quelleinheit: Der Modulname bestimmt zugleich
+die Quelleinheit unter \texttt{src/}, ein gleichnamiges Verzeichnis oder eine gleichnamige Rust-Datei.
 
 Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponenten}:
 
@@ -60,9 +105,9 @@ Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponent
       import/.style={->, draw=sqdunkel, thin},
       anno/.style={font=\tiny\linespread{1.0}\selectfont, text=feldlinie, align=center},
     ]
-    \node[modul] (bin) at (4.2,6.05)
-      {\textbf{bin}: udpopt-send, udpopt-recv\\ importieren \texttt{api} und alle Module direkt};
-    \node[modul] (api) at (4.2,4.8) {\textbf{api} (\texttt{Peer})\\ importiert alle Module};
+    \node[modul] (bin) at (4.2,6.50)
+      {\textbf{bin}: udpopt-send, udpopt-recv\\ gemeinsam: direkte Abhängigkeiten\\ zu allen acht Modulen};
+    \node[modul] (api) at (4.2,4.8) {\textbf{api} (\texttt{Peer})\\ importiert die sieben\\ übrigen Module};
     \node[modul] (frag) at (0.9,3.4) {\textbf{frag}\\ split, reassembly};
     \node[modul] (recv) at (4.2,3.4) {\textbf{recv}\\ pipeline};
     \node[akzent] (socket) at (7.9,3.4) {\textbf{socket}\\ send, recv};
@@ -70,7 +115,7 @@ Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponent
     \node[modul] (wire) at (4.2,0.25) {\textbf{wire}\\ ip, udp, checksum, surplus};
     \node[quer] (error) at (12.0,3.6) {\textbf{error}\\ Fehlertypen};
     \node[quer] (model) at (12.0,2.25) {\textbf{model}\\ Konstanten, Grenzen};
-    \node[anno] at (12.0,1.15) {von allen fachlichen\\ Komponenten importiert,\\ selbst ohne Importe};
+    \node[anno] at (12.0,1.15) {von allen fachlichen\\ Komponenten importiert,\\ ohne Bezüge zu\\ anderen Modulen};
     \node[betriebssystem] (rawsock) at (9.2,0.7) {Betriebssystem: Raw Socket\\ (SOCK\_RAW, IP\_HDRINCL)};
     \node[betriebssystem] (urandom) at (0.7,1.75) {Betriebssystem:\\ /dev/urandom};
     \draw[import] (bin) -- (api);
@@ -87,52 +132,57 @@ Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponent
     \draw[import] (options) -- (wire);
     \draw[draw=sqgrau, dashed, thin] (socket.south east) -- (rawsock.north);
     \draw[draw=sqgrau, dashed, thin] (frag.south) -- (urandom.north);
-    \node[anno, anchor=west] at (-0.45,-0.8)
-      {Pfeil: Komponente importiert Komponente. Gestrichelte Linie: Betriebssystemkontakt.};
+    \node[anno, anchor=west] at (-0.45,-0.4)
+      {Pfeil: ausgewählte Importbeziehung. Gestrichelte Linie: ausgewählter Betriebssystemkontakt.};
   \end{tikzpicture}
   \caption{Komponenten der Bibliothek und ihre Abhängigkeiten}
   \label{fig:komponenten}
 \end{figure}
 
-Aus \figref{fig:komponenten} geht zweierlei hervor. Erstens folgen die Kanten den tatsächlichen Importen
-und bilden keine strikte Schichtung; so nutzt die Socket-Schicht für eine Längendiagnose einen Helfer der
-Empfangspipeline. Zweitens berührt allein \texttt{socket} das Netz: Nur dort liegen die
-Netz-Systemaufrufe und damit die beiden \texttt{unsafe}-Blöcke in \texttt{src/}
-(\secref{subsec:programmiersprache}), gekapselt hinter sicheren Schnittstellen; die einzige weitere
-Berührung des Betriebssystems ist das Lesen von \texttt{/dev/urandom} in \texttt{frag} für die
-FRAG-Identifikation. Daraus folgt eine Eigenschaft, die die Prüfarchitektur in
-\secref{sec:pruefarchitektur} trägt: Jede Protokollentscheidung ist ohne Netz und ohne erhöhte Rechte
-prüfbar.
+Aus \figref{fig:komponenten} geht zweierlei hervor. Erstens zeigen die Kanten ausgewählte tatsächliche
+Importe und bilden keine strikte Schichtung; so nutzt die Socket-Schicht für eine Längendiagnose einen
+Helfer der Empfangspipeline. Zweitens liegen die Netz-Systemaufrufe innerhalb der Bibliothek allein in
+\texttt{socket}, und mit ihnen die beiden \texttt{unsafe}-Blöcke in \texttt{src/}
+(\secref{subsec:programmiersprache}), gekapselt hinter sicheren Schnittstellen. Daneben liest \texttt{frag}
+für die FRAG-Identifikation das Zufallsgerät \texttt{/dev/urandom}, \texttt{api} und \texttt{socket} fragen
+für Fristen die monotone Uhr ab, und die beiden Messprogramme kommen mit Konsolenausgabe hinzu;
+\texttt{udpopt-send} kann zusätzlich eine JSONL-Manifestdatei fortschreiben.
+Daraus folgt eine Eigenschaft, die die Prüfarchitektur in \secref{sec:pruefarchitektur} trägt: Die reinen
+Protokollpfade erhalten Zeitpunkte und Identifikation als Parameter, jede Protokollentscheidung ist damit
+ohne Netz und ohne erhöhte Rechte prüfbar.
 
 Unten liegt \texttt{wire}, die reine Bytesicht: IPv4-Kopf, UDP-Kopf, Prüfsummenarithmetik und die Ortung
-der Surplus Area. Hier wird der IPv4-Kopf geprüft und nur \texttt{Protocol}~17 angenommen (Zeile V-02 aus
-\tabref{tab:anforderungsmatrix}), und hier liegt die Ortungsregel, nach der Optionen an jedem gültigen
-\texttt{UDP Length}-Offset beginnen dürfen (R-08-01): Aus Gesamtlänge, Kopflänge und \texttt{UDP Length}
+der Surplus Area. Hier wird der IPv4-Kopf geprüft und nur \texttt{Protocol}~17 angenommen (Umfangsvorgabe aus
+\secref{sec:extraktionsmethode}), und hier liegt die Ortungsregel, nach der Optionen an jedem gültigen
+\texttt{UDP Length}-Offset beginnen dürfen \cite[Sec.~8]{rfc9868}: Aus Gesamtlänge, Kopflänge und \texttt{UDP Length}
 bestimmt \texttt{wire} Beginn, Pad-Bedarf und Länge der Surplus Area, ohne ein einziges Optionsbyte zu
 deuten.
 
 Darüber teilen sich drei Komponenten die Optionslogik. \texttt{options} trägt den Optionskörper:
 Optionsverzeichnis, Parser, Serialisierer, die typisierten Optionswerte und die OCS-Rechenregeln
-(R-09-01). \texttt{recv} enthält mit der Pipeline die Empfangsordnung, die über Annahme oder Verwerfen
-jedes Datagramms entscheidet (R-09-04, R-10-11). \texttt{frag} zerlegt große Nachrichten in Fragmente und
-setzt sie unter begrenztem Speicher wieder zusammen (R-11-22). Die acht \textit{must-support}-Optionen
-aus R-10-08 verteilen sich über diese drei Komponenten; die Vertiefung folgt in \secref{sec:empfangspfad}
+(FR-19, FR-21). \texttt{recv} enthält mit der Pipeline die Empfangsordnung, die für jedes an sie übergebene Datagramm
+über Annahme oder Verwerfen entscheidet (FR-20, FR-38). \texttt{frag} zerlegt große Nachrichten in Fragmente und
+setzt sie unter begrenztem Speicher wieder zusammen (FR-34, NFR-06). Die acht \textit{must-support}-Optionen
+(\cite[Sec.~10]{rfc9868}) verteilen sich über diese drei Komponenten; die Vertiefung folgt in \secref{sec:empfangspfad}
 bis \secref{sec:betriebsgrenzen}.
 
 Oben bündelt \texttt{api} alles im Typ \texttt{Peer}, der Gegenstelle als Bibliothekstyp: Eine Anwendung
 konfiguriert einen \texttt{Peer} und erhält Senden und Empfangen als je einen Aufruf, ohne
 Socket-Verwaltung, Prüfreihenfolge oder Optionsbau selbst zu übernehmen; Aufruferpflicht bleiben die
-erhöhten Rechte für Raw Sockets und die Wahl der Empfangsstrenge, beides behandelt
-\secref{sec:betriebsgrenzen}. Die zwei Programme \texttt{udpopt-send} und \texttt{udpopt-recv} sind
-schmale Messaufsätze für die Kampagnen. Quer zu allem liegen \texttt{error} und \texttt{model} mit den
-Fehlertypen und den Konstanten und Grenzen des Wire-Formats: von allen fachlichen Komponenten importiert,
-selbst ohne Importe. Wie ein Datagramm dieses Gefüge von oben nach unten durchläuft, zeigt der Sendepfad.
+erhöhten Rechte für Raw Sockets, die Wahl der Empfangsstrenge und der anwendungsseitige Protokollzustand,
+etwa die Herkunft eines RES-Tokens; Rechte und Strenge behandelt \secref{sec:betriebsgrenzen}.
+Die zwei Programme \texttt{udpopt-send} und \texttt{udpopt-recv} sind
+schmale Messaufsätze für die Kampagnen. Quer zu allem liegen \texttt{error} mit den
+Fehlertypen und \texttt{model} mit den Protokollkonstanten sowie den Reassemblierungs- und Schutzgrenzen:
+von allen fachlichen Komponenten importiert, selbst ohne Abhängigkeiten zu anderen
+Bibliotheksmodulen. Wie ein Datagramm dieses Gefüge von oben nach unten durchläuft, zeigt der Sendepfad.
 
 \section{Sendepfad}
 \label{sec:sendepfad}
 
 Beim Senden baut die Bibliothek aus Nutzdaten und gewünschten Optionen ein vollständiges IPv4-Datagramm und
-übergibt es dem Raw Socket; den Rahmen setzt die Vorgabe V-01, beschrieben wird durchgehend der IPv4-Weg
+übergibt es dem Raw Socket; den Rahmen setzt die Plattformvorgabe aus \chapref{chap:analyse}, beschrieben
+wird durchgehend der IPv4-Weg
 unter Linux. Als roter Faden dient von hier an ein festes Beispieldatagramm, das die Darstellung bis in die
 Evaluation begleitet: drei Nutzdatenbytes \texttt{odd} und genau eine REQ-Option mit dem vier Byte langen
 Token \texttt{c0ffee01}.\footnote{Prüfszenario \texttt{pad-odd} in \texttt{examples/wire\_probe.rs} (Zeilen
@@ -227,32 +277,35 @@ IP-Kopf, UDP-Kopf und Nutzdaten bei Byte $20 + 11 = 31$. Dieser Offset ist unger
 aus \secref{subsec:surplus-aufbau} fällt also genau ein Pad-Byte an. Der Optionskörper aus dem Serialisierer
 ist zehn Byte lang (zwei Byte OCS-Platzhalter, sechs Byte REQ, \texttt{EOL} und ein Füllbyte auf gerade
 Länge; \secref{sec:optionsverarbeitung}), die Surplus Area damit $1 + 10 = 11$ Byte und die
-\texttt{IP Total Length} $20 + 11 + 11 = 42$ Byte. Sichtbar wird hier zugleich die Senderseite von R-08-01:
+\texttt{IP Total Length} $20 + 11 + 11 = 42$ Byte. Sichtbar wird hier zugleich die Senderseite der
+Offset-Regel aus \cite[Sec.~8]{rfc9868}:
 Optionen dürfen an jedem gültigen \texttt{UDP Length}-Offset beginnen, und die Bibliothek wählt stets den
 natürlichen Start unmittelbar hinter den Nutzdaten.
 
 Geschrieben wird anschließend in einen mit Nullen vorbelegten Puffer der Gesamtlänge: der IP-Kopf, der
 UDP-Kopf mit der bereits berechneten UDP-Prüfsumme, die Nutzdaten und der Optionskörper an seiner
 Zielposition. Das Pad-Byte wird dabei nie eigens geschrieben: Es bleibt die Null der Puffervorbelegung und
-erfüllt so R-08-02a, nach der Ausrichtungsbytes vor dem OCS null sein müssen. Zum Schluss rechnet die
+erfüllt so die Pflicht aus \cite[Sec.~8]{rfc9868}, nach der Ausrichtungsbytes vor dem OCS null sein
+müssen (FR-05). Zum Schluss rechnet die
 OCS-Routine der Komponente \texttt{options} über den eingesetzten Körper und trägt das Ergebnis in den
 Platzhalter ein.
 
-Bei den Prüfsummen begegnen sich zwei Nullregeln, die \secref{subsec:udp-struktur} eingeführt hat. Für die
-UDP-Prüfsumme gilt seit RFC~768: Eine gespeicherte Null bedeutet, dass der Sender keine Prüfsumme erzeugt
-hat; eine errechnete Null wird deshalb als das im Einerkomplement gleichwertige \texttt{0xFFFF} übertragen
-\cite{rfc768}. Für das OCS verlangt R-09-01, dass es ungleich null ist, sobald die UDP-Prüfsumme ungleich
-null ist; der Nullwert bleibt der Kennzeichnung eines unbenutzten OCS vorbehalten und ist nur bei
-UDP-Prüfsumme null zulässig \cite[Sec.~9]{rfc9868}. Eine ausdrückliche Senderegel für den Fall, dass die
-OCS-Rechnung selbst null ergibt, enthält RFC~9868 nicht; dass die Implementierung diesen Wert wie bei der
-UDP-Prüfsumme auf \texttt{0xFFFF} abbildet, ist die notwendige Folgerung aus dem Zusammenspiel der beiden
-Regeln (\secref{subsec:surplus-ocs}). Beide Abbildungen stehen an je genau einer Stelle: für die
-UDP-Prüfsumme in \texttt{wire}, für das OCS in \texttt{options}.\footnote{\texttt{src/wire/udp.rs} (Zeilen
-85 bis 88) und \texttt{src/options/ocs.rs} (Zeilen 55 bis 58).}
+Bei den Prüfsummen begegnen sich zwei Nullregeln aus \secref{subsec:udp-struktur} und
+\secref{subsec:surplus-ocs}. Die UDP-Prüfsumme kennzeichnet mit einer gespeicherten Null den Verzicht auf
+eine Prüfsumme; eine errechnete Null wird deshalb als das im Einerkomplement gleichwertige \texttt{0xFFFF}
+übertragen \cite{rfc768}. Für das OCS verlangt der RFC einen Wert ungleich null, sobald die UDP-Prüfsumme
+ungleich null ist; die Null bleibt der Kennzeichnung eines unbenutzten OCS vorbehalten und ist nur bei
+UDP-Prüfsumme null zulässig \cite[Sec.~9]{rfc9868}. Eine ausdrückliche Senderegel für eine errechnete
+OCS-Null enthält RFC~9868 nicht; weil der Nullwert die unbenutzte Form kennzeichnet, bleibt für ein
+verwendetes OCS im Einerkomplement aber nur die Abbildung auf \texttt{0xFFFF}. Beide Abbildungen stehen an
+je genau einer Stelle: für die UDP-Prüfsumme in \texttt{wire}, für das OCS in
+\texttt{options}.\footnote{\texttt{src/wire/udp.rs} (Zeilen 85 bis 88) und \texttt{src/options/ocs.rs}
+(Zeilen 55 bis 58).}
 
 Die OCS-Rechnung selbst folgt der Regel aus \secref{subsec:surplus-ocs}: In die Einerkomplementsumme geht
 neben dem Optionskörper die Länge der gesamten Surplus Area als 16-Bit-Summand ein, obwohl sie in keinem
-Feld des Pakets steht; beide Seiten leiten sie aus IP- und UDP-Länge ab, und der Entwurfsgrund, die
+Feld des Pakets steht; der Sender bestimmt sie beim Bau aus Pad-Bedarf und Optionskörperlänge, der
+Empfänger leitet sie aus IP- und UDP-Länge ab, und der Entwurfsgrund, die
 Kompensation fehlerhaft rechnender Zwischensysteme, ist ebenfalls dort beschrieben \cite[Sec.~9]{rfc9868}.
 Am Beispiel: Die 16-Bit-Wörter des Optionskörpers summieren sich mit dem Platzhalter null zu
 \texttt{0xB507}, der Längensummand 11 hebt die Summe auf \texttt{0xB512}, und invertiert entsteht das OCS
@@ -277,7 +330,9 @@ Empfangsgrenze EMTU\_R und kopiert die UDP-Ports in jedes Fragment, sodass die F
 NAT-Geräte durchqueren können \cite[Sec.~11.4]{rfc9868}; die Vertiefung folgt in
 \secref{sec:optionsverarbeitung}. Die Bibliothek zieht im hohen Sendepfad die Konsequenz:
 \texttt{Peer::send} prüft gegen eine konfigurierbare Obergrenze der Datagrammlänge (Voreinstellung
-1500~Byte) und zerlegt größere Nachrichten standardmäßig selbst in FRAG-Fragmente.\footnote{Obergrenze und
+1500~Byte) und zerlegt größere Nachrichten standardmäßig selbst in FRAG-Fragmente, sofern die
+konfigurierten MRDS- und Segmentgrenzen der Gegenstelle das zulassen; andernfalls endet der Aufruf mit
+\texttt{SendError::Split}.\footnote{Obergrenze und
 Modus mit ihren Voreinstellungen in \texttt{src/api/mod.rs} (Zeile 33 sowie Zeilen 114 bis 133);
 die Zerlegung übernimmt
 \texttt{build\_outgoing\_datagrams} (ab Zeile 362).} In \secref{sec:ff1-kriterien} ist \texttt{EMSGSIZE}
@@ -297,8 +352,9 @@ alles selbst.
 
 Auf der Empfangsseite erhält der Raw Socket seine Kopie des Datagramms, bevor der UDP-Pfad des Kernels
 Länge, Prüfsumme und Portzuordnung geprüft hat (\secref{sec:netzpfad}, \figref{fig:empfangspfad}). Aus
-dieser Lage folgt vollständige Eigenverantwortung: Alles, was der Kernel dem gewöhnlichen UDP-Socket
-abnimmt, muss die Bibliothek selbst leisten, bevor sie auch nur ein Byte der Surplus Area deutet.
+dieser Lage folgt die Eigenverantwortung für den UDP-Anteil: Die im Raw-Pfad ausgelassenen Kernelprüfungen
+und die Portauswahl muss die Bibliothek selbst leisten, bevor sie auch nur ein Byte der Surplus Area
+deutet.
 
 Wie wörtlich das gemeint ist, zeigte ein Vorversuch am Beginn der Implementierung: eine Messreihe mit 97
 Fällen über ein virtuelles Netzschnittstellenpaar (MTU 1500) zwischen zwei Netznamensräumen, davon 92 aus
@@ -309,16 +365,18 @@ Liste); Protokoll des Vorversuchs in \texttt{docs/plan/steps/00b-spike.md}.} 69 
 Raw-Empfang, die übrigen 28 scheiterten erwartungsgemäß schon beim Senden mit \texttt{EMSGSIZE}
 (\secref{sec:sendepfad}). Das zentrale Ergebnis für den Empfang sind die vier Anomalien: ein Datagramm mit
 UDP-Prüfsumme null, eines mit absichtlich falscher Prüfsumme, eine \texttt{UDP Length} von 500 bei 48
-verfügbaren Bytes und eine \texttt{UDP Length} von 4, kürzer als der UDP-Kopf selbst. Alle vier kamen
-unverändert am Raw Socket an, denn die UDP-Prüfungen des Kernels leben im Pfad des UDP-Sockets, den der
-Raw-Empfang umgeht. Daneben bestätigte die Messreihe die Arbeitsteilung aus \secref{sec:sendepfad} in beide
-Richtungen: 42 Fälle trugen im Sendepuffer ein absichtlich falsches \texttt{Total Length}-Feld, und der
-Kernel schrieb jeden dieser Werte vor der Übertragung auf die tatsächliche Pufferlänge um. Aus dem
-Vorversuch folgt die Grundentscheidung des Empfangspfads: Die Bibliothek prüft alles selbst und folgt
-dabei der Empfangsordnung des RFC, der Längenkonsistenz, UDP-Prüfsumme, OCS und erst dann die
-Optionsverarbeitung ordnet; die vorgelagerte Prüfung des IP-Kopfs ergibt sich aus der Raw-Empfangslage
-\cite[Sec.~10 und 14]{rfc9868}.
+verfügbaren Bytes und eine \texttt{UDP Length} von 4, kürzer als der UDP-Kopf selbst. Alle vier erreichten
+den Raw Socket; der Versuch prüfte dabei nur die Ankunft und protokollierte Längenfelder und Surplus-Bytes,
+ein Byte-für-Byte-Vergleich mit dem Sendepuffer gehörte nicht zum Aufbau. Daneben bestätigte die Messreihe
+die Arbeitsteilung aus \secref{sec:sendepfad}: Von den 69 empfangenen Fällen trugen 42 im Sendepuffer ein
+absichtlich falsches \texttt{Total Length}-Feld, und der Kernel schrieb jeden dieser Werte vor der
+Übertragung auf die tatsächliche Pufferlänge um. Aus dem Vorversuch folgt die Grundentscheidung des
+Empfangspfads: Die
+Bibliothek prüft Längenkonsistenz, UDP-Prüfsumme, OCS und erst dann die Optionen selbst, in der
+Empfangsordnung des RFC \cite[Sec.~10 und 14]{rfc9868}; die vorgelagerte Prüfung des IP-Kopfs kommt als
+eigene zusätzliche Kontrolle dieser Bibliothek hinzu.
 
+% texlab: ignore (die listings-Option label definiert das Ziel unten korrekt)
 Die vier Prüfungen bis zur Surplus-Ortung zeigt Listing~\ref{lst:empfangsreihenfolge} in gekürzter Form;
 ausgelassene Fehlerdetails sind mit \texttt{..} markiert:
 
@@ -343,7 +401,7 @@ let Some(layout) = locate_surplus(&ip, &udp) else {
 \end{lstlisting}
 
 Zeile für Zeile entspricht das der Vorgabe: \texttt{IpRepr::parse} nimmt nur Datagramme mit
-\texttt{Protocol}~17 an (V-02) und weist dabei auch eine falsche IP-Kopfprüfsumme ab;
+\texttt{Protocol}~17 an (Umfangsvorgabe) und weist dabei auch eine falsche IP-Kopfprüfsumme ab;
 \texttt{UdpHeader::parse} verlangt eine
 \texttt{UDP Length} von mindestens 8; der Längenvergleich verwirft Datagramme, deren \texttt{UDP Length}
 über die IP-Nutzlast hinausweist, wie im Anomaliefall 500 bei 48; und die UDP-Prüfsumme wird genau dann
@@ -354,7 +412,8 @@ dann Prüfsumme, erst danach Surplus-Ortung und OCS) im Quelltext eingelöst.\fo
 \texttt{process\_datagram} in \texttt{src/recv/pipeline.rs} (Zeilen 201 bis 203); die gezeigte Prüffolge
 steht in den Zeilen 211 bis 266.}
 
-Hinter dieser Eingangsprüfung verzweigt die Pipeline in ihre Ergebnisarten; den vollständigen Lauf zeigt
+Hinter dieser Eingangsprüfung verzweigt die Pipeline in ihre Ergebnisarten; den Lauf des reinen
+Verarbeitungskerns \texttt{process\_datagram}, gekürzt um die Sonderpfade, zeigt
 \figref{fig:empfangspipeline}:
 
 \begin{figure}[htbp]
@@ -378,7 +437,7 @@ Hinter dieser Eingangsprüfung verzweigt die Pipeline in ihre Ergebnisarten; den
       sonderpfeil/.style={->, draw=sqdunkel, thin, dashed},
       anno/.style={font=\tiny\linespread{1.0}\selectfont, text=feldlinie, align=center},
     ]
-    \node[stufe] (p1) at (3.0,7.8) {\texttt{IpRepr::parse}: IPv4-Kopf,\\ nur \texttt{Protocol} 17 (V-02)};
+    \node[stufe] (p1) at (3.0,7.8) {\texttt{IpRepr::parse}: IPv4-Kopf,\\ nur \texttt{Protocol} 17 (Vorgabe)};
     \node[stufe] (p2) at (3.0,6.6) {\texttt{UdpHeader::parse}:\\ \texttt{UDP Length} mindestens 8};
     \node[stufe] (p3) at (3.0,5.4) {Längenvergleich: \texttt{UDP Length}\\ höchstens IP-Nutzlast};
     \node[stufe] (p4) at (3.0,4.2) {UDP-Prüfsumme,\\ falls Feld ungleich null};
@@ -389,9 +448,9 @@ Hinter dieser Eingangsprüfung verzweigt die Pipeline in ihre Ergebnisarten; den
     \node[stufe] (p6) at (3.0,1.5) {\texttt{parse\_options}:\\ TLV-Strom lesen};
     \node[stufe] (p7) at (3.0,0.3) {Dispositionen:\\ FRAG und UNSAFE};
     \node[verwurf] (aus1) at (10.6,6.0) {Datagramm verworfen\\ (Fehlerwert der Pipeline)};
-    \node[ohneopt] (aus2) at (10.6,2.7) {Nutzdaten ohne Optionen\\ (\texttt{OcsStatus} als Bericht)};
+    \node[ohneopt] (aus2) at (10.6,2.7) {Nutzdaten ohne Optionen\\ (\texttt{OcsReport} als Bericht)};
     \node[ohneopt] (aus3) at (10.6,1.5) {leere Nutzlast (UNSAFE\\ nicht unterstützt)};
-    \node[ohneopt] (aus4) at (10.6,0.3) {Fragment gepuffert\\ oder verworfen};
+    \node[ohneopt] (aus4) at (10.6,0.3) {Fragment gepuffert oder\\ verworfen; vollständiger\\ Satz erneut verarbeitet};
     \node[mitopt] (aus5) at (10.6,-0.9) {Zustellung mit Optionen};
     \draw[pfeil] (p1) -- (p2);
     \draw[pfeil] (p2) -- (p3);
@@ -417,16 +476,14 @@ Hinter dieser Eingangsprüfung verzweigt die Pipeline in ihre Ergebnisarten; den
   \label{fig:empfangspipeline}
 \end{figure}
 
-Aus \figref{fig:empfangspipeline} geht zweierlei hervor. Erstens gibt es für gewöhnliche Datagramme zwei
-Regelfälle, und die Grenze zwischen ihnen liegt hinter der UDP-Prüfsumme: Ein Fehler davor kostet das
-ganze Datagramm, ein Fehler danach höchstens die Optionen, denn ab der Surplus-Ortung stellt die Pipeline
-bei jedem Problem die geprüften Nutzdaten ohne Optionen zu. Dazu kommen zwei Sonderausgänge, die
-\secref{sec:optionsverarbeitung} vertieft: die Zustellung mit leerer Nutzlast bei einer nicht
-unterstützten UNSAFE-Option und das Puffern oder Verwerfen bei Fragmenten. Zweitens unterscheidet sich die
-Abbildung von \figref{fig:surplus-empfang} im Gegenstand: Dort steht die Normentscheidung des RFC, hier
-die Umsetzung mit ihren Fehlerwerten, Berichten und Modulgrenzen. Das Beispieldatagramm aus
-\secref{sec:sendepfad} nimmt den geraden Weg: Alle vier Eingangsprüfungen bestehen, die OCS-Probe mit
-\texttt{0x4AED} geht auf, und die Zustellung liefert die drei Nutzdatenbytes samt der REQ-Option.
+Aus \figref{fig:empfangspipeline} geht die Grenze der gewöhnlichen Empfangsverarbeitung hervor: Ein Fehler
+bis einschließlich der UDP-Prüfsumme kostet das ganze Datagramm, ein Fehler danach höchstens die Optionen;
+die gestrichelten Sonderausgänge für UNSAFE und FRAG vertieft \secref{sec:optionsverarbeitung}; der
+Regelausgang schließt eine leere sichtbare Optionsliste ein, denn FRAG, NOP und EOL erscheinen nicht als
+sichtbare Optionen. Anders als
+\figref{fig:surplus-empfang}, die die Normentscheidung des RFC zeigt, steht hier die Umsetzung. Das
+Beispieldatagramm aus \secref{sec:sendepfad} nimmt den geraden Weg und liefert die drei Nutzdatenbytes samt
+REQ-Option.
 
 Die Surplus-Ortung selbst trägt eine Feinheit des Normtexts: \zitat{Optionen vorhanden} verlangt mehr als einen
 Überschuss größer null, denn RFC~9868 bindet die Deutung der Surplus Area daran, dass das ausgerichtete
@@ -457,19 +514,20 @@ der Bericht vermerkt mit \texttt{Absent}, dass kein nutzbarer Optionsbereich vor
 dahinter hat \secref{subsec:surplus-aufbau} hergeleitet; hier entscheiden sie über den Weg im Code.
 
 Was bei einem beschädigten Optionsbereich geschieht, regeln die Empfängerpflichten satzgenau. Weil
-Optionen senderseitig an jedem gültigen \texttt{UDP Length}-Offset beginnen dürfen (R-08-01,
-\secref{sec:sendepfad}), muss der Empfänger jede solche Lage verarbeiten; verlangt sind Nullbytes vor
+Optionen senderseitig an jedem gültigen \texttt{UDP Length}-Offset beginnen dürfen
+(\secref{sec:sendepfad}), muss der Empfänger jede solche Lage verarbeiten; verlangt sind Nullbytes vor
 dem OCS, und steht dort etwas anderes, sind alle Optionen zu ignorieren und die Surplus Area still zu
-verwerfen (R-08-02b). Dieselbe Disposition, also derselbe Verarbeitungsausgang, gilt bei
-fehlgeschlagener OCS-Prüfung (R-09-04) und bei Längenwerten, die über die Surplus Area hinausweisen
-(R-10-11, in der durch das Erratum konsolidierten Fassung) \cite[Sec.~8, 9 und
+verwerfen. Dieselbe Disposition, also derselbe Verarbeitungsausgang, gilt bei
+fehlgeschlagener OCS-Prüfung und bei Längenwerten, die über die Surplus Area hinausweisen
+(in der durch das Erratum konsolidierten Fassung) \cite[Sec.~8, 9 und
 10]{rfc9868}\cite{rfc9868-errata}. Verworfen wird dabei die Surplus Area, nicht das Datagramm: Nutzdaten
 mit bestandener oder zulässig ungenutzter UDP-Prüfsumme werden weiter zugestellt. In der Pipeline führt
 jeder dieser Wege, ebenso wie jeder andere Parserfehler im TLV-Strom, über dieselbe Hilfsfunktion
-\texttt{deliver\_without\_options}, die die leere Optionsliste mit dem passenden \texttt{OcsStatus}
-begründet. Diese Grundregel gilt für gewöhnliche Datagramme; eine nicht unterstützte UNSAFE-Option führt
-stattdessen zur Zustellung mit leerer Nutzlast, ein Fragmentfehler zum Verwerfen des Fragments
-(\secref{sec:optionsverarbeitung}).
+\texttt{deliver\_without\_options}, die die leere Optionsliste liefert und den OCS-Status getrennt
+mitführt; der konkrete TLV-Parserfehler wird nur protokolliert.
+Diese Grundregel gilt für gewöhnliche Datagramme; eine nicht unterstützte UNSAFE-Option führt
+stattdessen zur Zustellung mit leerer Nutzlast, ein fragmentlokaler Fehler nach bereits erkanntem gültigem
+FRAG zum Verwerfen des Fragments (\secref{sec:optionsverarbeitung}).
 
 Ob der Empfänger strenger sein darf, regelt die Voreinstellung des RFC: Standardmäßig verhält sich ein
 optionsfähiger Empfänger wie ein Altempfänger und stellt auch bei fehlgeschlagener OCS-Prüfung zu;
@@ -485,19 +543,25 @@ darüber hinaus auch auf gültige Optionen. Eine Grenze bleibt: Das Prinzip des 
 neben der OCS- auch die Authentifizierungs- und Entschlüsselungsprüfung; AUTH und UENC sind nicht
 implementiert (\tabref{tab:scope-implementierung}), dieser Teil des Prinzips liegt außerhalb des Umfangs.
 
-Sichtbar werden diese Entscheidungen über zwei Berichtstypen. Der \texttt{OcsStatus} meldet in sechs
-Ausprägungen, was aus der OCS-Prüfung wurde: kein nutzbarer Optionsbereich (\texttt{Absent}), gültig
-(\texttt{Valid}), zulässig ungenutzt (\texttt{Unused}), fehlgeschlagen (\texttt{Failed}), unzulässige
-Null (\texttt{InvalidZero}) und nicht beobachtet (\texttt{Unobserved}); je Option meldet ein
-\texttt{OptionReport} Erfolg, Fehlschlag oder bewusstes Übergehen.\footnote{\texttt{OcsStatus} und
-\texttt{OptionReport} in \texttt{src/recv/pipeline.rs} (Zeilen 128 bis 173).} Diese Sicht ist bewusst
+Sichtbar werden diese Entscheidungen über zwei Berichtstypen. Der \texttt{OcsReport} führt Quelle und
+\texttt{OcsStatus}; der Status meldet in sechs Ausprägungen, was aus der OCS-Prüfung wurde: kein
+nutzbarer Optionsbereich (\texttt{Absent}), gültig (\texttt{Valid}), zulässig ungenutzt
+(\texttt{Unused}), fehlgeschlagen (\texttt{Failed}), unzulässige Null (\texttt{InvalidZero}) und nicht
+beobachtet (\texttt{Unobserved}). Je sichtbarer TLV-Option meldet daneben ein
+\texttt{OptionReport} die Optionsart, die Quelle und den Ausgang: Erfolg, Fehlschlag oder bewusstes
+Übergehen; FRAG, NOP und EOL bleiben
+intern.\footnote{\texttt{OcsReport}, \texttt{OcsStatus} und \texttt{OptionReport} in
+\texttt{src/recv/pipeline.rs} (Zeilen 128 bis 173).} Diese Sicht ist bewusst
 unvollständig, und drei Grenzen sind festzuhalten: Ein Pad-Fehler und eine fehlgeschlagene OCS-Rechnung
 fallen in derselben Ausprägung \texttt{Failed} zusammen, ein Parserfehler im TLV-Strom erzeugt keinen
-eigenen Optionsbericht, und \texttt{Peer::recv} bildet Kopffehler auf \zitat{kein Datagramm} ab. Ob diese Sicht
+eigenen Optionsbericht, und \texttt{Peer::recv} bildet alle Nicht-Socket-Fehler sowie gepufferte,
+verworfene und gefilterte
+Ausgänge auf \zitat{kein Datagramm} ab. Ob diese Sicht
 für die Messkampagnen ausreicht, bewertet \chapref{chap:evaluation}.
 
-Eine Schwäche des Empfangswegs zeigte sich erst im Messbetrieb. Der Raw-Empfänger sieht jedes UDP-Datagramm
-des Hosts, die Portauswahl trifft erst der Benutzerraumfilter; in einer frühen Fassung beendete das
+Eine Schwäche des Empfangswegs zeigte sich erst im Messbetrieb. Der Raw-Empfänger sieht im jeweiligen
+Netznamensraum jeden UDP-Verkehr unabhängig vom Zielport, die Portauswahl trifft erst der
+Benutzerraumfilter; in einer frühen Fassung beendete das
 erste fremde Paket den Empfangsaufruf
 still, eine laufende Kampagne endete damit ohne Befund, und als Notbehelf diente der Neustart des
 Empfängers. Die Behebung verlegt die Filterung in eine Schleife unter einer Gesamtfrist: Gefilterte
@@ -530,8 +594,10 @@ TCP-Optionen, und die zwei Ein-Byte-Optionen \texttt{EOL} (Kind 0) und \texttt{N
 zusätzlich die Kind-Werte von TCP; beide haben eine implizite Länge von eins, und nach einem frühen
 \texttt{EOL} folgen Nullbytes bis zum Ende der Surplus Area \cite[Sec.~8 und 10]{rfc9868}\cite{rfc9293}.
 
-Auf der Sendeseite endet jeder Optionsbau in derselben Schlussfunktion des Serialisierers; sie zeigt die
-ganze Ordnung des Optionskörpers auf einmal:\footnote{\texttt{OptionsBuilder::finish} in
+Auf der Sendeseite endet der gewöhnliche Optionsbau in derselben Schlussfunktion des Serialisierers; nur
+die Optionskörper der einzelnen FRAG-Fragmente erzeugt \texttt{frag/split.rs} getrennt
+(\secref{sec:betriebsgrenzen}). Die Schlussfunktion zeigt die ganze Ordnung des Optionskörpers auf
+einmal:\footnote{\texttt{OptionsBuilder::finish} in
 \texttt{src/options/serialize.rs} (Zeilen 65 bis 87, unverändert); die kanonische Reihenfolge bestimmt
 \texttt{canonical\_rank} (Zeilen 173 bis 183).}
 
@@ -582,10 +648,12 @@ Grundregel und stellt die Nutzdaten zu \cite[Sec.~11.1]{rfc9868}. Die Implementi
 freiwillige Prüfung.
 
 Oberhalb des Formats liegt Sendepolitik, und sie ist bewusst geschichtet. Der Serialisierer erzwingt nur
-die harten Bauregeln: gültige Kind-Bereiche, die festen Wertlängen der Pflichtoptionen und höchstens ein
-FRAG je Körper.\footnote{\texttt{validated\_options} samt Schichtungskommentar in
+die harten Bauregeln: gültige Kind-Bereiche, die festen Wertlängen der Pflichtoptionen, die Obergrenzen
+für Wertlänge und Gesamtlänge des Optionskörpers, die Darstellbarkeit von \texttt{Frag.Start} und
+höchstens ein FRAG je Körper.\footnote{\texttt{validated\_options} samt Schichtungskommentar in
 \texttt{src/options/serialize.rs} (Zeilen 89 bis 108); die Duplikatprüfung des hohen Sendepfads in
-\texttt{src/api/mod.rs} (Zeilen 592 bis 594 und 613, Menge der meldefähigen Arten Zeilen 704 bis 709).}
+\texttt{src/api/mod.rs} (Zeilen 592 bis 595 und 613 bis 630); die Menge der meldefähigen Arten (Zeilen
+704 bis 709) gehört zur Empfangsrichtlinie.}
 Die Empfehlung des RFC, dass gewöhnliche Optionen nicht mehrfach auftreten sollen, trägt dagegen die
 öffentliche Schnittstelle: Der hohe Sendepfad weist Duplikate genau der fünf meldefähigen Arten APC, MDS,
 MRDS, REQ und RES zurück, während die tiefe Serialisierer-Ebene Duplikate absichtlich zulässt, damit
@@ -597,10 +665,11 @@ damit eigene Sendepolitik und keine wörtliche RFC-Pflicht.
 
 Eine zweite eigene Politik betrifft das erweiterte Längenformat. Es ist für Optionen ab 255 Bytes
 Gesamtlänge vorgesehen; der Sender muss unterhalb dieser Grenze die Kurzform verwenden und soll stets das
-kleinste Format wählen, eine Empfängerdisposition für einen zu klein deklarierten erweiterten Wert legt
-der RFC aber nicht fest \cite[Sec.~10]{rfc9868}. Der Parser entscheidet streng: Eine erweiterte Länge
+kleinste Format wählen; für eine strukturell vollständige, aber nicht kanonische erweiterte Gesamtlänge
+(4 bis 254) legt der RFC keine eigene Empfängerdisposition fest, während Längen unter dem Mindestwert der
+jeweiligen Art ein RFC-Fehlerfall bleiben \cite[Sec.~10]{rfc9868}. Der Parser entscheidet streng: Eine erweiterte Länge
 unter 255 gilt als ungültige Länge und verwirft alle Optionen, genau wie ein echter Überlauf über die
-Surplus Area hinaus (R-10-11). Der Quelltext kennzeichnet diese Strenge ausdrücklich als lokale Politik,
+Surplus Area hinaus (FR-10). Der Quelltext kennzeichnet diese Strenge ausdrücklich als lokale Politik,
 nicht als RFC-Pflicht.\footnote{\texttt{src/options/parse.rs} (Zeilen 95 bis 110, Kommentar in den Zeilen
 101 bis 104).}
 
@@ -611,23 +680,24 @@ Nutzdaten verändern können (\secref{subsec:surplus-prinzipien}).\footnote{\tex
 bis 334).} Entsprechend unterschiedlich fallen die Dispositionen aus: Eine unbekannte SAFE-Option wird
 still übergangen. Eine unbekannte UNSAFE-Option außerhalb eines Fragmentkontexts führt zur Zustellung mit
 leerer Nutzlast: Verworfen werden die Nutzdaten, nicht das Paket, denn ein Empfänger, der die Option nicht
-kennt, würde die Nutzdaten falsch deuten. Trägt ein Fragment selbst eine solche Option, verwirft die
-Pipeline den zugehörigen Reassemblierungssatz; trägt erst das wieder zusammengesetzte Datagramm sie,
-wird auch dieses mit leerer Nutzlast zugestellt \cite[Sec.~12]{rfc9868}. Selbst erzeugen kann die Bibliothek
+kennt, würde die Nutzdaten falsch deuten. Hat die Pipeline vor der unbekannten UNSAFE-Option
+bereits ein gültiges FRAG erkannt, verwirft sie den zugehörigen Reassemblierungssatz; trägt erst das
+wieder zusammengesetzte Datagramm eine solche Option, wird auch dieses mit leerer Nutzlast zugestellt
+\cite[Sec.~12]{rfc9868}. Selbst erzeugen kann die Bibliothek
 UNSAFE-Optionen nicht: Der Serialisierer weist jeden Kind-Wert ab 192 zurück.
 
 Acht Optionen bilden den Pflichtkern: \texttt{EOL}, \texttt{NOP}, APC, FRAG, MDS, MRDS, REQ und RES muss
 jeder Endpunkt, der UDP Options unterstützt, erkennen und bei entsprechender Konfiguration auch erzeugen
-können (R-10-08); TIME gehört nicht dazu \cite[Sec.~10]{rfc9868}. Die Bibliothek führt genau diese acht
+können; TIME gehört nicht dazu \cite[Sec.~10]{rfc9868}. Die Bibliothek führt genau diese acht
 als benannte Arten ihres Optionsverzeichnisses (\texttt{src/options/kind.rs}); jede andere Art läuft als
 \texttt{Other} mit rohem Kind-Wert durch das Datenmodell. FRAG ist unter den acht die aufwendigste und
 teilt sich in zwei Hälften: \texttt{frag/split.rs} zerlegt eine Nachricht in Fragmente,
 \texttt{frag/reassembly.rs} setzt sie unter begrenztem Speicher wieder zusammen; die Grenzen dieser Puffer
 behandelt \secref{sec:betriebsgrenzen}.
 
-REQ und RES zeigen schließlich den Rahmenwerk-Charakter des Standards: RFC~9868 definiert nur das
-Optionsformat des Frage-Antwort-Paars; das Verfahren, das es nutzt, steht in einem eigenen Dokument, der
-Pfad-MTU-Ermittlung DPLPMTUD für UDP Options \cite{rfc9869}. Die Bibliothek folgt diesem Zuschnitt:
+REQ und RES zeigen schließlich den Rahmenwerk-Charakter des Standards: RFC~9868 definiert Format und
+Grundsemantik des Frage-Antwort-Paars; die Pfad-MTU-Ermittlung DPLPMTUD für UDP Options, die es nutzt,
+steht als Anwendungsfall in einem eigenen Dokument \cite{rfc9869}. Die Bibliothek folgt diesem Zuschnitt:
 \texttt{Res} ist reine Datenhaltung, die Antwort auf ein empfangenes REQ löst die Anwendung aus, und die
 Herkunft des RES-Tokens bleibt ausdrücklich Aufruferpflicht
 (\secref{sec:betriebsgrenzen}).\footnote{\texttt{src/options/typed.rs} (Zeilen 164 bis 177).} Ob dieser
@@ -639,7 +709,63 @@ der nächste Abschnitt zeigt.
 
 Den Sollprozess der Prüfung hat \secref{sec:pruefkette} festgelegt; dieser Abschnitt zeigt die gebaute
 Anlage mit ihren Zahlen am eingefrorenen Stand. Sie besteht aus sechs Ebenen: Attributtests,
-Property-Tests, Fuzz-Ziele, Integrationstests, Lean-Modelle und die Wire-Prüfung mit fremden Instanzen.
+Property-Tests, Fuzz-Ziele, Integrationstests, Lean-Modelle und die Wire-Prüfung mit getrennten Prüfern.
+Wo diese Ebenen im Repository liegen und worauf sie sich stützen, zeigt \figref{fig:artefakte}:
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      x=1cm, y=1cm,
+      >={Stealth[length=5pt, width=4pt]},
+      block/.style={draw, semithick, rounded corners=3pt, align=center,
+        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
+      verweis/.style={->, draw=sqdunkel, thin},
+      spiegel/.style={->, draw=sqgrau, dashed, thin},
+      kantentext/.style={font=\scriptsize, inner sep=1.5pt, fill=white, align=center},
+    ]
+    \node[block, draw=sqgoldrand, fill=sqgold] (req) at (1.9,0)
+      {\textbf{docs/requirements.md}\\ Anforderungskatalog und\\ Konformitätsmatrix};
+    \node[block, draw=sqgoldrand, fill=sqgold] (plan) at (1.9,-2.6)
+      {\textbf{docs/plan/}\\ ROADMAP und\\ Schrittdateien};
+    \node[block, draw=sqblaurand, fill=sqblau] (src) at (6.8,0)
+      {\textbf{src/}\\ Bibliothek und\\ Messprogramme};
+    \node[block, draw=sqblaurand, fill=sqblau] (refs) at (6.8,-2.6)
+      {\textbf{docs/architecture.md}\\ \textbf{docs/wire-format.md}\\ beschreiben den Bau};
+    \node[block, draw=sqgrau, fill=sqhell] (evalmd) at (6.8,-4.35)
+      {\textbf{docs/evaluation.md}\\ Messanleitung für FF2};
+    \node[block, draw=sqroserand, fill=sqrose] (tests) at (11.9,0.35)
+      {\textbf{tests/, fuzz/}\\ Tests, Properties,\\ Fuzz-Ziele};
+    \node[block, draw=sqroserand, fill=sqrose] (lean) at (11.9,-1.5)
+      {\textbf{formal/lean-rfc9868/}\\ Lean-Modelle};
+    \node[block, draw=sqroserand, fill=sqrose] (gates) at (11.9,-3.3)
+      {\textbf{scripts/, .github/}\\ Gates und CI};
+    \draw[verweis, <->] (req) -- node[kantentext] {Schritt und Status\\ je Zeile} (plan);
+    \draw[verweis] (req) -- node[kantentext] {Notes nennen\\ die Umsetzung} (src);
+    \draw[spiegel] (src.south west) .. controls (4.6,-1.3) .. node[kantentext, pos=0.35]
+      {punktuelle\\ FR-Verweise} (req.south east);
+    \draw[verweis] (plan.east) -- (refs.west);
+    \node[kantentext] at (4.05,-3.4) {Schrittverträge nennen\\ die Zielartefakte};
+    \draw[verweis] (refs) -- (src);
+    \draw[verweis] (evalmd.west) -| node[kantentext, pos=0.75, anchor=east] {Soll-Seite\\ der Messung}
+      (plan.south);
+    \draw[verweis] (tests) -- node[kantentext] {prüfen} (src);
+    \draw[spiegel] (lean.west) -- node[kantentext, pos=0.55] {manuell gespiegelt,\\ keine Extraktion}
+      (src.south east);
+    \draw[verweis] (gates) -- node[kantentext, pos=0.5, anchor=west, xshift=2pt] {führen aus} (lean);
+    \draw[verweis] (gates.north) .. controls (12.6,-0.7) .. (tests.east);
+    \draw[spiegel] (gates.west) -- node[kantentext, pos=0.45] {Goldwerte} (refs.east);
+    \node[kantentext, anchor=west, align=left] at (-0.1,-5.4)
+      {Durchgezogen: ausdrücklicher Verweis, Import oder Ausführung. Gestrichelt: manuelle oder
+       teilweise Spiegelung.};
+  \end{tikzpicture}
+  \caption{Entwicklungs- und Nachweisartefakte des Implementierungs-Repositorys}
+  \label{fig:artefakte}
+\end{figure}
+
+Aus \figref{fig:artefakte} geht die Arbeitsteilung der Artefakte hervor: Links führt der Katalog die
+Anforderungen und der Plan die Schritte, in der Mitte steht der Bau mit seinen beschreibenden Referenzen,
+rechts prüfen Tests, Modelle und Gates; nur die gestrichelten Kanten tragen keine erzwungene Kopplung,
+und genau dort setzt die Bewertung in \chapref{chap:evaluation} an.
 
 Die ersten beiden Ebenen laufen bei jedem Prüflauf auf dem Entwicklungsrechner. 211
 \texttt{\#[test]}-Attributzeilen verteilen sich auf 156 in \texttt{src/} und 55 in \texttt{tests/};
@@ -670,11 +796,14 @@ Bewiesen sind damit Modelle, nicht das Rust-Programm; diese Grenze nimmt \secref
 auf.
 
 Die sechste Ebene begegnet einer Schwäche, die alle bisherigen teilen: Sender, Empfänger und Prüfungen
-stammen aus derselben Feder, ein beidseitig gleicher Formatfehler überstünde jeden Roundtrip-, Property-
-und Fuzz-Test. Die Wire-Prüfung bricht diese Selbstbezüglichkeit mit drei fremden Instanzen: tcpdump
-zeichnet hinter dem Kernel auf, ein eigenständiges Python-Prüfprogramm rechnet alle Werte mit eigener
-RFC-1071-Faltung und eigener CRC32C-Tabelle nach (696 Zeilen), und tshark liest die IPv4- und UDP-Felder
-als fremder Dissektor \cite{rfc1071}. Dass die Kette greift, zeigt eine gezielte Einzelprobe: Ein
+stammen aus derselben Feder. Ein beidseitig gleicher Formatfehler überstünde jeden Roundtrip-Test;
+Property-Tests und Fuzz-Ziele prüfen zwar getrennt formulierte Invarianten, können aber Annahmefehler
+ihres eigenen Orakels teilen. Die Wire-Prüfung bricht diese Selbstbezüglichkeit mit drei getrennten
+Prüfkomponenten: tcpdump zeichnet hinter dem Kernel auf, ein eigenständiges Python-Prüfprogramm ohne
+gemeinsamen Rust-Code rechnet die für die hinterlegten Szenarien relevanten IPv4-, UDP-, Surplus-, OCS-,
+TLV-, APC- und FRAG-Werte mit eigener RFC-1071-Faltung und eigener CRC32C-Tabelle nach (696 Zeilen), und
+tshark liest die IPv4- und UDP-Felder als fremder Dissektor \cite{rfc1071}. Dass die Kette greift,
+zeigt eine gezielte Einzelprobe: Ein
 einzelnes absichtlich verändertes Surplus-Byte lässt das Prüfprogramm dreifach fehlschlagen. Eine
 systematische Mutationsanalyse des Rust-Quelltexts ist das ausdrücklich nicht.
 
@@ -684,7 +813,7 @@ der Referenzfall blieb trotzdem grün, denn die damalige REQ-Option mit dem Toke
 zu \texttt{0xA3A3}, einem Byte-Palindrom, dem die Vertauschung nichts anhat. Die Lehre ist doppelt: Genau
 gegen solche Verschiebungen richtet der RFC das OCS an der 2-Byte-Grenze aus
 (\secref{subsec:surplus-aufbau}), und auch eine unabhängige Prüfinstanz braucht Testdaten, die ihre
-eigenen Fehlerklassen nicht maskieren. Das heutige Token \texttt{c0ffee01} des Beispieldatagramms faltet
+eigenen Fehlerklassen nicht maskieren. Die heutige REQ-Option mit dem Token \texttt{c0ffee01} faltet
 deshalb zu dem nicht palindromischen Wert \texttt{0xB507}.\footnote{Begründung der Token-Wahl im
 Prüfprogramm \texttt{scripts/wire-check.py} (Zeilen 244 bis 248).}
 
@@ -705,12 +834,13 @@ Was jede Ebene leistet und was nicht, stellt \tabref{tab:pruefmittel} einander g
       Fälle \\
     Property-Tests (10 Dateien) & verletzte Invarianten unter Zufallseingaben & beidseitig geteilte
       Fehlannahmen \\
-    Fuzz-Ziele (9) & Abstürze und Panics auf rohen Bytefolgen & absturzfreie Fehldeutungen \\
+    Fuzz-Ziele (9) & Abstürze und Panics auf rohen Bytefolgen & Fehldeutungen ohne verletzte
+      hinterlegte Invariante \\
     Integrationstests (7 mit \texttt{ignore}) & Zusammenspiel mit Kernel und Rechten & Verhalten fremder
       Netzpfade \\
     Lean-Modelle (172 Theoreme) & Widersprüche und Lücken in den modellierten Regeln & Abweichungen
       zwischen Modell und Rust \\
-    Wire-Prüfung (3 fremde Instanzen) & beidseitig geteilte Formatfehler auf dem Draht & Fehler jenseits
+    Wire-Prüfung (3 getrennte Prüfer) & beidseitig geteilte Formatfehler auf dem Draht & Fehler jenseits
       der hinterlegten Szenarien \\
     \bottomrule
   \end{tabularx}
@@ -718,85 +848,34 @@ Was jede Ebene leistet und was nicht, stellt \tabref{tab:pruefmittel} einander g
 
 Aus \tabref{tab:pruefmittel} geht hervor, dass keine Ebene die anderen ersetzt: Jede Zeile nennt eine
 Fehlerklasse, die genau diese Ebene nicht sieht, und erst die Summe deckt den Raum von der Einzelregression
-bis zum fremdgeprüften Draht.
+bis zum fremdgeprüften Draht. Dass erst die Summe trägt, zeigte die Praxis zweimal: Der Um-eins-Fehler der
+Surplus-Ortung überstand 23 Einzelfalltests und fiel erst der Zweitprüfung im Pull-Request auf, worauf
+Property-Tests und Fuzz-Ziele je Parsefläche verpflichtend wurden, und der RFC-Abgleich von Schritt~18
+fand trotz grüner Prüfkette weitere Konformitätslücken (\secref{sec:vorgehen}).
 
-Den Schluss der Klammer, die \secref{sec:architektur} geöffnet hat, bildet die Zuordnung der zehn
-Anforderungskennungen zu Komponenten und Nachweisspuren; \figref{fig:nachweiszuordnung} zeigt sie:
-
-\begin{figure}[htbp]
-  \centering
-  \begin{tikzpicture}[
-      x=1cm, y=1cm,
-      kennung/.style={draw=sqblaurand, fill=sqblau, rounded corners=2pt, thin, align=center,
-        font=\scriptsize\linespread{0.9}\selectfont, inner sep=2.5pt, minimum width=2.8cm,
-        minimum height=0.72cm},
-      spur/.style={draw=sqtealrand, fill=sqteal, rounded corners=3pt, semithick, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=3pt, minimum width=2.7cm,
-        minimum height=0.7cm},
-      zuordnung/.style={draw=sqdunkel, line width=0.4pt},
-      anno/.style={font=\tiny\linespread{1.0}\selectfont, text=feldlinie, align=center},
-    ]
-    \node[kennung] (k0801) at (1.5,8.28) {R-08-01\\ {\tiny wire, socket}};
-    \node[kennung] (k0802a) at (1.5,7.36) {R-08-02a\\ {\tiny socket}};
-    \node[kennung] (k0901) at (1.5,6.44) {R-09-01\\ {\tiny options}};
-    \node[kennung] (k1008) at (1.5,5.52) {R-10-08\\ {\tiny options, recv, frag}};
-    \node[kennung] (k0802b) at (1.5,4.60) {R-08-02b\\ {\tiny recv}};
-    \node[kennung] (k0904) at (1.5,3.68) {R-09-04\\ {\tiny recv}};
-    \node[kennung] (k1011) at (1.5,2.76) {R-10-11\\ {\tiny recv}};
-    \node[kennung] (k1122) at (1.5,1.84) {R-11-22\\ {\tiny frag}};
-    \node[kennung] (kv02) at (1.5,0.92) {V-02\\ {\tiny wire}};
-    \node[kennung] (kv01) at (1.5,0.00) {V-01\\ {\tiny Betrieb}};
-    \node[spur] (spruef) at (10.4,7.70) {Prüfprogramm};
-    \node[spur] (stest) at (10.4,5.70) {Test};
-    \node[spur] (spcap) at (10.4,3.70) {PCAP};
-    \node[spur] (slean) at (10.4,1.80) {Lean-Modell};
-    \node[spur, draw=sqgrau, fill=sqhell, dashed] (sentf) at (10.4,0.00) {entfällt};
-    \draw[zuordnung] (k0801.east) -- (spruef.west);
-    \draw[zuordnung] (k0802a.east) -- (spruef.west);
-    \draw[zuordnung] (k0901.east) -- (spruef.west);
-    \draw[zuordnung] (k0801.east) -- (stest.west);
-    \draw[zuordnung] (k0802a.east) -- (stest.west);
-    \draw[zuordnung] (k0901.east) -- (stest.west);
-    \draw[zuordnung] (k1008.east) -- (stest.west);
-    \draw[zuordnung] (k0802b.east) -- (stest.west);
-    \draw[zuordnung] (k0904.east) -- (stest.west);
-    \draw[zuordnung] (k1011.east) -- (stest.west);
-    \draw[zuordnung] (k1122.east) -- (stest.west);
-    \draw[zuordnung] (kv02.east) -- (stest.west);
-    \draw[zuordnung] (k0802b.east) -- (spcap.west);
-    \draw[zuordnung] (k0904.east) -- (spcap.west);
-    \draw[zuordnung] (k1008.east) -- (spcap.west);
-    \draw[zuordnung] (k1011.east) -- (spcap.west);
-    \draw[zuordnung] (k0901.east) -- (slean.west);
-    \draw[zuordnung] (k0904.east) -- (slean.west);
-    \draw[zuordnung, dashed] (kv01.east) -- (sentf.west);
-    \node[anno, anchor=west, align=left] at (0.1,-0.95)
-      {Kanten: Nachweisarten der jeweiligen Matrixzeile. Zweite Zeile je Kennung: tragende Komponenten\\
-       (\secref{sec:architektur} bis \secref{sec:optionsverarbeitung}); \texttt{api} bündelt nur und
-       trägt keine eigene Kennungszeile.};
-  \end{tikzpicture}
-  \caption{Zuordnung der zehn Anforderungskennungen des Matrixauszugs zu Komponenten und Nachweisspuren}
-  \label{fig:nachweiszuordnung}
-\end{figure}
-
-Aus \figref{fig:nachweiszuordnung} geht die Vielfachzuordnung in beide Richtungen hervor: \texttt{recv}
-trägt vier der zehn Kennungen, R-09-01 und R-09-04 stützen sich auf je drei Nachweisspuren, und der
-Testnachweis deckt neun Zeilen, während keine Spur allein alle deckt. Zwei Ränder verdienen den zweiten
-Blick: R-11-22 und V-02 hängen an genau einer Spur, dort trägt also die Testanlage die ganze Last der
-späteren Bewertung, und V-01 ist Rahmen statt prüfbarer Einzelaussage und bleibt ohne Nachweisspur. Mit
-dieser Zuordnung ist das Messinstrument beisammen; es bleibt zu klären, unter welchen Rechten und Grenzen
-es betrieben wird.
+Den Schluss der Klammer, die \secref{sec:architektur} geöffnet hat, bildet die Rückverfolgbarkeit.
+\secref{sec:architektur} bis \secref{sec:optionsverarbeitung} haben die tragenden Komponenten mit den
+Anforderungskennungen des Implementierungs-Repositorys verknüpft; die Datei \texttt{docs/requirements.md}
+ordnet umgekehrt jeder FR- und NFR-Zeile den umsetzenden Schritt des Projektplans und ihren Status zu
+(\secref{sec:anforderungsmatrix}), und punktuelle Rückverweise im Quelltext nennen die Kennungen an
+tragenden Stellen, etwa FR-49 an der Längenprüfung. Diese Rückverfolgbarkeit ist nicht flächendeckend:
+Nicht jede Quelltextstelle nennt ihre Kennung, und der Katalogabgleich lief periodisch, vollständig erst
+mit Schritt~18 (\secref{sec:rfc-auswertung}); was eine Zeile wirklich stützt, entscheidet deshalb je
+Nachweis erst \chapref{chap:evaluation}. Mit dieser Zuordnung ist das Messinstrument beisammen; es bleibt
+zu klären, unter welchen Rechten und Grenzen es betrieben wird.
 
 \section{Betriebs- und Sicherheitsgrenzen}
 \label{sec:betriebsgrenzen}
 
 Der Betrieb beginnt mit einem Privileg: Raw Sockets verlangen unter Linux die Fähigkeit
 \texttt{CAP\_NET\_RAW}, also das gezielt vergebbare Recht auf rohe Netzwerkzugriffe, oder gleich
-Root-Rechte \cite{man7capabilities, man7raw}. Wer die Bibliothek einsetzt, gibt dem Prozess damit das
-Recht, beliebige IP-Kopffelder zu schreiben, nicht nur die eigenen Datagramme dieser Arbeit. Die
-Bibliothek kapselt diesen Zugriff hinter ihrer Schnittstelle, aufheben kann sie ihn nicht; die
-Rechtevergabe bleibt eine Betriebsentscheidung des Aufrufers (\texttt{src/socket/mod.rs}, Zeilen 1 bis
-6).
+Root-Rechte \cite{man7capabilities, man7raw}. Wer die Bibliothek einsetzt, gibt dem Prozess damit
+weitreichenden Zugriff auf rohe IPv4-Datagramme, nicht nur auf die eigenen dieser Arbeit: Linux füllt bei
+\texttt{IP\_HDRINCL} nur \texttt{IP Total Length} und die IP-Kopfprüfsumme stets selbst aus
+(\secref{sec:sendepfad}), Quelladresse und Paketkennung dagegen nur, wenn sie null sind; ein solcher
+Prozess kann also insbesondere fremde Quelladressen vorgeben \cite{man7raw}. Die Bibliothek kapselt diesen
+Zugriff hinter ihrer Schnittstelle, aufheben kann sie ihn nicht; die Rechtevergabe bleibt eine
+Betriebsentscheidung des Aufrufers (\texttt{src/socket/mod.rs}, Zeilen 1 bis 6).
 
 Drei Entwurfsprinzipien des RFC aus \secref{subsec:surplus-prinzipien} prägen den Betrieb der
 Empfangsseite. Das erste betrifft die Richtung: \texttt{Peer::recv} ruft keinen Sendepfad auf, die
@@ -810,29 +889,49 @@ Beobachtung mit der Pfadtrennung des Baus ist eine eigene Ableitung dieser Arbei
 Das zweite Prinzip betrifft den Zustand: UDP bleibt zustandslos, nötiger Zustand gehört in die Anwendung
 oder eine Bibliothek in ihrem Auftrag, und die Reassemblierung ist die einzige, ausdrücklich begrenzte
 Ausnahme. Im Bau ist der \texttt{ReassemblyCache} der einzige fachliche Empfangszustand über
-Paketgrenzen hinweg; sein Schlüssel besteht aus dem UDP-Vierertupel und der FRAG-Identifikation, die
-geforderte Bindung einer Cache-Instanz an genau ein Vierertupel steht aber nur im Kommentar und ist
-damit Aufruferpflicht.\footnote{\texttt{src/frag/reassembly.rs} (Zeilen 16 bis 25 und 241 bis 249).}
-Sendeseitig existiert daneben nur der fortlaufende Identifikationszähler der Zerlegung, der monoton
-zählt und bei Erschöpfung anhält, statt Werte zu wiederholen (\texttt{src/frag/split.rs}, Zeilen 66 bis
-88), dazu reine Diagnosezähler.
+Paketgrenzen hinweg; sein Schlüssel besteht aus dem UDP-Vierertupel und der FRAG-Identifikation, also
+genau dem Identitätskriterium, mit dem der RFC ein ursprüngliches Datagramm eindeutig bestimmt. Eine
+Cache-Instanz je Socket-Paar fordert der RFC dagegen nicht; er empfiehlt nur, die Speichergrenzen der
+Reassemblierung nicht über mehrere Sockets hinweg als gemeinsame Ressource zu berechnen
+\cite[Sec.~11.4]{rfc9868}. Die dokumentierte Bindung jeder Instanz an genau ein Socket-Paar ist deshalb
+der strengere eigene Aufrufervertrag dieser Implementierung, denn die Mengengrenze gilt je Cache. Der Typ
+erzwingt ihn nicht, und auch die \texttt{Peer}-Ebene löst ihn nur teilweise ein: Jeder \texttt{Peer}
+hält genau einen Cache, filtert eingehende Datagramme aber allein über die beiden UDP-Ports, sodass
+Verkehr verschiedener Adresspaare mit gleichen Ports denselben Cache und dessen Mengengrenze
+teilt.\footnote{\texttt{src/frag/reassembly.rs} (Zeilen 16 bis 25 und 241 bis 253); \texttt{Peer} mit
+eigenem Cache in \texttt{src/api/mod.rs} (Zeilen 263 bis 290).} Sendeseitig existiert daneben nur der
+fortlaufende Identifikationszähler der Zerlegung, der monoton zählt und bei Erschöpfung anhält, statt
+Werte zu wiederholen (\texttt{src/frag/split.rs}, Zeilen 66 bis 94). Die globalen Warnzähler dienen
+allein der Diagnose; die Zähler im Reassemblierungszustand erzwingen dagegen die konfigurierten Grenzen.
 
 Das dritte Prinzip legt Grenzen in die Konfiguration statt in das Format: Der Parser kennt keine
-Obergrenze für die Zahl der Optionen und prüft jede Option nur lokal auf Längenfehler; Mengengrenzen
-trägt die Empfangskonfiguration \texttt{ReassemblyLimits} mit vier Feldern: größte wiederhergestellte
-Nachricht, Fragmentzahl je Nachricht, gleichzeitig offene Datagramme und Verfallsfrist (R-11-22). Zwei
-Voreinstellungen übernehmen wörtliche RFC-Zahlen: mindestens zwei Fragmente und eine Frist von höchstens
-zwei Minuten; die Größen-Voreinstellung von 2.926 Byte ist die daraus abgeleitete Kapazität zweier
-Fragmente in Ethernet-Größe. Die vierte Zahl, 64 gleichzeitig offene Datagramme, ist dagegen eine eigene
-Schutzentscheidung: Der RFC verlangt eine Grenze für anhängige Fragmente nur dem Grundsatz nach und
-nennt keinen Wert \cite[Sec.~11.4 und 25.4]{rfc9868}.\footnote{\texttt{ReassemblyLimits} mit
-Voreinstellungen in \texttt{src/frag/reassembly.rs} (Zeilen 216 bis 239); die Konstanten samt Herkunft
+Obergrenze für die Zahl der Optionen und prüft jede Option nur lokal auf Längenfehler. Mehr als sieben
+aufeinanderfolgende \texttt{NOP}-Optionen lösen eine Warnung aus, beenden die Verarbeitung aber nicht;
+Warnungen erscheinen je Kategorie beim ersten und danach bei jedem 64. Vorkommnis und werden nur sichtbar,
+wenn die einbettende Anwendung einen Logger installiert. Mengengrenzen
+trägt die Empfangskonfiguration \texttt{ReassemblyLimits} mit vier Feldern: wiederhergestellte
+Datagrammgröße einschließlich UDP-Kopf, Fragmentzahl je Datagramm, gleichzeitig unvollständige Datagramme
+je Cache und Verfallsfrist (FR-34, NFR-06). Die ersten beiden Voreinstellungen sind wörtliche MUST-Mindestwerte
+des RFC: 2.926 Byte als kleinste für IPv4 zu unterstützende Wiederherstellungsgröße (das entspricht genau
+zwei Fragmenten in Ethernet-Größe) und zwei Fragmente, unabhängig von der IP-Version. Die voreingestellte
+Verfallsfrist von zwei Minuten übernimmt eine SHOULD-Obergrenze für den Standardwert. Die vierte Zahl, 64
+unvollständige Datagramme je Cache, ist dagegen eine eigene Schutzentscheidung: Eine Grenze für anhängige
+Fragmente empfiehlt der RFC nur Implementierungen, die die Fragmentierung als mögliche Gefährdung ansehen,
+und er nennt keinen Zahlenwert \cite[Sec.~11.4, 11.6 und 25.4]{rfc9868}.\footnote{\texttt{ReassemblyLimits}
+mit Voreinstellungen in \texttt{src/frag/reassembly.rs} (Zeilen 216 bis 239); die Konstanten samt Herkunft
 in \texttt{src/model.rs} (Zeilen 73 bis 80).} Auch hier gilt die Zweistufigkeit der Schnittstelle: Die
-tiefe Ebene erlaubt eigene Grenzen (\texttt{ReassemblyCache::with\_limits}), die hohe
-\texttt{Peer}-Ebene verwendet die Voreinstellungen, und die beiden Messprogramme machen die Grenzen über
-Kommandozeilenargumente einstellbar.
+tiefe Ebene erlaubt eigene Grenzen (\texttt{ReassemblyCache::with\_limits}), wobei die wirksame
+Verfallsfrist bei zwei Minuten gekappt bleibt, und die hohe \texttt{Peer}-Ebene verwendet die
+Voreinstellungen. Die Verfallsfrist wirkt dabei nicht selbsttätig: Abgelaufener Zustand wird erst bei der
+nächsten Einfügung oder durch einen ausdrücklichen Bereinigungsaufruf (\texttt{gc}) entfernt, ohne beides
+bleibt er gespeichert. \texttt{udpopt-recv} stellt die vier Empfangsgrenzen über Kommandozeilenargumente
+ein, \texttt{udpopt-send} getrennt davon die Sendelänge und die angenommenen MRDS-Grenzen der
+Gegenstelle. Die konfigurierte Sendelänge ist eine Vorgabe des Aufrufers und keine Ermittlung der
+Pfad-MTU: Überschreitet ein fertiges Datagramm die MTU der Strecke, liefert Linux \texttt{EMSGSIZE}, und
+die Bibliothek reicht das als allgemeinen E/A-Fehler weiter (\secref{sec:sendepfad}).
 
-Eine letzte Betriebsgrenze zieht die Vorgabe V-02: Angenommen wird ausschließlich \texttt{Protocol}~17;
+Eine letzte Betriebsgrenze zieht die Umfangsvorgabe dieser Arbeit: Angenommen wird ausschließlich
+\texttt{Protocol}~17;
 jedes andere Protokollfeld weist die Wire-Schicht mit einem eigenen Fehlerwert ab. Shim-Ketten wie IPsec
 oder IPComp werden damit nicht verfolgt, obwohl deren Kopflängen von der Obergrenze der
 \texttt{UDP Length} zusätzlich abzuziehen wären; Abschnitt~7 des RFC beschreibt diese Reduktion, trägt
@@ -851,7 +950,8 @@ Ergebnisse richtig einordnen kann, gehören die Grenzen dieses Baus ebenso ausdr
 Fähigkeiten.
 
 Die erste Grenze ist die Plattform. Der Bau belegt den Benutzerraumweg unter Linux mit IPv4 und Raw
-Sockets, wie es V-01 vorgibt; über Kernel-Implementierungen, andere Betriebssysteme oder IPv6 sagt er
+Sockets, wie es die Plattformvorgabe aus \chapref{chap:analyse} vorgibt; über Kernel-Implementierungen,
+andere Betriebssysteme oder IPv6 sagt er
 nichts aus. Der macOS-Messpunkt aus \tabref{tab:scope-messung} bleibt reiner Beobachtungspunkt der
 Messinfrastruktur; alles Weitere würde den Rahmen dieser Arbeit sprengen.
 
@@ -865,7 +965,17 @@ nicht über das laufende Rust-Programm; die Verbindung zwischen beiden bleibt Pr
 (\secref{subsec:formale-gegenprobe}). Fuzzing wiederum findet Fehler, beweist aber keine Abwesenheit von
 Fehlern. Beide Aussagen begrenzen, was \zitat{geprüft} in dieser Arbeit bedeutet.
 
-Innerhalb dieser Grenzen steht das Messinstrument damit vollständig: die Bibliothek mit ihren
+Die vierte Grenze ist der bewusst begrenzte Anforderungsumfang. Der Anforderungskatalog hält je Zeile
+fest, was abgewählt oder nur teilweise umgesetzt ist: die freiwillige Nullprüfung nach \texttt{EOL}
+(FR-18, nicht gewählt; \secref{sec:optionsverarbeitung}), der Verzicht auf einen Deckel für die
+Optionszahl (NFR-04, nicht gewählt), die erkennende, aber nicht arbeitsbegrenzende NOP-Behandlung
+(NFR-05, teilweise), die teilweise umgesetzte Empfangsrichtlinie je Socket-Paar (FR-44) und die im
+Raw-Pfad konstruktionsbedingte, als Anforderung nur teilweise belegte ICMP-Unterdrückung (FR-48); dazu
+kommen die aufrufergesteuerte Cache-Bereinigung und die fehlende Pfad-MTU-Ermittlung
+(\secref{sec:betriebsgrenzen}). Diese Zeilen sind die erwarteten Kandidaten der Teilbewertung in
+\chapref{chap:evaluation}.
+
+Mit diesen Grenzen ist das Messinstrument umrissen: die Bibliothek mit ihren
 Komponenten und Kennungen, die beiden Pfade mit dem Beispieldatagramm, die Optionsverarbeitung und die
 sechsstufige Prüfanlage. Das Beispieldatagramm mit dem Token \texttt{c0ffee01} geht als Referenzpaket an
 die Evaluation über: \chapref{chap:evaluation} setzt das Instrument auf die Forschungsfragen an.

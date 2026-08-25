@@ -116,19 +116,22 @@ Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und 
 
 Aus \tabref{tab:operationalisierung} geht hervor, dass FF1 je Anforderung und FF2 je beobachtetem Paketpaar
 entschieden wird. Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
-\texttt{SHOULD}-Aussagen gehen
-in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine Begründung. Eine \texttt{MAY}-Funktion
-wird nur bewertet, wenn sie für die Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
+\texttt{SHOULD}-Aussagen gehen in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine
+dokumentierte Begründung. Eine \texttt{MAY}-Funktion wird nur bewertet, wenn sie für die
+Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
 Umfangs liegende Aussagen bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich.
 
-Der Matrixstatus und die FF1-Klasse beantworten verschiedene Fragen. \zitat{Implemented} belegt den
-Umsetzungsstand. \zitat{Partially implemented} bezeichnet eine Implementierungslücke und bestimmt die
+Der Anforderungsstatus des Implementierungs-Repositorys und die FF1-Klasse beantworten verschiedene
+Fragen. \zitat{Implemented} belegt den Umsetzungsstand. \zitat{Partially implemented} bezeichnet eine
+Implementierungslücke und bestimmt die
 technische Erfüllbarkeit noch nicht. \zitat{Partial-in-userspace} wird als teilweise erfüllbar und
 \zitat{Not-feasible-in-userspace} als nicht erfüllbar gewertet. \zitat{Delegated} gilt nur dann als
 vollständig erfüllbar, wenn der RFC die Pflicht der oberen Schicht zuweist und die Schnittstelle sie als
 dokumentierten Vertrag abbildet; andernfalls lautet die Klasse teilweise erfüllbar. Für implementierte
 Funktionen dienen Quelltext und Tests als Nachweis. Technische Grenzen werden stattdessen durch dokumentiertes
-Betriebssystem- oder Schnittstellenverhalten belegt.
+Betriebssystem- oder Schnittstellenverhalten belegt. Von diesem Status je Anforderungszeile zu
+unterscheiden ist die Abdeckungsspalte \zitat{Covered} der Konformitätsmatrix desselben Repositorys
+(\chapref{chap:analyse}): Sie markiert den gewählten Umfang und ist keine FF1-Klasse.
 
 Die kontrollierten lokalen Läufe werten jedes Szenario aus; die Szenarien sind über eigene Zielports markiert
 und können wie beim FRAG-Fall des RFC mehrere Datagramme enthalten. Diese Läufe validieren die Messwerkzeuge
@@ -157,7 +160,7 @@ beschreibt, wie aus den Normquellen ein prüfbares Anforderungsmodell entsteht.
 
 Die normativen Protokollanforderungen stammen hauptsächlich aus RFC~9868. Ergänzende Anforderungen an das
 UDP-Format stammen aus RFC~768; die Rechenregeln der Prüfsummen liefert als informative Referenz RFC~1071.
-Daneben enthält die Matrix ausdrücklich
+Daneben enthält der Anforderungsbestand der Implementierung ausdrücklich
 gekennzeichnete Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
 Entwurfsentscheidung nachträglich als Forderung des RFC erscheint.
 
@@ -178,9 +181,10 @@ RFC~9868 und RFC~9869 bleiben in der Quellenarbeit getrennt. RFC~9869 beschreibt
 Implementierungsumfangs dieser Arbeit \cite{rfc9869}. Zusätzlich wird der Errata-Stand des RFC Editors
 berücksichtigt \cite{rfc9868-errata}. Das verifizierte technische Erratum EID~8834 löst den Widerspruch
 zwischen den Abschnitten 10 und 14 zur Behandlung überlanger Optionen. EID~8708 ist als redaktionelles Erratum
-für eine spätere Dokumentausgabe zurückgestellt. Die Anforderungsmatrix verwendet diese beiden Einstufungen und
-dokumentiert die daraus abgeleitete Behandlung. Den Weg von den Quellen zur Matrix fasst
-\figref{fig:rfc-auswertung} zusammen:
+für eine spätere Dokumentausgabe zurückgestellt. Der Anforderungsbestand der Implementierung verwendet
+diese beiden Einstufungen und
+dokumentiert die daraus abgeleitete Behandlung (\chapref{chap:analyse}). Den Weg von den Quellen zum
+geprüften Bestand fasst \figref{fig:rfc-auswertung} zusammen:
 
 \begin{figure}[H]
   \centering
@@ -200,7 +204,7 @@ dokumentiert die daraus abgeleitete Behandlung. Den Weg von den Quellen zur Matr
     \node[block, draw=sqblaurand, fill=sqblau] (erfassung) at (9.45,0)
       {\textbf{Erfassung je Aussage}\\ Fundstelle, Normstufe,\\ Anwendbarkeit,\\ Projektumfang};
     \node[block, draw=sqroserand, fill=sqrose] (matrix) at (13.3,0)
-      {\textbf{Anforderungs-}\\ \textbf{matrix}\\ Maßstab für FF1};
+      {\textbf{Abgleich mit der}\\ \textbf{Konformitäts-}\\ \textbf{matrix}\\ Maßstab für FF1};
     \draw[fluss] (quellen) -- (lesung);
     \draw[fluss] (lesung) -- (erfassung);
     \draw[fluss] (erfassung) -- (matrix);
@@ -222,15 +226,17 @@ dokumentiert die daraus abgeleitete Behandlung. Den Weg von den Quellen zur Matr
     \draw[fluss] (vorgaben.east) -| (matrix.south);
     \node[flusstext, anchor=east, align=right] at (13.18,-1.55) {ausdrücklich\\ gekennzeichnet};
   \end{tikzpicture}
-  \caption{Von den Normquellen zur Anforderungsmatrix}
+  \caption{Von den Normquellen zum geprüften Anforderungsbestand}
   \label{fig:rfc-auswertung}
 \end{figure}
 
-Aus \figref{fig:rfc-auswertung} geht hervor, dass die Matrix aus zwei getrennt gehaltenen Zuflüssen entsteht:
-den normativen Quellen mit ihrem Errata-Stand und den ausdrücklich gekennzeichneten eigenen Vorgaben. Die
-Kontrollzahl sichert den normativen Zufluss mit zwei unabhängigen Zählverfahren ab. RFC~9869 bleibt außerhalb
-des Implementierungsumfangs; die Matrix führt seine Anwendungsfälle nur als ausdrücklich gekennzeichnete
-Einträge außerhalb des Umfangs, damit die Grenze des Beitrags sichtbar bleibt.
+Aus \figref{fig:rfc-auswertung} geht hervor, dass der Maßstab aus zwei getrennt gehaltenen Zuflüssen
+entsteht: der normativen Lesung mit ihrem Errata-Stand und den ausdrücklich gekennzeichneten eigenen
+Vorgaben. Die Kontrollzahl sichert den normativen Zufluss mit zwei unabhängigen Zählverfahren ab; geprüft
+wird damit die Konformitätsmatrix des Implementierungs-Repositorys (\chapref{chap:analyse}). RFC~9869
+bleibt außerhalb des Implementierungsumfangs; der Anforderungsbestand führt seine Anwendungsfälle nur als
+ausdrücklich gekennzeichnete Einträge außerhalb des Umfangs, damit die Grenze des Beitrags sichtbar
+bleibt.
 
 Die Umsetzung erfolgte schrittweise. Der Projektplan beginnt mit den Schritten 0 und 0.5 und reicht bis Schritt
 18. Schritt 9 ging in Schritt 8 auf, Schritt 16 wurde mit der IPv6-Unterstützung aus dem Umfang entfernt. Die
@@ -238,8 +244,61 @@ verbleibenden Schritte behandeln unter anderem Prüfsummen, Wire-Format, Parser,
 Optionen, Raw Sockets, Fragmentierung, Schnittstellen und die Messumgebung. Die genaue Zuordnung und der
 jeweilige Abschlussnachweis stehen im Projektplan.\footnote{Implementierungs-Repository, Commit
 \texttt{f1cfe52}, \path{docs/plan/ROADMAP.md}.} Diese Darstellung bildet den tatsächlichen Plan ab und ersetzt
-eine nachträglich vereinfachte Folge von neun Stufen. Welche Rollen bei der Erzeugung und Prüfung dieser Ergebnisse
-wirken, klärt der folgende Abschnitt.
+eine nachträglich vereinfachte Folge von neun Stufen. Den gelebten Kernzyklus je Schritt zeigt
+\figref{fig:stepzyklus}:
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      x=1cm, y=1cm,
+      >={Stealth[length=5pt, width=4pt]},
+      block/.style={draw, semithick, rounded corners=3pt, align=center,
+        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
+      fluss/.style={->, draw=sqdunkel, thin},
+      ausnahme/.style={->, draw=sqgrau, dashed, thin},
+      flusstext/.style={font=\scriptsize, inner sep=1.5pt, fill=white, align=center},
+    ]
+    \node[block, draw=sqgoldrand, fill=sqgold] (schritt) at (1.75,0)
+      {\textbf{Schritt wählen}\\ Step-Datei: Plan und\\ Definition of Done};
+    \node[block, draw=sqgrau, fill=sqhell] (lean) at (5.6,0)
+      {bei Lean-Pflicht:\\ Spezifikation vor dem\\ Code, Beweise danach};
+    \node[block, draw=sqblaurand, fill=sqblau] (umsetzung) at (9.45,0)
+      {\textbf{Umsetzung}\\ Code und Tests zusammen;\\ neue Parsefläche: auch\\ Property-Tests, Fuzz-Ziel};
+    \node[block, draw=sqblaurand, fill=sqblau] (gate) at (13.3,0)
+      {\textbf{lokales Gate} \texttt{pre-pr.sh}\\ 18 Prüfläufe, Abbruch\\ beim ersten Fehler};
+    \node[block, draw=sqblaurand, fill=sqblau] (pr) at (13.3,-2.7)
+      {\textbf{Pull Request}\\ CI: Format, Lint,\\ Tests, Lean};
+    \node[block, draw=sqgrau, fill=sqhell] (ki) at (9.45,-2.7)
+      {zwei angeforderte\\ KI-Prüfungen: Qualität;\\ RFC-Semantik};
+    \node[block, draw=sqroserand, fill=sqrose] (freigabe) at (5.6,-2.7)
+      {\textbf{menschliche Freigabe}\\ ein Sammelcommit\\ auf \texttt{main}};
+    \node[block, draw=sqgrau, fill=sqhell] (katalog) at (1.75,-2.7)
+      {Anforderungskatalog\\ abgleichen};
+    \draw[fluss] (schritt) -- (lean);
+    \draw[fluss] (lean) -- (umsetzung);
+    \draw[fluss] (umsetzung) -- (gate);
+    \draw[fluss] (gate) -- (pr);
+    \draw[fluss] (pr) -- (ki);
+    \draw[ausnahme] (ki) -- (freigabe);
+    \node[flusstext] at (7.55,-1.85) {nicht technisch\\ erzwungen};
+    \draw[fluss] (freigabe.north) -- ++(0,0.55) -| (schritt.south);
+    \node[flusstext] at (3.68,-1.5) {nächster Schritt};
+    \draw[ausnahme] (freigabe) -- (katalog);
+    \node[flusstext] at (3.68,-3.6) {periodisch; vollständig\\ erst Schritt 18};
+    \draw[ausnahme] (gate.north) -- ++(0,0.5) -| (umsetzung.north);
+    \node[flusstext] at (11.4,1.28) {Befund beheben};
+  \end{tikzpicture}
+  \caption{Kernzyklus eines Implementierungsschritts bis Schritt 18 (Ausnahmen gestrichelt)}
+  \label{fig:stepzyklus}
+\end{figure}
+
+Aus \figref{fig:stepzyklus} geht der Takt der Umsetzung hervor: Je Schritt entstehen Code, Tests und
+Dokumentation zusammen und erreichen den Hauptzweig als ein freigegebener Sammelcommit; die Schritte 14, 15
+und 17 teilten sich einen solchen Commit. Zwei Kanten sind gestrichelt, weil sie stattfanden, aber nicht
+technisch erzwungen waren: Die zwei angeforderten KI-Prüfungen blockierten die Übernahme nicht, und der
+Abgleich des Anforderungskatalogs lief periodisch; vollständig glich ihn erst Schritt 18 ab, der als
+eigener Korrekturschritt auf einen nachträglichen RFC-Abgleich antwortete. Welche Rollen bei der Erzeugung
+und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
 
 \section{Beteiligte und ihre Rollen}
 \label{sec:rollen}
