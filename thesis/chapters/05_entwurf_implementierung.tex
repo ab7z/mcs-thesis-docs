@@ -147,7 +147,7 @@ Helfer der Empfangspipeline. Zweitens liegen die Netz-Systemaufrufe innerhalb de
 für die FRAG-Identifikation das Zufallsgerät \texttt{/dev/urandom}, \texttt{api} und \texttt{socket} fragen
 für Fristen die monotone Uhr ab, und die beiden Messprogramme kommen mit Konsolenausgabe hinzu;
 \texttt{udpopt-send} kann zusätzlich eine JSONL-Manifestdatei fortschreiben.
-Daraus folgt eine Eigenschaft, die die Prüfarchitektur in \secref{sec:pruefarchitektur} trägt: Die reinen
+Daraus folgt eine Eigenschaft, die die Testarchitektur in \secref{sec:pruefarchitektur} trägt: Die reinen
 Protokollpfade erhalten Zeitpunkte und Identifikation als Parameter, jede Protokollentscheidung ist damit
 ohne Netz und ohne erhöhte Rechte prüfbar.
 
@@ -704,11 +704,11 @@ Herkunft des RES-Tokens bleibt ausdrücklich Aufruferpflicht
 Bau hält, was die Kennungen versprechen, entscheidet nicht das Kapitel selbst, sondern die Prüfanlage, die
 der nächste Abschnitt zeigt.
 
-\section{Prüfarchitektur}
+\section{Testarchitektur}
 \label{sec:pruefarchitektur}
 
 Den Sollprozess der Prüfung hat \secref{sec:pruefkette} festgelegt; dieser Abschnitt zeigt die gebaute
-Anlage mit ihren Zahlen am eingefrorenen Stand. Sie besteht aus sechs Ebenen: Attributtests,
+Testarchitektur mit ihren Zahlen am eingefrorenen Stand. Sie besteht aus sechs Ebenen: Attributtests,
 Property-Tests, Fuzz-Ziele, Integrationstests, Lean-Modelle und die Wire-Prüfung mit getrennten Prüfern.
 Wo diese Ebenen im Repository liegen und worauf sie sich stützen, zeigt \figref{fig:artefakte}:
 

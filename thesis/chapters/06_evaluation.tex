@@ -5,7 +5,8 @@
 \chapter{Evaluation und Diskussion}
 \label{chap:evaluation}
 
-Mit \chapref{chap:entwurf} liegt die Referenzimplementierung vor und ist als Messinstrument beschrieben.
+Mit \chapref{chap:entwurf} liegen die Referenzimplementierung und ihre Testarchitektur vor und sind als
+Messinstrument beschrieben.
 Dieses Kapitel setzt das Instrument auf die beiden Forschungsfragen aus \secref{sec:zielsetzung} an: FF1
 fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum erfüllen lassen; FF2
 fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten bleibt. Der
@@ -667,7 +668,8 @@ implementierbar ist und die Streitfälle in den Randbedingungen liegen, nicht im
 Die \textbf{vollständig} erfüllten Aussagen umfassen den gesamten Kern: Ortung und Ausrichtung der
 Surplus Area, die OCS-Arithmetik samt Nullregeln, die TLV-Rahmung mit allen Längen- und
 Ordnungspflichten, die acht must-support-Optionen und die FRAG-Verarbeitung einschließlich
-Reassemblierung. Der Nachweis ruht auf den sechs Prüfebenen aus \secref{sec:pruefarchitektur} (211
+Reassemblierung. Der Nachweis ruht auf den sechs Ebenen der Testarchitektur aus
+\secref{sec:pruefarchitektur} (211
 Testattributzeilen, zehn Property-Dateien mit 1024 Fällen je Eigenschaft, neun Fuzz-Ziele, 172
 Lean-Theoreme in elf Modulen, die Wire-Prüfung mit drei getrennten Prüfern) und zusätzlich auf den
 Realpfadläufen aus \secref{sec:beobachtbarkeit-eval}: Die Negativkampagne bestätigte alle 15
