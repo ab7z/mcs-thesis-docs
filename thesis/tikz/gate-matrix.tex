@@ -1,0 +1,74 @@
+% Generiert von thesis/tikz/gen/gate-matrix.py aus thesis/daten/gate-zellen.csv.
+% Nicht von Hand aendern; Aenderungen im Skript oder in der Datenschicht vornehmen.
+\begin{tikzpicture}[
+  zu/.style={draw=akzent, fill=akzenthell, rounded corners=2pt, semithick},
+  weg/.style={draw=warnton, fill=warnhell, rounded corners=2pt, semithick},
+  zelle/.style={font=\scriptsize, minimum height=4.6mm, minimum width=2.35cm},
+  reihe/.style={font=\scriptsize\ttfamily},
+  gruppe/.style={font=\scriptsize\bfseries, text=feldlinie},
+  kopf/.style={font=\scriptsize\bfseries, align=center}]
+  \node[kopf] at (5.72,1.05) {G: Pad ff,\\OCS gültig};
+  \node[kopf] at (8.38,1.05) {C: OCS 5b53\\kompensiert};
+  \node[kopf] at (11.03,1.05) {Kontrolle};
+  \node[kopf, anchor=west] at (0,1.05) {Richtung};
+  \node[gruppe, anchor=west] at (0,0.00) {EU-Paare};
+  \node[reihe, anchor=west] at (0.25,-0.53) {1blu $\rightarrow$ mcs};
+  \node[weg, zelle, anchor=west] at (4.55,-0.53) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-0.53) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-0.53) {\checkmark~20/20};
+  \node[reihe, anchor=west] at (0.25,-1.15) {mcs $\rightarrow$ 1blu};
+  \node[weg, zelle, anchor=west] at (4.55,-1.15) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-1.15) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-1.15) {\checkmark~20/20};
+  \node[reihe, anchor=west] at (0.25,-1.77) {mcs $\rightarrow$ hel};
+  \node[weg, zelle, anchor=west] at (4.55,-1.77) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-1.77) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-1.77) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-2.39) {hel $\rightarrow$ mcs};
+  \node[weg, zelle, anchor=west] at (4.55,-2.39) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-2.39) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-2.39) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-3.01) {hel $\rightarrow$ 1blu};
+  \node[weg, zelle, anchor=west] at (4.55,-3.01) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-3.01) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-3.01) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-3.63) {1blu $\rightarrow$ hel};
+  \node[weg, zelle, anchor=west] at (4.55,-3.63) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-3.63) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-3.63) {\checkmark~10/10};
+  \node[gruppe, anchor=west] at (0,-4.25) {AWS-Paare};
+  \node[reihe, anchor=west] at (0.25,-4.77) {aws $\rightarrow$ mcs};
+  \node[weg, zelle, anchor=west] at (4.55,-4.77) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-4.77) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-4.77) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-5.39) {mcs $\rightarrow$ aws};
+  \node[weg, zelle, anchor=west] at (4.55,-5.39) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-5.39) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-5.39) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-6.01) {aws $\rightarrow$ hel};
+  \node[weg, zelle, anchor=west] at (4.55,-6.01) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-6.01) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-6.01) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-6.63) {hel $\rightarrow$ aws};
+  \node[weg, zelle, anchor=west] at (4.55,-6.63) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-6.63) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-6.63) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-7.25) {aws $\rightarrow$ 1blu};
+  \node[weg, zelle, anchor=west] at (4.55,-7.25) {$\times$~0/20};
+  \node[zu, zelle, anchor=west] at (7.20,-7.25) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-7.25) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-7.87) {1blu $\rightarrow$ aws};
+  \node[zu, zelle, anchor=west] at (4.55,-7.87) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (7.20,-7.87) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-7.87) {\checkmark~10/10};
+  \node[gruppe, anchor=west] at (0,-8.49) {Amazon-Backbone};
+  \node[reihe, anchor=west] at (0.25,-9.02) {aws $\rightarrow$ aws2};
+  \node[zu, zelle, anchor=west] at (4.55,-9.02) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (7.20,-9.02) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-9.02) {\checkmark~10/10};
+  \node[reihe, anchor=west] at (0.25,-9.64) {aws2 $\rightarrow$ aws};
+  \node[zu, zelle, anchor=west] at (4.55,-9.64) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (7.20,-9.64) {\checkmark~20/20};
+  \node[zu, zelle, anchor=west] at (9.85,-9.64) {\checkmark~10/10};
+  \node[font=\scriptsize, text=feldlinie, anchor=north west, text width=12.4cm] at (0,-10.31) {Zugestellt (\checkmark) heißt: am fernen Ende aufgezeichnet beziehungsweise ausgeliefert; die zugestellten G-Datagramme verwirft der Empfänger anschließend regelkonform (Pad ungleich null), die Nutzdaten stellt er zu};
+\end{tikzpicture}

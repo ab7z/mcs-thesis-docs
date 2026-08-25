@@ -1,0 +1,48 @@
+% Generiert von thesis/tikz/gen/ap-opfermatrix.py aus thesis/daten/ap-opfermatrix.csv.
+% Nicht von Hand aendern; Aenderungen im Skript oder in der Datenschicht vornehmen.
+\begin{tikzpicture}[
+  ok/.style={draw=akzent, fill=akzenthell, rounded corners=2pt, semithick},
+  okpilot/.style={draw=akzent, fill=akzenthell, rounded corners=2pt, thin},
+  kill/.style={draw=warnton, fill=warnhell, rounded corners=2pt, semithick},
+  killpilot/.style={draw=warnton, fill=warnhell, rounded corners=2pt, thin},
+  leer/.style={draw=sqgrau, fill=sqhell, rounded corners=2pt, thin, dashed},
+  zelle/.style={font=\scriptsize, minimum height=0.46cm, minimum width=1.72cm},
+  reihe/.style={font=\scriptsize\ttfamily},
+  kopf/.style={font=\scriptsize\bfseries}]
+  \node[kopf] at (3.96,0.62) {Mumbai};
+  \node[kopf] at (5.82,0.62) {Singapur};
+  \node[kopf] at (7.68,0.62) {Tokio};
+  \node[kopf] at (9.54,0.62) {Osaka};
+  \node[kopf] at (11.40,0.62) {Seoul};
+  \node[kopf] at (13.26,0.62) {Sydney};
+  \node[kopf, anchor=west] at (0,0.62) {Quelle};
+  \node[reihe, anchor=west] at (0,0.00) {mcs};
+  \node[ok, zelle, anchor=west] at (3.10,0.00) {\checkmark};
+  \node[ok, zelle, anchor=west] at (4.96,0.00) {\checkmark};
+  \node[kill, zelle, anchor=west] at (6.82,0.00) {$\times$};
+  \node[ok, zelle, anchor=west] at (8.68,0.00) {\checkmark};
+  \node[kill, zelle, anchor=west] at (10.54,0.00) {$\times$};
+  \node[ok, zelle, anchor=west] at (12.40,0.00) {\checkmark};
+  \node[reihe, anchor=west] at (0,-0.70) {hel (Pilot)};
+  \node[leer, zelle, anchor=west] at (3.10,-0.70) {$\cdot$};
+  \node[leer, zelle, anchor=west] at (4.96,-0.70) {$\cdot$};
+  \node[killpilot, zelle, anchor=west] at (6.82,-0.70) {$\times$};
+  \node[leer, zelle, anchor=west] at (8.68,-0.70) {$\cdot$};
+  \node[killpilot, zelle, anchor=west] at (10.54,-0.70) {$\times$};
+  \node[leer, zelle, anchor=west] at (12.40,-0.70) {$\cdot$};
+  \node[reihe, anchor=west] at (0,-1.40) {1blu};
+  \node[ok, zelle, anchor=west] at (3.10,-1.40) {\checkmark};
+  \node[ok, zelle, anchor=west] at (4.96,-1.40) {\checkmark};
+  \node[kill, zelle, anchor=west] at (6.82,-1.40) {$\times$};
+  \node[ok, zelle, anchor=west] at (8.68,-1.40) {\checkmark};
+  \node[kill, zelle, anchor=west] at (10.54,-1.40) {$\times$};
+  \node[kill, zelle, anchor=west] at (12.40,-1.40) {$\times$};
+  \node[reihe, anchor=west] at (0,-2.10) {aws-us (Pilot)};
+  \node[leer, zelle, anchor=west] at (3.10,-2.10) {$\cdot$};
+  \node[leer, zelle, anchor=west] at (4.96,-2.10) {$\cdot$};
+  \node[okpilot, zelle, anchor=west] at (6.82,-2.10) {\checkmark};
+  \node[okpilot, zelle, anchor=west] at (8.68,-2.10) {\checkmark};
+  \node[okpilot, zelle, anchor=west] at (10.54,-2.10) {\checkmark};
+  \node[okpilot, zelle, anchor=west] at (12.40,-2.10) {\checkmark};
+  \node[font=\scriptsize, text=feldlinie, anchor=north west, text width=13.6cm] at (0,-2.85) {\checkmark~Surplus-Klasse zugestellt; $\times$~Surplus-Klasse verworfen (Baselines kamen in allen Lanes vollzählig an); $\cdot$~nicht gemessen; dünner Rahmen: Pilotbeleg ohne Mitschnitt ($n=6$ je Lane), sonst Zellenbeleg mit Mitschnitten ($n=20$ je Zelle und Richtung)};
+\end{tikzpicture}
