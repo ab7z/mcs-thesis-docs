@@ -611,6 +611,179 @@ Soll-Ist-Abgleich.
 \section{Soll-Ist-Abgleich mit RFC 9868}
 \label{sec:soll-ist}
 
+FF1 fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum vollständig,
+teilweise oder nicht erfüllen lassen (\secref{sec:zielsetzung}). Bewertet werden die 67 normativen
+Aussagen der Konformitätsmatrix aus \secref{sec:anforderungsmatrix}; die FR- und NFR-Kennungen dienen
+dabei als Nachweisindex und nicht als zweiter Nenner, denn 58 der 67 Zeilen verweisen auf sie. Je
+Aussage folgt der Nachweis einer festen Reihenfolge: zuerst die Notiz der Matrixzeile, dann die
+verknüpfte Anforderungskennung, dann Quelltext und Test, zuletzt, wo vorhanden, das Realpfadszenario.
+Die Abbildung des Repository-Status auf die Kategorien folgt \chapref{chap:methodik}: Nicht gewählte
+MAY-Funktionen, Aussagen außerhalb des Umfangs und Sätze ohne BCP-14-Schlüsselwort bleiben sichtbar,
+zählen aber weder als erfüllt noch als technisch unmöglich. Damit ist auch die aus
+\chapref{chap:entwurf} übergebene Frage zu beantworten, ob die zusammengefassten Empfangsberichte für
+die Messkampagnen ausreichen: allein nicht. Weil ein Pad-Fehler und eine fehlgeschlagene OCS-Rechnung
+im selben Status zusammenfallen und verworfene Ausgänge als \zitat{kein Datagramm} erscheinen, stützt
+sich jeder Realpfadnachweis auf das Kampagnenpaket aus Mitschnitten, Sendemanifest und Auswerterlauf;
+ein Ausbleiben (etwa der Reassemblierungs-Timeout, der keine eigene Verwerfmeldung erzeugt) ist nur
+über diese Negativevidenz messbar. Das Ergebnis der Einzelbewertung fasst \tabref{tab:eval-sollist}
+zusammen:\footnote{Die Einzelbewertung aller 67 Zeilen liegt als \file{thesis/daten/konformitaet"=kategorien.csv}
+im Repositorium der Arbeit; ein Prüfskript erzwingt die Übereinstimmung der Summen mit der Matrix.}
+
+\begin{table}[!htb]
+    \centering
+    \caption{Soll-Ist-Bewertung der 67 normativen Aussagen je RFC-Bereich}
+    \label{tab:eval-sollist}
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabularx}{\textwidth}{L{1.9cm} c c c c c Y}
+        \toprule
+        \textbf{Bereich} & \textbf{Aussagen} & \textbf{vollst.} & \textbf{teilw.} & \textbf{n.\,erf.} &
+        \textbf{n.\,anw.} & \textbf{stärkster Nachweis bzw. zentrale Grenze} \\
+        \midrule
+        Sec. 7 bis 9 & 8 & 8 & 0 & 0 & 0 & Wire-Prüfung mit drei Prüfern; Prüfsummenneutralität real
+        (P0, Gate-Kreuztest) \\
+        Sec. 10 & 17 & 17 & 0 & 0 & 0 & Parser-Property- und Fuzz-Flächen; reale Negativfälle
+        (Längenfehler, UNSAFE) \\
+        Sec. 11.1 bis 11.10 & 22 & 16 & 2 & 0 & 4 & FRAG-Suite lokal und real; Grenzen: NOP-Frühabbruch,
+        Cachevertrag der Komfortebene \\
+        Sec. 12 bis 14 & 9 & 7 & 0 & 0 & 2 & Dispositionsordnung; S-06-Matrix aus UDP-Prüfsumme und OCS
+        real \\
+        Sec. 15 bis 19 & 7 & 3 & 2 & 0 & 2 & API-Verträge; Fragmentsteuerung nur gebündelt \\
+        Sec. 23 bis 26 & 4 & 0 & 2 & 0 & 2 & dokumentierte Abwägungen zu DoS-Grenzen und
+        Referenzordnung (SHOULD) \\
+        \midrule
+        Summe & 67 & 51 & 6 & 0 & 10 & \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Aus \tabref{tab:eval-sollist} geht hervor, dass 51 der 67 Aussagen vollständig, sechs teilweise und
+keine als grundsätzlich unerfüllbar bewertet werden; zehn sind nicht anwendbar. Dass die Kategorie
+\zitat{nicht erfüllbar} leer bleibt, ist ein Ergebnis und kein Mangel des Maßstabs: Die harten Grenzen
+des Benutzerraum-Zugangs treffen den Betrieb des Sendewegs, aber keine einzelne Normaussage der Matrix.
+Diese Beobachtung hat zur direkten Konsequenz, dass RFC~9868 auf der gewählten Plattform als Ganzes
+implementierbar ist und die Streitfälle in den Randbedingungen liegen, nicht im Kern.
+
+Die \textbf{vollständig} erfüllten Aussagen umfassen den gesamten Kern: Ortung und Ausrichtung der
+Surplus Area, die OCS-Arithmetik samt Nullregeln, die TLV-Rahmung mit allen Längen- und
+Ordnungspflichten, die acht must-support-Optionen und die FRAG-Verarbeitung einschließlich
+Reassemblierung. Der Nachweis ruht auf den sechs Prüfebenen aus \secref{sec:pruefarchitektur} (211
+Testattributzeilen, zehn Property-Dateien mit 1024 Fällen je Eigenschaft, neun Fuzz-Ziele, 172
+Lean-Theoreme in elf Modulen, die Wire-Prüfung mit drei getrennten Prüfern) und zusätzlich auf den
+Realpfadläufen aus \secref{sec:beobachtbarkeit-eval}: Die Negativkampagne bestätigte alle 15
+Prüfklassen ohne eine einzige Abweichung von der RFC-Erwartung, darunter das Verwerfen bei Pad- und
+OCS-Fehlern, das stille Übergehen unbekannter SAFE-Optionen und die Nutzdatenkürzung bei einer
+UNSAFE-Option; die Robustheitswelle ergänzte, dass EOL-Füllbytes unverarbeitet bleiben, NOP-Leitern
+bis zur Schwelle sieben meldungsfrei durchlaufen und ein erweitert kodiertes Längenfeld unter 255 als
+Senderverstoß alle Optionen verwirft, während ein handgebautes atomares FRAG-Einzelfragment trägt,
+anhängige Fragmentsätze parallelen Verkehr vollständig isolieren und ungleiche Optionssätze je Fragment
+regelkonform reassemblieren. Dieselbe Suite lief anschließend unverändert auf den Helsinki-Paaren und
+transatlantisch auf drei aws-Paaren; die Bewertung stützt sich damit auf fünf reale Pfade.
+
+Die sechs \textbf{teilweise} erfüllten Aussagen sind sämtlich SHOULD-Aussagen oder API-Zuschnitte,
+keine verletzten MUSTs. Die NOP-Begrenzung erkennt und meldet lange Läufe, bricht die Verarbeitung
+aber nicht ab; die Empfangs-API bündelt Pflichtoptionen je Datagramm oder Fragmentsatz, statt sie je
+Fragment und Quelle einzeln erzwingbar zu machen; die DoS-Abwägungen aus Abschnitt 25 sind teils
+umgesetzt, teils als begründeter Verzicht dokumentiert (kein Deckel für die Optionszahl); die
+Referenzordnung gilt beim Senden kanonisch, wird beim Empfang aber nicht erzwungen. Der sechste Fall
+ist der Cachevertrag der Reassemblierung: Die tiefe Schnittstelle verlangt einen Cache je
+Adress-und-Port-Paar als dokumentierte Aufruferpflicht, die mitgelieferte Komfortebene bindet ihren
+Empfänger jedoch nur an die Ports, sodass Datagramme verschiedener Adresspaare eine Mengengrenze
+teilen (\secref{sec:betriebsgrenzen}). Dazu treten die erwarteten Betriebsgrenzen außerhalb der
+Matrix: Der Sendeweg trägt bis exakt 1500 Byte Gesamtlänge und scheitert darüber am Kernel
+(\texttt{EMSGSIZE}, je Richtung 33 von 33 zugestellten Längenstufen bis 1500 und null darüber, auf
+allen Paaren bis hin zu den transatlantischen repliziert), eine Pfad-MTU-Ermittlung fehlt, und die
+Cache-Bereinigung bleibt aufrufergesteuert. Für den Einsatz heißt das: Die Bibliothek erfüllt die
+Norm, verlangt aber einen Betreiber, der Betriebsgrenzen kennt.
+
+Die zehn \textbf{nicht anwendbaren} Aussagen bleiben sichtbar und begründet: die nicht gewählte
+Empfangsprüfung der Bytes nach EOL, die nicht implementierten Optionen TIME und EXP samt der
+reservierten AUTH- und UNSAFE-Kinds, die Entwurfs- und Namensregeln für neue Optionen, die
+Multicast-Betrachtungen sowie zwei Sätze des API-Abschnitts ohne BCP-14-Schlüsselwort. Dass diese
+Abgrenzung trägt, zeigte der Realpfad nebenbei: Eine formgültige TIME-Option lief als unbekannte
+SAFE-Option still mit, genau wie es die Einstufung als nicht gewählte Funktion verlangt.
+
+Vier \textbf{Differenzen zwischen Spezifikation, Modell, Programm und Laufzeit} verdienen eigene
+Sätze. Erstens ist die Kombination aus UDP-Prüfsumme null und OCS null aus dem Benutzerraum exakt
+konstruierbar und wurde auf der Leitung nachgewiesen; in der Matrix aus UDP-Prüfsumme und OCS wird
+diese Zelle regelkonform verarbeitet, obwohl das Datagramm dann keinerlei Prüfsummenschutz trägt. Das
+ist normgetreues Verhalten und zugleich eine sichtbare Integritätslücke der Norm. Zweitens löst
+Erratum~8834 den Widerspruch zwischen den Abschnitten 10 und 14 zugunsten des Sec.-10-Verfahrens auf
+(\chapref{chap:methodik}); die Laufzeit folgt dem nachweislich, denn im realen Überlängenfall wurde
+ein gültiges REQ vor der defekten Option nicht gemeldet, sondern der gesamte Optionsbereich verworfen.
+Drittens behandelt der Parser ein erweitert kodiertes Längenfeld unter 255 strenger, als der RFC dem
+Empfänger vorschreibt; das ist als lokale Politik dokumentiert und in \tabref{tab:eval-sollist} keine
+Abweichung, sondern eine ausgewiesene Verschärfung. Viertens beweisen die Lean-Theoreme Aussagen über
+Modelle der Wire-Regeln, nicht über das laufende Programm; die Brücke bleibt Prüfsache der Tests
+(\secref{sec:pruefarchitektur}), weshalb diese Arbeit keine formale Konformitätsaussage erhebt.
+
+Drei \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf und sind mit Ursache, Korrektur und
+Restrisiko dokumentiert. Der Raw-Empfänger beendete sich auf öffentlichen Hosts still beim ersten
+fremden UDP-Paket; Ursache war ein als Ende gewerteter Filterausgang, die Korrektur besteht aus dem
+Weiterlesen nach gefiltertem Rauschen und einer Gesamtfrist,\footnote{Commits \texttt{f3bf430} und
+\texttt{8f8c11b} im Implementierungsrepositorium.} und als Restrisiko bleibt, dass eine Messung ohne
+diese Korrektur Zustellungen unterschätzt hätte; alle Kampagnen dieser Arbeit liefen mit den
+korrigierten Binärdateien. Der Um-eins-Fehler der Surplus-Ortung überstand 23 Einzelfalltests und
+fiel erst der Zweitprüfung im Pull-Request auf; als Korrektur wurden Property-Tests und Fuzz-Ziele je
+Parsefläche verpflichtend, und das Restrisiko gleichartiger Lücken ist dadurch verkleinert, nicht
+beseitigt. Der RFC-Abgleich des Abschlussschritts fand schließlich trotz grüner Prüfkette weitere
+Konformitätslücken, darunter die Behandlung unbekannter UNSAFE-Optionen vor einem FRAG; die Korrektur
+erfolgte gesammelt und real nachgeprüft, und als Restrisiko bleibt die Erkenntnis, dass eine grüne
+Prüfkette Konformität nicht garantiert (\secref{sec:vorgehen}).
+
+Damit kehrt die Bewertung zu der in \chapref{chap:grundlagen} offen gelassenen Frage zurück, was aus
+dem Verlust einzelner Fragmente wird, den auch FRAG nicht behebt. Die Messungen beantworten sie in
+vier Schritten. Ein fehlendes Fragment lässt seinen Satz liegen, ohne Nachbarn zu stören: In der
+langen Serie aus 300 Zwei-Fragment-Sätzen mit gezielt zurückgehaltenem Terminalfragment kamen exakt
+die geplanten 270 Sätze an, die 30 beschädigten verhungerten still, und die Quote blieb über die
+Serie drittelgenau konstant (570 von 570 Fragmenten auf dem Draht, keine Drift). Der
+Reassemblierungs-Timeout wirkt real, ist aber nur über Negativevidenz messbar, denn das Auslaufen
+erzeugt keine eigene Verwerfmeldung. Die Eindeutigkeit der Identification ist reine Senderpflicht:
+Bei absichtlich gleicher Kennung und komplementären, nicht überlappenden Fragmenten setzte der
+Empfänger ein nie gesendetes Datagramm zusammen und lieferte es kommentarlos aus; das ist kein
+Implementierungsfehler, sondern eine Robustheitslücke der Norm, deren einzige vorgesehene Erkennung
+die optionale APC ist, und mit APC wird der Fehlschlag gemeldet, die Nutzdaten werden dennoch
+zugestellt. Die Grenze des Soft-State schließlich zeigt \figref{fig:eval-cachegrenze}:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        zu/.style={draw=akzent, fill=akzenthell, semithick},
+        weg/.style={draw=warnton, fill=warnhell, semithick},
+        wert/.style={font=\scriptsize},
+        anm/.style={font=\tiny, text=feldlinie}]
+        \node[font=\scriptsize\bfseries, anchor=west] at (0,1.0) {80 anhängige Fragmentsätze je Lauf
+            gegen die Mengengrenze 64};
+        \draw[zu] (0,0) rectangle node[wert] {64 Sätze zugestellt (Ankunftsreihenfolge der
+            Erstfragmente)} (9.6,0.55);
+        \draw[weg] (9.6,0) rectangle node[wert, align=center] {16 verhungern\\still} (12.0,0.55);
+        \node[anm, anchor=north west, text width=11.9cm] at (0,-0.3) {in 12 von 12 Läufen exakt auf
+            Vorhersage; je Richtung 966 von 966 Fragmenten auf dem Draht; 240 von 240 unfragmentierten
+            Kontrollen unbeeinflusst; ein atomares Fragment wird auch am vollen Cache zugestellt};
+    \end{tikzpicture}
+    \caption{Deterministische Cachegrenze der Reassemblierung im Überlastszenario}
+    \label{fig:eval-cachegrenze}
+\end{figure}
+
+Aus \figref{fig:eval-cachegrenze} geht hervor, dass die SHOULD-Grenze aus Abschnitt~25.4
+implementierbar und deterministisch ist und Bestandsverkehr wie atomare Zustellung schützt; was der
+RFC offen lässt, sind Zahlenwert und Überlaufverhalten, und die Folge ist stiller Verlust ohne jedes
+Signal an den Sender. Diese Beobachtung hat zur direkten Konsequenz, dass eine Anwendung mit
+Fragmentverlust, Kennungskollisionen und Cacheüberlauf selbst rechnen muss; die Norm liefert ihr dafür
+nur die APC und die Berichte.
+
+Zwei Geltungsgrenzen rahmen dieses Ergebnis. Alle Realpfadaussagen gelten für saubere, kalibrierte
+Pfade; das Verhalten unter stochastisch gestörtem Pfad wurde nach dem begründeten Verzicht aus
+\secref{sec:testkonzept} nur mechanismenweise geprüft (Verlust, Timeout, Duplikat, Umordnung, Quote,
+Cachegrenze), nicht als Mischung. Und die Empfängerpflichten für verfälschte Pads und Prüfsummen sind
+auf Pfaden mit Prüfsummen-Gate nur über die beschriebenen pfadneutralen Konstruktionen messbar; für
+den Pad-Fall ist das sogar beweisbar, weil ein regelwidriges Pad die Legacy-Faltung zwingend bricht.
+In der Summe beantwortet der Abgleich FF1 so: 51 der 67 normativen Aussagen sind unter Linux, IPv4
+und Benutzerraum vollständig erfüllt, sechs teilweise mit dokumentierten Gründen, keine ist
+grundsätzlich unerfüllbar, und zehn liegen außerhalb des gewählten Umfangs. Wie diese Bewertung
+zustande kam, und zwar unter durchgehender Beteiligung von Sprachmodellen, beschreibt der folgende
+Abschnitt.
+
 \section{Reflexion der KI-gestützten Arbeitsweise}
 \label{sec:ki-reflexion}
 

@@ -1,0 +1,72 @@
+# Datenschicht fuer Tabelle 6.2 (FF1-Einzelbewertung). Quelle: docs/requirements.md
+# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895; Abbildungsregel aus
+# thesis/chapters/03_methodik.tex:118-134. Erzeugt und geprueft von
+# thesis/tikz/gen/ff1-kategorien.py (Summen-Asserts: 67 Zeilen; Gruppen 8/17/22/9/7/4).
+quellzeile,gruppe,rfc_bereich,kurzinhalt,level,covered,kategorie,anmerkung
+162,Sec. 10,Sec. 10,"UDP Length in [8, IP-Nutzlast], sonst verwerfen und melden",MUST,yes,vollstaendig,
+163,Sec. 7-9,Sec. 7,Surplus Area als IP-Nutzlast-Rest hinter UDP Length geortet,MUST,yes,vollstaendig,
+164,Sec. 7-9,Sec. 8,Optionen nutzen die ganze Surplus Area; OCS auf 2-Byte-Grenze,MUST,yes,vollstaendig,
+165,Sec. 7-9,Sec. 8,"Pad vor dem OCS muss null sein, sonst Surplus verwerfen",MUST,yes,vollstaendig,"real belegt (S-04, G-Zelle)"
+166,Sec. 7-9,Sec. 9,OCS-Berechnung mit Laengensummand,MUST,yes,vollstaendig,
+167,Sec. 7-9,Sec. 9,"OCS ungleich null, wenn UDP-Pruefsumme ungleich null",MUST,yes,vollstaendig,
+168,Sec. 7-9,Sec. 9,Voreinstellung: OCS ungleich null senden,MUST,yes,vollstaendig,
+169,Sec. 7-9,Sec. 9,"OCS-Fehler: alle Optionen ignorieren, Surplus verwerfen",MUST,yes,vollstaendig,real belegt (S-05)
+170,Sec. 7-9,Sec. 9/14,Daten mit gueltiger UDP-Pruefsumme trotz OCS-Fehler zustellen,MUST,yes,vollstaendig,S-06-Matrix real
+171,Sec. 10,Sec. 10,TLV-Rahmung; Length gesamt; 255 leitet erweitertes Format ein,MUST,yes,vollstaendig,
+172,Sec. 10,Sec. 10,NOP und EOL ohne Laengenform,MUST,yes,vollstaendig,
+173,Sec. 10,Sec. 10,"Laenge unter Formatminimum: Fehler, alle Optionen verwerfen",MUST,yes,vollstaendig,S-11a real
+174,Sec. 10,Sec. 10,"Unter-/Ueberlauf: malformed Surplus, alles verwerfen",MUST,yes,vollstaendig,S-11b real; Erratum 8834
+175,Sec. 10,Sec. 10,Bekannte Option unter Kind-Minimum: alles verwerfen,MUST,yes,vollstaendig,
+176,Sec. 10,Sec. 10,Erweitertes Format ab 255; kleinste Form als SHOULD,MUST/SHOULD,yes (send); local strict receive,vollstaendig,dokumentierte lokale Empfangsstrenge
+177,Sec. 10,Sec. 10/14,Optionen in Surplus-Reihenfolge verarbeiten,MUST,yes,vollstaendig,
+178,Sec. 10,Sec. 10,Alle must-support-Optionen erkennen und erzeugen,MUST,yes,vollstaendig,real P0 (sopt)
+179,Sec. 10,Sec. 10,Unbekannte SAFE-Optionen still uebergehen,MUST,yes,vollstaendig,S-10 real
+180,Sec. 10,Sec. 10,Malformed FRAG wie unsupported UNSAFE behandeln,MUST,yes,vollstaendig,
+181,Sec. 10,Sec. 10,Nicht-FRAG/NOP/EXP/UEXP hoechstens einmal; first wins,SHOULD/MUST,yes,vollstaendig,
+182,Sec. 10,Sec. 10,NOP darf wiederholen (Ausrichtung),MAY,yes,vollstaendig,"gewaehlte MAY, Lauflimit 7"
+183,Sec. 10,Sec. 10,FRAG mehr als einmal: Optionsbereich malformed,MUST,yes,vollstaendig,
+184,Sec. 10,Sec. 10,"Bei UNSAFE: user data leer, Nutzlast im FRAG",MUST,yes (by construction),vollstaendig,
+185,Sec. 10,Sec. 10,"Unsupported UNSAFE: sofort abbrechen, Optionen verwerfen",MUST,yes,vollstaendig,S-20 real; Schritt-18-Fall
+186,Sec. 10,Sec. 10,must-support vor anderen SAFE; Empfaenger-MAY bei Verstoss,MUST/MAY,yes,vollstaendig,
+187,Sec. 11.x,Sec. 11.1,EOL als letzte Nicht-NOP-Option; Nullfuellung beim Senden,MUST,yes,vollstaendig,S-08 real
+188,Sec. 11.x,Sec. 11.1,Pruefung der Bytes nach EOL (MAY) mit bedingtem MUST,MUST (bedingt)/MAY,not selected,nicht anwendbar,nicht gewaehlte MAY-Pruefung (FR-18)
+189,Sec. 11.x,Sec. 11.2,Hoechstens 7 NOPs; lange Laeufe melden und begrenzen,SHOULD,partial,teilweise,"Erkennung ja, Fruehabbruch nein (NFR-05)"
+190,Sec. 11.x,Sec. 11.3,APC als CRC32C; Fehlschlag mit Anzeige zustellen,MUST/SHOULD,yes,vollstaendig,S-13 real
+191,Sec. 11.x,Sec. 11.3,Unbekannte APC-Laenge wie fehlgeschlagene APC,MUST,yes,vollstaendig,
+192,Sec. 11.x,Sec. 11.4,FRAG-Laengen 10/12 (RDOS),MUST,yes,vollstaendig,S-19 real
+193,Sec. 11.x,Sec. 11.4,Bei FRAG: user data leer,MUST,yes,vollstaendig,
+194,Sec. 11.x,Sec. 11.4,Reassemblierung von mindestens 2 Fragmenten je 1500,MUST,yes,vollstaendig,real (sfrag)
+195,Sec. 11.x,Sec. 11.4,Identification eindeutig ueber den Timeout,MUST/SHOULD,yes,vollstaendig,S-46 real; Kollisionsfall als Normluecke
+196,Sec. 11.x,Sec. 11.4,Keine Ueberlappung; Abbruch ohne ICMP,MUST,yes,vollstaendig,"S-45 real, auch byteidentisch"
+197,Sec. 11.x,Sec. 11.4,Exakte Duplikate duerfen verworfen werden,MAY,yes,vollstaendig,gewaehlte MAY
+198,Sec. 11.x,Sec. 11.4,Reassembly-Timeout hoechstens 2 min; kein ICMP,SHOULD/MUST,yes,vollstaendig,S-42 real (nur Negativevidenz)
+199,Sec. 11.x,Sec. 11.4,"Reassembly-Speicher begrenzt, nicht paaruebergreifend",SHOULD,yes,teilweise,"Vertrag dokumentiert, Peer-Ebene loest ihn nur teilweise ein"
+200,Sec. 11.x,Sec. 11.4,Einzelfragmente nie an den Nutzer,MUST,yes,vollstaendig,
+201,Sec. 11.x,Sec. 11.4,Reassembly-Fehlschlag ohne Leerdatagramm,SHOULD,yes,vollstaendig,S-49 real
+202,Sec. 11.x,Sec. 11.5,MDS kodieren/dekodieren; MDS begrenzt das Senden nicht,MUST,yes,vollstaendig,real (1400 nach MDS 1200)
+203,Sec. 11.x,Sec. 11.6,MRDS-Minima und Voreinstellungen,MUST,yes (IPv4),vollstaendig,IPv6-Anteil ausserhalb des Umfangs
+204,Sec. 11.x,Sec. 11.7,REQ/RES ohne Auto-Antwort; Token-Herkunft aus REQ,MUST,delegated,vollstaendig,RFC weist der Anwendung zu; Vertrag dokumentiert; s14 real still
+205,Sec. 11.x,Sec. 11.7,Auto-REQ/RES-Schicht standardmaessig aus,MUST,yes (vacuous),vollstaendig,"leer erfuellt, keine solche Schicht"
+206,Sec. 11.x,Sec. 11.8,TIME-Option,MUST (wenn implementiert),out,nicht anwendbar,nicht gewaehlt; real als 0x08:ignored belegt
+207,Sec. 11.x,Sec. 11.9,AUTH (reserviert),reserviert,out,nicht anwendbar,
+208,Sec. 11.x,Sec. 11.10,EXP-Option,MUST (wenn implementiert),out,nicht anwendbar,nicht gewaehlt
+209,Sec. 12-14,Sec. 12,UNSAFE-Optionen UCMP/UENC/UEXP,reserviert,out,nicht anwendbar,
+210,Sec. 12-14,Sec. 12,UNSAFE nur in Fragmenten; unsupported: Daten verwerfen,MUST,yes (drop side),vollstaendig,
+211,Sec. 12-14,Sec. 13,Entwurfsregeln fuer neue Optionen,MUST,n/a,nicht anwendbar,keine neuen Optionen definiert
+212,Sec. 12-14,Sec. 14,"Empfangsreihenfolge Pruefsumme, OCS, Optionen, Zustellung",MUST,yes,vollstaendig,
+213,Sec. 12-14,Sec. 14,Alle vorhandenen must-support-Optionen verarbeiten,MUST,yes,vollstaendig,
+214,Sec. 12-14,Sec. 14,Andere Optionen duerfen ignoriert werden,MAY,yes,vollstaendig,"gewaehlt, konfigurierbar"
+215,Sec. 12-14,Sec. 14,Daten bei SAFE-Optionen unabhaengig vom Ausgang zustellen,MUST,yes,vollstaendig,
+216,Sec. 12-14,Sec. 14,FRAG/NOP/EOL nicht an den Nutzer; uebrige Status verfuegbar,MUST,yes,vollstaendig,
+217,Sec. 12-14,Sec. 14+Err. 8834,Options-Ueberlauf nach Sec.-10-Verfahren,MUST,yes,vollstaendig,S-11b real
+218,Sec. 15-19,Sec. 15,Empfangs-API: required/omitted je Paket und Fragment,MUST,partial,teilweise,"nur gebuendelte, keine fragmentweise Steuerung"
+219,Sec. 15-19,Sec. 15,Fehlende Pflichtoption: still verwerfen und melden,MUST,partial,teilweise,"quellagnostisch, nicht je Quellebene"
+220,Sec. 15-19,Sec. 15,Schalter: alle optionstragenden Datagramme verwerfen,MUST,yes,vollstaendig,
+221,Sec. 15-19,Sec. 15,Optionen und Status fuer den Nutzer verfuegbar,MUST,yes,vollstaendig,
+222,Sec. 15-19,Sec. 15,Beschreibende Sende-API-Form,ohne BCP-14,partial,nicht anwendbar,"beschreibend, keine markierte Pflicht"
+223,Sec. 15-19,Sec. 15/25,Keine Nutzerkontrolle ueber Optionsreihenfolge,guidance,yes,nicht anwendbar,Leitlinie ohne BCP-14; als Kanonisierung umgesetzt
+224,Sec. 15-19,Sec. 16/19,Endpunkt veraendert Optionen unterwegs nicht,MUST,yes (endpoint side),vollstaendig,Transit-Integritaet ist FF2-Messgegenstand
+225,Sec. 23-26,Sec. 25.2-.4,"DoS-Grenzen fuer Optionen, NOP-Laeufe, Reassemblierung",SHOULD,partial / documented opt-out,teilweise,NFR-04 begruendeter Verzicht; NFR-05 teilweise; NFR-06/08 umgesetzt
+226,Sec. 23-26,Sec. 25,Optionen in Referenzreihenfolge zurueckgeben,SHOULD,partial,teilweise,Sendeordnung kanonisch; Empfangs-Neuordnung nicht Standard
+227,Sec. 23-26,Sec. 23,Multicast/Broadcast-Betrachtungen,special,out,nicht anwendbar,nur Unicast untersucht
+228,Sec. 23-26,Sec. 26,Namensregeln fuer neue Kinds,MUST,n/a,nicht anwendbar,keine neuen Kinds registriert
