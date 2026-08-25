@@ -1,0 +1,22 @@
+# Befundregister fuer Abschnitt 6.4 (deskriptive Reflexion der KI-gestuetzten Arbeitsweise).
+# Rollen nach Kapitel 3: fuehrendes Werkzeug (Claude Code), getrennter Zweitpruefer (Codex),
+# Autor (entscheidet und verantwortet), Pruefkette (Gates und CI).
+# zeitpunkt: Lage relativ zum Merge des betroffenen Stands. Anker: PR-Nummern des oeffentlichen
+# Implementierungsrepos (github.com/ab7z/udp-transport-options) mit Merge-Commit, sonst Commits
+# oder Kapitelstellen. Verifikation 2026-08-25: PR-Existenz, Titel, Merge-Zeitpunkte und
+# Kommentarverlaeufe per gh nachgeprueft; PR-27-Zeitfolge minutengenau (Merge 08:53:50Z,
+# Zweitpruefer-Rueckmeldung 08:57:53Z); Fall-Einstufungen folgen der dokumentierten
+# Autorenadjudikation in den PR-Verlaeufen.
+fall,anker,rolle,zeitpunkt,ausgang,kurzbefund
+Wire-Modell-Review,PR 12 (ac7eb17; Fix f0fb445),fuehrendes Werkzeug und Zweitpruefer,vor dem Merge,uebernommen,zwei Funde uebernommen: erzwungene Laengeninvariante der Pruefsummenrechnung und IPv6-Laengen-Verengung
+Lean-Gate-Bootstrap,PR 13 (0fe1ad0; u. a. 04e8fb3),fuehrendes Werkzeug,vor dem Merge,teils uebernommen und teils abgelehnt,drei Funde uebernommen (lemma-Audit; commit-gepinnter Installer; SHA-gepinnte Actions); ein Befund mit Umfangsbegruendung abgelehnt (bestehendes claude.yml ausserhalb des PR-Umfangs)
+TLV-Parser-Review,PR 14 (4285dcc),beide Pruefer,vor dem Merge,abgelehnt,Befunde nicht uebernommen; Ablehnungsgrund beabsichtigter Umfang (dokumentierte Autorenadjudikation im Verlauf)
+Palindrom-maskierter Pruefprogrammfehler,PR 20 (01992cd); Kapitel 5,nur Zweitpruefer,vor dem Merge,uebernommen,Ausrichtungsfehler der OCS-Nachrechnung des unabhaengigen Pruefprogramms; vom Golden-Fall wegen Byte-Palindrom maskiert
+FF2-Harness-Review,PR 24 (3551fa9),beide Pruefer,vor dem Merge,uebernommen,mehrere Runden bis zur befundfreien Schlussrunde beider Pruefer
+Merge vor Abschluss der Pruefungen,PR 27 (f3bf430; d360024; 8f8c11b),Zweitpruefer und Pruefkette,nach dem Merge,uebernommen,Zweitpruefer-Rueckmeldung vier Minuten nach dem Merge; unmittelbar danach Reparatur-Commit an der Fuzz-Lane; Gesamtfrist-Fix drei Tage spaeter
+Schlussaudit trotz gruener Kette,Commit 4c82ab0; Kapitel 5,Autor mit fuehrendem Werkzeug,nach dem Merge,uebernommen,RFC-Abgleich fand weitere Konformitaetsluecken; eine vorgeschlagene Korrektur musste selbst korrigiert werden
+Um-eins-Fehler der Surplus-Ortung,Kapitel 5 (Pruefarchitektur),nur Zweitpruefer,vor dem Merge,uebernommen,23 eigene Einzelfalltests uebersahen den Fehler; Konsequenz: Property- und Fuzz-Pflicht je Parseflaeche
+Kampagnen-Zaehlfehler,thesis/evidence bidir-README (Errata); Kapitel 3,alle drei Beteiligten,nach dem Merge,uebernommen,15 statt 18 Kontrollformen berichtet; von drei Pruefenden zunaechst uebersehen und als Erratum berichtigt
+Falsche Vertragsaussage im eigenen Text,Kapitel 5 (Betriebsgrenzen); src/api/mod.rs,Zweitpruefer-Lane im Faktencheck,nach dem Merge,uebernommen,Kapiteltext behauptete den Cachevertrag als erfuellt; Pruefung am Quelltext widerlegte das und der Text wurde korrigiert
+Doppelreview der Grundlagen,Commit f847895; Parser- und Pipelinekommentare,zwei getrennte Zweitpruefer-Laeufe,nach dem Merge,uebernommen,zwei Politiken als solche dokumentiert und eine fehlende End-zu-End-Testabdeckung geschlossen
+Quellenpruefung ausserhalb des Codes,Kapitel 3 (Referenzfaelle),Autor korrigiert Werkzeugbewertung,ausserhalb des Repos,uebernommen,Abrufwerkzeug liess einen entscheidenden Abstract-Satz aus; die Erstbewertung war falsch und wurde nach Autorenhinweis berichtigt

@@ -787,5 +787,64 @@ Abschnitt.
 \section{Reflexion der KI-gestützten Arbeitsweise}
 \label{sec:ki-reflexion}
 
+Dieser Abschnitt liefert die in \chapref{chap:methodik} offen gebliebenen beschreibenden Kennzahlen der
+Zusammenarbeit nach. Er ist rein deskriptiv: Er berichtet belegte Fälle mit ihren Ausgängen und erhebt
+keine Wirksamkeitsaussage, denn eine Prüfung ohne Sprachmodelle als Vergleichsgruppe existiert nicht.
+Die Rollen sind die aus \chapref{chap:methodik}: das führende Werkzeug für Entwürfe und Quelltext, der
+getrennte Zweitprüfer mit dem Auftrag, Fehler und Gegenbeispiele zu suchen, und der Autor, der
+entscheidet und verantwortet. Grundlage ist ein Befundregister aus zwölf Fällen, jeder mit öffentlichem
+Anker im Implementierungsrepositorium oder in den versiegelten Archiven;\footnote{Register als
+\file{thesis/daten/ki"=befundregister.csv} im Repositorium der Arbeit; die Pull-Request-Verläufe sind
+öffentlich, Existenz, Titel, Merge-Zeitpunkte und Kommentarfolgen wurden am 25.08.2026 nachgeprüft.}
+das Register ist eine geprüfte Auswahl aus 27 Pull-Requests und Messläufen, kein Vollbestand. Vier
+Fallgruppen tragen das Bild:
+
+\begin{itemize}[leftmargin=1.6em]
+    \item \textbf{Übernommene Funde vor dem Merge.} Im Wire-Modell-Review wurden zwei Funde übernommen
+        (eine erzwungene Längeninvariante der Prüfsummenrechnung und eine geprüfte Längen-Verengung,
+        Fix im Pull-Request dokumentiert); beim Aufbau des Lean-Gates drei (ein erweitertes
+        Theorem-Audit sowie zwei gegen Veränderung gepinnte Werkzeugbezüge). Der wertvollste Einzelfund
+        gelang allein dem Zweitprüfer: der durch ein Byte-Palindrom maskierte Ausrichtungsfehler im
+        unabhängigen Prüfprogramm der Wire-Lane (\secref{sec:pruefarchitektur}); ebenso fing allein die
+        Zweitprüfung den Um-eins-Fehler der Surplus-Ortung, den 23 eigene Einzelfalltests überstanden
+        hatten.
+    \item \textbf{Abgelehnte Befunde.} Nicht jeder Befund wurde übernommen: Im Lean-Gate-Review lehnte
+        der Autor einen Vorschlag mit dokumentierter Begründung ab (der bemängelte Bestand lag außerhalb
+        des Änderungsumfangs), und im TLV-Parser-Review blieben Prüferbefunde insgesamt ohne Übernahme,
+        weil sie den beabsichtigten Umfang betrafen und keinen Faktenirrtum zeigten. Die Ablehnungen
+        sind in den Verläufen nachlesbar; sie gehören zum Bild derselben Arbeitsweise.
+    \item \textbf{Prüfung nach dem Merge.} Eine interessante Beobachtung besteht darin, dass die
+        Reihenfolge nicht immer hielt: Der Empfangs-Fix wurde vier Minuten vor der
+        Zweitprüfer-Rückmeldung zusammengeführt, unmittelbar danach folgte ein Reparatur-Commit an der
+        Prüfkette, und die zugehörige Gesamtfrist kam erst drei Tage später. Auch der Schlussaudit fand
+        trotz durchgehend grüner Prüfkette weitere Konformitätslücken, und dort musste eine vom Modell
+        vorgeschlagene Korrektur selbst noch einmal korrigiert werden (\secref{sec:vorgehen}).
+    \item \textbf{Gemeinsam übersehene Fehler.} Der Zählfehler der bidirektionalen Kampagne (15 statt
+        18 Kontrollformen) passierte drei Prüfende und wurde erst nachträglich als Erratum im
+        versiegelten Archiv berichtigt. Ein Faktencheck dieses Textes widerlegte zudem eine eigene
+        Kapitelaussage am Quelltext (der nur teilweise eingelöste Cachevertrag aus
+        \secref{sec:soll-ist}), und die Nachprüfung der Grundlagen führte zu zwei ausdrücklich als
+        lokale Politik dokumentierten Entscheidungen samt einer geschlossenen Testlücke. Außerhalb des
+        Quelltexts ließ ein Abrufwerkzeug den entscheidenden Satz eines geprüften Abstracts aus, sodass
+        die Erstbewertung falsch war und nach einem Autorenhinweis berichtigt wurde
+        (\chapref{chap:methodik}).
+\end{itemize}
+
+Als beschreibende Kennzahlen des Registers ergibt das: Zehn der zwölf Fälle endeten mit Übernahme,
+einer teils mit Übernahme und teils mit begründeter Ablehnung, einer vollständig mit Ablehnung; fünf
+Fälle lagen vor dem Merge, sechs danach, einer außerhalb des Repositoriums. Drei Funde stammen allein
+vom Zweitprüfer, die Übernahmenserie eines Falls allein vom führenden Werkzeug, und zwei Fehler wurden
+zunächst von allen Beteiligten übersehen. Für die frühen Projektphasen fehlen vollständige Modell- und
+Konfigurationsangaben; diese Fälle tragen den Vermerk der lückenhaften Provenienz und werden nicht
+nachträglich vervollständigt (\chapref{chap:methodik}). Ebenso bleibt festgehalten, dass die
+KI-Prüfungen angefordert, aber nicht technisch erzwungen waren und Sammelcommits die innere Reihenfolge
+eines Schritts verschmelzen.
+
+Das Schlussbild ist eine gemischte Bilanz, und genau sie trägt die Glaubwürdigkeit der Methode: Die
+Arbeitsweise erzeugte nachweisbare Korrekturen bis hinein in Prüfprogramm und Kapiteltext, sie
+produzierte Fehlbefunde, die der Autor mit Begründung ablehnte, und sie übersah Fehler, die erst eine
+andere Ebene fand. Mehr als diese Beschreibung gibt der Aufbau nicht her, und mehr behauptet diese
+Arbeit nicht.
+
 \section{Diskussion und Grenzen der Aussagekraft}
 \label{sec:diskussion-grenzen}
