@@ -5,20 +5,16 @@
 \chapter{Analyse und Anforderungsmodell}
 \label{chap:analyse}
 
-Dieses Kapitel bildet aus dem Standard das Soll-Modell der Arbeit. \chapref{chap:methodik} hat dafür die
-Quellen- und Bewertungsregeln festgelegt; hier werden sie angewandt: Zunächst führt
-\secref{sec:extraktionsmethode} die Extraktion auf dem Primärtext von RFC~9868 durch; danach stellt
-\secref{sec:anforderungsmatrix} den Anforderungsbestand des Implementierungs-Repositorys vor und hält ihn
-gegen diesen Maßstab; \secref{sec:ff1-kriterien} definiert die Bewertungskriterien für FF1.
-Davon getrennt legt \secref{sec:ff2-pfadmodell} das Pfad- und Fehlermodell
-für FF2 fest; es stammt nicht aus dem Standard: Das Pfadmodell beruht auf der in \secref{sec:netzpfad}
-beschriebenen Kette, das Fehlermodell auf den Vorversuchen. Abschließend begründet
-\secref{sec:technologieauswahl} die Wahl der Werkzeuge.
+Dieses Kapitel wendet die Quellen- und Bewertungsregeln aus \chapref{chap:methodik} an. Es extrahiert den
+RFC-Primärtext (\secref{sec:extraktionsmethode}), prüft den Anforderungsbestand des
+Implementierungs-Repositorys (\secref{sec:anforderungsmatrix}) und definiert die FF1-Kriterien
+(\secref{sec:ff1-kriterien}). Davon getrennt entsteht in \secref{sec:ff2-pfadmodell} aus der Akteurskette
+von \secref{sec:netzpfad} und den Vorversuchen das nicht aus dem Standard abgeleitete Pfad- und Fehlermodell
+für FF2. \secref{sec:technologieauswahl} begründet abschließend die Werkzeuge.
 
-Dabei gilt die in \secref{sec:forschungsdesign} festgelegte Trennung: Dieses Kapitel legt Maßstäbe fest und
-fällt keine Erfüllungsurteile. Ob die Implementierung eine Anforderung erfüllt und wie sich die Surplus Area
-auf realen Pfaden verhält, bewertet erst \chapref{chap:evaluation}, und zwar gegen genau die hier
-definierten Kriterien.
+Das Kapitel legt damit die Maßstäbe fest, fällt aber keine Erfüllungsurteile. Diese Trennung legt
+\secref{sec:forschungsdesign} fest. Konformität und Verhalten auf realen Pfaden bewertet erst
+\chapref{chap:evaluation} anhand dieser Kriterien.
 
 \section{Anwendung der Extraktionsmethode}
 \label{sec:extraktionsmethode}
@@ -80,25 +76,24 @@ den Maßstab hält, zeigt der folgende Abschnitt.
 \label{sec:anforderungsmatrix}
 
 Die Anforderungen der Implementierung führt das Implementierungs-Repository (\chapref{chap:entwurf}) in der
-Datei \texttt{docs/requirements.md}. Sie entstand vor dem ersten Implementierungsschritt und wurde parallel
-zur Umsetzung fortgeschrieben.\footnote{Angelegt mit Commit \texttt{36cc465} am 30.05.2026, seither in 14
-Commits fortgeschrieben; ausgewertet wird durchgehend der Stand \texttt{f847895} (\chapref{chap:entwurf}).}
-Die Datei hat drei Teile: einen Katalog von 49 funktionalen Anforderungen mit stabilen Kennungen
-(\texttt{FR-01} bis \texttt{FR-50}; \texttt{FR-47} entfiel mit der IPv6-Umfangsentscheidung), zwölf
-nichtfunktionale Anforderungen (\texttt{NFR-01} bis \texttt{NFR-12}) und eine Konformitätsmatrix mit 67
-normativen Aussagen aus RFC~9868. Jede FR-Zeile nennt RFC-Quelle, Normstufe, Projektumfang, den zugehörigen
-Schritt des Projektplans und den Umsetzungsstand; bei den NFR-Zeilen tritt in sechs der zwölf Zeilen eine
-Projektbegründung an die Stelle der RFC-Quelle. Die Konformitätsmatrix führt je Aussage den RFC-Bereich,
-die Normstufe und die Abdeckung (\texttt{Covered}) relativ zum gewählten Umfang; 58 ihrer 67 Zeilen
-verweisen auf die tragenden FR- und NFR-Kennungen.
+Datei \texttt{docs/requirements.md}. Sie entstand vor dem ersten Funktionsschritt und wurde parallel zur
+Umsetzung fortgeschrieben.\footnote{Angelegt mit Commit \texttt{36cc465} am 30.05.2026; einschließlich
+dieser Anlage wurde die Datei bis zum Stand \texttt{f847895} in 14 Commits des Hauptzweigs bearbeitet.}
+Sie enthält 49 funktionale und zwölf nichtfunktionale Anforderungen (\texttt{FR-01} bis \texttt{FR-50},
+wobei \texttt{FR-47} mit der IPv6-Umfangsentscheidung entfiel, sowie \texttt{NFR-01} bis \texttt{NFR-12})
+und eine Konformitätsmatrix mit 67 Zeilen zu RFC~9868. Diese Matrix ist der Sache nach ein Arbeitsindex:
+Sie mischt markierte Normsätze, unmarkierte normative Festlegungen, Beschreibungen und Leitlinien. Jede
+Zeile muss deshalb vor der FF1-Bewertung am Primärtext eingestuft werden. 58 der 67 Zeilen verweisen auf
+tragende FR- oder NFR-Kennungen; die Spalte \texttt{Covered} bleibt eine Repository-Selbstauskunft und kein
+Urteil dieser Arbeit.
 
 Die folgenden Zeilen zeigen einen Auszug aus der Konformitätsmatrix. Die Aussagen sind ins Deutsche
 gekürzt; Normstufe und Abdeckung stehen im Wortlaut der Datei:
 
 \begin{table}[!htb]
   \centering
-  \caption{Auszug aus der Konformitätsmatrix des Implementierungs-Repositorys (Stand \texttt{f847895};
-    normative Aussagen nach RFC~9868 \cite{rfc9868})}
+  \caption{Auszug aus dem RFC-Arbeitsindex des Implementierungs-Repositorys (Stand \texttt{f847895};
+    Einstufung am Primärtext noch zu prüfen \cite{rfc9868})}
   \label{tab:anforderungsmatrix}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -116,8 +111,8 @@ gekürzt; Normstufe und Abdeckung stehen im Wortlaut der Datei:
       \texttt{MUST/} \texttt{SHOULD} & \texttt{yes (send); local strict receive} & FR-09, FR-14 \\
     Sec.~11.4 & Reassemblierungsspeicher begrenzen und nicht über Paare teilen & \texttt{SHOULD} &
       \texttt{yes} & FR-34, NFR-06 \\
-    Sec.~11.8 & TIME-Option & \texttt{MUST (when implemented)} & \texttt{out} & keine; außerhalb des
-      Umfangs \\
+    Sec.~11.8 & TIME optional; Zeitwerte bei Nutzung nicht null & \texttt{MAY; MUST NOT zero} &
+      \texttt{out} & keine; außerhalb des Umfangs \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -166,9 +161,10 @@ FF2 benötigt keinen Normmaßstab, sondern ein Modell der untersuchten Pfade und
 
 FF2 fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten bleibt
 (\secref{sec:zielsetzung}). Untersuchungseinheit und Ergebnisklassen stehen seit
-\tabref{tab:operationalisierung} fest: Verglichen wird je Pfad, Richtung und Messzeitpunkt ein Paar aus
-Kontroll- und Optionsdatagramm; die Surplus Area kommt \textbf{erhalten}, \textbf{verändert} oder
-\textbf{entfernt} an, oder das Paket wird \textbf{verworfen}. Darauf bauen drei Festlegungen auf: die
+\tabref{tab:operationalisierung} fest: Verglichen wird je Pfad, Richtung und Messzeitpunkt ein
+kontrolliertes Szenario aus Kontroll- und Optionsverkehr, das mehrere Wiederholungen oder bei FRAG mehrere
+Wire-Datagramme umfassen kann; die Surplus Area kommt \textbf{erhalten}, \textbf{verändert} oder
+\textbf{entfernt} an, oder das Datagramm wird \textbf{verworfen}. Darauf bauen drei Festlegungen auf: die
 Pfadstufen, die Zählregeln und das Fehlermodell; zwei Tabellen grenzen am Ende den Geltungsbereich ab.
 
 Die Messpfade gliedern sich in fünf \textbf{Pfadstufen} mit zunehmender Netzferne. Jede Stufe ist eine
@@ -190,8 +186,8 @@ Akteure aus der in \secref{sec:netzpfad} beschriebenen Kette hinzu:
 
 Die Stufenfolge ordnet die Abdeckung, nicht die Ursache: Sie legt fest, welche Pfadklassen untersucht werden;
 einen Befund ordnet erst das Fehlermodell einem Pfadabschnitt zu. Für die Zählung gelten drei Regeln.
-Erstens ist die Einheit das beobachtete Paar; Befunde gelten nur für die beobachteten Pfade, Richtungen und
-Zeitpunkte (\tabref{tab:operationalisierung}). Zweitens zählen als getrennt nur Beobachtungen ohne bekannte
+Erstens ist die Einheit das beobachtete Szenario; Befunde gelten nur für die beobachteten Pfade, Richtungen
+und Zeitpunkte (\tabref{tab:operationalisierung}). Zweitens zählen als getrennt nur Beobachtungen ohne bekannte
 gemeinsame Kante, denn Kampagnen und Messstrecken (Paare aus Quelle und Ziel) können dieselben Geräte
 durchlaufen; geteilte Kanten dienen umgekehrt der Eingrenzung eines Befunds. Drittens gelten Vorversuche
 ohne beidseitige Mitschnitte und Ablaufprotokolle als Piloten und werden nicht verallgemeinert; was eine
@@ -309,12 +305,10 @@ Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfr
   \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:scope-implementierung} geht der Kern des Artefakts hervor: Linux, IPv4, Benutzerraum und die
-acht \textit{must-support}-Optionen; alles Weitere steht ausdrücklich außerhalb des Umfangs.
-\tabref{tab:scope-messung} zeigt, dass die Messinfrastruktur bewusst darüber hinausreicht: Der
-macOS-Messpunkt, die IPv6-Kontrollen und der WireGuard-Tunnel gehören zur Messrealität der untersuchten
-Pfade, nicht zur Bibliothek; Bewertungsgegenstand von FF2 bleiben allein die IPv4-Datagramme. Damit sind
-Maßstab und Messrahmen festgelegt; die Auswahl der Werkzeuge begründet der folgende Abschnitt.
+Die Implementierung ist auf Linux, IPv4, Benutzerraum und die acht \textit{must-support}-Optionen begrenzt
+(\tabref{tab:scope-implementierung}). macOS-Messpunkt, IPv6-Kontrollen und WireGuard-Tunnel erweitern nur
+die Messinfrastruktur; FF2 bewertet weiterhin Datagramme über IPv4 (\tabref{tab:scope-messung}). Damit sind
+Maßstab und Messrahmen festgelegt; die folgende Technologieauswahl begründet die Werkzeuge.
 
 \section{Technologieauswahl}
 \label{sec:technologieauswahl}
@@ -351,101 +345,115 @@ Speicher und Betriebssystemschnittstellen, die ohne obligatorische Laufzeitumgeb
 Java scheiden an genau der vierten Bedingung aus; das ist kein Eignungsurteil über diese Sprachen, sondern
 die Folge des bewusst gesetzten Qualitätsziels.
 
-Alle vier Kandidaten bieten die geforderte Kontrolle; den Ausschlag gibt deshalb die dritte Bedingung. Unter
-\textit{Memory Safety} wird die Abwesenheit von Speicherzugriffsfehlern verstanden: der Zugriff außerhalb
-der Grenzen eines Speicherbereichs (\textit{Buffer Overflow}), der Zugriff auf bereits freigegebenen
-Speicher (\textit{Use-after-free}) und die doppelte Freigabe (\textit{Double Free}); das unterlassene
-Freigeben (\textit{Memory Leak}) eröffnet dagegen keinen unzulässigen Zugriff und ist auch in Rust möglich.
-Diese Fehlerklasse ist keine Randerscheinung: Microsoft ordnet ihr rund 70~Prozent der jährlich durch die
-eigenen Sicherheitsupdates behobenen Schwachstellen zu, das Chromium-Projekt nennt denselben Anteil für
-seine Sicherheitsfehler hoher oder kritischer Schwere, und die National Security Agency (NSA) empfiehlt
-speichersichere Sprachen, darunter namentlich Rust
-\cite{microsoft-memory,chromium-memory,nsa-memory-safety}.
+Alle vier Kandidaten bieten die nötige Kontrolle. Den Ausschlag gibt die Speichersicherheit an der
+Vertrauensgrenze. Sie schließt Zugriffe außerhalb eines Speicherbereichs (\textit{Buffer Overflow}), auf
+freigegebenen Speicher (\textit{Use-after-free}) und doppelte Freigaben (\textit{Double Free}) aus. Ein
+\textit{Memory Leak} gewährt dagegen keinen unzulässigen Zugriff und bleibt auch in Rust möglich. Miller
+berichtete 2019 auf Grundlage der seit 2004 gepflegten MSRC-Daten, dass rund 70~Prozent der jährlich von
+Microsoft mit CVE versehenen Schwachstellen Speicherfehler sind. Chromium nennt rund 70~Prozent unter 912
+seit 2015 erfassten Stable-Channel-Fehlern hoher oder kritischer Schwere. Die NSA empfiehlt speichersichere
+Sprachen, darunter Rust \cite{microsoft-memory,chromium-memory,nsa-memory-safety}.
 
-Die entscheidungsrelevanten Eigenschaften der vier Kandidaten stellt \tabref{tab:sprachvergleich}
-stichpunktartig gegenüber:
+Die entscheidungsrelevanten Eigenschaften fasst \tabref{tab:sprachvergleich} zusammen:
 
 \begin{table}[htbp]
   \centering
   \caption{Vergleich der Sprachkandidaten}
   \label{tab:sprachvergleich}
-  \small
-  \begin{tabular}{@{}lllll@{}}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{2.7cm}YYYY@{}}
     \toprule
     \textbf{Kriterium} & \textbf{C} & \textbf{C++} & \textbf{Zig} & \textbf{Rust} \\
     \midrule
-    Speichersicherheit & nein    & nein          & teilweise   & ja \\
-    Schutzmechanismus  & keiner  & optional      & Laufzeit    & Compiler, Laufzeit \\
+    Speichersicherheit & nein & nein & teilweise & ja \\
+    Schutzmechanismus & keiner & optional & Übersetzung, modusabhängige Laufzeit & Compiler, Laufzeit \\
     Speicherverwaltung & manuell & manuell, RAII & Allokatoren & Ownership \\
-    Sprachfassung      & ISO-Norm & ISO-Norm     & vor 1.0     & 1.0 seit 2015 \\
+    Sprachfassung & ISO-Norm & ISO-Norm & vor 1.0 & 1.0 seit 2015 \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:sprachvergleich} geht hervor, dass allein Rust standardmäßige Speichersicherheit mit einer
-Speicherverwaltung ohne Garbage Collector verbindet: Der Compiler erzwingt die Zugriffsregeln überwiegend
-bereits zur Übersetzungszeit und damit für jeden Stand des Quelltexts, ergänzt um Bereichsprüfungen zur
-Laufzeit, die statt undefinierten Verhaltens einen definierten Fehlerzustand (\textit{panic}) auslösen
-\cite{rust-lang,rust-book}. C und C++ gewähren dieselbe Kontrolle ohne sprachseitige Garantien: Der
-C-Standard kennt gerade für Pufferüberläufe undefiniertes Verhalten \cite{iso-c}, die Schutzmittel von C++
-wie RAII und Smart Pointer bleiben optional, und die nachgelagerten Prüfwerkzeuge großer C-Projekte arbeiten
-nachweisend, denn sie melden nur die Fälle, die ihre Prüfläufe erreichen, und schließen die Fehlerklasse
-nicht aus \cite{kernel-devtools,nsa-memory-safety}. Zig prüft viele unzulässige Zugriffe erst zur Laufzeit
-und standardmäßig nur in den sicheren Build-Modi und hat noch keine Fassung~1.0 erreicht \cite{zig-lang};
-die praktische Relevanz dieses Unterschieds zeigt die in \secref{sec:externe-faelle} als Referenzfall
-behandelte Migration der JavaScript-Laufzeit Bun von Zig nach Rust \cite{bun-in-rust}. Aus diesen Gründen
-fiel die Wahl auf Rust.
+Rust verbindet als einziger Kandidat der Tabelle standardmäßige Speichersicherheit mit einer
+Speicherverwaltung ohne Garbage Collector. Der Compiler erzwingt viele Regeln zur Übersetzungszeit;
+Bereichsprüfungen lösen zur Laufzeit einen definierten \textit{panic} statt undefinierten Verhaltens aus
+\cite{rust-lang,rust-book}. C und C++ geben dieselbe Kontrolle ohne sprachseitige Garantie: Der C-Standard
+kennt bei Pufferüberläufen undefiniertes Verhalten \cite{iso-c}, C++-Mittel wie RAII und Smart Pointer
+sind optional, und nachgelagerte Prüfwerkzeuge melden nur erreichte Fehlerfälle
+\cite{kernel-devtools,nsa-memory-safety}. Zig prüft auch zur Übersetzungszeit; seine Laufzeitprüfungen
+hängen vom Build-Modus ab, und die Sprache hat noch keine Fassung~1.0 erreicht \cite{zig-lang}. Die
+Migration von Bun von Zig nach Rust bildet dazu den Referenzfall aus \secref{sec:externe-faelle}
+\cite{bun-in-rust}. Daher fiel die Wahl auf Rust.
 
-Für die vorliegende Implementierung tragen drei Sprachmittel von Rust. Das erste sind geborgte
-Speichersichten: Der Parser liest die Surplus Area als geborgte Byte-Ausschnitte (\textit{Slices}) direkt
-aus dem Empfangspuffer, ohne sie zu kopieren; nach dem \textit{Ownership}-Modell borgen Referenzen einen
-Wert nur (\textit{Borrowing}), und der \textit{Borrow Checker} prüft zur Übersetzungszeit, dass keine
-geborgte Sicht den Empfangspuffer überdauert, aus dem sie stammt (\textit{Lifetime}) \cite{rust-book}. Das
-zweite sind algebraische Datentypen: Optionskennungen, Fehlerfälle und die fachlichen Ausgänge der
-Verarbeitung sind als \texttt{enum} modelliert, deren Fallunterscheidung der Compiler auf Vollständigkeit
-prüft; fehlerfähige Schnittstellen geben \texttt{Result} zurück. Das dritte ist das Schlüsselwort
-\texttt{unsafe}\footnote{Das Rust-Schlüsselwort \texttt{unsafe} ist von der UNSAFE-Optionsklasse aus
-\secref{subsec:surplus-prinzipien} zu unterscheiden.}: Operationen, deren Sicherheit der Compiler nicht
-selbst nachweisen kann, müssen ausdrücklich so markiert werden; die Garantien gelten damit für \textit{Safe
-Rust}, also für den Code außerhalb solcher Blöcke, und sie setzen voraus, dass jeder \texttt{unsafe}-Block
-den Sicherheitsvertrag seiner Schnittstelle tatsächlich einhält, wofür dort die Entwicklung verantwortlich
-ist, nicht der Compiler. Wie wenige solche Blöcke die Bibliothek braucht und wo sie liegen, zeigt
-\chapref{chap:entwurf}. Auf externe Parser-Bibliotheken wurde bewusst verzichtet, da die Mechanik von
-RFC~9868 selbst Untersuchungsgegenstand ist und nicht hinter einer fertigen Abstraktion verschwinden soll.
+Drei Rust-Mittel tragen die Implementierung. Erstens liest der Parser die Surplus Area ohne Kopie als
+geborgte Byte-Ausschnitte; der Borrow Checker verhindert, dass diese Sichten ihren Empfangspuffer
+überdauern \cite{rust-book}. Zweitens bilden \texttt{enum} und \texttt{Result} Optionsarten, vollständige
+Fallunterscheidungen und Fehler ab. Drittens markiert \texttt{unsafe}\footnote{Das Rust-Schlüsselwort
+\texttt{unsafe} ist von der UNSAFE-Optionsklasse aus \secref{subsec:surplus-prinzipien} zu unterscheiden.}
+Operationen, deren Sicherheit der Compiler nicht beweist. Die Garantien von Safe Rust setzen deshalb
+voraus, dass jeder \texttt{unsafe}-Block seinen Vertrag erfüllt; deren wenige Stellen behandelt
+\chapref{chap:entwurf}. Externe Parser-Bibliotheken entfallen, weil die Mechanik von RFC~9868 selbst
+Untersuchungsgegenstand ist.
 
-Dem stehen Nachteile gegenüber: die Einarbeitung in das Ownership-Modell, ein gegenüber C jüngeres Ökosystem
-für hardwarenahe Netzprogrammierung und längere Übersetzungszeiten durch die statischen Prüfungen.
-Ungeachtet dieser Nachteile und aus dem Grund, dass die Speichersicherheit an der Vertrauensgrenze das
-ausschlaggebende Kriterium bildet, wurde die Entscheidung für Rust getroffen. Für den KI-gestützten
-Entwicklungsprozess aus \chapref{chap:methodik} trägt die Wahl in einer zweiten Rolle: Erzeugungsfehler
-werden zu sofortigen, strukturierten Übersetzungsdiagnosen, an denen das Sprachmodell vor der menschlichen
-Freigabe nacharbeitet, und die Speichersicherheitsprüfung konzentriert sich auf die wenigen gekapselten
-\texttt{unsafe}-Blöcke, sodass die Prüfkette aus \secref{sec:pruefkette} ihren Schwerpunkt auf die
-Protokolllogik legen kann. Dass dieser Schwerpunkt richtig liegt, zeigte sich früh: Der einzige in der
-Kernphase durch Prüfung gefundene Speicherfehler, ein Um-eins-Fehler bei ungeradem Beginn der Surplus
-Area, lag in sicherem Rust, überstand 23 selbstgeschriebene Tests und fiel erst der Zweitprüfung im
-Pull-Request auf; als Konsequenz erhielt jeder Schritt mit neuer Parsefläche verpflichtend Property-Tests
-und ein Fuzz-Ziel (\chapref{chap:entwurf}).
+Nachteile bleiben das Ownership-Lernen, das gegenüber C jüngere Ökosystem der hardwarenahen
+Netzprogrammierung und längere Übersetzungszeiten. Im KI-gestützten Prozess liefern Fehler des erzeugten
+Quelltexts jedoch frühe strukturierte Diagnosen, und die Prüfkette aus \secref{sec:pruefkette} kann sich
+außerhalb der gekapselten \texttt{unsafe}-Blöcke auf die Protokolllogik richten. Dort bleibt Safe Rust
+fehlbar: Ein Um-eins- und Offsetfehler bei ungeradem Beginn der Surplus Area überstand 23
+selbstgeschriebene Tests und fiel erst im Pull-Request auf. Er verletzte die Protokolllogik, nicht die
+Speichersicherheit. Danach erhielt jeder Schritt mit neuer Parsefläche Property-Tests und ein Fuzz-Ziel
+(\chapref{chap:entwurf}).
 
 \subsection{Zugang zur Surplus Area}
 \label{subsec:surplus-zugang}
 
-Die zweite Entscheidung betrifft den Weg zur Surplus Area, denn ein gewöhnlicher UDP-Socket kann sie weder
-füllen noch auslesen (\secref{sec:netzpfad}). Linux kennt daneben weitere Benutzerraumwege zum vollständigen
-Paket, namentlich Packet Sockets, virtuelle TUN/TAP-Geräte und \texttt{AF\_XDP}; sie arbeiten jedoch auf der
-Verbindungsschicht oder über eigene Netzgeräte beziehungsweise verlangen ein eigens in den Kernel geladenes
-Programm und damit mehr Unterbau, als die schmale Bibliothek dieser Arbeit braucht. Kernelnahe Verfahren
-wurden ebenso verworfen: Ein Kernelmodul hätte zwar vollen Zugriff auf den UDP-Pfad, verlagert die
-Implementierung aber in den privilegierten Kernelraum, bindet sie an Kernelversionen und erschwert die Tests
-und die Nachnutzung als gewöhnliche Bibliothek. Gewählt wurden deshalb Raw Sockets auf der IP-Schicht mit
-\texttt{IP\_HDRINCL}, deren Mechanik \secref{sec:netzpfad} beschreibt. Als Betriebssystem trägt diese
-Entscheidung Linux: Der Weg ist dort dokumentiert \cite{man7raw}, sein Verhalten ist im quelloffenen Kernel
-nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der Kampagnen (\secref{sec:ff2-pfadmodell}). Der
-Preis ist bekannt und liegt bei den UDP-Prüfungen: Der Raw-Empfang umgeht den UDP-Pfad des Kernels, die
-Bibliothek übernimmt deshalb Längenprüfung, UDP-Prüfsumme und Optionsverarbeitung selbst und prüft den
-IPv4-Kopf zusätzlich; beim Senden ergänzt der Kernel einzelne Kopffelder wie die IP-Gesamtlänge und die
-Kopfprüfsumme selbst, und der Sendepfad fragmentiert nicht, sodass jedes Datagramm mit Optionen in die MTU
-passen muss \cite{man7raw}. Diese Konsequenzen prägen den Entwurf in \chapref{chap:entwurf}.
+Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (\secref{sec:netzpfad}).
+\tabref{tab:surplus-zugang} vergleicht die verfügbaren Linux-Wege zum vollständigen Datagramm.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Entscheidungsmatrix für den Zugang zur Surplus Area unter Linux}
+  \label{tab:surplus-zugang}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{2.2cm}L{3.1cm}L{4.0cm}Y@{}}
+    \toprule
+    \textbf{Weg} & \textbf{Sicht} & \textbf{Zusätzlicher Unterbau} & \textbf{Bewertung} \\
+    \midrule
+    Standard-UDP-Socket
+      & UDP-Nutzdaten bis \texttt{UDP Length}
+      & keiner
+      & Surplus Area nicht zugänglich; ausgeschlossen \cite[Sec.~18]{rfc9868} \\
+    Packet Socket
+      & Rahmen der Verbindungsschicht
+      & \texttt{CAP\_NET\_RAW}, Schnittstellen- und Link-Layer-Behandlung
+      & vollständiger Rahmen, aber unnötige Bindung an die Verbindungsschicht \cite{man7packet} \\
+    TUN/TAP
+      & IP-Pakete bei TUN, Ethernet-Rahmen bei TAP
+      & virtuelles Netzgerät, Konfiguration und Routing
+      & verändert die Topologie und ist mehr als eine einbindbare Bibliothek \cite{linux510tuntap} \\
+    \texttt{AF\_XDP}
+      & Rahmen aus einer Empfangswarteschlange
+      & XDP-Programm, UMEM und Warteschlangenbindung
+      & leistungsfähig, aber zusätzlicher Kernel- und Speicheraufbau \cite{linux510afxdp} \\
+    Kernelmodul
+      & Verarbeitung im Kernel
+      & passender Kernelbau, Laden und privilegierter Kernelraum
+      & voller Zugriff, aber versionsgebunden und keine gewöhnliche Benutzerraumbibliothek
+        \cite{linux510modules} \\
+    Raw Socket mit \texttt{IP\_HDRINCL}
+      & vollständiges IP-Datagramm
+      & \texttt{CAP\_NET\_RAW}; eigene IPv4-, UDP- und Optionsverarbeitung
+      & gewählt: kleinster Unterbau mit der nötigen Sicht \cite{man7raw} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Raw Sockets liefern die nötige IP-Sicht ohne eigenes Netzgerät oder Kernelmodul; ihre Mechanik beschreibt
+\secref{sec:netzpfad}. Als Betriebssystem trägt diese Entscheidung Linux, denn dort ist der Weg dokumentiert
+und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der Kampagnen
+(\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen, UDP-Prüfsumme und
+Optionen selbst prüft. Beim Senden ergänzt der Kernel einzelne IP-Felder, fragmentiert den
+\texttt{IP\_HDRINCL}-Puffer aber nicht; jedes Optionsdatagramm muss in die MTU passen \cite{man7raw}. Diese
+Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
 
 \subsection{Mitschnitt und Auswertung}
 \label{subsec:mitschnittwerkzeuge}

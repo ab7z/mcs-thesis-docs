@@ -184,46 +184,36 @@
 @online{rust-lang,
     author  = {{The Rust Project}},
     title   = {{Rust Programming Language}},
-    year    = {2025},
+    note    = {Undatierte, fortlaufend gepflegte Projektseite},
     url     = {https://www.rust-lang.org/},
     urldate = {2026-02-16},
 }
 
 @online{rust-book,
-    author  = {Steve Klabnik and Carol Nichols},
+    author  = {Steve Klabnik and Carol Nichols and Chris Krycho},
     title   = {{The Rust Programming Language}},
-    year    = {2025},
+    note    = {Undatierte, fortlaufend gepflegte Online-Fassung},
     url     = {https://doc.rust-lang.org/book/},
     urldate = {2026-02-16},
 }
 
-@online{rust-reference,
-    author  = {{The Rust Project}},
-    title   = {{The Rust Reference}},
-    year    = {2025},
-    url     = {https://doc.rust-lang.org/reference/},
-    urldate = {2026-02-16},
-}
-
 % Vorträge und Online-Quellen
-@online{nsa-memory-safety,
-    author       = {{National Security Agency}},
-    title        = {Software Memory Safety},
-    subtitle     = {Cybersecurity Information Sheet},
-    organization = {National Security Agency (NSA)},
-    type         = {Cybersecurity Information Sheet},
-    number       = {U/OO/219936-22},
-    date         = {2022-11-10},
-    url          = {https://media.defense.gov/2022/Nov/10/2003112742/-1/-1/0/CSI_SOFTWARE_MEMORY_SAFETY.PDF},
-    urldate      = {2026-05-31},
-    langid       = {english},
+@report{nsa-memory-safety,
+    author      = {{National Security Agency}},
+    title       = {Software Memory Safety},
+    institution = {National Security Agency (NSA)},
+    type        = {Cybersecurity Information Sheet},
+    number      = {U/OO/219936-22},
+    date        = {2022-11-10},
+    url         = {https://media.defense.gov/2022/Nov/10/2003112742/-1/-1/0/CSI_SOFTWARE_MEMORY_SAFETY.PDF},
+    urldate     = {2026-05-31},
+    langid      = {english},
 }
 
 @online{microsoft-memory,
     author       = {Miller, Matt},
     title        = {Trends, Challenges, and Strategic Shifts in the Software Vulnerability Mitigation Landscape},
     organization = {Microsoft Security Response Center, BlueHat IL 2019},
-    year         = {2019},
     date         = {2019-02-07},
     url          = {https://www.youtube.com/watch?v=PjbGojjnBZQ},
     urldate      = {2026-05-31},
@@ -234,6 +224,7 @@
     author       = {{The Chromium Project}},
     title        = {Memory safety},
     organization = {The Chromium Project},
+    note         = {Undatierte, fortlaufend gepflegte Projektseite},
     url          = {https://www.chromium.org/Home/chromium-security/memory-safety/},
     urldate      = {2026-05-31},
 }
@@ -251,19 +242,20 @@
 @online{libfuzzer,
     author       = {{LLVM Project}},
     title        = {{libFuzzer: A Library for Coverage-Guided Fuzz Testing}},
-    year         = {2026},
     organization = {LLVM Project},
+    note         = {Undatierte, fortlaufend gepflegte Dokumentation},
     url          = {https://llvm.org/docs/LibFuzzer.html},
     urldate      = {2026-08-20},
 }
 
 @online{kernel-devtools,
-    author       = {{The kernel development community}},
-    title        = {Development tools for the kernel},
-    year         = {2026},
+    author       = {{The Linux kernel development community}},
+    title        = {Development tools for the Linux kernel},
     organization = {The Linux Kernel Archives},
-    url          = {https://docs.kernel.org/dev-tools/index.html},
-    urldate      = {2026-08-20},
+    date         = {2020-12-13},
+    version      = {5.10},
+    url          = {https://www.kernel.org/doc/html/v5.10/dev-tools/index.html},
+    urldate      = {2026-08-26},
 }
 
 @online{bun-rust-port,
@@ -312,13 +304,24 @@
     url         = {https://www.rfc-editor.org/info/rfc8174},
 }
 
-@online{rfc9868-errata,
+@online{rfc9868-eid8708,
     author       = {{RFC Editor}},
-    title        = {{RFC Errata for RFC 9868}},
+    title        = {{RFC Erratum 8708 for RFC 9868}},
     organization = {RFC Editor},
-    year         = {2026},
-    url          = {https://www.rfc-editor.org/errata/rfc9868},
-    urldate      = {2026-08-13},
+    date         = {2026-01-20},
+    note         = {Editorial; Held for Document Update; gemeldet am 17.01.2026},
+    url          = {https://www.rfc-editor.org/errata/eid8708},
+    urldate      = {2026-08-26},
+}
+
+@online{rfc9868-eid8834,
+    author       = {{RFC Editor}},
+    title        = {{RFC Erratum 8834 for RFC 9868}},
+    organization = {RFC Editor},
+    date         = {2026-03-23},
+    note         = {Technical; Verified; gemeldet am 17.03.2026},
+    url          = {https://www.rfc-editor.org/errata/eid8834},
+    urldate      = {2026-08-26},
 }
 
 % KI-gestützte Arbeit: Gefahrenmodell und externe Referenzfälle
@@ -437,15 +440,55 @@
 @online{man7raw,
     author  = {{Linux man-pages project}},
     title   = {{raw(7): IPv4 raw sockets}},
-    note    = {Linux man-pages 6.18},
-    url     = {https://man7.org/linux/man-pages/man7/raw.7.html},
+    date    = {2026-02-08},
+    version = {6.18},
+    url     = {https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/plain/man/man7/raw.7?h=man-pages-6.18},
     urldate = {2026-08-17},
+}
+
+% Primärquellen für die Zugriffsmatrix in Kapitel 4
+@online{man7packet,
+    author  = {{Linux man-pages project}},
+    title   = {{packet(7): packet interface on device level}},
+    date    = {2026-02-08},
+    version = {6.18},
+    url = {https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/plain/man/man7/packet.7?h=man-pages-6.18},
+    urldate = {2026-08-26},
+}
+
+@online{linux510tuntap,
+    author  = {{Linux Kernel Community}},
+    title   = {{Linux 5.10: Universal TUN/TAP device driver}},
+    date    = {2020-12-13},
+    version = {5.10},
+    url     = {https://www.kernel.org/doc/html/v5.10/networking/tuntap.html},
+    urldate = {2026-08-26},
+}
+
+@online{linux510afxdp,
+    author  = {{Linux Kernel Community}},
+    title   = {{Linux 5.10: AF\_XDP}},
+    date    = {2020-12-13},
+    version = {5.10},
+    url     = {https://www.kernel.org/doc/html/v5.10/networking/af_xdp.html},
+    urldate = {2026-08-26},
+}
+
+@online{linux510modules,
+    author  = {{Linux Kernel Community}},
+    title   = {{Linux 5.10: Building External Modules}},
+    date    = {2020-12-13},
+    version = {5.10},
+    url     = {https://www.kernel.org/doc/html/v5.10/kbuild/modules.html},
+    urldate = {2026-08-26},
 }
 
 % Kernelquelltext als Beleg der UDP-Sendekette (Grundlagen 2.5)
 @online{linux510udp,
     author  = {{Linux Kernel Community}},
     title   = {{Linux 5.10: net/ipv4/udp.c}},
+    date    = {2020-12-13},
+    version = {5.10},
     url     = {https://elixir.bootlin.com/linux/v5.10/source/net/ipv4/udp.c},
     urldate = {2026-08-19},
 }
@@ -502,8 +545,9 @@
 @online{man7capabilities,
     author  = {{Linux man-pages project}},
     title   = {{capabilities(7): overview of Linux capabilities}},
-    note    = {Linux man-pages 6.18},
-    url     = {https://man7.org/linux/man-pages/man7/capabilities.7.html},
+    date    = {2026-02-08},
+    version = {6.18},
+  url = {https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/plain/man/man7/capabilities.7?h=man-pages-6.18},
     urldate = {2026-08-23},
 }
 
@@ -538,15 +582,19 @@
 }
 
 @online{socket2,
-    author  = {{rust-lang-Projekt}},
+    author  = {Crichton, Alex and de Zeeuw, Thomas},
     title   = {{socket2: Advanced configuration options for sockets}},
-    url     = {https://github.com/rust-lang/socket2},
+    version = {0.6.4},
+    date    = {2026-05-28},
+    url     = {https://docs.rs/socket2/0.6.4/},
     urldate = {2026-08-24},
 }
 
 @online{libc,
-    author  = {{rust-lang-Projekt}},
+    author  = {{The Rust Project Developers}},
     title   = {{libc: Raw bindings to platform APIs for Rust}},
-    url     = {https://github.com/rust-lang/libc},
+    version = {0.2.186},
+    date    = {2026-04-23},
+    url     = {https://docs.rs/libc/0.2.186/},
     urldate = {2026-08-24},
 }

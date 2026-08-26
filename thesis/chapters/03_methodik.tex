@@ -48,7 +48,7 @@ aufbauen:
     \foreach \i/\f in {0/white, 1/sqblau, 2/white, 3/sqblau}
       \draw[draw=sqblaurand, thin, fill=\f] (5.8+\i*0.7,-0.38) rectangle (6.5+\i*0.7,-0.02);
     \node[block, draw=sqroserand, fill=sqrose, minimum height=0.8cm] (ffeins) at (12.8,0)
-      {\textbf{FF1}\\ \textbf{Konformität}};
+      {\textbf{FF1}\\ \textbf{technische Erfüllbarkeit}};
     \draw[fluss] (quellen) -- node[flusstext, above] {ableiten} (5.55,0);
     \draw[fluss] (8.85,0) -- node[flusstext, above] {Maßstab} (ffeins);
     % Software-Ebene
@@ -105,33 +105,34 @@ Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und 
       & Umsetzungsstand getrennt von vollständig, teilweise oder nicht erfüllbar; nicht anwendbar bleibt eine
         eigene Klasse \\
     FF2
-      & kontrolliertes Szenario; extern ein Paar aus Kontroll- und Optionsdatagramm je Pfad, Richtung und
-        Messzeitpunkt
-      & Paketmitschnitte an Sender und Empfänger, Sendeprotokoll und dokumentierte maschinelle Auswertung
+      & kontrolliertes Szenario je Pfad, Richtung und Messzeitpunkt
+      & Paketmitschnitte an Sender und Empfänger, Sendemanifest und dokumentierte maschinelle Auswertung
       & Surplus erhalten, verändert oder entfernt, Paket verworfen oder Lauf ungültig; keine Übertragung auf
         unbeobachtete Pfade, Richtungen oder Zeitpunkte \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:operationalisierung} geht hervor, dass FF1 je Anforderung und FF2 je beobachtetem Paketpaar
-entschieden wird. Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
+Aus \tabref{tab:operationalisierung} geht hervor, dass FF1 je anwendbarer Anforderung und FF2 je
+kontrolliertem Szenario entschieden wird. Ein Szenario kann ein einzelnes Kontroll- und Optionsdatagramm,
+mehrere Wiederholungen oder bei FRAG mehrere Wire-Datagramme enthalten.
+Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
 \texttt{SHOULD}-Aussagen gehen in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine
 dokumentierte Begründung. Eine \texttt{MAY}-Funktion wird nur bewertet, wenn sie für die
 Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
 Umfangs liegende Aussagen bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich.
 
 Der Anforderungsstatus des Implementierungs-Repositorys und die FF1-Klasse beantworten verschiedene
-Fragen. \zitat{Implemented} belegt den Umsetzungsstand. \zitat{Partially implemented} bezeichnet eine
-Implementierungslücke und bestimmt die
-technische Erfüllbarkeit noch nicht. \zitat{Partial-in-userspace} wird als teilweise erfüllbar und
-\zitat{Not-feasible-in-userspace} als nicht erfüllbar gewertet. \zitat{Delegated} gilt nur dann als
-vollständig erfüllbar, wenn der RFC die Pflicht der oberen Schicht zuweist und die Schnittstelle sie als
-dokumentierten Vertrag abbildet; andernfalls lautet die Klasse teilweise erfüllbar. Für implementierte
-Funktionen dienen Quelltext und Tests als Nachweis. Technische Grenzen werden stattdessen durch dokumentiertes
-Betriebssystem- oder Schnittstellenverhalten belegt. Von diesem Status je Anforderungszeile zu
-unterscheiden ist die Abdeckungsspalte \zitat{Covered} der Konformitätsmatrix desselben Repositorys
-(\chapref{chap:analyse}): Sie markiert den gewählten Umfang und ist keine FF1-Klasse.
+Fragen. \zitat{Implemented}, \zitat{Partially implemented}, \zitat{Partial-in-userspace},
+\zitat{Not-feasible-in-userspace} und \zitat{Delegated} dienen als Such- und Nachweisindex, bestimmen die
+FF1-Klasse aber nicht automatisch. Für jede anwendbare Normanforderung wird getrennt geprüft, welcher Teil
+umgesetzt ist und ob eine belegte Betriebssystem- oder Schnittstellengrenze die vollständige Umsetzung
+ausschließt. Eine Implementierungslücke ohne solchen Beleg bleibt technisch vollständig erfüllbar.
+Delegation gilt nur dann als vollständige Erfüllung, wenn der RFC die Pflicht der oberen Schicht zuweist
+und die Schnittstelle sie als dokumentierten Vertrag abbildet. Für implementierte Funktionen dienen
+Quelltext und Tests als Nachweis; technische Grenzen werden stattdessen durch dokumentiertes Betriebssystem-
+oder Schnittstellenverhalten belegt. Die Abdeckungsspalte \zitat{Covered} der Konformitätsmatrix desselben
+Repositorys (\chapref{chap:analyse}) markiert nur den gewählten Umfang und ist ebenfalls keine FF1-Klasse.
 
 Die kontrollierten lokalen Läufe werten jedes Szenario aus; die Szenarien sind über eigene Zielports markiert
 und können wie beim FRAG-Fall des RFC mehrere Datagramme enthalten. Diese Läufe validieren die Messwerkzeuge
@@ -140,16 +141,15 @@ Dafür vergleichen die externen Kampagnen zeitnah gesendete, gleich große Kontr
 demselben gerichteten Pfad.
 
 Ein externer Lauf ist nur auswertbar, wenn die Senderaufzeichnung den Versand und die erwartete Surplus Area
-belegt. Die maschinelle Auswertung vergleicht Sender- und Empfängeraufzeichnung nach je Kampagne dokumentierten
-Zuordnungsregeln: Der lokale Referenzauswerter gruppiert die Pakete je Zielport und vergleicht Anzahl und
-Surplus-Inhalt, die Kampagnenauswerter ordnen die Pakete über eine im Payload mitgeführte Sequenznummer zu.
-Jedes zugeordnete Datagramm erhält eine Ergebnisklasse: Die Surplus Area kommt erhalten, verändert oder
-entfernt an, oder das Paket wird verworfen. Abweichende Paketzahlen meldet der Referenzauswerter als eigene
-Befundklasse; sie machen einen Lauf nur dann ungültig, wenn die Auswertung ein bestimmtes Sollergebnis
-erzwingt. Auch die Behandlung IP-fragmentierter Datagramme ist auswerterspezifisch: Der Referenzauswerter
-bricht bei IPv4-Fragmenten ab, weil er sie nicht zusammensetzt; die Kampagnenauswerter überspringen nur
-Folgefragmente. Einzelne Vorversuche werden als solche gekennzeichnet und nicht zu allgemeinen Aussagen über
-das Internet oder ein nicht beobachtetes Gerät erweitert.
+belegt. Die maschinelle Auswertung vergleicht Sender- und Empfängeraufzeichnung nach der je Kampagne
+dokumentierten Zuordnung: Zielport und Szenario, Sequenznummern, bei leeren Nutzdaten die Klassen- und
+Längeninformation sowie bei FRAG die Kennung des Fragmentsatzes. Jedes zugeordnete Optionsdatagramm erhält
+eine Ergebnisklasse: Die Surplus Area kommt erhalten, verändert oder entfernt an, oder das Datagramm wird
+verworfen. Abweichende Paketzahlen werden gesondert gemeldet und machen einen Lauf nur dann ungültig, wenn
+die Auswertung ein bestimmtes Sollergebnis erzwingt. Auch die Behandlung IP-fragmentierter Datagramme ist
+auswerterspezifisch: Der Referenzauswerter bricht bei jedem IPv4-Fragment mit einem Fehler ab, weil er
+Fragmente nicht zusammensetzt; die Kampagnenauswerter überspringen nur Folgefragmente. Vorversuche bleiben
+als solche gekennzeichnet und werden nicht auf unbeobachtete Geräte oder Pfade übertragen.
 
 Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
 Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Der nächste Abschnitt
@@ -164,12 +164,13 @@ Daneben enthält der Anforderungsbestand der Implementierung ausdrücklich
 gekennzeichnete Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
 Entwurfsentscheidung nachträglich als Forderung des RFC erscheint.
 
-Normative Schlüsselwörter wie \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach
-BCP~14\footnote{BCP steht für Best Current Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung
-RFC~8174.} gelesen. Sie sind nur in Großschreibung normativ
-\cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Schlüsselwörtern zusätzlich das Zeichenpaar
-\texttt{>{}>} voran. Die eigene Zählung ergibt 103 markierte Absätze. Diese Zahl ist eine Kontrollzahl für
-mögliche Anforderungen, nicht die Zahl der abschließend anwendbaren Anforderungen.
+Die Schlüsselwörter \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach BCP~14\footnote{BCP steht
+für Best Current Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung RFC~8174.} gelesen. Nur die
+großgeschriebenen Formen tragen die dort festgelegte besondere Bedeutung. Normative Aussagen können die
+Schlüsselwörter aber auch auslassen \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen
+großgeschriebenen Wörtern zusätzlich das Zeichenpaar \texttt{>{}>} voran. Die eigene Zählung von 103
+markierten Absätzen ist deshalb nur eine Kontrollzahl. Sie ist weder eine vollständige Anforderungsliste
+noch die Zahl der anwendbaren Anforderungen.
 
 Eine erste Zählung hatte nur 96 Absätze ergeben, weil tiefer eingerückte Markierungen übersehen wurden. Ein
 zweites Zählverfahren deckte den Fehler auf. Kontrollzahlen werden deshalb mit zwei getrennten Verfahren
@@ -178,11 +179,11 @@ Anwendbarkeit und eine Kennzeichnung des Projektumfangs.
 
 RFC~9868 und RFC~9869 bleiben in der Quellenarbeit getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung
 (DPLPMTUD, \textit{Datagram Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des
-Implementierungsumfangs dieser Arbeit \cite{rfc9869}. Zusätzlich wird der Errata-Stand des RFC Editors
-berücksichtigt \cite{rfc9868-errata}. Das verifizierte technische Erratum EID~8834 löst den Widerspruch
-zwischen den Abschnitten 10 und 14 zur Behandlung überlanger Optionen. EID~8708 ist als redaktionelles Erratum
-für eine spätere Dokumentausgabe zurückgestellt. Der Anforderungsbestand der Implementierung verwendet
-diese beiden Einstufungen und
+Implementierungsumfangs dieser Arbeit \cite{rfc9869}. Zusätzlich werden die beiden einschlägigen Errata
+getrennt berücksichtigt. Das verifizierte technische Erratum EID~8834 löst den Widerspruch zwischen den
+Abschnitten~10 und 14 zur Behandlung überlanger Optionen \cite{rfc9868-eid8834}. Das redaktionelle EID~8708
+ist für eine spätere Dokumentausgabe zurückgestellt \cite{rfc9868-eid8708}. Der Anforderungsbestand der
+Implementierung verwendet diese beiden Einstufungen und
 dokumentiert die daraus abgeleitete Behandlung (\chapref{chap:analyse}). Den Weg von den Quellen zum
 geprüften Bestand fasst \figref{fig:rfc-auswertung} zusammen:
 
@@ -292,70 +293,52 @@ eine nachträglich vereinfachte Folge von neun Stufen. Den gelebten Kernzyklus j
   \label{fig:stepzyklus}
 \end{figure}
 
-Aus \figref{fig:stepzyklus} geht der Takt der Umsetzung hervor: Je Schritt entstehen Code, Tests und
-Dokumentation zusammen und erreichen den Hauptzweig als ein freigegebener Sammelcommit; die Schritte 14, 15
-und 17 teilten sich einen solchen Commit. Zwei Kanten sind gestrichelt, weil sie stattfanden, aber nicht
-technisch erzwungen waren: Die zwei angeforderten KI-Prüfungen blockierten die Übernahme nicht, und der
-Abgleich des Anforderungskatalogs lief periodisch; vollständig glich ihn erst Schritt 18 ab, der als
-eigener Korrekturschritt auf einen nachträglichen RFC-Abgleich antwortete. Welche Rollen bei der Erzeugung
-und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
+Aus \figref{fig:stepzyklus} geht der reife Takt der Umsetzung hervor: Ab Schritt~1 entstanden Code, Tests
+und Dokumentation je Schritt zusammen und erreichten den Hauptzweig als ein freigegebener Sammelcommit; die
+Schritte 14, 15 und 17 teilten sich einen solchen Commit. Die Schritte 0 und 0.5 bildeten die frühe Ausnahme
+und verteilten sich auf mehrere Commits und Pull Requests. Zwei Kanten sind gestrichelt, weil sie
+stattfanden, aber nicht technisch erzwungen waren: Die zwei angeforderten KI-Prüfungen blockierten die
+Übernahme nicht, und der Abgleich des Anforderungskatalogs lief periodisch; vollständig glich ihn erst
+Schritt~18 ab, der als eigener Korrekturschritt auf einen nachträglichen RFC-Abgleich antwortete. Welche
+Rollen bei der Erzeugung und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
 
 \section{Beteiligte und ihre Rollen}
 \label{sec:rollen}
 
-Der Autor entscheidet, gewichtet, gibt frei und verantwortet das Ergebnis. Claude Code von Anthropic dient
-vorwiegend als führendes Werkzeug für Entwürfe, Quelltext und Analysen. Codex von OpenAI dient vorwiegend als
-getrennter Zweitprüfer mit dem Auftrag, Fehler und Gegenbeispiele zu suchen. Beide Programme verbinden ein
-Sprachmodell mit Dateizugriff, Kommandoausführung und dem Repository.
+\tabref{tab:rollen} trennt Erzeugung, Prüfung, formale Gegenprobe und Freigabe.
 
-Eine Prüfung durch dasselbe Modell gilt nicht als getrennte Zweitprüfung. Auch die Prüfung durch ein Modell
-eines anderen Herstellers beweist keine Unabhängigkeit. Die Herstellertrennung ist eine bewusste Maßnahme gegen
-vollständig gleiche Fehlermuster, deren Wirkung in dieser Arbeit jedoch nicht gemessen wird. Änderungen durch
-den Zweitprüfer erfolgen nur in einem eigenen, vom Autor freigegebenen Arbeitsauftrag. Sie zählen dann nicht als
-Zweitprüfung desselben Ergebnisses.
-
-Lean liefert maschinengeprüfte Beweise für handgeschriebene Modelle ausgewählter Invarianten des Wire-Formats,
-der OCS, der Fragmentierung und der Empfangslogik. Ein Prüfskript baut die Beweise und kontrolliert die
-verwendeten Axiome. Nicht bewiesen ist die Übereinstimmung des Rust-Codes mit diesen Modellen. Zulässig ist daher
-die Aussage, dass ausgewählte Invarianten in Lean-Modellen bewiesen sind. Die gesamte Implementierung ist nicht
-formal verifiziert. Dieses Zusammenspiel aus Erzeugung, Prüfung und Freigabe zeigt \figref{fig:rollen}:
-
-\begin{figure}[H]
+\begin{table}[htbp]
   \centering
-  \begin{tikzpicture}[
-      x=1cm, y=1cm,
-      >={Stealth[length=5pt, width=4pt]},
-      block/.style={draw, semithick, rounded corners=3pt, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
-      fluss/.style={->, draw=sqdunkel, thin},
-      flusstext/.style={font=\scriptsize, inner sep=1.5pt, fill=white},
-    ]
-    \node[block, draw=sqgoldrand, fill=sqgold] (autor) at (7.5,2.1)
-      {\textbf{Autor}\\ entscheidet, gewichtet,\\ gibt frei, verantwortet};
-    \node[block, draw=sqblaurand, fill=sqblau] (claude) at (2.55,0)
-      {\textbf{Claude Code} (Anthropic)\\ führendes Werkzeug:\\ Entwürfe, Quelltext, Analysen};
-    \node[block, draw=sqhell!50!sqgrau, fill=sqhell] (ergebnis) at (7.5,0)
-      {\textbf{Ergebnis}\\ Entwurf, Quelltext,\\ Analyse};
-    \node[block, draw=sqroserand, fill=sqrose] (codex) at (12.45,0)
-      {\textbf{Codex} (OpenAI)\\ getrennter Zweitprüfer:\\ sucht Fehler und Gegenbeispiele};
-    \node[block, draw=sqtealrand, fill=sqteal] (lean) at (2.3,-2.2)
-      {\textbf{Lean}\\ maschinengeprüfte\\ Beweise};
-    \node[block, draw=sqhell!50!sqgrau, fill=sqhell] (modelle) at (7.5,-2.2)
-      {\textbf{Modelle ausgewählter Invarianten}\\ Wire-Format, OCS, FRAG,\\ Empfangslogik};
-    \draw[fluss] (claude) -- node[flusstext, above] {erzeugt} (ergebnis);
-    \draw[fluss] (codex) -- node[flusstext, above] {prüft} (ergebnis);
-    \draw[fluss] (ergebnis) -- node[flusstext, anchor=west, xshift=2pt] {zur Freigabe} (autor);
-    \draw[fluss] (lean) -- node[flusstext, above] {beweist} (modelle);
-    \draw[draw=sqdunkel, dashed, thin] (modelle) --
-      node[flusstext, anchor=west, xshift=2pt] {Übereinstimmung nicht bewiesen} (ergebnis);
-  \end{tikzpicture}
   \caption{Rollen bei Erzeugung, Prüfung und Freigabe}
-  \label{fig:rollen}
-\end{figure}
+  \label{tab:rollen}
+  \small
+  \begin{tabularx}{\textwidth}{@{}L{3.0cm}L{4.4cm}Y@{}}
+    \toprule
+    \textbf{Beteiligter} & \textbf{Aufgabe} & \textbf{Grenze} \\
+    \midrule
+    Autor
+      & entscheidet, gewichtet, gibt frei und verantwortet
+      & jedes Ergebnis gilt erst nach seiner Freigabe \\
+    Claude Code (Anthropic)
+      & führendes Werkzeug für Entwürfe, Quelltext und Analysen
+      & Modellausgaben sind keine Nachweise \\
+    Codex (OpenAI)
+      & getrennter Zweitprüfer; sucht Fehler und Gegenbeispiele
+      & Herstellertrennung beweist keine Unabhängigkeit; ihre Wirkung wird nicht gemessen \\
+    Lean
+      & beweist ausgewählte Invarianten von Wire-Format, OCS, FRAG und Empfangslogik in handgeschriebenen
+        Modellen; ein Skript baut die Beweise und prüft die Axiome
+      & die Übereinstimmung mit dem Rust-Code ist nicht bewiesen; die Implementierung ist nicht formal
+        verifiziert \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
 
-Aus \figref{fig:rollen} geht hervor, dass Erzeugung und Prüfung getrennt besetzt sind und jedes Ergebnis erst
-mit der Freigabe durch den Autor gilt. Lean wirkt dabei nur auf der Modellebene: Die gestrichelte Verbindung
-markiert, dass die Übereinstimmung des Rust-Codes mit den bewiesenen Modellen gerade nicht bewiesen ist.
+Beide Modellwerkzeuge verbinden ein Sprachmodell mit Dateizugriff, Kommandoausführung und Repository. Die
+Herstellertrennung soll vollständig gleiche Fehlermuster verringern, beweist aber keine Unabhängigkeit.
+Eine Prüfung durch dasselbe Modell ist keine getrennte Zweitprüfung. Änderungen durch den Zweitprüfer
+erfordern einen eigenen, vom Autor freigegebenen Auftrag und zählen dann nicht als Prüfung desselben
+Ergebnisses. Zulässig ist nur die Aussage, dass ausgewählte Invarianten in Lean-Modellen bewiesen sind.
 
 Die Art der Prüfung richtet sich nach der Art der Aussage. Protokollaussagen werden gegen RFC-Primärtext und
 Errata geprüft. Aussagen über die Implementierung werden durch Quelltext und ausführbare Prüfungen gestützt.
@@ -380,80 +363,40 @@ Trennung nötig ist, zeigt der folgende Abschnitt.
 \section{Bekannte Schwächen der Sprachmodelle}
 \label{sec:gefahrenmodell}
 
-Der Einsatz von Sprachmodellen bringt bekannte Schwächen mit, auf die die Methodik direkt antwortet.
+Der Einsatz von Sprachmodellen bringt bekannte Schwächen mit. \tabref{tab:sprachmodell-schwaechen} ordnet
+ihnen die beobachtete Wirkung und die methodische Antwort zu.
 
-\paragraph{Halluzination.}
-Eine Halluzination ist ein überzeugend formulierter, aber falscher Inhalt. Kalai u.\,a. führen solche Fehler auf
-Trainings- und Bewertungsverfahren zurück, die Raten gegenüber eingestandener Unsicherheit belohnen
-\cite{kalai2025hallucinate}.
-
-\paragraph{Gefälligkeit.}
-Sycophancy bezeichnet die Neigung, sich der erkennbaren Erwartung des Gegenübers anzuschließen. Perez u.\,a.
-beobachteten, dass größere Modelle die bevorzugte Antwort des Nutzers häufiger wiederholen; das Verhalten
-zeigt sich schon bei reinen Vortrainingsmodellen, und Training mit menschlicher Rückmeldung beseitigt es
-nicht. Cheng u.\,a. belegen die Verbreitung über elf aktuelle Modelle und in Experimenten messbare Schäden
-\cite{perez2022evals,cheng2026sycophancy}. Halluzination kann falsche Aussagen erzeugen. Gefälligkeit kann
-verhindern, dass ein Modell ihnen widerspricht.
-
-\paragraph{Verfügbarkeit.}
-Beide Sprachmodellwerkzeuge sind Cloud-Dienste. Sie können ausfallen, gedrosselt oder verändert werden. Die
-Ergebnisse liegen deshalb als Quelltext, Tests, Protokolle und Messdaten vor. Diese Artefakte bleiben ohne die
-Dienste prüfbar. Der genaue Entstehungsvorgang einer Modellausgabe ist wegen wechselnder Modelle und
-nichtdeterministischer Antworten dagegen nicht vollständig reproduzierbar.
-\figref{fig:schwaechen} stellt jeder Schwäche ihre Wirkung und die methodische Antwort gegenüber:
-
-\begin{figure}[H]
+\begin{table}[htbp]
   \centering
-  \begin{tikzpicture}[
-      x=1cm, y=1cm,
-      >={Stealth[length=5pt, width=4pt]},
-      block/.style={draw, semithick, rounded corners=3pt, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt, minimum height=1.15cm},
-      fluss/.style={->, draw=sqdunkel, thin},
-      spalte/.style={font=\scriptsize\bfseries, text=sqdunkel},
-    ]
-    \node[spalte] at (2.3,1.0)   {Bekannte Schwäche};
-    \node[spalte] at (7.4,1.0)   {Wirkung};
-    \node[spalte] at (12.55,1.0) {Antwort der Methodik};
-    % Halluzination
-    \node[block, minimum width=4.5cm, draw=sqroserand, fill=sqrose] (s1) at (2.3,0)
-      {\textbf{Halluzination}\\ überzeugend formuliert,\\ aber falsch};
-    \node[block, minimum width=3.0cm, draw=sqhell!50!sqgrau, fill=sqhell] (w1) at (7.4,0)
-      {falsche Aussage\\ entsteht};
-    \node[block, minimum width=3.7cm, draw=sqblaurand, fill=sqblau] (a1) at (12.55,0)
-      {Prüfung an der Primärquelle,\\ nie an eigenen\\ Zusammenfassungen};
-    % Gefälligkeit
-    \node[block, minimum width=4.5cm, draw=sqroserand, fill=sqrose] (s2) at (2.3,-1.75)
-      {\textbf{Gefälligkeit} (Sycophancy)\\ folgt der erkennbaren\\ Erwartung des Gegenübers};
-    \node[block, minimum width=3.0cm, draw=sqhell!50!sqgrau, fill=sqhell] (w2) at (7.4,-1.75)
-      {Widerspruch\\ unterbleibt};
-    \node[block, minimum width=3.7cm, draw=sqblaurand, fill=sqblau] (a2) at (12.55,-1.75)
-      {neutrale Aufträge, ermutigter\\ Widerspruch, getrennter\\ Zweitprüfer};
-    % Verfügbarkeit
-    \node[block, minimum width=4.5cm, draw=sqroserand, fill=sqrose] (s3) at (2.3,-3.5)
-      {\textbf{Verfügbarkeit}\\ Cloud-Dienste fallen aus,\\ werden gedrosselt oder verändert};
-    \node[block, minimum width=3.0cm, draw=sqhell!50!sqgrau, fill=sqhell] (w3) at (7.4,-3.5)
-      {Dienst oder\\ Modellstand entfällt};
-    \node[block, minimum width=3.7cm, draw=sqblaurand, fill=sqblau] (a3) at (12.55,-3.5)
-      {prüfbare Artefakte: Quelltext,\\ Tests, Protokolle,\\ Messdaten};
-    \foreach \i in {1,2,3} {
-      \draw[fluss] (s\i) -- (w\i);
-      \draw[fluss] (w\i) -- (a\i);
-    }
-    \draw[draw=sqdunkel, dashed, thin, ->] (w2) --
-      node[font=\scriptsize, anchor=west, xshift=2pt] {kann die falsche Aussage stehen lassen} (w1);
-  \end{tikzpicture}
   \caption{Schwächen der Sprachmodelle und methodische Antworten}
-  \label{fig:schwaechen}
-\end{figure}
+  \label{tab:sprachmodell-schwaechen}
+  \small
+  \begin{tabularx}{\textwidth}{@{}L{3.0cm}L{5.5cm}Y@{}}
+    \toprule
+    \textbf{Schwäche} & \textbf{Wirkung und Beleg} & \textbf{Antwort der Methodik} \\
+    \midrule
+    Halluzination
+      & überzeugend formulierter, aber falscher Inhalt; Trainings- und Bewertungsverfahren können Raten
+        gegenüber eingestandener Unsicherheit belohnen \cite{kalai2025hallucinate}
+      & Prüfung an der Primärquelle, nicht an eigenen Zusammenfassungen \\
+    Gefälligkeit (Sycophancy)
+      & erkennbare Erwartungen können Widerspruch unterdrücken; das Verhalten tritt bereits bei reinen
+        Vortrainingsmodellen auf, steigt bei größeren Modellen, bleibt nach Training mit menschlicher
+        Rückmeldung bestehen und verursachte in Versuchen über elf Modelle messbare Schäden
+        \cite{perez2022evals,cheng2026sycophancy}
+      & neutrale Aufträge, ausdrücklich erwünschter Widerspruch und getrennter Zweitprüfer \\
+    Verfügbarkeit
+      & Cloud-Dienste können ausfallen, gedrosselt oder verändert werden; wechselnde Modelle und
+        nichtdeterministische Antworten verhindern die vollständige Reproduktion einer Modellausgabe
+      & dauerhafte, ohne den Dienst prüfbare Artefakte: Quelltext, Tests, Protokolle und Messdaten \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
 
-Aus \figref{fig:schwaechen} geht hervor, dass die ersten beiden Schwächen zusammenwirken können: Eine
-halluzinierte Aussage kann durch Gefälligkeit unwidersprochen bleiben. Die Antworten setzen deshalb nicht am
-Modell an, sondern an der Prüfinstanz und an der Form der Ergebnisse.
-
-Die wichtigste Konsequenz ist einfach: Keine Aussage ist richtig, weil ein Modell sie behauptet. Ob die
-Implementierung die Norm erfüllt, wird mit der Konformitätsprüfung und der Testarchitektur beurteilt. Auch diese
-Prüfungen belegen nur die jeweils untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
+Halluzination und Gefälligkeit können zusammenwirken, wenn eine falsche Aussage unwidersprochen bleibt.
+Die Gegenmaßnahmen setzen deshalb an Auftrag, Prüfinstanz und Artefakten an. Keine Aussage gilt, weil ein
+Modell sie behauptet. Konformitätsmatrix und Testarchitektur prüfen die Implementierung; auch sie belegen
+nur die untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
 Zwei Projektbefunde zeigen die praktische Bedeutung. Eine Gegenprüfung eigener Sekundärdokumente am
 RFC-Primärtext fand vier inhaltliche Abweichungen; die Konformität der Implementierung wird davon getrennt
@@ -581,7 +524,7 @@ Implementierungs-Repository,
 Vier-Augen-Prinzip behauptet.
 
 Diese Testarchitektur gehört zur Entwicklung. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme,
-Sendeprotokolle sowie Paketmitschnitte an Sender und Empfänger. Ein bestandener Entwicklungstest sagt nichts
+Sendemanifeste sowie Paketmitschnitte an Sender und Empfänger. Ein bestandener Entwicklungstest sagt nichts
 über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen Entwicklungstest. Das Projekt setzt außerdem
 kein systematisches Mutation-Testing am Rust-Quelltext ein; in einem dokumentierten Einzelfall wurde ein
 früherer Quelltextfehler gezielt wieder eingeführt, und drei Property-Tests sowie ein Fuzz-Ziel erkannten
@@ -591,43 +534,55 @@ Manipulationen erkennt. Der folgende Abschnitt ordnet diesen Prüfgedanken durch
 \section{Externe Referenzfälle}
 \label{sec:externe-faelle}
 
-Diese Methodik trennt Erzeugung, Prüfung und Freigabe. Zur methodischen Einordnung dienen acht publizierte
-Fälle KI-gestützter Ergebnisse mit unterschiedlichen Formen der Validierung; sie bilden keine systematische
-Literaturübersicht, belegen keine einheitliche Prüfkette und erlauben keine Aussage über die Häufigkeit oder
-Wirksamkeit eines bestimmten Prüfprozesses.
+Zur Einordnung dienen neun publizierte Fälle mit verschiedenen Prüfinstanzen. Sie bilden keine
+systematische Literaturübersicht, belegen keine einheitliche Prüfkette und erlauben keine Aussage über
+Häufigkeit oder Wirksamkeit eines Verfahrens. \tabref{tab:externe-ki-faelle} macht nur die in den Quellen
+ausdrücklich dokumentierten Rollen vergleichbar.
 
-Vier Fälle zeigen die Bandbreite der Prüfinstanzen: AlphaFold wurde im blinden CASP14-Vergleich an
-experimentell bestimmten Proteinstrukturen gemessen \cite{jumper2021alphafold}. Bei Davies u.\,a. lieferte das
-Modell Hypothesen und Kandidatenmuster, geprüft durch Gegenbeispielsuche und den klassischen Beweis der
-beteiligten Mathematiker \cite{davies2021intuition}. Bei FunSearch bewertet ein systematischer, ausführbarer
-Auswerter jeden Programmkandidaten des Sprachmodells \cite{romera2024funsearch}, und bei AlphaProof prüft der
-Lean-Kern jeden gefundenen formalen Beweis maschinell \cite{alphaproof2026}.
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{longtable}{@{}L{2.9cm}L{3.25cm}L{4.4cm}L{3.25cm}@{}}
+\caption{Externe KI-Fälle mit Artefakt, Prüfinstanz und Aussagegrenze}
+\label{tab:externe-ki-faelle}\\
+\toprule
+\textbf{Fall} & \textbf{Modellbeitrag} & \textbf{Prüfinstanz} & \textbf{Grenze} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Fall} & \textbf{Modellbeitrag} & \textbf{Prüfinstanz} & \textbf{Grenze} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+AlphaFold & Proteinstrukturvorhersage & Blinder CASP14-Vergleich mit experimentell bestimmten Strukturen
+  \cite{jumper2021alphafold} & Fachspezifischer Leistungsvergleich, keine allgemeine Prüfkette \\
+Davies u.\,a. & Hypothesen und Kandidatenmuster & Gegenbeispielsuche und klassischer Beweis durch beteiligte
+  Mathematiker \cite{davies2021intuition} & Menschlicher Beweis für das konkrete Ergebnis \\
+FunSearch & Ausführbare Programmkandidaten & Ausführbarer Auswerter für jeden Kandidaten
+  \cite{romera2024funsearch} & Gültig nur für die kodierte Bewertungsfunktion \\
+AlphaProof & Formale Beweiskandidaten & Prüfung jedes Beweises im Lean-Kern \cite{alphaproof2026} &
+  Beweis gilt für die formalisierte Aussage und ihre Annahmen \\
+Knuths Zyklen & Konstruktion; anschließend menschlicher Beweis & Knuths Beweis und Morrisons veröffentlichte
+  Lean-Formalisierung; diese lag vor Knuths Kenntnis davon vor \cite{knuth2026cycles} & Getrennte
+  menschliche und formale Prüfung des Einzelfalls \\
+Zeta-Schranke & Mathematisches Ergebnis und gemeinsame Lean-Formalisierung & Zwei Anthropic-Mathematiker und
+  zwei externe Fachleute \cite{anthropic2026zeta} & Interne und externe Fachprüfung, kein Blindvergleich \\
+Einheitsabstand & Gegenbeweis & Externe Mathematiker; verdichtete, von Menschen verifizierte Fassung
+  \cite{openai2026unitdistance} & Veröffentlichte Prüfung des konkreten Beweises \\
+C-Parameter & Rechnungen, Numerik und Manuskript unter Aufsicht & Physiker und Gegenprobe durch
+  Monte-Carlo-Simulationen \cite{schwartz2026cparameter} & Offenlegung in einem Preprint \\
+Bun-Migration & Codeerzeugung und Prüfung durch Modelle derselben Familie & Projektprüfung; nach dem Merge
+  Meldung undefinierten Verhaltens und Aufnahme von Miri in die CI
+  \cite{bun-in-rust,bun-pr30412,bun-issue30719} & Rollen getrennt, Modellfamilie nicht; Fehler blieb \\
+\end{longtable}
+\endgroup
 
-Vier weitere Fälle benennen ihre Prüfinstanzen besonders klar. Bei Knuths Zyklenproblem stammte die
-Konstruktion vom Modell, der Beweis von Knuth und die Lean-Formalisierung von Kim Morrison aus der
-Lean-Community, der seine Verifikation veröffentlichte, bevor Knuth davon erfuhr \cite{knuth2026cycles}. Die
-verbesserte untere Schranke für den Anteil der Nullstellen der Riemannschen Zetafunktion auf der kritischen
-Linie wurde gemeinsam mit einem Anthropic-Mitarbeiter in Lean formalisiert; zwei Mathematiker von Anthropic
-prüften die Arbeit, und zwei externe Fachleute begutachteten sie zusätzlich \cite{anthropic2026zeta}. Beim
-Gegenbeispiel zur Einheitsabstands-Vermutung erzeugte das Modell den Beweis; externe Mathematiker prüften ihn
-und veröffentlichten eine verdichtete, von Menschen verifizierte Fassung als Begleitpapier
-\cite{openai2026unitdistance}. Der Physik-Preprint zur C-Parameter-Resummation legt im
-Abstract offen, dass Rechnungen, Numerik und Manuskript von Claude unter Aufsicht eines Physikers entstanden
-und gegen Monte-Carlo-Simulationen geprüft wurden \cite{schwartz2026cparameter}; dieser ausdrücklichen
-Offenlegung in der Publikation selbst folgt auch die vorliegende Arbeit (\secref{sec:ki-offenlegung}).
-
-Als neunter Fall liegt die Migration der JavaScript-Laufzeit Bun von Zig nach Rust dem Softwareteil dieser
-Arbeit am nächsten. Das Projekt trennte Erzeugungs- und Prüfrollen, besetzte beide aber mit Modellen derselben
-Familie \cite{bun-in-rust,bun-pr30412}. Nach dem Merge wurde dennoch ein Fall undefinierten Verhaltens
-gemeldet; als Reaktion nahm das Projekt das Prüfwerkzeug Miri in die CI auf \cite{bun-issue30719}. Daraus
-folgen zwei Lehren für diese Arbeit: Die Zweitprüfung besetzt bewusst ein Modell eines anderen Herstellers,
-und auch eine mehrstufige Prüfung gilt nicht als Garantie.
-
-Die neun Fälle zeigen unterschiedliche Prüfverfahren; sie belegen weder eine in allen Fällen gleiche
-unabhängige Prüfung mit menschlicher Freigabe noch einen Erfolg der hier gewählten Modellkombination. Das
-übertragbare Prinzip ist enger: Die Prüfinstanz muss zum Artefakt passen. Normtext, ausführbare Tests, formale
-Beweise, Messdaten und menschliche Freigabe erfüllen dabei unterschiedliche Aufgaben. Ob sie das im Projekt
-tatsächlich getan haben, muss dokumentiert sein; diese Dokumentation regelt der folgende Abschnitt.
+Die Fälle belegen nur, dass die Prüfinstanz zum Artefakt passen muss. Normtext, ausführbare Tests, formale
+Beweise, Messdaten und menschliche Freigabe haben verschiedene Aufgaben; ihre tatsächliche Nutzung muss
+dokumentiert sein. Diese Arbeit folgt außerdem der ausdrücklichen Offenlegung des C-Parameter-Falls
+(\secref{sec:ki-offenlegung}) und versteht auch eine mehrstufige Prüfung nicht als Garantie.
 
 \section{Reproduzierbarkeit und Grenzen}
 \label{sec:reproduzierbarkeit}

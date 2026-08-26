@@ -5,27 +5,19 @@
 \chapter{Entwurf und Implementierung}
 \label{chap:entwurf}
 
-Dieses Kapitel baut das Messinstrument dieser Arbeit: die Bibliothek, die RFC~9868 unter den Vorgaben aus
-\chapref{chap:analyse} umsetzt, und die Prüfanlage, die diesen Bau absichert. Zunächst zeigt \secref{sec:vorgehen},
-wie
-dieser
-Bau entstand; danach ordnet
-\secref{sec:architektur} die Komponenten der Bibliothek und verankert sie in den Anforderungskennungen
-des Implementierungs-Repositorys (\secref{sec:anforderungsmatrix}). Es folgen die beiden
-Verarbeitungswege: \secref{sec:sendepfad}
-verfolgt ein Beispieldatagramm von den Nutzdaten bis auf den Draht, \secref{sec:empfangspfad} den
-umgekehrten Weg vom Draht bis zur Auslieferung, und \secref{sec:optionsverarbeitung} vertieft das
-Serialisieren und Parsen der Optionen. Ferner zeigt \secref{sec:pruefarchitektur} die gebaute Prüfanlage
-mit ihren Nachweisspuren und \secref{sec:betriebsgrenzen} die Betriebs- und Sicherheitsgrenzen;
-abschließend benennt \secref{sec:grenzen-implementierung} die bewussten Grenzen des Baus.
+Dieses Kapitel beschreibt die unter den Vorgaben aus \chapref{chap:analyse} gebaute
+Referenzimplementierung und ihre Prüfanlage. Auf Entstehungsprozess (\secref{sec:vorgehen}) und Komponenten
+mit Anforderungsbezug (\secref{sec:architektur}, \secref{sec:anforderungsmatrix}) folgen Sendeweg
+(\secref{sec:sendepfad}), Empfangsweg (\secref{sec:empfangspfad}) und Optionsverarbeitung
+(\secref{sec:optionsverarbeitung}). Danach behandeln \secref{sec:pruefarchitektur} die Testarchitektur,
+\secref{sec:betriebsgrenzen} die Betriebs- und Sicherheitsgrenzen und
+\secref{sec:grenzen-implementierung} die bewussten Grenzen.
 
-Dabei bleibt die Trennung aus \secref{sec:forschungsdesign} bestehen: Dieses Kapitel beschreibt und
-begründet den Bau; die abschließende Erfüllungsbewertung und die Ergebnisse der Messkampagnen gehören zu
-\chapref{chap:evaluation}. Befunde aus Vorversuch und Prüfbetrieb erscheinen nur dort, wo sie eine
-Entwurfsentscheidung begründen oder die Prüfanlage absichern. Die vier Entscheidungen aus
-\secref{sec:technologieauswahl} werden hier angewandt und nicht neu begründet; ebenso setzt das Kapitel die
-Mechanik der Surplus Area aus \chapref{chap:grundlagen} voraus und greift sie nur dort auf, wo der Entwurf
-ihr eine konkrete Gestalt gibt.
+Das Kapitel beschreibt und begründet den Bau; Umsetzungsbewertung und Pfadmessungen folgen in
+\chapref{chap:evaluation}. Diese Trennung legt \secref{sec:forschungsdesign} fest. Befunde aus Vorversuch
+und Prüfbetrieb erscheinen nur, wenn sie Entwurf oder Prüfanlage begründen. Die vier Entscheidungen aus
+\secref{sec:technologieauswahl} und die Mechanik aus \chapref{chap:grundlagen} werden angewandt, nicht
+erneut hergeleitet.
 
 \section{Vorgehen der Implementierung}
 \label{sec:vorgehen}
@@ -39,12 +31,13 @@ Modulgerüste.\footnote{Commit \texttt{3c17252} vom 30.05.2026; die Detailpläne
 Commit \texttt{36cc465}.} Der Plan bezeichnet sich selbst als schrittweise abzuarbeitenden Masterplan mit
 einem Menschen in der Schleife; der Anforderungskatalog stand damit vor dem ersten Funktionsschritt.
 
-Je Schritt lief der Kernzyklus aus \figref{fig:stepzyklus}: ein eigener Arbeitszweig, die Umsetzung mit
-Tests im selben Commit, das lokale Gate mit am Ende 18 Prüfläufen, der Pull-Request mit der kleineren
-CI-Kette und zwei angeforderten KI-Prüfungen, zuletzt die menschliche Durchsicht des Diffs und genau ein
-freigegebener Sammelcommit auf dem Hauptzweig; nur die Schritte 14, 15 und 17 teilten sich einen solchen
-Commit. Die Regeln dazu stehen versioniert im Repository selbst, einschließlich des Grundsatzes, dass jede
-Änderung vor der Übernahme von einem Menschen gelesen und verantwortet wird.
+Ab Schritt~1 lief der Kernzyklus aus \figref{fig:stepzyklus}: ein eigener Arbeitszweig, die Umsetzung mit
+Tests im selben Sammelcommit, das lokale Gate mit am Ende 18 Prüfläufen, der Pull-Request mit der kleineren
+CI-Kette und zwei angeforderten KI-Prüfungen, zuletzt die menschliche Durchsicht des Diffs und ein
+freigegebener Sammelcommit auf dem Hauptzweig; die Schritte 14, 15 und 17 teilten sich einen solchen
+Commit. Die Schritte 0 und 0.5 bildeten die frühe Ausnahme und verteilten sich auf mehrere Commits und
+Pull-Requests. Die Regeln des reifen Zyklus stehen versioniert im Repository selbst, einschließlich des
+Grundsatzes, dass jede Änderung vor der Übernahme von einem Menschen gelesen und verantwortet wird.
 
 Der Plan blieb dabei beweglich: Ein Machbarkeits-Vorversuch (Schritt 0.5, \secref{sec:empfangspfad}) und
 die unabhängige Wire-Prüfung (Schritt 10.5, \secref{sec:pruefarchitektur}) wurden eingeschoben, Schritt 9
@@ -56,14 +49,16 @@ unbekannter UNSAFE-Optionen vor einem FRAG und den vollständigen Statusabgleich
 Anforderungskatalogs.\footnote{Commit \texttt{4c82ab0} vom 02.08.2026 mit 53 geänderten Dateien; die
 Schrittdatei ist \path{docs/plan/steps/18-rfc9868-audit-remediation.md}.}
 
-Dass diese Schleifen nicht Förmelei waren, zeigen die Fänge: Die Prüfung gegen den RFC-Primärtext fand
-vier Fehler in der eigenen Regeldatei des Repositorys, darunter eine falsch wiedergegebene
-Ausrichtungsregel; die Zweitprüfung im Pull-Request fing den Um-eins-Fehler der Surplus-Ortung, den 23
-selbstgeschriebene Tests übersehen hatten (\secref{sec:pruefarchitektur}); und bei Schritt 18 musste eine
-erste, vom Sprachmodell vorgeschlagene Korrektur selbst noch einmal korrigiert werden, weil sie hinter der
-unbekannten UNSAFE-Option weiter nach FRAG suchte. Ebenso klar sind die Grenzen der Belegbarkeit: Die
-Sammelcommits verschmelzen die innere Reihenfolge eines Schritts, die KI-Prüfungen waren angefordert, aber
-nicht erzwungen, und für das Lean-Gate ist kein Fang eines echten Produktfehlers belegt; es sicherte den
+Dass diese Schleifen nicht Förmelei waren, zeigen belegte Fänge: Die Prüfung gegen den RFC-Primärtext fand
+vier Fehler in mehreren Vertragsdokumenten des Repositorys, darunter eine falsch wiedergegebene
+Ausrichtungsregel.\footnote{Commit \texttt{f85815f} mit vier geänderten Vertragsdateien
+(\path{CLAUDE.md}, \path{docs/architecture.md}, \path{docs/requirements.md}, \path{docs/wire-format.md}).}
+Die Zweitprüfung im Pull-Request fing den Um-eins-Fehler der Surplus-Ortung, den 23 selbstgeschriebene Tests
+übersehen hatten (\secref{sec:pruefarchitektur}). Der Schlussaudit deckte trotz grüner Prüfkette weitere
+Konformitätslücken auf, darunter die Verarbeitung einer unbekannten UNSAFE-Option vor einem FRAG;
+Schritt~18 behob sie gesammelt. Ebenso klar sind die Grenzen der Belegbarkeit: Die Sammelcommits
+verschmelzen die innere Reihenfolge eines Schritts, die KI-Prüfungen waren angefordert, aber nicht
+erzwungen, und für das Lean-Gate ist kein Fang eines echten Produktfehlers belegt; es sicherte den
 Modellbestand (\secref{sec:pruefarchitektur}). Mit diesem Vorgehen im Rücken zeigt der Rest des Kapitels
 den fertigen Bau.
 
@@ -328,15 +323,22 @@ nicht zur Verfügung; das ist ein Befund dieses Sendewegs, keine Vorgabe des RFC
 Fragmentierungsoption begründet der RFC unabhängig davon: FRAG überträgt Nachrichten oberhalb der
 Empfangsgrenze EMTU\_R und kopiert die UDP-Ports in jedes Fragment, sodass die Fragmente zustandslose
 NAT-Geräte durchqueren können \cite[Sec.~11.4]{rfc9868}; die Vertiefung folgt in
-\secref{sec:optionsverarbeitung}. Die Bibliothek zieht im hohen Sendepfad die Konsequenz:
-\texttt{Peer::send} prüft gegen eine konfigurierbare Obergrenze der Datagrammlänge (Voreinstellung
-1500~Byte) und zerlegt größere Nachrichten standardmäßig selbst in FRAG-Fragmente, sofern die
-konfigurierten MRDS- und Segmentgrenzen der Gegenstelle das zulassen; andernfalls endet der Aufruf mit
-\texttt{SendError::Split}.\footnote{Obergrenze und
-Modus mit ihren Voreinstellungen in \texttt{src/api/mod.rs} (Zeile 33 sowie Zeilen 114 bis 133);
-die Zerlegung übernimmt
-\texttt{build\_outgoing\_datagrams} (ab Zeile 362).} In \secref{sec:ff1-kriterien} ist \texttt{EMSGSIZE}
-deshalb bereits als erwartete Prüflast der Sendekampagnen eingeordnet.
+\secref{sec:optionsverarbeitung}. Die Bibliothek zieht im Sendepfad die Konsequenz: \texttt{Peer::send}
+prüft gegen eine konfigurierbare Obergrenze der Datagrammlänge (Voreinstellung 1500~Byte) und zerlegt
+größere Nachrichten bei aktiviertem Modus in FRAG-Fragmente, sofern die MRDS- und Segmentgrenzen dies
+zulassen; andernfalls endet der Aufruf mit \texttt{SendError::Split}. \texttt{SendOptions} wählt die
+unterstützten Optionen je Sendung; \texttt{max\_datagram\_len} bildet die maximale Fragment- oder
+Datagrammlänge ab. Es fehlt aber eine Kennzeichnung, ob eine Option für Fragmente oder für die Nachricht vor
+der Fragmentierung gilt, sowie eine vom Aufrufer gewählte Mindestlänge mit \texttt{EOL} und Nullfüllung. Die
+tiefe Funktion \texttt{build\_outgoing\_datagrams} nimmt \texttt{SendConfig} je Aufruf an. Bei
+\texttt{Peer::send} ist diese Konfiguration dagegen beim Binden gespeichert; der Aufruf erhält nur Nutzdaten
+und \texttt{SendOptions}.\footnote{\texttt{SendOptions} in \texttt{src/api/mod.rs} (Zeilen 58 bis 63),
+\texttt{SendConfig} mit \texttt{max\_datagram\_len} (Zeile 33 sowie Zeilen 110 bis 137),
+\texttt{Peer::send} (ab Zeile 298); die Zerlegung übernimmt \texttt{build\_outgoing\_datagrams}
+(ab Zeile 362).} Damit ist die Sende-API-Form aus Abschnitt~15 teilweise abgebildet; die anschließende
+Erwartung paketweiser Aktivierung erfüllt nur die tiefe, nicht die hohe Schnittstelle vollständig. In
+\secref{sec:ff1-kriterien} ist \texttt{EMSGSIZE} zudem bereits als erwartete Prüflast der Sendekampagnen
+eingeordnet.
 
 Am Ende des Pfads steht der Systemaufruf. Die Socket-Schicht öffnet den Raw Socket mit den Crates
 \texttt{socket2} und \texttt{libc} \cite{socket2, libc} und schaltet \texttt{IP\_HDRINCL} per
@@ -520,7 +522,7 @@ dem OCS, und steht dort etwas anderes, sind alle Optionen zu ignorieren und die 
 verwerfen. Dieselbe Disposition, also derselbe Verarbeitungsausgang, gilt bei
 fehlgeschlagener OCS-Prüfung und bei Längenwerten, die über die Surplus Area hinausweisen
 (in der durch das Erratum konsolidierten Fassung) \cite[Sec.~8, 9 und
-10]{rfc9868}\cite{rfc9868-errata}. Verworfen wird dabei die Surplus Area, nicht das Datagramm: Nutzdaten
+10]{rfc9868}\cite{rfc9868-eid8834}. Verworfen wird dabei die Surplus Area, nicht das Datagramm: Nutzdaten
 mit bestandener oder zulässig ungenutzter UDP-Prüfsumme werden weiter zugestellt. In der Pipeline führt
 jeder dieser Wege, ebenso wie jeder andere Parserfehler im TLV-Strom, über dieselbe Hilfsfunktion
 \texttt{deliver\_without\_options}, die die leere Optionsliste liefert und den OCS-Status getrennt
@@ -559,18 +561,17 @@ verworfene und gefilterte
 Ausgänge auf \zitat{kein Datagramm} ab. Ob diese Sicht
 für die Messkampagnen ausreicht, bewertet \chapref{chap:evaluation}.
 
-Eine Schwäche des Empfangswegs zeigte sich erst im Messbetrieb. Der Raw-Empfänger sieht im jeweiligen
-Netznamensraum jeden UDP-Verkehr unabhängig vom Zielport, die Portauswahl trifft erst der
-Benutzerraumfilter; in einer frühen Fassung beendete das
-erste fremde Paket den Empfangsaufruf
-still, eine laufende Kampagne endete damit ohne Befund, und als Notbehelf diente der Neustart des
-Empfängers. Die Behebung verlegt die Filterung in eine Schleife unter einer Gesamtfrist: Gefilterte
-Datagramme (fremde Ports, eigene Kopien, unlesbare Köpfe) beenden den Aufruf nicht mehr, und vor jedem
-Leseversuch wird die Wartezeit des Sockets auf die Restzeit der Frist gestellt, sodass stetiger fremder
-Verkehr das Warten nicht verlängert.\footnote{\texttt{src/socket/recv.rs} (Zeilen 113 bis 175); Behebung
-in den Commits \texttt{f3bf430} und \texttt{8f8c11b}, beide Vorfahren von \texttt{f847895}.} Seitdem
-bedeutet ein leeres Ergebnis genau \zitat{Frist ohne Treffer abgelaufen}; eine öffentliche Unterscheidung
-zwischen gefiltert und abgelaufen gibt es bewusst nicht.
+Im Messbetrieb zeigte sich eine Schwäche des Empfangswegs. Der Raw-Empfänger sieht im jeweiligen
+Netznamensraum den gesamten UDP-Verkehr, unabhängig vom Zielport. In einer frühen Fassung beendete das
+erste fremde Paket den Empfangsaufruf still; eine laufende Kampagne endete damit ohne Befund, und als
+Notbehelf diente der Neustart des Empfängers. Die Behebung verlegt die Filterung in eine Schleife unter
+einer Gesamtfrist: Fremde Ports, eigene Kopien und unlesbare Köpfe beenden den Aufruf nicht mehr, und jeder
+Leseversuch erhält nur die Restzeit.\footnote{\texttt{src/socket/recv.rs} (Zeilen 113 bis 175) und
+\texttt{Peer::recv} in \texttt{src/api/mod.rs} (Zeilen 322 bis 332); Behebung in den Commits
+\texttt{f3bf430} und \texttt{8f8c11b}, beide Vorfahren von \texttt{f847895}.} Auf der tiefen Ebene bedeutet
+\texttt{RawReceiver::recv = None} damit Fristablauf ohne passenden Treffer. Die hohe Ebene
+\texttt{Peer::recv} verwendet \texttt{None} zusätzlich für Dekodierfehler sowie \texttt{Buffered},
+\texttt{Dropped} und \texttt{Filtered}; öffentlich sind diese Ursachen nicht unterscheidbar.
 
 In dieser Schleife steht auch der zweite und letzte \texttt{unsafe}-Block in \texttt{src/}: Nach jedem
 Leseerfolg fasst \texttt{std::slice::from\_raw\_parts} die vom Betriebssystem gefüllten Bytes als Slice
@@ -767,9 +768,10 @@ Anforderungen und der Plan die Schritte, in der Mitte steht der Bau mit seinen b
 rechts prüfen Tests, Modelle und Gates; nur die gestrichelten Kanten tragen keine erzwungene Kopplung,
 und genau dort setzt die Bewertung in \chapref{chap:evaluation} an.
 
-Die ersten beiden Ebenen laufen bei jedem Prüflauf auf dem Entwicklungsrechner. 211
-\texttt{\#[test]}-Attributzeilen verteilen sich auf 156 in \texttt{src/} und 55 in \texttt{tests/};
-gezählt sind Attributzeilen, nicht Prüffälle, denn aus einer Zeile können im Lauf viele Fälle entstehen.
+Die ersten beiden Ebenen laufen bei jedem Prüflauf auf dem Entwicklungsrechner. 212
+\texttt{\#[test]}-Attributzeilen verteilen sich auf 156 in \texttt{src/}, 55 in \texttt{tests/} und eine im
+Wire-Beispiel unter \texttt{examples/}; gezählt sind Attributzeilen, nicht Prüffälle, denn aus einer Zeile
+können im Lauf viele Fälle entstehen.
 Das gilt vor allem für die zehn Property-Dateien unter \texttt{tests/}: Der Host-Prüflauf erzeugt je
 Eigenschaft 1.024 Zufallsfälle; ohne diese Vorgabe gilt der Standardwert 256 der
 Bibliothek \texttt{proptest}, etwa in der Kreuzprüfung auf dem Zielsystem.\footnote{\texttt{PROPTEST\_CASES}
@@ -830,7 +832,7 @@ Was jede Ebene leistet und was nicht, stellt \tabref{tab:pruefmittel} einander g
     \toprule
     \textbf{Prüfmittel} & \textbf{findet} & \textbf{findet nicht} \\
     \midrule
-    Attributtests (211 Zeilen) & festgelegte Einzelfälle, Regressionen & Fehler außerhalb der gewählten
+    Attributtests (212 Zeilen) & festgelegte Einzelfälle, Regressionen & Fehler außerhalb der gewählten
       Fälle \\
     Property-Tests (10 Dateien) & verletzte Invarianten unter Zufallseingaben & beidseitig geteilte
       Fehlannahmen \\
@@ -846,12 +848,10 @@ Was jede Ebene leistet und was nicht, stellt \tabref{tab:pruefmittel} einander g
   \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:pruefmittel} geht hervor, dass keine Ebene die anderen ersetzt: Jede Zeile nennt eine
-Fehlerklasse, die genau diese Ebene nicht sieht, und erst die Summe deckt den Raum von der Einzelregression
-bis zum fremdgeprüften Draht. Dass erst die Summe trägt, zeigte die Praxis zweimal: Der Um-eins-Fehler der
-Surplus-Ortung überstand 23 Einzelfalltests und fiel erst der Zweitprüfung im Pull-Request auf, worauf
-Property-Tests und Fuzz-Ziele je Parsefläche verpflichtend wurden, und der RFC-Abgleich von Schritt~18
-fand trotz grüner Prüfkette weitere Konformitätslücken (\secref{sec:vorgehen}).
+Aus \tabref{tab:pruefmittel} geht hervor, dass keine Prüfebene die anderen ersetzt. Das zeigte der
+Um-eins-Fehler der Surplus-Ortung, den 23 Attributtests übersahen und erst die Zweitprüfung fand. Danach
+wurden Property-Tests und Fuzz-Ziele je Parsefläche verpflichtend. Schritt~18 fand trotz grüner Prüfkette
+weitere Konformitätslücken (\secref{sec:vorgehen}).
 
 Den Schluss der Klammer, die \secref{sec:architektur} geöffnet hat, bildet die Rückverfolgbarkeit.
 \secref{sec:architektur} bis \secref{sec:optionsverarbeitung} haben die tragenden Komponenten mit den
@@ -965,17 +965,16 @@ nicht über das laufende Rust-Programm; die Verbindung zwischen beiden bleibt Pr
 (\secref{subsec:formale-gegenprobe}). Fuzzing wiederum findet Fehler, beweist aber keine Abwesenheit von
 Fehlern. Beide Aussagen begrenzen, was \zitat{geprüft} in dieser Arbeit bedeutet.
 
-Die vierte Grenze ist der bewusst begrenzte Anforderungsumfang. Der Anforderungskatalog hält je Zeile
-fest, was abgewählt oder nur teilweise umgesetzt ist: die freiwillige Nullprüfung nach \texttt{EOL}
-(FR-18, nicht gewählt; \secref{sec:optionsverarbeitung}), der Verzicht auf einen Deckel für die
-Optionszahl (NFR-04, nicht gewählt), die erkennende, aber nicht arbeitsbegrenzende NOP-Behandlung
-(NFR-05, teilweise), die teilweise umgesetzte Empfangsrichtlinie je Socket-Paar (FR-44) und die im
-Raw-Pfad konstruktionsbedingte, als Anforderung nur teilweise belegte ICMP-Unterdrückung (FR-48); dazu
-kommen die aufrufergesteuerte Cache-Bereinigung und die fehlende Pfad-MTU-Ermittlung
-(\secref{sec:betriebsgrenzen}). Diese Zeilen sind die erwarteten Kandidaten der Teilbewertung in
-\chapref{chap:evaluation}.
+Die vierte Grenze ist der bewusst begrenzte Anforderungsumfang. Im 67-zeiligen Arbeitsindex des
+Anforderungskatalogs sind sechs Zeilen teilweise umgesetzt: die Trennung des Reassemblierungsspeichers
+zwischen Socket-Kontexten (\secref{sec:betriebsgrenzen}), zwei Empfangsregeln für geforderte oder fehlende
+Optionen je Quellebene, der Geltungsbereich und die Mindestlänge der Sende-API sowie zusammengefasste
+Empfehlungen zur Ressourcenbegrenzung und zur Referenzreihenfolge empfangener Optionen. Dazu treten
+abgewählte Zeilen wie die freiwillige Nullprüfung nach \texttt{EOL} (FR-18;
+\secref{sec:optionsverarbeitung}) und der Verzicht auf einen Deckel für die Optionszahl (NFR-04) sowie die
+aufrufergesteuerte Cache-Bereinigung und die fehlende Pfad-MTU-Ermittlung (\secref{sec:betriebsgrenzen}).
+Das sind Implementierungs- und Entwurfsgrenzen, keine belegten Grenzen von Linux, IPv4 oder Raw Sockets; ob
+daraus Teilbewertungen werden, entscheidet \chapref{chap:evaluation}.
 
-Mit diesen Grenzen ist das Messinstrument umrissen: die Bibliothek mit ihren
-Komponenten und Kennungen, die beiden Pfade mit dem Beispieldatagramm, die Optionsverarbeitung und die
-sechsstufige Prüfanlage. Das Beispieldatagramm mit dem Token \texttt{c0ffee01} geht als Referenzpaket an
-die Evaluation über: \chapref{chap:evaluation} setzt das Instrument auf die Forschungsfragen an.
+Damit ist das Messinstrument samt seinen Grenzen beschrieben. \chapref{chap:evaluation} setzt es auf die
+Forschungsfragen an und verwendet das Paket mit dem Token \texttt{c0ffee01} als Wire-Referenz.

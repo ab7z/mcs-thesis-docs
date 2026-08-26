@@ -14,9 +14,9 @@ Die ursprüngliche Spezifikation des User Datagram Protocol (UDP), RFC~768 aus d
 Zwischen beiden Dokumenten liegen 45 Jahre; die Klartextfassung des RFC~9868 ist mehr als 27-mal so umfangreich
 wie die des RFC~768.
 
-Die Einfachheit von UDP ist dabei kein Mangel, sondern Entwurfsziel: Das Protokoll bietet lediglich
-Portnummern zur Demultiplexierung und eine Prüfsumme zur Fehlererkennung.
-Genau diese Einfachheit macht UDP zu einem der am häufigsten genutzten Transportprotokolle im Internet.
+UDP besitzt einen acht Byte langen Header aus vier 16-Bit-Feldern: Quellport, Zielport, Länge und
+Prüfsumme \cite{rfc768}. RFC~9868 beschreibt UDP als weit verbreitet und stellt fest, dass der
+ursprüngliche Header keinen Raum für Optionen bietet \cite[Sec.~4]{rfc9868}.
 
 RFC~9868 greift Funktionen auf, die UDP ursprünglich der Anwendung oder einer darüberliegenden Schicht überließ:
 Transportfragmentierung, eine zusätzliche Nutzdatenprüfsumme sowie Optionen für Größen- und Zeitinformationen
@@ -34,11 +34,10 @@ RFC~9868 wählt den dritten Weg (die Muster hinter diesen Wegen vergleicht \chap
 nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich zwischen dem Ende der UDP-Nutzdaten
 und dem Ende des IP-Datagramms. Da das UDP-Length-Feld die Länge des UDP-Datagramms
 angibt und diese kleiner sein kann als die \emph{IP Transport Payload}, also alles, was im IP-Datagramm auf
-den IP-Header folgt, entsteht ein bisher ungenutzter Bereich für Erweiterungen (\secref{sec:surplus-area}). Auf dieser Grundlage definiert RFC~9868 ein erweiterbares
-Rahmenwerk für Transportoptionen.
+den IP-Header folgt, entsteht ein bisher ungenutzter Bereich für Erweiterungen (\secref{sec:surplus-area}).
+Auf dieser Grundlage definiert RFC~9868 ein erweiterbares Rahmenwerk für Transportoptionen.
 
-Damit steht das minimalistische UDP vor seiner bislang größten Erweiterung. Nun stellt sich die Frage, die
-diese Arbeit als Leitfrage begleitet:
+Damit stellt sich die Frage, die diese Arbeit als Leitfrage begleitet:
 
 \begin{quote}
     \textbf{\emph{Wie lässt sich UDP um Transportoptionen erweitern, ohne seine grundlegenden
@@ -58,10 +57,8 @@ folgenden Abschnitte behandeln sie in dieser Reihenfolge.
 
 \subsection{Die Surplus Area als ungenutzter Erweiterungsraum}
 
-Anders als TCP besitzt der ursprüngliche UDP-Header kein explizites Optionsfeld. RFC~9868 platziert die Optionen
-deshalb außerhalb der durch das UDP-Length-Feld begrenzten Nutzdaten, aber noch innerhalb des IP-Datagramms. Damit
-bleibt der UDP-Header unverändert, die Implementierung muss jedoch zwei unterschiedliche Längengrenzen zuverlässig
-auswerten. Den genauen Aufbau der Surplus Area behandelt \secref{sec:surplus-area}.
+RFC~9868 lässt den UDP-Header unverändert, verlangt aber die getrennte Auswertung von UDP- und IP-Länge.
+Den genauen Aufbau der daraus entstehenden Surplus Area behandelt \secref{sec:surplus-area}.
 
 \subsection{Unidirektionalität}
 
@@ -76,9 +73,10 @@ eine in ihrem Auftrag arbeitende Bibliothek löst eine Antwort aus.
 
 \subsection{Herausforderungen}
 
-Die zentrale Herausforderung bei der Implementierung von UDP Optionen liegt im Zugriff auf die Surplus Area.
-Existierende Betriebssystem-Stacks liefern über Standard-Socket-APIs ausschließlich die durch das UDP-Length-Feld
-begrenzten Nutzdaten an die Anwendungsschicht; die Surplus Area wird stillschweigend verworfen
+Die zentrale Herausforderung bei der Implementierung von UDP-Optionen liegt im Zugriff auf die Surplus Area.
+Die in RFC~9868 getesteten Systeme Linux, macOS und Windows Cygwin lieferten nur die durch das
+\texttt{UDP-Length}-Feld begrenzten Nutzdaten an die Anwendung und verwarfen die Surplus Area still. Ein
+ebenfalls dokumentiertes eingebettetes Gerät wich davon ab und reichte das gesamte IP-Datagramm weiter
 \cite[Sec.~18]{rfc9868}. Den Weg eines UDP-Pakets durch den Linux-Kernel bis zu dieser Socket-Schnittstelle
 dokumentieren Stephan und Wüstrich \cite{stephan2024packetpath}.
 
