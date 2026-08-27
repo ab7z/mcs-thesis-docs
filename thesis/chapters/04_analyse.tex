@@ -473,8 +473,9 @@ Die vierte Entscheidung stellt der Testsuite zwei Gegenproben zur Seite, die bei
 KI-gestützten Entwicklung (\secref{sec:gefahrenmodell}) antworten. Das über \texttt{cargo-fuzz} eingebundene
 libFuzzer-Fuzzing sucht abdeckungsgeleitet im echten Parsercode nach Abstürzen und verletzten Invarianten
 und mutiert dabei jenseits der von der Entwicklung vorausgewählten Beispieleingaben \cite{libfuzzer}. Das
-Lean-Modell aus \secref{sec:rollen} prüft ausgewählte Invarianten mit maschinengeprüften Beweisen an
-handgeschriebenen Modellen; Ablauf, Fuzz-Ziele und Beweisumfang beschreibt \secref{sec:pruefkette}. Beide
+Lean-Modell prüft ausgewählte Invarianten mit maschinengeprüften Beweisen an handgeschriebenen Modellen;
+den Begriff führt \secref{subsec:pruefmittel} ein, die gebauten Ziele und den Beweisumfang beziffert
+\secref{sec:pruefarchitektur}. Beide
 Gegenproben ergänzen sich spiegelbildlich: Das Fuzzing prüft den echten Code und beweist nichts; der Beweis
 gilt ausnahmslos, aber nur für das Modell, nicht für den Rust-Code, der es umsetzt. Dass daneben auch die
 Norm selbst Prüfgegenstand bleiben muss, zeigte die Schlussphase der Implementierung: Ein nachträglicher

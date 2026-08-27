@@ -10,7 +10,58 @@ die Analyse der Messkampagnen und die Prüfung von Zwischenergebnissen. Wissensc
 Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet.
 Diese Regeln müssen vor der Ergebnisbewertung feststehen. Deshalb steht dieses Kapitel vor der RFC-Analyse.
 
-\section{Forschungsdesign und Arbeitsweise}
+\section{Anlass des KI-Einsatzes und veröffentlichte Fälle}
+\label{sec:externe-faelle}
+
+Diese Arbeit entsteht als Einzelarbeit und verbindet die Auswertung einer neuen Norm, systemnahe
+Programmierung, formale Modellierung und Messkampagnen. Der Einsatz von KI-Werkzeugen wird deshalb nicht
+beiläufig erwähnt, sondern vorab offengelegt und mit Prüfregeln versehen. Zur Einordnung dienen neun
+veröffentlichte Fälle, in denen KI-Systeme, darunter Sprachmodelle, an Forschungs- und
+Entwicklungsergebnissen beteiligt waren. Sie bilden keine systematische Literaturübersicht, belegen keine
+einheitliche Prüfkette und erlauben keine Aussage über Häufigkeit oder Wirksamkeit eines Verfahrens. Die
+folgende Auflistung nennt nur die in den Quellen ausdrücklich dokumentierten Rollen: den Beitrag des
+KI-Systems, die prüfende Instanz und die Grenze der jeweiligen Prüfung.
+
+\begin{itemize}
+  \item \textbf{AlphaFold:} Ein Vorhersagemodell bestimmte Proteinstrukturen; der blinde CASP14-Vergleich
+    mit experimentell ermittelten Strukturen prüfte die Ergebnisse, eine allgemeine Prüfkette entsteht
+    daraus nicht \cite{jumper2021alphafold}.
+  \item \textbf{Davies u.\,a.:} Ein KI-System schlug Hypothesen und Kandidatenmuster für mathematische
+    Probleme vor; beteiligte Mathematiker prüften durch Gegenbeispielsuche und führten den klassischen
+    Beweis \cite{davies2021intuition}.
+  \item \textbf{FunSearch:} Ein Sprachmodell erzeugte ausführbare Programmkandidaten, die ein
+    ausführbarer Auswerter einzeln bewertete; das Ergebnis gilt nur für die kodierte Bewertungsfunktion
+    \cite{romera2024funsearch}.
+  \item \textbf{AlphaProof:} Ein Modell erzeugte formale Beweiskandidaten, die der Kern des
+    Beweisassistenten Lean einzeln nachprüfte; jeder Beweis gilt für die formalisierte Aussage und ihre
+    Annahmen \cite{alphaproof2026}.
+  \item \textbf{Knuths Zyklen:} Ein Modell konstruierte die Lösung eines Zyklenproblems; Knuth führte den
+    Beweis anschließend selbst, und unabhängig davon lag bereits eine veröffentlichte Lean-Formalisierung
+    von Morrison vor \cite{knuth2026cycles}.
+  \item \textbf{Zeta-Schranke:} Ein Modell lieferte ein mathematisches Ergebnis samt gemeinsamer
+    Lean-Formalisierung; zwei Anthropic-Mathematiker und zwei externe Fachleute prüften es, ein
+    dokumentierter Blindvergleich fand nicht statt \cite{anthropic2026zeta}.
+  \item \textbf{Einheitsabstand:} Ein Modell lieferte einen Gegenbeweis zu einer Vermutung der diskreten
+    Geometrie; externe Mathematiker prüften ihn und veröffentlichten eine verdichtete, von Menschen
+    verifizierte Fassung \cite{openai2026unitdistance}.
+  \item \textbf{C-Parameter:} Ein Modell steuerte unter Aufsicht Rechnungen, Numerik und Manuskriptteile
+    bei; Physiker prüften mit einer Gegenprobe durch Monte-Carlo-Simulationen, und der Preprint legt den
+    Einsatz offen \cite{schwartz2026cparameter}.
+  \item \textbf{Bun-Migration:} Bei der Migration von Bun von Zig nach Rust erzeugten und prüften Modelle
+    derselben Familie den Quelltext; trotz getrennter Rollen blieb ein Fehler unentdeckt, nach dem Merge
+    wurde undefiniertes Verhalten gemeldet und das Prüfwerkzeug Miri in die kontinuierliche Integration
+    aufgenommen \cite{bun-in-rust,bun-pr30412,bun-issue30719}.
+\end{itemize}
+
+Die Fälle belegen nur, dass die Prüfinstanz zum Artefakt passen muss. Normtext, ausführbare Tests, formale
+Beweise, Messdaten und menschliche Freigabe haben verschiedene Aufgaben; ihre tatsächliche Nutzung muss
+dokumentiert sein. Diese Arbeit folgt außerdem der ausdrücklichen Offenlegung des C-Parameter-Falls
+(\secref{sec:ki-offenlegung}) und versteht auch eine mehrstufige Prüfung nicht als Garantie. Sie wendet
+denselben Maßstab auf sich selbst an: Jede Artefaktart erhält eine passende Prüfinstanz, und die
+Arbeitsteilung zwischen Autor und Werkzeugen steht fest, bevor Ergebnisse bewertet werden. Beides legen die
+folgenden Abschnitte offen.
+
+\section{Forschungsdesign und KI-gestützte Arbeitsweise}
 \label{sec:forschungsdesign}
 \label{sec:rfc-auswertung}
 
@@ -112,8 +163,7 @@ mehrere Wiederholungen oder bei FRAG mehrere Wire-Datagramme enthalten.
 Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
 \texttt{SHOULD}-Aussagen gehen in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine
 dokumentierte Begründung. Eine \texttt{MAY}-Funktion wird nur bewertet, wenn sie für die
-Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
-Umfangs liegende Aussagen bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich.
+Referenzimplementierung gewählt wurde.
 
 Wie diese Regeln auf die einzelnen Anforderungen angewandt werden, legt \secref{sec:ff1-kriterien} fest; die
 Auswertungsregeln der Messläufe für FF2 stehen in \secref{sec:testkonzept}. Beide Regelwerke stehen damit
@@ -200,10 +250,18 @@ Arbeitssitzungen und sind zugleich der Maßstab, an dem eine Modellausgabe gepr�
 mehrfachen Ablage ist belegt: Ein Abgleich am Primärtext fand vier falsche RFC-Angaben in vier
 Vertragsdokumenten zugleich (\secref{sec:vorgehen}).
 
-Denselben Aufbau hat der Plan. Jeder Arbeitsschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
-Anforderungen, Lean-Pflichten, Plan, Aufgaben und Abschlusskriterien. Sie nennt die Anforderungen, die sie
-umsetzt, und entsteht vor dem Quelltext. Wo Lean-Pflichten bestehen, verlangen neun Schrittdateien wörtlich
-die Spezifikation vor der Umsetzung und den Beweis danach; ob jeder Schritt diese Reihenfolge einhielt, ist
+Die Versionsgeschichte schreibt diese Vorgaben dem Autor zu: Der erste Commit des Repositorys legte die
+Roadmap und die Schrittdateien an, der zweite am selben Tag den Anforderungskatalog sowie die Architektur-
+und Formatreferenz. Die Roadmap bezeichnet sich als Masterplan, der Schritt für Schritt mit einem Menschen
+in der Schleife ausgeführt wird: ein geprüfter Commit je Schritt. Der Autor legt damit Plan, Maßstab und
+Abschlusskriterien fest und gibt jedes Ergebnis frei; die Werkzeuge arbeiten innerhalb dieser Vorgaben.
+Zwei Grenzen bleiben: Die Sammelcommits verschmelzen die innere Reihenfolge eines Schritts, und die
+Commit-Historie trennt den Beitrag von Autor und Werkzeug je Änderung nicht auf.
+
+Denselben Aufbau hat der Plan. Jeder Hauptschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
+Anforderungen, Lean-Pflichten, Plan, Aufgaben und Abschlusskriterien; alle Schrittdateien lagen vor dem
+ersten Funktionsschritt vor. Wo Lean-Pflichten bestehen, verlangen neun Schrittdateien wörtlich die
+Spezifikation vor der Umsetzung und den Beweis danach; ob jeder Schritt diese Reihenfolge einhielt, ist
 damit noch nicht belegt. \figref{fig:stepzyklus} zeigt den Kernzyklus:
 
 \begin{figure}[H]
@@ -258,13 +316,8 @@ Anforderungskatalogs lief periodisch; vollständig glich ihn erst Schritt~18 ab.
 liefen und was sie ergaben, behandelt \chapref{chap:entwurf}.
 
 Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
-Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Welche Rollen bei der
-Erzeugung und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
-
-\section{Beteiligte und ihre Rollen}
-\label{sec:rollen}
-
-\tabref{tab:rollen} trennt Erzeugung, Prüfung, formale Gegenprobe und Freigabe.
+Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. \tabref{tab:rollen}
+trennt die Rollen von Autor und Werkzeugen nach Aufgabe und Grenze:
 
 \begin{table}[htbp]
   \centering
@@ -276,19 +329,15 @@ Erzeugung und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
     \textbf{Beteiligter} & \textbf{Aufgabe} & \textbf{Grenze} \\
     \midrule
     Autor
-      & entscheidet, gewichtet, gibt frei und verantwortet
+      & legt Plan, Anforderungskatalog, Architektur- und Formatvorgaben sowie die Schrittdateien fest;
+        entscheidet, gewichtet, gibt frei und verantwortet
       & jedes Ergebnis gilt erst nach seiner Freigabe \\
     Claude Code (Anthropic)
-      & führendes Werkzeug für Entwürfe, Quelltext und Analysen
+      & setzt innerhalb dieser Vorgaben um: Entwürfe, Quelltext, Tests und Analysen
       & Modellausgaben sind keine Nachweise \\
     Codex (OpenAI)
-      & getrennter Zweitprüfer; sucht Fehler und Gegenbeispiele
-      & Herstellertrennung beweist keine Unabhängigkeit; ihre Wirkung wird nicht gemessen \\
-    Lean
-      & beweist ausgewählte Invarianten von Wire-Format, OCS, FRAG und Empfangslogik in handgeschriebenen
-        Modellen; ein Skript baut die Beweise und prüft die Axiome
-      & die Übereinstimmung mit dem Rust-Code ist nicht bewiesen; die Implementierung ist nicht formal
-        verifiziert \\
+      & getrennter Zweitprüfer
+      & Herstellertrennung beweist keine Unabhängigkeit \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -297,7 +346,7 @@ Beide Modellwerkzeuge verbinden ein Sprachmodell mit Dateizugriff, Kommandoausf�
 Herstellertrennung soll vollständig gleiche Fehlermuster verringern, beweist aber keine Unabhängigkeit.
 Eine Prüfung durch dasselbe Modell ist keine getrennte Zweitprüfung. Änderungen durch den Zweitprüfer
 erfordern einen eigenen, vom Autor freigegebenen Auftrag und zählen dann nicht als Prüfung desselben
-Ergebnisses. Zulässig ist nur die Aussage, dass ausgewählte Invarianten in Lean-Modellen bewiesen sind.
+Ergebnisses.
 
 Die Art der Prüfung richtet sich nach der Art der Aussage. Protokollaussagen werden gegen RFC-Primärtext und
 Errata geprüft. Aussagen über die Implementierung werden durch Quelltext und ausführbare Prüfungen gestützt.
@@ -357,15 +406,12 @@ Die Gegenmaßnahmen setzen deshalb an Auftrag, Prüfinstanz und Artefakten an. K
 Modell sie behauptet. Konformitätsmatrix und Testarchitektur prüfen die Implementierung; auch sie belegen
 nur die untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
-Zwei Projektbefunde zeigen die praktische Bedeutung. Eine Gegenprüfung eigener Sekundärdokumente am
-RFC-Primärtext fand vier inhaltliche Abweichungen; die Konformität der Implementierung wird davon getrennt
-anhand von Quelltext und Tests beurteilt. Eine Kampagnennotiz nannte außerdem 15 Kontrollmessungen,
-tatsächlich waren es 18. Eine dreiköpfige Prüfung ließ diesen Fehler zunächst bestehen, weil die vorgelegten
-Prüfaussagen die Gesamtzahl nicht umfassten; eine spätere getrennte Durchsicht fand ihn. Eigene
-Zusammenfassungen bleiben daher Suchhilfen, und eine Prüfung belegt nur die Aussagen, die ihr tatsächlich
-vorgelegt wurden.
+Die Antworten der Tabelle sind Verfahrensregeln, und Verfahrensregeln führen Menschen und Modelle aus.
+Ohne weiteres Zutun urteilen nur die ausführbaren Prüfungen und der Beweisprüfer; Pfadbefunde benötigen
+zusätzlich das Sendemanifest und die dokumentierte Auswertung. Wie diese Prüfungen für FF1 aufgebaut sind,
+legt der folgende Abschnitt fest.
 
-\section{Testarchitektur und Prüfprozess}
+\section{Testarchitektur für FF1}
 \label{sec:pruefkette}
 
 Die aktuelle Prüfkette wird lokal gestartet, verbindet aber lokale und entfernte Prüfungen. Sie ist der
@@ -373,35 +419,58 @@ Sollzustand vor dem Öffnen oder Aktualisieren eines Pull Requests. Historisch e
 schrittweise. Aussagen über frühere Pull Requests beziehen sich deshalb nur auf die damals protokollierten
 Prüfungen.
 
-Zu den deterministischen Prüfungen gehören Formatierung, statische Analyse, Dokumentationsbau, Unit-Tests und
-Integrationstests. Property-Tests erzeugen für jede Eigenschaft lokal 1024 Fälle. Neun zeitlich begrenzte
-Fuzz-Ziele suchen mit beliebigen Bytefolgen nach Abstürzen und verletzten Invarianten. Der dokumentierte
-Sollprozess verlangt, gefundene Gegenbeispiele zu minimieren und als Regressionstests einzuchecken. Die
-Lean-Prüfung baut die formalen Modelle und kontrolliert ihre Axiome.
+Dieser Abschnitt beschreibt ausschließlich die Prüfung der Entwicklung, also die Nachweisseite von FF1.
+Ein bestandener Entwicklungstest sagt nichts über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen
+Entwicklungstest. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme, Sendemanifeste sowie
+Paketmitschnitte an Sender und Empfänger; ihre Ergebnisklassen legt bereits
+\tabref{tab:operationalisierung} fest, das Pfad- und Fehlermodell folgt in \secref{sec:ff2-pfadmodell},
+die Belegregeln und die Auswertung der Messläufe in \secref{sec:testkonzept}. Der eigene Mitschnittprüfer
+wird dabei wiederverwendet; die Bewertungsregeln beider Untersuchungen bleiben getrennt.
 
-Die systemnahen Stufen laufen auf dem entfernten Linux-Zielsystem. Dort prüfen sie die Cross-Kompilierung, die
-Raw-Socket-Integration mit erhöhten Rechten und das tatsächlich gesendete Paketbild. Das lokal gestartete
-Skript und die Reihenfolge seiner Prüfschritte sind im Implementierungs-Repository festgehalten.\footnote{
-Implementierungs-Repository, Commit \texttt{f1cfe52}, \path{scripts/pre-pr.sh}.} Die kontinuierliche
-Integration (CI) wiederholt Formatierung, statische Analyse und Rust-Tests. Nach deren Erfolg baut sie die
-Lean-Modelle und stellt anschließend zwei getrennte Prüfanfragen: an Claude Code zu Codequalität und Sicherheit
-und an Codex zur RFC-9868-Semantik.
+\subsection{Prüfmittel und ihre Reichweite}
+\label{subsec:pruefmittel}
+
+Zu den festen Prüfungen gehören Formatierung, statische Analyse, Dokumentationsbau sowie Unit- und
+Integrationstests. Drei weitere Prüfmittel tragen besondere Aufgaben. Ein Property-Test formuliert eine
+Eigenschaft, die für alle Eingaben einer Klasse gelten soll, und prüft sie an vielen maschinell erzeugten
+Fällen statt an ausgewählten Beispielen \cite{proptest}. Ein Fuzz-Ziel ist eine Funktion, die eine
+beliebige Bytefolge entgegennimmt und damit die echten Verarbeitungspfade der Bibliothek aufruft, vom
+Zerlegen über das Serialisieren bis zum Aufbau ganzer Datagramme; der abdeckungsgeleitete Fuzzer erzeugt
+und verändert solche Eingaben fortlaufend und bevorzugt jene, die neue Programmpfade erreichen
+\cite{cargo-fuzz,libfuzzer}. Fuzzing findet Fehler, aber keine Fehlerfreiheit; es läuft als lokale
+Pflichtstufe mit Zeitschranke und nicht in der kontinuierlichen Integration, ein unauffälliges Ergebnis
+bedeutet also nur, dass innerhalb der Zeitschranke kein Fund auftrat. Der dokumentierte Sollprozess
+verlangt, gefundene Gegenbeispiele zu minimieren und als Regressionstests einzuchecken. Lean ist ein
+Beweisassistent: Regeln werden als Modell formuliert, Aussagen darüber als Theoreme bewiesen, und ein
+kleiner Kern prüft jeden Beweisschritt nach \cite{lean4}. Die Lean-Prüfung baut diese Modelle und
+kontrolliert ihre Axiome. Bewiesen ist damit das handgeschriebene Modell mit seinen Annahmen, nicht der
+Rust-Quelltext; den gebauten Umfang beziffert \secref{sec:pruefarchitektur}.
 
 Eine besondere Gefahr sind Fehler, die Implementierung und Test gemeinsam haben. Sender und Empfänger der
 Bibliothek verwenden getrennte Module für Serialisierung und Parsing, beruhen aber auf denselben
 projektspezifischen Formatannahmen, etwa der gemeinsamen Tabelle der \texttt{Kind}-Werte und der
-Längenkonstanten. Ein gemeinsamer Entwurfsfehler in diesen Annahmen kann deshalb jeden Round-Trip-Test
+Längenkonstanten. Ein gemeinsamer Entwurfsfehler in diesen Annahmen kann deshalb jeden Test
 bestehen. Die Wire-Prüfung verringert diese Selbstbezüglichkeit: \texttt{tcpdump} zeichnet die tatsächlich
 gesendeten Bytes auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
-berechnet die Prüfsummen mit eigener Faltung nach RFC~1071 \cite{rfc1071} und einer eigenen CRC32C-Tabelle.
+berechnet die Prüfsummen.
 \texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Die im Projekt verwendete Version 4.6.4
 besitzt jedoch keinen Dissektor für UDP-Optionen.
 
 Auch diese Prüfung ist nicht vollständig unabhängig. Die erwarteten Referenzbytes stammen aus der
-projekteigenen Formatdokumentation. Die Unabhängigkeit gilt für den Prüfcode, nicht für den Entwurf. Dasselbe
-gilt für die drei handgerechneten OCS-Referenzvektoren. Sie sind nicht palindromisch und wurden getrennt
-nachgerechnet, damit Bytevertauschungen auffallen. RFC~9868 enthält jedoch keinen veröffentlichten Referenzwert;
-eine externe Bestätigung dieser Vektoren steht noch aus.
+projekteigenen Formatdokumentation. Die Unabhängigkeit gilt für den Prüfcode, nicht für den Entwurf.
+Dasselbe gilt für die drei handgerechneten OCS-Referenzvektoren der Unit-Tests. Sie sind nicht
+palindromisch und wurden getrennt nachgerechnet, damit Bytevertauschungen auffallen.
+
+\subsection{Prüfkette bis zur Freigabe}
+
+Das lokale Gate \texttt{pre-pr.sh} fährt neun feste Bahnen: Formatierung, statische Analyse,
+Dokumentationsbau, die Tests samt Property-Fällen, die Prüfung des eigenen Auswerters, das Lean-Tor sowie
+drei Bahnen auf einem separaten Linux-Zielsystem, das die Cross-Kompilierung, die Raw-Socket-Integration
+mit Root-Rechten und das tatsächlich gesendete Paketbild prüft. Dazu kommt je Fuzz-Ziel eine eigene Bahn;
+zusammen ergeben sich die 18 Prüfläufe aus \figref{fig:stepzyklus}. Die kontinuierliche Integration (CI)
+wiederholt Formatierung, statische Analyse und Unit-Tests. Nach deren Erfolg baut sie die Lean-Modelle und
+stellt anschließend zwei getrennte Prüfanfragen: an Claude Code zu Codequalität und Sicherheit und an
+Codex zur RFC-9868-Semantik.
 
 Der aktuelle Sollprozess ist in \figref{fig:pruefprozess} als Sequenzdiagramm dargestellt: Jeder Beteiligte
 erhält eine senkrechte Lebenslinie, die schmalen Balken zeigen seine aktiven Phasen, durchgezogene Pfeile sind
@@ -474,74 +543,13 @@ und die Grenze ihrer technischen Erzwingung reduziert:
 
 Aus \figref{fig:pruefprozess} geht hervor, dass die Pfeilfolge nur die vorgesehene Reihenfolge vom Prüfskript
 über den Pull Request und die Rust/Lean-CI bis zur Freigabe durch den Autor zeigt; eine technische
-Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt. Der
-gestrichelt umrahmte Bereich hebt hervor, dass auch deren Abschluss nicht erzwungen ist; das Thesis-Repository
-besitzt überhaupt keine solchen Prüfschritte. Pull Request 27 zeigt die Folge: Er wurde vor Abschluss aller
-Prüfungen zusammengeführt; ein Befund traf danach ein.\footnote{
-Implementierungs-Repository,
-\url{https://github.com/ab7z/udp-transport-options/pull/27}.} Daher wird kein technisch erzwungenes
-Vier-Augen-Prinzip behauptet.
+Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt.
 
-Diese Testarchitektur gehört zur Entwicklung. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme,
-Sendemanifeste sowie Paketmitschnitte an Sender und Empfänger. Ein bestandener Entwicklungstest sagt nichts
-über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen Entwicklungstest. Das Projekt setzt außerdem
-kein systematisches Mutation-Testing am Rust-Quelltext ein; in einem dokumentierten Einzelfall wurde ein
-früherer Quelltextfehler gezielt wieder eingeführt, und drei Property-Tests sowie ein Fuzz-Ziel erkannten
-diese Mutation. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der jeweilige Auswerter bekannte
-Manipulationen erkennt. Der folgende Abschnitt ordnet diesen Prüfgedanken durch externe Vergleichsfälle ein.
-
-\section{Externe Referenzfälle}
-\label{sec:externe-faelle}
-
-Zur Einordnung dienen neun publizierte Fälle mit verschiedenen Prüfinstanzen. Sie bilden keine
-systematische Literaturübersicht, belegen keine einheitliche Prüfkette und erlauben keine Aussage über
-Häufigkeit oder Wirksamkeit eines Verfahrens. \tabref{tab:externe-ki-faelle} macht nur die in den Quellen
-ausdrücklich dokumentierten Rollen vergleichbar.
-
-\begingroup
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.05}
-\begin{longtable}{@{}L{2.9cm}L{3.25cm}L{4.4cm}L{3.25cm}@{}}
-\caption{Externe KI-Fälle mit Artefakt, Prüfinstanz und Aussagegrenze}
-\label{tab:externe-ki-faelle}\\
-\toprule
-\textbf{Fall} & \textbf{Modellbeitrag} & \textbf{Prüfinstanz} & \textbf{Grenze} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Fall} & \textbf{Modellbeitrag} & \textbf{Prüfinstanz} & \textbf{Grenze} \\
-\midrule
-\endhead
-\bottomrule
-\endfoot
-AlphaFold & Proteinstrukturvorhersage & Blinder CASP14-Vergleich mit experimentell bestimmten Strukturen
-  \cite{jumper2021alphafold} & Fachspezifischer Leistungsvergleich, keine allgemeine Prüfkette \\
-Davies u.\,a. & Hypothesen und Kandidatenmuster & Gegenbeispielsuche und klassischer Beweis durch beteiligte
-  Mathematiker \cite{davies2021intuition} & Menschlicher Beweis für das konkrete Ergebnis \\
-FunSearch & Ausführbare Programmkandidaten & Ausführbarer Auswerter für jeden Kandidaten
-  \cite{romera2024funsearch} & Gültig nur für die kodierte Bewertungsfunktion \\
-AlphaProof & Formale Beweiskandidaten & Prüfung jedes Beweises im Lean-Kern \cite{alphaproof2026} &
-  Beweis gilt für die formalisierte Aussage und ihre Annahmen \\
-Knuths Zyklen & Konstruktion; anschließend menschlicher Beweis & Knuths Beweis und Morrisons veröffentlichte
-  Lean-Formalisierung; diese lag vor Knuths Kenntnis davon vor \cite{knuth2026cycles} & Getrennte
-  menschliche und formale Prüfung des Einzelfalls \\
-Zeta-Schranke & Mathematisches Ergebnis und gemeinsame Lean-Formalisierung & Zwei Anthropic-Mathematiker und
-  zwei externe Fachleute \cite{anthropic2026zeta} & Interne und externe Fachprüfung, kein Blindvergleich \\
-Einheitsabstand & Gegenbeweis & Externe Mathematiker; verdichtete, von Menschen verifizierte Fassung
-  \cite{openai2026unitdistance} & Veröffentlichte Prüfung des konkreten Beweises \\
-C-Parameter & Rechnungen, Numerik und Manuskript unter Aufsicht & Physiker und Gegenprobe durch
-  Monte-Carlo-Simulationen \cite{schwartz2026cparameter} & Offenlegung in einem Preprint \\
-Bun-Migration & Codeerzeugung und Prüfung durch Modelle derselben Familie & Projektprüfung; nach dem Merge
-  Meldung undefinierten Verhaltens und Aufnahme von Miri in die CI
-  \cite{bun-in-rust,bun-pr30412,bun-issue30719} & Rollen getrennt, Modellfamilie nicht; Fehler blieb \\
-\end{longtable}
-\endgroup
-
-Die Fälle belegen nur, dass die Prüfinstanz zum Artefakt passen muss. Normtext, ausführbare Tests, formale
-Beweise, Messdaten und menschliche Freigabe haben verschiedene Aufgaben; ihre tatsächliche Nutzung muss
-dokumentiert sein. Diese Arbeit folgt außerdem der ausdrücklichen Offenlegung des C-Parameter-Falls
-(\secref{sec:ki-offenlegung}) und versteht auch eine mehrstufige Prüfung nicht als Garantie.
+Das Projekt setzt kein systematisches Mutation-Testing am Rust-Quelltext ein; in einem dokumentierten
+Einzelfall wurde ein früherer Quelltextfehler gezielt wieder eingeführt, und drei Property-Tests sowie ein
+Fuzz-Ziel erkannten diese Mutation. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der
+jeweilige Auswerter bekannte Manipulationen erkennt. Ob eine Prüfung tatsächlich stattfand, entscheidet
+allein ihre Protokollierung; deren Grenzen behandelt der folgende Abschnitt.
 
 \section{Reproduzierbarkeit und Grenzen}
 \label{sec:reproduzierbarkeit}
@@ -564,8 +572,13 @@ Die genaue Folge nichtdeterministischer Modellausgaben ist es nicht. Für frühe
 vollständige Angaben zu Modellen und Konfigurationen. Diese Lücke bleibt bestehen und wird nicht rückwirkend
 durch den heutigen Sollprozess ersetzt.
 
-Zum Abschluss dieses Kapitels bleiben die externe Bestätigung der OCS-Vektoren und die beschreibenden
-Kennzahlen der Zusammenarbeit offen. Die Wiedervorlage der Errata ist dagegen mit der Prüfung von EID~8834
-und EID~8708 abgeschlossen.
+Zum Abschluss dieses Kapitels bleiben offene Grenzen. Die drei handgerechneten OCS-Referenzvektoren sind
+bislang nur projektintern gegengerechnet; eine externe Bestätigung steht aus. Die zufallsgespeisten
+Prüfungen sind zudem nur begrenzt wiederholbar: Property- und Fuzz-Läufe sind nicht auf feste Startwerte
+festgelegt, und der Fuzz-Korpus ist unversioniert; reproduzierbar sind die versionierten Beispieleingaben,
+die Protokolle und die als Regressionstests gesicherten Gegenbeispiele, nicht der einzelne Lauf. Die
+Arbeitsteilung schließlich ist durch die versionierten Vorgabedokumente belegt; die Commit-Historie trennt
+den Beitrag von Autor und Werkzeug je Änderung nicht auf.
+
 \chapref{chap:analyse} verwendet die hier festgelegten Quellen- und Bewertungsregeln, um aus RFC~9868 das
 Anforderungsmodell für FF1 abzuleiten.
