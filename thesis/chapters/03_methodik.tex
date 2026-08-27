@@ -10,15 +10,9 @@ die Analyse der Messkampagnen und die Prüfung von Zwischenergebnissen. Wissensc
 Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet.
 Diese Regeln müssen vor der Ergebnisbewertung feststehen. Deshalb steht dieses Kapitel vor der RFC-Analyse.
 
-Die KI-gestützte Entwicklung ist Teil der Methode, aber keine eigene Forschungsfrage. Dieses Kapitel beschreibt
-zunächst das Forschungsdesign und die Auswertung der Norm. Danach folgen die Rollen der Beteiligten, die
-bekannten Schwächen der Sprachmodelle und der Prüfprozess. Abschließend ordnen externe Referenzfälle das
-Vorgehen ein, und die Regeln für Reproduzierbarkeit und ihre Grenzen schließen das Kapitel ab. Die Darstellung
-beschreibt den aktuellen Sollprozess. Sie behauptet nicht, dass jede Stufe seit dem Beginn des Projekts in
-dieser Form bestand.
-
-\section{Forschungsdesign}
+\section{Forschungsdesign und Arbeitsweise}
 \label{sec:forschungsdesign}
+\label{sec:rfc-auswertung}
 
 Die Untersuchung verbindet die Auswertung der Norm, die Referenzimplementierung und eine empirische
 Pfaduntersuchung. \figref{fig:forschungsdesign} zeigt, wie die beiden Forschungsfragen auf diesen Teilen
@@ -97,18 +91,17 @@ Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und 
   \small
   \begin{tabularx}{\textwidth}{@{}L{0.7cm}L{3.2cm}YL{4.4cm}@{}}
     \toprule
-    \textbf{FF} & \textbf{Untersuchungseinheit} & \textbf{Nachweis} & \textbf{Entscheidungsregel und Grenze} \\
+    \textbf{FF} & \textbf{Untersuchungseinheit} & \textbf{Nachweis} & \textbf{Bewertung und Grenze} \\
     \midrule
     FF1
       & jede anwendbare normative Anforderung im Projektumfang
       & je nach Status: Normfundstelle sowie Quelltext und Prüfung oder Beleg einer technischen Grenze
-      & Umsetzungsstand getrennt von vollständig, teilweise oder nicht erfüllbar; nicht anwendbar bleibt eine
-        eigene Klasse \\
+      & vollständig, teilweise oder nicht erfüllbar; nicht anwendbar bleibt unbewertet \\
     FF2
       & kontrolliertes Szenario je Pfad, Richtung und Messzeitpunkt
       & Paketmitschnitte an Sender und Empfänger, Sendemanifest und dokumentierte maschinelle Auswertung
-      & Surplus erhalten, verändert oder entfernt, Paket verworfen oder Lauf ungültig; keine Übertragung auf
-        unbeobachtete Pfade, Richtungen oder Zeitpunkte \\
+      & Surplus erhalten, verändert oder entfernt; Datagramm verworfen oder Lauf ungültig. Gilt nur für Pfad,
+        Richtung und Messzeitpunkt \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -122,70 +115,28 @@ dokumentierte Begründung. Eine \texttt{MAY}-Funktion wird nur bewertet, wenn si
 Referenzimplementierung gewählt wurde. Nicht gewählte und außerhalb des
 Umfangs liegende Aussagen bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich.
 
-Der Anforderungsstatus des Implementierungs-Repositorys und die FF1-Klasse beantworten verschiedene
-Fragen. \zitat{Implemented}, \zitat{Partially implemented}, \zitat{Partial-in-userspace},
-\zitat{Not-feasible-in-userspace} und \zitat{Delegated} dienen als Such- und Nachweisindex, bestimmen die
-FF1-Klasse aber nicht automatisch. Für jede anwendbare Normanforderung wird getrennt geprüft, welcher Teil
-umgesetzt ist und ob eine belegte Betriebssystem- oder Schnittstellengrenze die vollständige Umsetzung
-ausschließt. Eine Implementierungslücke ohne solchen Beleg bleibt technisch vollständig erfüllbar.
-Delegation gilt nur dann als vollständige Erfüllung, wenn der RFC die Pflicht der oberen Schicht zuweist
-und die Schnittstelle sie als dokumentierten Vertrag abbildet. Für implementierte Funktionen dienen
-Quelltext und Tests als Nachweis; technische Grenzen werden stattdessen durch dokumentiertes Betriebssystem-
-oder Schnittstellenverhalten belegt. Die Abdeckungsspalte \zitat{Covered} der Konformitätsmatrix desselben
-Repositorys (\chapref{chap:analyse}) markiert nur den gewählten Umfang und ist ebenfalls keine FF1-Klasse.
+Wie diese Regeln auf die einzelnen Anforderungen angewandt werden, legt \secref{sec:ff1-kriterien} fest; die
+Auswertungsregeln der Messläufe für FF2 stehen in \secref{sec:testkonzept}. Beide Regelwerke stehen damit
+ebenfalls vor der Ergebnisbewertung fest.
 
-Die kontrollierten lokalen Läufe werten jedes Szenario aus; die Szenarien sind über eigene Zielports markiert
-und können wie beim FRAG-Fall des RFC mehrere Datagramme enthalten. Diese Läufe validieren die Messwerkzeuge
-und liefern Befunde zu den lokalen Topologien, beantworten aber nicht unmittelbar FF2 zu realen Netzpfaden.
-Dafür vergleichen die externen Kampagnen zeitnah gesendete, gleich große Kontroll- und Optionsdatagramme auf
-demselben gerichteten Pfad.
+Der Maßstab für FF1 entsteht aus dem Primärtext. Normativ ist RFC~9868; RFC~768 liefert ergänzend das
+UDP-Format, RFC~1071 als informative Referenz die Rechenregeln der Prüfsummen. Die Schlüsselwörter
+\texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach BCP~14\footnote{BCP steht für Best Current
+Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung RFC~8174.} gelesen. Nur die großgeschriebenen
+Formen tragen die dort festgelegte besondere Bedeutung; normative Aussagen können die Schlüsselwörter aber
+auch auslassen \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Wörtern zusätzlich das
+Zeichenpaar \texttt{>{}>} voran. Die eigene Zählung von 103 markierten Absätzen ist deshalb nur eine
+Kontrollzahl und keine vollständige Anforderungsliste.
 
-Ein externer Lauf ist nur auswertbar, wenn die Senderaufzeichnung den Versand und die erwartete Surplus Area
-belegt. Die maschinelle Auswertung vergleicht Sender- und Empfängeraufzeichnung nach der je Kampagne
-dokumentierten Zuordnung: Zielport und Szenario, Sequenznummern, bei leeren Nutzdaten die Klassen- und
-Längeninformation sowie bei FRAG die Kennung des Fragmentsatzes. Jedes zugeordnete Optionsdatagramm erhält
-eine Ergebnisklasse: Die Surplus Area kommt erhalten, verändert oder entfernt an, oder das Datagramm wird
-verworfen. Abweichende Paketzahlen werden gesondert gemeldet und machen einen Lauf nur dann ungültig, wenn
-die Auswertung ein bestimmtes Sollergebnis erzwingt. Auch die Behandlung IP-fragmentierter Datagramme ist
-auswerterspezifisch: Der Referenzauswerter bricht bei jedem IPv4-Fragment mit einem Fehler ab, weil er
-Fragmente nicht zusammensetzt; die Kampagnenauswerter überspringen nur Folgefragmente. Vorversuche bleiben
-als solche gekennzeichnet und werden nicht auf unbeobachtete Geräte oder Pfade übertragen.
-
-Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
-Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Der nächste Abschnitt
-beschreibt, wie aus den Normquellen ein prüfbares Anforderungsmodell entsteht.
-
-\section{RFC-Auswertung und schrittweise Umsetzung}
-\label{sec:rfc-auswertung}
-
-Die normativen Protokollanforderungen stammen hauptsächlich aus RFC~9868. Ergänzende Anforderungen an das
-UDP-Format stammen aus RFC~768; die Rechenregeln der Prüfsummen liefert als informative Referenz RFC~1071.
-Daneben enthält der Anforderungsbestand der Implementierung ausdrücklich
-gekennzeichnete Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
-Entwurfsentscheidung nachträglich als Forderung des RFC erscheint.
-
-Die Schlüsselwörter \texttt{MUST}, \texttt{SHOULD} und \texttt{MAY} werden nach BCP~14\footnote{BCP steht
-für Best Current Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung RFC~8174.} gelesen. Nur die
-großgeschriebenen Formen tragen die dort festgelegte besondere Bedeutung. Normative Aussagen können die
-Schlüsselwörter aber auch auslassen \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen
-großgeschriebenen Wörtern zusätzlich das Zeichenpaar \texttt{>{}>} voran. Die eigene Zählung von 103
-markierten Absätzen ist deshalb nur eine Kontrollzahl. Sie ist weder eine vollständige Anforderungsliste
-noch die Zahl der anwendbaren Anforderungen.
-
-Eine erste Zählung hatte nur 96 Absätze ergeben, weil tiefer eingerückte Markierungen übersehen wurden. Ein
-zweites Zählverfahren deckte den Fehler auf. Kontrollzahlen werden deshalb mit zwei getrennten Verfahren
-ermittelt. Jede gefundene Aussage erhält außerdem eine genaue Fundstelle, eine Normstufe, eine Beurteilung der
-Anwendbarkeit und eine Kennzeichnung des Projektumfangs.
-
-RFC~9868 und RFC~9869 bleiben in der Quellenarbeit getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung
-(DPLPMTUD, \textit{Datagram Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des
-Implementierungsumfangs dieser Arbeit \cite{rfc9869}. Zusätzlich werden die beiden einschlägigen Errata
-getrennt berücksichtigt. Das verifizierte technische Erratum EID~8834 löst den Widerspruch zwischen den
-Abschnitten~10 und 14 zur Behandlung überlanger Optionen \cite{rfc9868-eid8834}. Das redaktionelle EID~8708
-ist für eine spätere Dokumentausgabe zurückgestellt \cite{rfc9868-eid8708}. Der Anforderungsbestand der
-Implementierung verwendet diese beiden Einstufungen und
-dokumentiert die daraus abgeleitete Behandlung (\chapref{chap:analyse}). Den Weg von den Quellen zum
-geprüften Bestand fasst \figref{fig:rfc-auswertung} zusammen:
+Jede so gewonnene Aussage wird nach demselben Muster erfasst: Fundstelle, Normstufe, Anwendbarkeit und
+Projektumfang. Dieses Muster ist zugleich das Zeilenschema des Anforderungskatalogs im
+Implementierungs-Repository, sodass jede Katalogzeile ihren RFC-Abschnitt mitführt. Zwei Nachbarquellen
+bleiben davon getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung (DPLPMTUD, \textit{Datagram
+Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des Implementierungsumfangs
+\cite{rfc9869}. Von den Errata ist das verifizierte technische EID~8834 angewendet; es löst den Widerspruch
+zwischen den Abschnitten~10 und 14 zur Behandlung überlanger Optionen \cite{rfc9868-eid8834}. Das
+redaktionelle EID~8708 bleibt für eine spätere Dokumentausgabe zurückgestellt \cite{rfc9868-eid8708}.
+\figref{fig:rfc-auswertung} fasst diesen Weg zusammen:
 
 \begin{figure}[H]
   \centering
@@ -233,20 +184,27 @@ geprüften Bestand fasst \figref{fig:rfc-auswertung} zusammen:
 
 Aus \figref{fig:rfc-auswertung} geht hervor, dass der Maßstab aus zwei getrennt gehaltenen Zuflüssen
 entsteht: der normativen Lesung mit ihrem Errata-Stand und den ausdrücklich gekennzeichneten eigenen
-Vorgaben. Die Kontrollzahl sichert den normativen Zufluss mit zwei unabhängigen Zählverfahren ab; geprüft
-wird damit die Konformitätsmatrix des Implementierungs-Repositorys (\chapref{chap:analyse}). RFC~9869
-bleibt außerhalb des Implementierungsumfangs; der Anforderungsbestand führt seine Anwendungsfälle nur als
-ausdrücklich gekennzeichnete Einträge außerhalb des Umfangs, damit die Grenze des Beitrags sichtbar
-bleibt.
+Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
+Entwurfsentscheidung nachträglich als Forderung des RFC erscheint. Die Kontrollzahl sichert den normativen
+Zufluss mit zwei Zählverfahren ab: Die Erstzählung ergab 96 Absätze, erst das zweite Verfahren deckte den
+Fehler auf. Ein Werkzeug, das den RFC-Text maschinell zerlegt, gibt es nicht; Zählung und Einordnung
+entstanden lesend.
 
-Die Umsetzung erfolgte schrittweise. Der Projektplan beginnt mit den Schritten 0 und 0.5 und reicht bis Schritt
-18. Schritt 9 ging in Schritt 8 auf, Schritt 16 wurde mit der IPv6-Unterstützung aus dem Umfang entfernt. Die
-verbleibenden Schritte behandeln unter anderem Prüfsummen, Wire-Format, Parser, Serialisierung, typisierte
-Optionen, Raw Sockets, Fragmentierung, Schnittstellen und die Messumgebung. Die genaue Zuordnung und der
-jeweilige Abschlussnachweis stehen im Projektplan.\footnote{Implementierungs-Repository, Commit
-\texttt{f1cfe52}, \path{docs/plan/ROADMAP.md}.} Diese Darstellung bildet den tatsächlichen Plan ab und ersetzt
-eine nachträglich vereinfachte Folge von neun Stufen. Den gelebten Kernzyklus je Schritt zeigt
-\figref{fig:stepzyklus}:
+Diese Erfassung liegt nicht im Quelltext, sondern in versionierten Textdokumenten des
+Implementierungs-Repositorys. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Vertragsdatei
+nennt in ihrem ersten Satz das Modellwerkzeug und menschliche Mitwirkende als
+Adressaten.\footnote{Implementierungs-Repository, Commit \texttt{f1cfe52}: \path{CLAUDE.md},
+\path{docs/requirements.md}, \path{docs/plan/ROADMAP.md} sowie die Schrittdateien unter
+\path{docs/plan/steps/}.} Damit tragen die Dokumente den Wissensstand zwischen den
+Arbeitssitzungen und sind zugleich der Maßstab, an dem eine Modellausgabe geprüft wird. Der Preis dieser
+mehrfachen Ablage ist belegt: Ein Abgleich am Primärtext fand vier falsche RFC-Angaben in vier
+Vertragsdokumenten zugleich (\secref{sec:vorgehen}).
+
+Denselben Aufbau hat der Plan. Jeder Arbeitsschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
+Anforderungen, Lean-Pflichten, Plan, Aufgaben und Abschlusskriterien. Sie nennt die Anforderungen, die sie
+umsetzt, und entsteht vor dem Quelltext. Wo Lean-Pflichten bestehen, verlangen neun Schrittdateien wörtlich
+die Spezifikation vor der Umsetzung und den Beweis danach; ob jeder Schritt diese Reihenfolge einhielt, ist
+damit noch nicht belegt. \figref{fig:stepzyklus} zeigt den Kernzyklus:
 
 \begin{figure}[H]
   \centering
@@ -293,14 +251,15 @@ eine nachträglich vereinfachte Folge von neun Stufen. Den gelebten Kernzyklus j
   \label{fig:stepzyklus}
 \end{figure}
 
-Aus \figref{fig:stepzyklus} geht der reife Takt der Umsetzung hervor: Ab Schritt~1 entstanden Code, Tests
-und Dokumentation je Schritt zusammen und erreichten den Hauptzweig als ein freigegebener Sammelcommit; die
-Schritte 14, 15 und 17 teilten sich einen solchen Commit. Die Schritte 0 und 0.5 bildeten die frühe Ausnahme
-und verteilten sich auf mehrere Commits und Pull Requests. Zwei Kanten sind gestrichelt, weil sie
-stattfanden, aber nicht technisch erzwungen waren: Die zwei angeforderten KI-Prüfungen blockierten die
-Übernahme nicht, und der Abgleich des Anforderungskatalogs lief periodisch; vollständig glich ihn erst
-Schritt~18 ab, der als eigener Korrekturschritt auf einen nachträglichen RFC-Abgleich antwortete. Welche
-Rollen bei der Erzeugung und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
+Aus \figref{fig:stepzyklus} geht hervor, dass die Schrittdatei den Auftrag und sein Abschlusskriterium
+zugleich trägt. Zwei Kanten sind gestrichelt, weil sie stattfanden, aber nicht technisch erzwungen waren:
+Die zwei angeforderten KI-Prüfungen blockierten die Übernahme nicht, und der Abgleich des
+Anforderungskatalogs lief periodisch; vollständig glich ihn erst Schritt~18 ab. Wann die einzelnen Schritte
+liefen und was sie ergaben, behandelt \chapref{chap:entwurf}.
+
+Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
+Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. Welche Rollen bei der
+Erzeugung und Prüfung dieser Ergebnisse wirken, klärt der folgende Abschnitt.
 
 \section{Beteiligte und ihre Rollen}
 \label{sec:rollen}
