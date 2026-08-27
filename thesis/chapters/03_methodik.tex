@@ -261,15 +261,14 @@ Commit-Historie trennt den Beitrag von Autor und Werkzeug je Änderung nicht auf
 Denselben Aufbau hat der Plan. Jeder Hauptschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
 Anforderungen, Lean-Pflichten, Plan, Aufgaben und Abschlusskriterien; alle Schrittdateien lagen vor dem
 ersten Funktionsschritt vor. Wo Lean-Pflichten bestehen, verlangen neun Schrittdateien wörtlich die
-Spezifikation vor der Umsetzung und den Beweis danach; ob jeder Schritt diese Reihenfolge einhielt, ist
-damit noch nicht belegt. \figref{fig:stepzyklus} zeigt den Kernzyklus:
+Spezifikation vor der Umsetzung und den Beweis danach; \figref{fig:stepzyklus} zeigt den Kernzyklus:
 
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[
       x=1cm, y=1cm,
       >={Stealth[length=5pt, width=4pt]},
-      block/.style={draw, semithick, rounded corners=3pt, align=center,
+      block/.style={draw, semithick, rounded corners=3pt, align=center, text width=3.0cm,
         font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
       fluss/.style={->, draw=sqdunkel, thin},
       ausnahme/.style={->, draw=sqgrau, dashed, thin},
@@ -282,40 +281,28 @@ damit noch nicht belegt. \figref{fig:stepzyklus} zeigt den Kernzyklus:
     \node[block, draw=sqblaurand, fill=sqblau] (umsetzung) at (9.45,0)
       {\textbf{Umsetzung}\\ Code und Tests zusammen;\\ neue Parsefläche: auch\\ Property-Tests, Fuzz-Ziel};
     \node[block, draw=sqblaurand, fill=sqblau] (gate) at (13.3,0)
-      {\textbf{lokales Gate} \texttt{pre-pr.sh}\\ 18 Prüfläufe, Abbruch\\ beim ersten Fehler};
+      {\textbf{lokales Gate}\\ \texttt{pre-pr.sh}\\ 18 Prüfläufe, Abbruch\\ beim ersten Fehler};
     \node[block, draw=sqblaurand, fill=sqblau] (pr) at (13.3,-2.7)
       {\textbf{Pull Request}\\ CI: Format, Lint,\\ Tests, Lean};
     \node[block, draw=sqgrau, fill=sqhell] (ki) at (9.45,-2.7)
       {zwei angeforderte\\ KI-Prüfungen: Qualität;\\ RFC-Semantik};
     \node[block, draw=sqroserand, fill=sqrose] (freigabe) at (5.6,-2.7)
       {\textbf{menschliche Freigabe}\\ ein Sammelcommit\\ auf \texttt{main}};
-    \node[block, draw=sqgrau, fill=sqhell] (katalog) at (1.75,-2.7)
-      {Anforderungskatalog\\ abgleichen};
     \draw[fluss] (schritt) -- (lean);
     \draw[fluss] (lean) -- (umsetzung);
     \draw[fluss] (umsetzung) -- (gate);
     \draw[fluss] (gate) -- (pr);
     \draw[fluss] (pr) -- (ki);
     \draw[ausnahme] (ki) -- (freigabe);
-    \node[flusstext] at (7.55,-1.85) {nicht technisch\\ erzwungen};
+    \draw[ausnahme] (ki.north) -- node[flusstext, midway, right] {Befund beheben} (umsetzung.south);
     \draw[fluss] (freigabe.north) -- ++(0,0.55) -| (schritt.south);
     \node[flusstext] at (3.68,-1.5) {nächster Schritt};
-    \draw[ausnahme] (freigabe) -- (katalog);
-    \node[flusstext] at (3.68,-3.6) {periodisch; vollständig\\ erst Schritt 18};
-    \draw[ausnahme] (gate.north) -- ++(0,0.5) -| (umsetzung.north);
-    \node[flusstext] at (11.4,1.28) {Befund beheben};
   \end{tikzpicture}
   \caption{Kernzyklus eines Implementierungsschritts bis Schritt 18 (Ausnahmen gestrichelt)}
   \label{fig:stepzyklus}
 \end{figure}
 
-Aus \figref{fig:stepzyklus} geht hervor, dass die Schrittdatei den Auftrag und sein Abschlusskriterium
-zugleich trägt. Zwei Kanten sind gestrichelt, weil sie stattfanden, aber nicht technisch erzwungen waren:
-Die zwei angeforderten KI-Prüfungen blockierten die Übernahme nicht, und der Abgleich des
-Anforderungskatalogs lief periodisch; vollständig glich ihn erst Schritt~18 ab. Wann die einzelnen Schritte
-liefen und was sie ergaben, behandelt \chapref{chap:entwurf}.
-
-Sprachmodelle sind in beiden Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
+Sprachmodelle sind in den Untersuchungen Werkzeuge, aber keine bewertende Instanz. Maßgeblich sind die
 Normquellen, die Messdaten, ausführbare Prüfungen und die Freigabe durch den Autor. \tabref{tab:rollen}
 trennt die Rollen von Autor und Werkzeugen nach Aufgabe und Grenze:
 
@@ -355,7 +342,7 @@ Primärquelle geprüft. Ein Hashwert belegt nur die Unverändertheit eines Artef
 Inhalts.
 
 Im Umgang mit den Modellen gilt die Haltung, sie wie fähige, aber unerfahrene Entwickler zu behandeln, deren
-Arbeit grundsätzlich geprüft wird. Aus diesem Grund hat der Autor drei Arbeitsregeln schriftlich festgehalten:
+Arbeit grundsätzlich geprüft wird. Aus diesem Grund wurden drei Arbeitsregeln schriftlich festgehalten:
 
 \begin{enumerate}
   \item Modellergebnisse werden gegen die jeweilige Primärquelle geprüft, nie gegen eigene Zusammenfassungen.
@@ -368,6 +355,7 @@ Diese Regeln beschreiben den Sollprozess. Welche Prüfungen tatsächlich stattfa
 abgeleitet, sondern aus den vorhandenen Protokollen rekonstruiert (\secref{sec:reproduzierbarkeit}). Warum diese
 Trennung nötig ist, zeigt der folgende Abschnitt.
 
+\clearpage
 \section{Bekannte Schwächen der Sprachmodelle}
 \label{sec:gefahrenmodell}
 
@@ -407,17 +395,15 @@ Modell sie behauptet. Konformitätsmatrix und Testarchitektur prüfen die Implem
 nur die untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
 Die Antworten der Tabelle sind Verfahrensregeln, und Verfahrensregeln führen Menschen und Modelle aus.
-Ohne weiteres Zutun urteilen nur die ausführbaren Prüfungen und der Beweisprüfer; Pfadbefunde benötigen
-zusätzlich das Sendemanifest und die dokumentierte Auswertung. Wie diese Prüfungen für FF1 aufgebaut sind,
-legt der folgende Abschnitt fest.
+Ohne weiteres Zutun urteilen nur die ausführbaren Prüfungen und der Beweisprüfer.
+Wie diese Prüfungen für FF1 aufgebaut sind, legt der folgende Abschnitt fest.
 
 \section{Testarchitektur für FF1}
 \label{sec:pruefkette}
 
 Die aktuelle Prüfkette wird lokal gestartet, verbindet aber lokale und entfernte Prüfungen. Sie ist der
 Sollzustand vor dem Öffnen oder Aktualisieren eines Pull Requests. Historisch entstand diese Kette
-schrittweise. Aussagen über frühere Pull Requests beziehen sich deshalb nur auf die damals protokollierten
-Prüfungen.
+schrittweise.
 
 Dieser Abschnitt beschreibt ausschließlich die Prüfung der Entwicklung, also die Nachweisseite von FF1.
 Ein bestandener Entwicklungstest sagt nichts über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen
@@ -438,10 +424,8 @@ beliebige Bytefolge entgegennimmt und damit die echten Verarbeitungspfade der Bi
 Zerlegen über das Serialisieren bis zum Aufbau ganzer Datagramme; der abdeckungsgeleitete Fuzzer erzeugt
 und verändert solche Eingaben fortlaufend und bevorzugt jene, die neue Programmpfade erreichen
 \cite{cargo-fuzz,libfuzzer}. Fuzzing findet Fehler, aber keine Fehlerfreiheit; es läuft als lokale
-Pflichtstufe mit Zeitschranke und nicht in der kontinuierlichen Integration, ein unauffälliges Ergebnis
-bedeutet also nur, dass innerhalb der Zeitschranke kein Fund auftrat. Der dokumentierte Sollprozess
-verlangt, gefundene Gegenbeispiele zu minimieren und als Regressionstests einzuchecken. Lean ist ein
-Beweisassistent: Regeln werden als Modell formuliert, Aussagen darüber als Theoreme bewiesen, und ein
+Pflichtstufe und nicht in der kontinuierlichen Integration.
+Lean ist ein Beweisassistent: Regeln werden als Modell formuliert, Aussagen darüber als Theoreme bewiesen, und ein
 kleiner Kern prüft jeden Beweisschritt nach \cite{lean4}. Die Lean-Prüfung baut diese Modelle und
 kontrolliert ihre Axiome. Bewiesen ist damit das handgeschriebene Modell mit seinen Annahmen, nicht der
 Rust-Quelltext; den gebauten Umfang beziffert \secref{sec:pruefarchitektur}.
@@ -456,16 +440,12 @@ berechnet die Prüfsummen.
 \texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Die im Projekt verwendete Version 4.6.4
 besitzt jedoch keinen Dissektor für UDP-Optionen.
 
-Auch diese Prüfung ist nicht vollständig unabhängig. Die erwarteten Referenzbytes stammen aus der
-projekteigenen Formatdokumentation. Die Unabhängigkeit gilt für den Prüfcode, nicht für den Entwurf.
-Dasselbe gilt für die drei handgerechneten OCS-Referenzvektoren der Unit-Tests. Sie sind nicht
-palindromisch und wurden getrennt nachgerechnet, damit Bytevertauschungen auffallen.
-
 \subsection{Prüfkette bis zur Freigabe}
 
-Das lokale Gate \texttt{pre-pr.sh} fährt neun feste Bahnen: Formatierung, statische Analyse,
+Das lokale Gate \texttt{pre-pr.sh} Skript fährt neun feste Test-Bahnen: Formatierung, statische Analyse,
 Dokumentationsbau, die Tests samt Property-Fällen, die Prüfung des eigenen Auswerters, das Lean-Tor sowie
-drei Bahnen auf einem separaten Linux-Zielsystem, das die Cross-Kompilierung, die Raw-Socket-Integration
+drei Bahnen auf einem separaten Linux-Zielsystem (lokale virtuelle Maschine, aka achim),
+das die Cross-Kompilierung, die Raw-Socket-Integration
 mit Root-Rechten und das tatsächlich gesendete Paketbild prüft. Dazu kommt je Fuzz-Ziel eine eigene Bahn;
 zusammen ergeben sich die 18 Prüfläufe aus \figref{fig:stepzyklus}. Die kontinuierliche Integration (CI)
 wiederholt Formatierung, statische Analyse und Unit-Tests. Nach deren Erfolg baut sie die Lean-Modelle und
@@ -531,8 +511,6 @@ und die Grenze ihrer technischen Erzwingung reduziert:
     \draw[antwort] (\xCodex-0.08,-7.55) -- node[pfeiltext] {Befund} (\xHub+0.08,-7.55);
     \draw[antwort] (\xClaude-0.08,-8.1) -- node[pfeiltext] {Befund} (\xHub+0.08,-8.1);
     \draw[sqgrau, dashed, semithick, rounded corners=3pt] (0.1,-5.65) rectangle (14.8,-8.35);
-    \node[font=\scriptsize\itshape, fill=white, inner sep=2pt, anchor=west] at (1.15,-5.65)
-      {Zweitprüfungen: Abschluss technisch nicht erzwungen};
     % Freigabe
     \draw[antwort] (\xHub-0.08,-8.7) -- node[pfeiltext] {Befunde} (\xAutor+0.08,-8.7);
     \draw[ruf] (\xAutor+0.08,-9.3) -- node[pfeiltext] {Freigabe und Merge} (\xHub-0.08,-9.3);
@@ -545,10 +523,7 @@ Aus \figref{fig:pruefprozess} geht hervor, dass die Pfeilfolge nur die vorgesehe
 über den Pull Request und die Rust/Lean-CI bis zur Freigabe durch den Autor zeigt; eine technische
 Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt.
 
-Das Projekt setzt kein systematisches Mutation-Testing am Rust-Quelltext ein; in einem dokumentierten
-Einzelfall wurde ein früherer Quelltextfehler gezielt wieder eingeführt, und drei Property-Tests sowie ein
-Fuzz-Ziel erkannten diese Mutation. Gezielte Veränderungen an Paketmitschnitten prüfen nur, ob der
-jeweilige Auswerter bekannte Manipulationen erkennt. Ob eine Prüfung tatsächlich stattfand, entscheidet
+Ob eine Prüfung tatsächlich stattfand, entscheidet
 allein ihre Protokollierung; deren Grenzen behandelt der folgende Abschnitt.
 
 \section{Reproduzierbarkeit und Grenzen}
@@ -556,29 +531,8 @@ allein ihre Protokollierung; deren Grenzen behandelt der folgende Abschnitt.
 
 Aussagen über den Entstehungsprozess sind nur so belastbar wie ihre Protokollierung. Maßgeblich sind die
 vorhandenen Arbeitsprotokolle, also die Repository-Historie, die Prüf- und Kampagnenprotokolle sowie die
-Messdaten. Eine Prüfung, die dort nicht belegt ist, wird nicht nachträglich als erfolgt behauptet. Ein
-belegter Prüfschritt bedeutet umgekehrt nicht, dass die geprüfte Aussage allgemein wahr oder vollständig ist.
-
-Eigene Zusammenfassungen und Arbeitsnotizen dienen nur als Suchhilfe. Die Prüfung erfolgt am Repository, am
-Primärtext oder an den Messdaten. Pannen werden nicht geglättet: Die verlorenen Berichte dreier
-Kampagnenprüfer wurden aus erhaltenen Arbeitsdateien der Sitzung wiederhergestellt und als Wiederherstellung
-gekennzeichnet; das vollständige Sitzungstranskript ist nicht archiviert. Beim Wechsel des Prüfablaufs
-entstand außerdem ausnahmsweise eine doppelte Zweitprüfung; beide Läufe blieben dokumentiert. Auch Knuth
-berichtet, dass Zwischenstände einer Modellsitzung verloren gingen und die Fortschrittsdokumentation erneut
-eingefordert werden musste \cite{knuth2026cycles}.
-
-Technische Ergebnisse sind reproduzierbar, soweit Quellstand, Werkzeuge, Eingaben und Ausgaben archiviert sind.
-Die genaue Folge nichtdeterministischer Modellausgaben ist es nicht. Für frühe Projektphasen fehlen zudem
-vollständige Angaben zu Modellen und Konfigurationen. Diese Lücke bleibt bestehen und wird nicht rückwirkend
-durch den heutigen Sollprozess ersetzt.
-
-Zum Abschluss dieses Kapitels bleiben offene Grenzen. Die drei handgerechneten OCS-Referenzvektoren sind
-bislang nur projektintern gegengerechnet; eine externe Bestätigung steht aus. Die zufallsgespeisten
-Prüfungen sind zudem nur begrenzt wiederholbar: Property- und Fuzz-Läufe sind nicht auf feste Startwerte
-festgelegt, und der Fuzz-Korpus ist unversioniert; reproduzierbar sind die versionierten Beispieleingaben,
-die Protokolle und die als Regressionstests gesicherten Gegenbeispiele, nicht der einzelne Lauf. Die
-Arbeitsteilung schließlich ist durch die versionierten Vorgabedokumente belegt; die Commit-Historie trennt
-den Beitrag von Autor und Werkzeug je Änderung nicht auf.
+Messdaten. Technische Ergebnisse sind reproduzierbar, soweit Quellstand, Werkzeuge, Eingaben und Ausgaben
+archiviert sind. Die genaue Folge nichtdeterministischer Modellausgaben ist es nicht.
 
 \chapref{chap:analyse} verwendet die hier festgelegten Quellen- und Bewertungsregeln, um aus RFC~9868 das
 Anforderungsmodell für FF1 abzuleiten.

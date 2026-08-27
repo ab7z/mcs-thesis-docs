@@ -5,11 +5,9 @@
 \chapter{Grundlagen}
 \label{chap:grundlagen}
 
-Dieses Kapitel stellt die Grundlagen bereit, die zum Verständnis von RFC~9868 und zur Beurteilung der
-späteren Implementierung und Messungen nötig sind: IPv4 und UDP als die beiden beteiligten Protokolle
-(\secref{sec:ipv4}, \secref{sec:udp}), die Erweiterungsmuster im Vergleich (\secref{sec:erweiterungsmuster}),
-die Surplus Area samt Entwurfsprinzipien (\secref{sec:surplus-area}) sowie Betriebssystem und Netzpfad der
-Messungen (\secref{sec:netzpfad}).
+IPv4 und UDP sind die beteiligten Protokolle (\secref{sec:ipv4}, \secref{sec:udp}), gefolgt von den
+Erweiterungsmustern (\secref{sec:erweiterungsmuster}), der Surplus Area (\secref{sec:surplus-area}) sowie
+Betriebssystem und Netzpfad (\secref{sec:netzpfad}).
 
 \section{IPv4}
 \label{sec:ipv4}
@@ -20,11 +18,13 @@ bestimmte Datagrammende Lage und Größe der Surplus Area festlegen \cite[Sec.~7
 
 Diese Arbeit beschränkt sich auf IPv4. Bei IPv4 bestimmen \texttt{IHL} und \texttt{Total Length} die
 IP-Nutzlast; bei IPv6 ergeben sich ihre Grenzen aus dem Basis-Header und der Kette der Extension Header
-\cite[Sec.~7]{rfc9868}\cite{rfc8200}. Auch Randwerte unterscheiden sich: Ein Empfänger muss für FRAG bei
-IPv4 mindestens 2\,926~Byte, bei IPv6 mindestens 2\,886~Byte reassemblieren können
-\cite[Sec.~11.6]{rfc9868}; bei IPv6-Jumbograms mit \texttt{UDP Length} null sind UDP Options nicht nutzbar
-\cite[Sec.~22]{rfc9868}. Die Grundstruktur des Mechanismus bleibt gleich, Implementierung und Evaluation
-betrachten jedoch nur IPv4 (\secref{sec:abgrenzung}).
+\cite[Sec.~7]{rfc9868}\cite{rfc8200}.
+Auch Randwerte unterscheiden sich: Endpunkte müssen mindestens zwei Fragmente zerlegen und wieder
+zusammensetzen können, von denen jedes in die Ethernet-MTU von 1\,500~Byte passt
+\cite[Sec.~11.4]{rfc9868}. Die zugehörige lokale MRDS-size beträgt mindestens 2\,926~Byte bei IPv4 und
+2\,886~Byte bei IPv6 \cite[Sec.~11.6]{rfc9868}; bei IPv6-Jumbograms mit \texttt{UDP Length} null sind UDP
+Options nicht nutzbar \cite[Sec.~22]{rfc9868}. Die Grundstruktur des Mechanismus bleibt gleich,
+Implementierung und Evaluation betrachten jedoch nur IPv4 (\secref{sec:abgrenzung}).
 
 Der Abschnitt behandelt deshalb nur die für RFC~9868 und die Messung nötigen IPv4-Felder: \texttt{IHL},
 \texttt{Total Length}, \texttt{Protocol}, Adressen, Header-Prüfsumme, Fragmentierungsfelder und
@@ -412,8 +412,10 @@ daher nicht abwärtskompatibel. Eine In-Band-Konvention scheitert bei beliebigen
 sie die Zusatzfelder als Nutzdaten lesen \cite[Sec.~4]{rfc9868}. RFC~9868 nutzt stattdessen, dass UDP
 seine Länge wiederholt: Endet \texttt{UDP Length} vor der IP-Nutzlast, bildet der Rest die Surplus Area.
 Dieser Mechanismus bleibt mit Teredo-Trailern kompatibel. Der historische Grund für das UDP-Längenfeld ist
-ungeklärt; RFC~9868 verwirft die bekannten Erklärungen \cite[Sec.~4]{rfc9868}. Für bestehendes UDP ist
-damit nur der Surplus-Trailer allgemein einsetzbar. Seinen Aufbau behandelt der folgende Abschnitt.
+ungeklärt; RFC~9868 nennt vorgeschlagene Erklärungen, die nicht zu früheren UDP-Fassungen und zur
+zeitgleichen Multiplex-Konstruktion passen, und lässt die Ursache offen \cite[Sec.~4]{rfc9868}. Für
+bestehendes UDP ist damit nur der Surplus-Trailer allgemein einsetzbar. Seinen Aufbau behandelt der
+folgende Abschnitt.
 
 \section{Die Surplus Area}
 \label{sec:surplus-area}
@@ -634,11 +636,13 @@ die Rechnung ein, obwohl dieser Wert in keinem eigenen Feld des Pakets steht \ci
 folgt demselben Gedanken wie der Pseudo-Header aus \secref{subsec:udp-struktur}:
 Wie die UDP-Prüfsumme dort die \texttt{UDP Length} einbezieht, bezieht das OCS die Surplus-Länge ein, und
 beide Seiten können diesen Summanden unabhängig voneinander aus den Längenfeldern ableiten. Der Sender trägt
-das invertierte Ergebnis in das Feld ein; ergibt die Invertierung gerade \texttt{0x0000}, überträgt er das
-im Einerkomplement gleichwertige \texttt{0xFFFF}, denn der Nullwert bleibt der Kennzeichnung eines
-ungenutzten OCS vorbehalten \cite[Sec.~9]{rfc9868}. Der Empfänger summiert die Wörter der Surplus Area einschließlich
-des OCS-Felds sowie den Längensummanden und erwartet wie in \secref{subsec:udp-struktur} lauter Einsen, also
-\texttt{0xFFFF} \cite[Sec.~9]{rfc9868}.
+das invertierte Ergebnis in das Feld ein. Abschnitt~9 verlangt ein OCS ungleich null, sobald die
+UDP-Prüfsumme ungleich null ist, und kennzeichnet ein ungenutztes OCS mit null \cite[Sec.~9]{rfc9868}. Eine
+ausdrückliche Senderegel für eine errechnete Null enthält der Abschnitt nicht; weil der Nullwert die
+unbenutzte Form kennzeichnet, bleibt für ein verwendetes OCS im Einerkomplement nur die Abbildung auf
+\texttt{0xFFFF}, analog zur UDP-Prüfsumme \cite{rfc768}. Der Empfänger summiert die Wörter der Surplus Area
+einschließlich des OCS-Felds sowie den Längensummanden und erwartet wie in \secref{subsec:udp-struktur}
+lauter Einsen, also \texttt{0xFFFF} \cite{rfc1071}.
 
 \tabref{tab:ocs-rechenbeispiel} führt diese Rechnung an einem bewusst kleinen Beispiel vollständig vor.
 
@@ -1055,6 +1059,4 @@ an \texttt{UDP Length}. Die Kampagnen benötigen deshalb einen eigenen Prüfer f
 (\chapref{chap:evaluation}); der fehlende Dissektor zeigt zugleich die geringe bisherige
 Werkzeugunterstützung.
 
-Damit sind Protokolle, Erweiterungsmuster, Surplus Area, Betriebssystem und Netzpfad beschrieben.
-\chapref{chap:methodik} legt nun offen, wie die folgenden Ergebnisse entstehen und geprüft werden. Eine
-Modellaussage bleibt dabei ein Kandidat; maßgeblich sind RFC, Code und Messung.
+Die Auswertungsmethode folgt in \chapref{chap:methodik}.
