@@ -29,7 +29,7 @@ QUELLEN = [
     REPO / "lernnotizen" / "hel-kampagne" / "ttl" / "ttl-paar-b.md",
 ]
 
-HOST = {"46.225.188.39": "mcs", "178.254.35.195": "1blu", "62.238.103.75": "hel"}
+HOST = {"46.225.188.39": "mcs", "178.254.35.195": "1blue", "62.238.103.75": "hel"}
 
 ARCHIVE_KOPF = [
     "# Datenschicht fuer fig:eval-ttl. Aggregiert aus den ttl-report.py-Tabellen der Messkampagnen.",
@@ -79,14 +79,14 @@ def ableiten() -> None:
         return sum(n for (r, s, k, t), n in agg.items()
                    if r == richtung and s == seite and (klasse is None or k == klasse) and (ttl is None or t == ttl))
     kontrollen = [
-        ("1blu->mcs ingress normal TTL 54 (S-53-Fenster)", summe("1blu->mcs", "ingress", "normal", 54), 137),
-        ("1blu->mcs ingress canary TTL 54", summe("1blu->mcs", "ingress", "canary", 54), 10),
-        ("1blu->hel ingress TTL 54", summe("1blu->hel", "ingress", ttl=54), 7136),
-        ("1blu->hel ingress TTL 53", summe("1blu->hel", "ingress", ttl=53), 70),
-        ("1blu->hel ingress canary TTL 53", summe("1blu->hel", "ingress", "canary", 53), 40),
+        ("1blue->mcs ingress normal TTL 54 (S-53-Fenster)", summe("1blue->mcs", "ingress", "normal", 54), 137),
+        ("1blue->mcs ingress canary TTL 54", summe("1blue->mcs", "ingress", "canary", 54), 10),
+        ("1blue->hel ingress TTL 54", summe("1blue->hel", "ingress", ttl=54), 7136),
+        ("1blue->hel ingress TTL 53", summe("1blue->hel", "ingress", ttl=53), 70),
+        ("1blue->hel ingress canary TTL 53", summe("1blue->hel", "ingress", "canary", 53), 40),
         ("mcs->hel ingress TTL 51 gesamt", summe("mcs->hel", "ingress", ttl=51), 5236 + 1920 + 50),
         ("hel->mcs ingress TTL 51 gesamt", summe("hel->mcs", "ingress", ttl=51), 5236 + 1920 + 50),
-        ("hel->1blu ingress TTL 52 gesamt", summe("hel->1blu", "ingress", ttl=52), 5236 + 1920 + 50),
+        ("hel->1blue ingress TTL 52 gesamt", summe("hel->1blue", "ingress", ttl=52), 5236 + 1920 + 50),
     ]
     ok = True
     for name, ist, soll in kontrollen:
@@ -94,7 +94,7 @@ def ableiten() -> None:
         if ist != soll:
             ok = False
         print(f"  Kontrolle {status}: {name}: ist {ist}, dokumentiert {soll}")
-    for richtung in ["mcs->1blu", "1blu->mcs", "mcs->hel", "hel->mcs", "hel->1blu", "1blu->hel"]:
+    for richtung in ["mcs->1blue", "1blue->mcs", "mcs->hel", "hel->mcs", "hel->1blue", "1blue->hel"]:
         eg = summe(richtung, "egress")
         eg64 = summe(richtung, "egress", ttl=64)
         print(f"  Egress {richtung}: {eg} Pakete, davon TTL 64: {eg64}")
@@ -112,8 +112,8 @@ def generieren() -> None:
     for richtung, seite, klasse, ttl, n in rows[1:]:
         agg[(richtung, seite, int(ttl))] += int(n)
     reihen = []  # (Anzeige, [(ttl, pakete, dominant)], Routerzahl-Text)
-    for richtung, router in [("mcs->1blu", "11"), ("1blu->mcs", "11 / 10"), ("mcs->hel", "13"),
-                             ("hel->mcs", "13"), ("hel->1blu", "12"), ("1blu->hel", "10 / 11")]:
+    for richtung, router in [("mcs->1blue", "11"), ("1blue->mcs", "11 / 10"), ("mcs->hel", "13"),
+                             ("hel->mcs", "13"), ("hel->1blue", "12"), ("1blue->hel", "10 / 11")]:
         ttls = sorted(((t, n) for (r, s, t), n in agg.items() if r == richtung and s == "ingress"),
                       key=lambda x: -x[1])
         gesamt = sum(n for _, n in ttls)

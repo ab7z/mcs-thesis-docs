@@ -1,5 +1,11 @@
 # Messartefakte
 
+Stand 2026-08-26: Die elf Archive in diesem Verzeichnis sind die versiegelte Evidenz zu den
+FF1- und FF2-Messungen der Arbeit. Die Thesis auf `main` (1f17af3) beantwortet beide
+Forschungsfragen im geprüften Umfang (Paar, Richtung, Messfenster). Die älteren
+Einleitungsabsätze einzelner Archive beschreiben den Beitrag *dieses* Datensatzes zum Zeitpunkt
+der Versiegelung; sie sind keine aktuelle Gesamtwertung von FF2.
+
 ## Bidirektionale Kampagne vom 11. August 2026
 
 - Kampagnenkennung: `bidir-campaign-20260811`
@@ -112,7 +118,7 @@ sha256sum -c SHA256SUMS
 
 - Kampagnenkennung: `hel-kampagne-20260815`
 - Quellstand der Messung: Kampagnen-Binaries bitidentisch `d7187eb` auf allen drei Endpunkten
-  (mcs, helsinki, 1blu); Treiber ab Commit `d3e22db`, `pair-campaign.sh` und `pair-pilot.sh` aus
+  (mcs, helsinki, 1blue); Treiber ab Commit `d3e22db`, `pair-campaign.sh` und `pair-pilot.sh` aus
   `8627860`, `checksumgate-cell.sh` aus `74bc65a`
 - Ursprünglicher Pfad: `../udp-transport-options/target/` mit den sechs Kampagnen-Stamps
   `p0/p1/p2-campaign-20260815T205110Z-mcs-hel` und `p0/p1/p2-campaign-20260815T214507Z-hel-1blu`
@@ -133,7 +139,7 @@ Die Dateiintegrität stützt sich auf den Archiv-Hash und den zstd-Selbsttest; d
 enthalten Sende-Manifeste (`manifest.jsonl`) als fachliche Sollwerte je Szenario und Richtung.
 
 Das Archiv belegt die Replikation der FF1-Suite auf den zwei neuen Cloud-Paaren mcs zu helsinki
-und helsinki zu 1blu (je 18 Treiber-Szenarien in beiden Richtungen, alle mit Rückgabewert 0 und
+und helsinki zu 1blue (je 18 Treiber-Szenarien in beiden Richtungen, alle mit Rückgabewert 0 und
 ohne unerklärten Verlust; S-51 bleibt nach Entscheidung E1 gestrichen) sowie die enthaltenen
 Checksumgate-Kreuzzellen. Der Datensatz erweitert die Realpfad-Basis von FF1 und FF2. Er
 vervollständigt FF2 nicht.
@@ -160,7 +166,7 @@ Messreihen gekennzeichnet und werden nicht mit Kampagnensummen verrechnet. Ausge
 Python-Cachedateien und Finder-Metadaten.
 
 - `p0p1p2-kampagnen-1blu-mcs-20260814-15.tar.zst`: die 22 Kampagnen-Stamps der P0/P1/P2-Läufe auf dem Paar
-  1blu und mcs vom 14./15.08. (12 p0, 5 p1, 5 p2, je mit PCAPs, Manifesten, Auswerterberichten);
+  1blue und mcs vom 14./15.08. (12 p0, 5 p1, 5 p2, je mit PCAPs, Manifesten, Auswerterberichten);
   509680 Byte, entpackt 33280000 Byte, 607 Einträge; SHA-256
   `644955e5bf51d03dd353273a5606e7e2bc9150c723393ddc9a2e889e85566dad`.
 - `p0p1p2-kampagnen-aws-20260816.tar.zst`: die neun Kampagnen-Stamps der transatlantischen FF1-Suiten

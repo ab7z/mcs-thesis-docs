@@ -9,16 +9,13 @@
 \label{sec:ff-beantwortung}
 
 \textbf{FF1} fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum
-vollständig, teilweise oder nicht erfüllen lassen. Im erklärten Umfang mit Raw Sockets sind alle 58
-anwendbaren oder für die Referenzimplementierung gewählten Zeilen des Arbeitsindex technisch vollständig
-erfüllbar; keine ist technisch nur teilweise oder gar nicht erfüllbar. Davon zu trennen ist der
-Implementierungsstand: 52 der 67 Zeilen sind vollständig und sechs teilweise umgesetzt, neun sind nicht
-anwendbar, nicht gewählt oder reine Leitlinie (\tabref{tab:eval-sollist}). Die sechs Teilumsetzungen sind
-damit Implementierungs- und Entwurfsgrenzen, keine nachgewiesenen Plattformgrenzen. Der Index selbst
-mischt markierte BCP-14-Anforderungen, unmarkierte normative API-Formen, Beschreibungen, Leitlinien und
-zusammengesetzte Aussagen; er ist ein Arbeitsindex und kein Verzeichnis aller Pflichten des Standards.
-Das Ergebnis beantwortet FF1 deshalb auf genau diesem erklärten Prüfraster und beweist weder die
-Satzgenauigkeit der Zerlegung noch vollständige Konformität mit allen Aussagen von RFC~9868.
+vollständig, teilweise oder nicht erfüllen lassen. Die Zuordnung im geprüften Umfang steht in
+\tabref{tab:fazit-synthese}. Die sieben Teilumsetzungen sind Implementierungs- und Entwurfsgrenzen, keine
+nachgewiesenen Plattformgrenzen. Der Index selbst mischt markierte BCP-14-Anforderungen, unmarkierte
+normative API-Formen, Beschreibungen, Leitlinien und zusammengesetzte Aussagen; er ist ein Arbeitsindex
+und kein Verzeichnis aller Pflichten des Standards. Das Ergebnis beantwortet FF1 deshalb auf genau diesem
+erklärten Prüfraster und beweist weder die Satzgenauigkeit der Zerlegung noch vollständige Konformität
+mit allen Aussagen von RFC~9868.
 
 \textbf{FF2} fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten
 bleibt. Im europäischen Messdreieck und auf den drei transatlantischen Hostpaaren zwischen den
@@ -40,8 +37,8 @@ das beobachtete Paar, die Richtung und das Messfenster.
         \toprule
         \textbf{FF} & \textbf{Ergebnis} & \textbf{Beobachtete Grenze} & \textbf{Geltungsbereich} \\
         \midrule
-        FF1 & 58 technisch vollständig erfüllbar; 0 teilweise; 0 nicht erfüllbar
-        & Referenzimplementierung: 52 vollständig, 6 teilweise; 9 nicht anwendbar oder Leitlinie
+        FF1 & 57 technisch vollständig erfüllbar; 0 teilweise; 0 nicht erfüllbar
+        & Referenzimplementierung: 50 vollständig, 7 teilweise; 10 nicht anwendbar oder Leitlinie
         & 67-zeiliger Arbeitsindex; Linux, IPv4, Benutzerraum, Raw Sockets \\
         FF2 & Surplus Area je nach Pfad erhalten, entfernt oder als Klasse verworfen
         & Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer
@@ -65,9 +62,10 @@ Technische Umsetzbarkeit am Endpunkt und Durchlässigkeit des Pfads sind unabhä
 \section{Ausblick}
 \label{sec:ausblick}
 
-Für eine Weiterentwicklung der Bibliothek liegen die sechs Teilumsetzungen nahe: der fehlende
+Für eine Weiterentwicklung der Bibliothek liegen die sieben Teilumsetzungen nahe: der fehlende
 Geltungsbereich für Optionen vor oder nach der Fragmentierung, eine vom Aufrufer wählbare Mindestlänge
-der Sende-API, quellenspezifische Empfangsregeln und eine klar dokumentierte Trennung des
+der Sende-API, quellenspezifische Empfangsregeln, die Bereitstellung der empfangenen Parameter auch für
+ignorierte oder fehlgeschlagene Optionen und eine klar dokumentierte Trennung des
 Reassemblierungsspeichers zwischen Socket-Kontexten. Die hohe Sende-API könnte zusätzlich die Leitlinie
 zur paketweisen Fragmentierungssteuerung abbilden. Eine Prüfkette, die semantische Abweichungen ihrer
 Auswerter in einen Fehlerstatus überführt, würde den Rückgabewert wieder aussagekräftig machen.

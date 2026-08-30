@@ -1,8 +1,8 @@
 # Datenschicht fuer fig:eval-opfermatrix. Hinwege EU/US -> Asien-Pazifik: Schicksal der gesamten
 # Surplus-Klasse (Baselines kamen in allen Lanes vollzaehlig an).
 # status: ok = Klasse zugestellt; kill = Klasse verworfen; leer = nicht gemessen.
-# beleg: zellen = G/C/Baseline-Zellen n=20 je Richtung mit Captures (mcs- und 1blu-Quellen;
-#   Eskalations-Matrizen B/T/C/Z/G2/ATOM fuer mcs-Tokio, mcs-Seoul, 1blu-Sydney);
+# beleg: zellen = G/C/Baseline-Zellen n=20 je Richtung mit Captures (mcs- und 1blue-Quellen;
+#   Eskalations-Matrizen B/T/C/Z/G2/ATOM fuer mcs-Tokio, mcs-Seoul, 1blue-Sydney);
 #   pilot = 3 Baseline + 6 Typed ohne Captures (hel- und aws-us-Quellen).
 # Quelle: aws-ap/bericht.md (Phasen M und B, Eskalationen 1 bis 5); Artefakte in
 #   ff2-aws-ap-20260816.tar.zst (SHA-256 097bd983d3777062036d1772a39cfd7c844a68ebadc4061f45de8bc2631b2870).
@@ -19,12 +19,12 @@ hel,Tokio,kill,pilot
 hel,Osaka,,pilot
 hel,Seoul,kill,pilot
 hel,Sydney,,pilot
-1blu,Mumbai,ok,zellen
-1blu,Singapur,ok,zellen
-1blu,Tokio,kill,zellen
-1blu,Osaka,ok,zellen
-1blu,Seoul,kill,zellen
-1blu,Sydney,kill,zellen
+1blue,Mumbai,ok,zellen
+1blue,Singapur,ok,zellen
+1blue,Tokio,kill,zellen
+1blue,Osaka,ok,zellen
+1blue,Seoul,kill,zellen
+1blue,Sydney,kill,zellen
 aws-us,Mumbai,,pilot
 aws-us,Singapur,,pilot
 aws-us,Tokio,ok,pilot

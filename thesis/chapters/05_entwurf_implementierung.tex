@@ -5,26 +5,18 @@
 \chapter{Entwurf und Implementierung}
 \label{chap:entwurf}
 
-Dieses Kapitel beschreibt die unter den Vorgaben aus \chapref{chap:analyse} gebaute
-Referenzimplementierung und ihre Prüfanlage. Auf Entstehungsprozess (\secref{sec:vorgehen}) und Komponenten
-mit Anforderungsbezug (\secref{sec:architektur}, \secref{sec:anforderungsmatrix}) folgen Sendeweg
+Die Referenzimplementierung folgt den Vorgaben aus \chapref{chap:analyse}. Der Weg geht vom
+Entstehungsprozess (\secref{sec:vorgehen}) über die Komponenten (\secref{sec:architektur}) zu Sendeweg
 (\secref{sec:sendepfad}), Empfangsweg (\secref{sec:empfangspfad}) und Optionsverarbeitung
-(\secref{sec:optionsverarbeitung}). Danach behandeln \secref{sec:pruefarchitektur} die Testarchitektur,
-\secref{sec:betriebsgrenzen} die Betriebs- und Sicherheitsgrenzen und
-\secref{sec:grenzen-implementierung} die bewussten Grenzen.
-
-Das Kapitel beschreibt und begründet den Bau; Umsetzungsbewertung und Pfadmessungen folgen in
-\chapref{chap:evaluation}. Diese Trennung legt \secref{sec:forschungsdesign} fest. Befunde aus Vorversuch
-und Prüfbetrieb erscheinen nur, wenn sie Entwurf oder Prüfanlage begründen. Die vier Entscheidungen aus
-\secref{sec:technologieauswahl} und die Mechanik aus \chapref{chap:grundlagen} werden angewandt, nicht
-erneut hergeleitet.
+(\secref{sec:optionsverarbeitung}), danach zu Testarchitektur, Betriebsgrenzen und bewussten Grenzen
+(\secref{sec:pruefarchitektur}, \secref{sec:betriebsgrenzen}, \secref{sec:grenzen-implementierung}).
+Vorversuchsbefunde erscheinen nur, wenn sie den Bau begründen. Die Entscheidungen aus
+\secref{sec:technologieauswahl} und die Mechanik aus \chapref{chap:grundlagen} werden angewandt.
 
 \section{Vorgehen der Implementierung}
 \label{sec:vorgehen}
 
-Bevor die Architektur den fertigen Bau zeigt, gehört festgehalten, wie er entstand, denn das Vorgehen ist
-unter KI-Beteiligung selbst ein Schutzmechanismus (\secref{sec:gefahrenmodell}). Die Umsetzung begann mit
-dem Plan, nicht mit dem Code: Der erste Commit des Repositorys legte den vollständigen Projektplan an,
+Die Umsetzung begann mit dem Plan. Der erste Commit des Repositorys legte den vollständigen Projektplan an,
 achtzehn Schrittdateien mit je Ziel, Anforderungen, Plan, Aufgaben und Abschlusskriterien, dazu die
 Modulgerüste.\footnote{Commit \texttt{3c17252} vom 30.05.2026; die Detailpläne, der Anforderungskatalog
 (\secref{sec:anforderungsmatrix}) und die Architektur- und Formatreferenzen folgten am selben Tag mit
@@ -65,11 +57,10 @@ den fertigen Bau.
 \section{Gesamtarchitektur}
 \label{sec:architektur}
 
-Den Rahmen des Baus legt \chapref{chap:analyse} fest: die Plattformvorgabe mit Linux, IPv4 und dem Benutzerraum
-mit Raw Sockets sowie die vier Entscheidungen aus \secref{sec:technologieauswahl}, die dort begründet sind
-und hier angewandt werden. Innerhalb dieses Rahmens entsteht das Artefakt aus
-\tabref{tab:scope-implementierung}: eine Bibliothek, die die Surplus Area baut, liest und prüft, samt zwei
-schmalen Messprogrammen für die Kampagnen.
+Den Plattform- und Funktionsumfang legt \secref{sec:abgrenzung} fest; \secref{sec:technologieauswahl}
+begründet die vier technischen Entscheidungen, die hier angewandt werden. Innerhalb dieses Rahmens
+entsteht das Artefakt aus \tabref{tab:scope-implementierung}: eine Bibliothek, die die Surplus Area baut,
+liest und prüft, samt zwei schmalen Messprogrammen für die Kampagnen.
 
 Die Bibliothek\footnote{Implementierungs-Repository \texttt{udp-transport-options}, Commit
 \texttt{f847895}; alle Datei- und Zeilenangaben dieses Kapitels beziehen sich auf diesen Stand.} besteht
@@ -176,9 +167,8 @@ Bibliotheksmodulen. Wie ein Datagramm dieses Gefüge von oben nach unten durchl�
 \label{sec:sendepfad}
 
 Beim Senden baut die Bibliothek aus Nutzdaten und gewünschten Optionen ein vollständiges IPv4-Datagramm und
-übergibt es dem Raw Socket; den Rahmen setzt die Plattformvorgabe aus \chapref{chap:analyse}, beschrieben
-wird durchgehend der IPv4-Weg
-unter Linux. Als roter Faden dient von hier an ein festes Beispieldatagramm, das die Darstellung bis in die
+übergibt es dem Raw Socket; den Rahmen setzt \secref{sec:abgrenzung}, beschrieben wird durchgehend der
+IPv4-Weg unter Linux. Als roter Faden dient von hier an ein festes Beispieldatagramm, das die Darstellung bis in die
 Evaluation begleitet: drei Nutzdatenbytes \texttt{odd} und genau eine REQ-Option mit dem vier Byte langen
 Token \texttt{c0ffee01}.\footnote{Prüfszenario \texttt{pad-odd} in \texttt{examples/wire\_probe.rs} (Zeilen
 248 bis 258); die erwarteten Bytes hält unabhängig davon das Prüfprogramm \texttt{scripts/wire-check.py}
@@ -336,9 +326,9 @@ und \texttt{SendOptions}.\footnote{\texttt{SendOptions} in \texttt{src/api/mod.r
 \texttt{SendConfig} mit \texttt{max\_datagram\_len} (Zeile 33 sowie Zeilen 110 bis 137),
 \texttt{Peer::send} (ab Zeile 298); die Zerlegung übernimmt \texttt{build\_outgoing\_datagrams}
 (ab Zeile 362).} Damit ist die Sende-API-Form aus Abschnitt~15 teilweise abgebildet; die anschließende
-Erwartung paketweiser Aktivierung erfüllt nur die tiefe, nicht die hohe Schnittstelle vollständig. In
-\secref{sec:ff1-kriterien} ist \texttt{EMSGSIZE} zudem bereits als erwartete Prüflast der Sendekampagnen
-eingeordnet.
+Erwartung paketweiser Aktivierung erfüllt nur die tiefe, nicht die hohe Schnittstelle vollständig. In den
+Sendekampagnen kehrt \texttt{EMSGSIZE} zudem als erwartete Betriebsgrenze oberhalb von 1500 Byte wieder
+(\secref{sec:soll-ist}).
 
 Am Ende des Pfads steht der Systemaufruf. Die Socket-Schicht öffnet den Raw Socket mit den Crates
 \texttt{socket2} und \texttt{libc} \cite{socket2, libc} und schaltet \texttt{IP\_HDRINCL} per
@@ -701,9 +691,8 @@ Grundsemantik des Frage-Antwort-Paars; die Pfad-MTU-Ermittlung DPLPMTUD für UDP
 steht als Anwendungsfall in einem eigenen Dokument \cite{rfc9869}. Die Bibliothek folgt diesem Zuschnitt:
 \texttt{Res} ist reine Datenhaltung, die Antwort auf ein empfangenes REQ löst die Anwendung aus, und die
 Herkunft des RES-Tokens bleibt ausdrücklich Aufruferpflicht
-(\secref{sec:betriebsgrenzen}).\footnote{\texttt{src/options/typed.rs} (Zeilen 164 bis 177).} Ob dieser
-Bau hält, was die Kennungen versprechen, entscheidet nicht das Kapitel selbst, sondern die Prüfanlage, die
-der nächste Abschnitt zeigt.
+(\secref{sec:betriebsgrenzen}).\footnote{\texttt{src/options/typed.rs} (Zeilen 164 bis 177).} Ob der Bau
+die Kennungen erfüllt, zeigt die Prüfanlage im nächsten Abschnitt.
 
 \section{Testarchitektur}
 \label{sec:pruefarchitektur}
@@ -719,45 +708,64 @@ Wo diese Ebenen im Repository liegen und worauf sie sich stützen, zeigt \figref
       x=1cm, y=1cm,
       >={Stealth[length=5pt, width=4pt]},
       block/.style={draw, semithick, rounded corners=3pt, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt},
+        font=\scriptsize\linespread{1.0}\selectfont, inner sep=3.2pt,
+        minimum width=3.28cm, minimum height=1.18cm},
       verweis/.style={->, draw=sqdunkel, thin},
       spiegel/.style={->, draw=sqgrau, dashed, thin},
-      kantentext/.style={font=\scriptsize, inner sep=1.5pt, fill=white, align=center},
+      kantentext/.style={font=\tiny\linespread{0.95}\selectfont, inner sep=1pt,
+        fill=white, align=center},
+      spalte/.style={font=\scriptsize\bfseries, text=sqdunkel},
     ]
-    \node[block, draw=sqgoldrand, fill=sqgold] (req) at (1.9,0)
+    \draw[draw=sqgrau, semithick, rounded corners=6pt] (0.12,1.38) rectangle (14.72,-5.68);
+    \draw[draw=sqgrau, dashed, thin] (4.65,1.38) -- (4.65,-5.68);
+    \draw[draw=sqgrau, dashed, thin] (9.90,1.38) -- (9.90,-5.68);
+    \node[spalte] at (2.02,1.12) {Katalog und Plan};
+    \node[spalte] at (7.28,1.12) {Bau};
+    \node[spalte] at (12.22,1.12) {Nachweis};
+
+    \node[block, draw=sqgoldrand, fill=sqgold] (req) at (2.02,0.08)
       {\textbf{docs/requirements.md}\\ Anforderungskatalog und\\ Konformitätsmatrix};
-    \node[block, draw=sqgoldrand, fill=sqgold] (plan) at (1.9,-2.6)
+    \node[block, draw=sqgoldrand, fill=sqgold] (plan) at (2.02,-2.62)
       {\textbf{docs/plan/}\\ ROADMAP und\\ Schrittdateien};
-    \node[block, draw=sqblaurand, fill=sqblau] (src) at (6.8,0)
-      {\textbf{src/}\\ Bibliothek und\\ Messprogramme};
-    \node[block, draw=sqblaurand, fill=sqblau] (refs) at (6.8,-2.6)
-      {\textbf{docs/architecture.md}\\ \textbf{docs/wire-format.md}\\ beschreiben den Bau};
-    \node[block, draw=sqgrau, fill=sqhell] (evalmd) at (6.8,-4.35)
+    \node[block, draw=sqgrau, fill=sqhell] (evalmd) at (2.02,-4.88)
       {\textbf{docs/evaluation.md}\\ Messanleitung für FF2};
-    \node[block, draw=sqroserand, fill=sqrose] (tests) at (11.9,0.35)
+
+    \node[block, draw=sqblaurand, fill=sqblau] (src) at (7.28,0.08)
+      {\textbf{src/}\\ Bibliothek und\\ Messprogramme};
+    \node[block, draw=sqblaurand, fill=sqblau] (refs) at (7.28,-2.62)
+      {\textbf{docs/architecture.md}\\ \textbf{docs/wire-format.md}\\ beschreiben den Bau};
+
+    \node[block, draw=sqroserand, fill=sqrose] (tests) at (12.22,0.08)
       {\textbf{tests/, fuzz/}\\ Tests, Properties,\\ Fuzz-Ziele};
-    \node[block, draw=sqroserand, fill=sqrose] (lean) at (11.9,-1.5)
+    \node[block, draw=sqroserand, fill=sqrose] (lean) at (12.22,-2.62)
       {\textbf{formal/lean-rfc9868/}\\ Lean-Modelle};
-    \node[block, draw=sqroserand, fill=sqrose] (gates) at (11.9,-3.3)
+    \node[block, draw=sqroserand, fill=sqrose] (gates) at (12.22,-4.88)
       {\textbf{scripts/, .github/}\\ Gates und CI};
-    \draw[verweis, <->] (req) -- node[kantentext] {Schritt und Status\\ je Zeile} (plan);
-    \draw[verweis] (req) -- node[kantentext] {Notes nennen\\ die Umsetzung} (src);
-    \draw[spiegel] (src.south west) .. controls (4.6,-1.3) .. node[kantentext, pos=0.35]
-      {punktuelle\\ FR-Verweise} (req.south east);
-    \draw[verweis] (plan.east) -- (refs.west);
-    \node[kantentext] at (4.05,-3.4) {Schrittverträge nennen\\ die Zielartefakte};
+
+    \draw[verweis, <->] (req) -- (plan);
+    \node[kantentext] at (2.02,-1.27) {Schritt und Status\\ je Zeile};
+    \draw[verweis] (evalmd) -- (plan);
+    \node[kantentext] at (2.02,-3.75) {Soll-Seite\\ der Messung};
+    \draw[verweis] (req) -- (src);
+    \node[kantentext] at (4.65,0.08) {Notes nennen\\ die Umsetzung};
+    \draw[spiegel] (src.south west) -- (req.south east);
+    \node[kantentext] at (4.65,-0.78) {punktuelle\\ FR-Verweise};
+    \draw[verweis] (plan) -- (refs);
+    \node[kantentext] at (4.65,-2.42) {Schrittverträge};
     \draw[verweis] (refs) -- (src);
-    \draw[verweis] (evalmd.west) -| node[kantentext, pos=0.75, anchor=east] {Soll-Seite\\ der Messung}
-      (plan.south);
-    \draw[verweis] (tests) -- node[kantentext] {prüfen} (src);
-    \draw[spiegel] (lean.west) -- node[kantentext, pos=0.55] {manuell gespiegelt,\\ keine Extraktion}
-      (src.south east);
-    \draw[verweis] (gates) -- node[kantentext, pos=0.5, anchor=west, xshift=2pt] {führen aus} (lean);
-    \draw[verweis] (gates.north) .. controls (12.6,-0.7) .. (tests.east);
-    \draw[spiegel] (gates.west) -- node[kantentext, pos=0.45] {Goldwerte} (refs.east);
-    \node[kantentext, anchor=west, align=left] at (-0.1,-5.4)
-      {Durchgezogen: ausdrücklicher Verweis, Import oder Ausführung. Gestrichelt: manuelle oder
-       teilweise Spiegelung.};
+    \draw[verweis] (tests) -- (src);
+    \node[kantentext] at (9.90,0.28) {prüfen};
+    \draw[spiegel] (lean.north) -- ++(0,0.42) -| (src.south east);
+    \node[kantentext] at (9.90,-1.20) {manuell gespiegelt,\\ keine Extraktion};
+    \draw[verweis] (gates) -- (lean);
+    \node[kantentext] at (12.22,-3.75) {führen aus};
+    \draw[verweis, rounded corners=2pt] (gates.east) -- ++(0.38,0) |- (tests.east);
+    \draw[spiegel] (refs.south) |- (gates.west);
+    \node[kantentext] at (8.55,-4.55) {Goldwerte};
+
+    \node[font=\tiny, text=feldlinie, anchor=north west, inner sep=0pt, align=left]
+      at (0.28,-5.82) {Durchgezogen: ausdrücklicher Verweis, Import oder Ausführung.\\
+        Gestrichelt: manuelle oder teilweise Spiegelung.};
   \end{tikzpicture}
   \caption{Entwicklungs- und Nachweisartefakte des Implementierungs-Repositorys}
   \label{fig:artefakte}
@@ -939,21 +947,13 @@ an dieser Stelle aber keine mit Schlüsselwörtern markierte Pflicht \cite[Sec.~
 Zuschnittsentscheidung hat
 \secref{sec:extraktionsmethode} dokumentiert.
 
-Damit sind Rechte, Zustand und Grenzen des Betriebs benannt; was der Bau darüber hinaus bewusst nicht
-leistet, fasst der letzte Abschnitt zusammen.
-
 \section{Bewusste Grenzen}
 \label{sec:grenzen-implementierung}
 
-Das Kapitel hat ein Messinstrument beschrieben, keinen Allzweckbau. Damit die Evaluation seine
-Ergebnisse richtig einordnen kann, gehören die Grenzen dieses Baus ebenso ausdrücklich benannt wie seine
-Fähigkeiten.
-
 Die erste Grenze ist die Plattform. Der Bau belegt den Benutzerraumweg unter Linux mit IPv4 und Raw
-Sockets, wie es die Plattformvorgabe aus \chapref{chap:analyse} vorgibt; über Kernel-Implementierungen,
-andere Betriebssysteme oder IPv6 sagt er
-nichts aus. Der macOS-Messpunkt aus \tabref{tab:scope-messung} bleibt reiner Beobachtungspunkt der
-Messinfrastruktur; alles Weitere würde den Rahmen dieser Arbeit sprengen.
+Sockets, wie \secref{sec:abgrenzung} ihn festlegt; über Kernel-Implementierungen, andere Betriebssysteme
+oder IPv6 sagt er nichts aus. Der macOS-Messpunkt aus \tabref{tab:scope-messung} bleibt
+Beobachtungspunkt der Messinfrastruktur.
 
 Die zweite Grenze ist das Netz. Alle Prüfungen dieses Kapitels laufen auf dem eigenen Host oder im
 kontrollierten Prüfaufbau; ob die Surplus Area reale Pfade mit fremden Zwischensystemen übersteht, ist

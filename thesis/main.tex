@@ -179,7 +179,7 @@
 
 % Abbildungsstil für Paket- und Headerdiagramme (Palette des Lernkompendiums)
 \usepackage{tikz}
-\usetikzlibrary{decorations.pathreplacing,arrows.meta}
+\usetikzlibrary{decorations.pathreplacing,arrows.meta,shapes.geometric}
 \definecolor{feldgrau}{HTML}{EDEDE7}     % neutrale Felder (Füllung)
 \definecolor{feldlinie}{HTML}{66707A}    % Feldrahmen und gedämpfte Beschriftung
 \definecolor{akzent}{HTML}{0E7C86}       % hervorgehobene Felder (Rahmen)
@@ -194,6 +194,17 @@
   feldtext/.style={font=\scriptsize},
   bitindex/.style={font=\tiny\ttfamily, text=feldlinie},
   klammer/.style={decorate, decoration={brace, amplitude=4pt}, draw=feldlinie, thin},
+  knpc/.pic={
+    \draw[draw=feldlinie, fill=feldgrau, thin] (0.10,0.34) rectangle (0.70,0.80);
+    \fill[sqdunkel] (0.16,0.40) rectangle (0.64,0.74);
+    \draw[draw=feldlinie, fill=feldgrau, thin] (0.34,0.26) -- (0.40,0.34) -- (0.46,0.26);
+    \draw[draw=feldlinie, fill=feldgrau, thin] (0.16,0.18) rectangle (0.64,0.26);
+  },
+  knrtr/.pic={
+    \fill[gray!36] (0,0) circle (0.30);
+    \draw[gray!55] (0,0) circle (0.30);
+    \draw[white, line width=1.15pt] (-0.15,-0.15)--(0.15,0.15) (-0.15,0.15)--(0.15,-0.15);
+  },
 }
 % Palette der Kapitel-3-Abbildungen (an die draw.io-Exporte angelehnt)
 \definecolor{sqgold}{HTML}{FFF0C5}\definecolor{sqgoldrand}{HTML}{B88A2D}
@@ -222,7 +233,8 @@
 \usepackage[
     acronym,
     toc,
-    nonumberlist
+    nonumberlist,
+    nogroupskip
 ]{glossaries}
 \makeglossaries
 
@@ -371,6 +383,12 @@
 \input{chapters/05_entwurf_implementierung}
 \input{chapters/06_evaluation}
 \input{chapters/07_fazit}
+
+% -----------------------------------------------------------------------------
+% ANHANG
+% -----------------------------------------------------------------------------
+\appendix
+\input{chapters/a_konformitaet}
 
 % -----------------------------------------------------------------------------
 % BACKMATTER

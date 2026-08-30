@@ -845,7 +845,8 @@ still, statt sie falsch zu deuten. Ein optionsfähiger Empfänger, der eine UNSA
 muss die reassemblierten Nutzdaten ebenso still verwerfen, und dasselbe gilt, wenn eine UNSAFE-Option
 außerhalb eines Fragment- oder Reassemblierungskontexts erscheint; zugestellt wird in beiden Fällen
 höchstens ein leeres Datagramm
-\cite[Sec.~10, 12 und 14]{rfc9868}. Die einzelnen Optionen und ihre Pflichten behandelt \chapref{chap:analyse}.
+\cite[Sec.~10, 12 und 14]{rfc9868}. Die Einzelbewertung der 67 Matrixzeilen steht in
+Anhang~\ref{chap:anhang-konformitaet}; die Umsetzung der Optionen beschreibt \chapref{chap:entwurf}.
 
 Zwei Folgen dieser Prinzipien verdienen eine eigene Erwähnung. Erstens verteilt die FRAG-Option ein
 logisches Anwendungsdatagramm (im RFC \textit{user datagram}) künftig gegebenenfalls auf mehrere
@@ -989,21 +990,13 @@ sind die letzten beiden Akteure: die Virtualisierungsschicht eines Testrechners,
 NAT-Stack Kopffelder auf erwartete Normwerte umschreiben kann, und das Transitnetz selbst, die AS-Kette
 zwischen den Zugangsnetzen, in der einzelne Netze filtern.
 
-Ob ein einzelner Akteur UDP Options kennt, lässt sich von außen nicht feststellen; für die in dieser
-Arbeit beobachteten Eingriffe war eine bewusste Verarbeitung der Optionen aber nirgends nachweisbar: Was
-mit einer Surplus Area geschieht, erscheint durchweg als Nebenwirkung von Regeln, die für gewöhnlichen
-UDP-Verkehr geschrieben wurden. Wie verschieden diese Nebenwirkungen ausfallen, zeigen drei Befunde, die
-\chapref{chap:evaluation} belegt: Der geprüfte Mobilfunk-Hotspot-Pfad verwirft Datagramme mit Surplus Area
-in beiden Richtungen, der NAT-Übergang einer Virtualisierungsschicht normalisiert die Kopffelder und
-entfernt die Surplus Area dabei, und nur ein Teil der geprüften Rechenzentrums- und Transitpfade
-transportiert sie unverändert: In einer Cloud-Fabric wird die gesamte Klasse verworfen, im Transit nach
-Asien-Pazifik hängt die Zustellung von der Quelle ab. Zwei Eigenschaften
-prägen darüber hinaus die Messungen. Erstens arbeiten mehrere Akteure mit Zustand und Zeitschranken;
-derselbe Pfad kann sich je nach Vorgeschichte unterschiedlich verhalten \cite[Sec.~3.5]{rfc8085}.
-Zweitens lässt sich die Kette gezielt umgehen: Eine Kapselung, etwa in einen WireGuard-Tunnel, verbirgt
-das innere Datagramm vor den Akteuren zwischen den Tunnelendpunkten, die nur noch das äußere Tunnelpaket
-behandeln. \chapref{chap:evaluation} nutzt genau das als Gegenprobe; sie belegt die Zustellung nach der
-Entkapselung, nicht einen nativen Transport über den offenen Pfad.
+Ob ein einzelner Akteur UDP Options kennt, lässt sich von außen nicht feststellen. Unbekannte
+Zwischensysteme können eine Surplus Area unverändert weiterleiten, verändern, entfernen oder das gesamte
+Datagramm verwerfen. Zustandsbehaftete NATs und Firewalls können dabei je Richtung und Messzeitpunkt
+unterschiedlich reagieren \cite[Sec.~3.5]{rfc8085}. Eine Kapselung, etwa in einen WireGuard-Tunnel,
+verbirgt das innere Datagramm vor den Akteuren zwischen den Tunnelendpunkten, die nur noch das äußere
+Tunnelpaket behandeln. Welche dieser Eingriffe auf den untersuchten Pfaden beobachtet wurden, bewertet
+\chapref{chap:evaluation}.
 
 Diese Kette erklärt zugleich, warum RFC~9868 seine Optionen ausgerechnet in einem Bereich ablegt, den
 Altempfänger nie lesen. Weil Middleboxes bevorzugt durchlassen, was sie kennen, weichen

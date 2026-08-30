@@ -3,27 +3,27 @@
 #   legacy-ungueltig); C = kompensierte OCS 5b53 (RFC-widrig, legacy-gueltig); K = Kontrolle ohne
 #   Fehler (P1-A: Pad 00 mit korrekter OCS, n=20; Kreuzzellen: Baseline ohne Surplus, n=10).
 # Quellen (Primaertabellen):
-#   1blu-mcs: p1-ergebnisse.md Befund P1-A (Kreuztest, je Richtung identisch); die
+#   1blue-mcs: p1-ergebnisse.md Befund P1-A (Kreuztest, je Richtung identisch); die
 #     p1-checksumgate-Rohdaten (248-Paket-Stichprobe samt SHA-256-Manifest) liegen nur im lokalen,
 #     von Git ignorierten Arbeitsverzeichnis und sind nicht Bestandteil der elf versiegelten
 #     Archive (vgl. Fussnote zu fig:eval-gate in 06_evaluation.tex).
-#   mcs-hel, hel-1blu: hel-ergebnisse.md Kreuzzellen-Tabelle; Rohdaten in
+#   mcs-hel, hel-1blue: hel-ergebnisse.md Kreuzzellen-Tabelle; Rohdaten in
 #     hel-kampagne-20260815.tar.zst (SHA-256 1545f30a5f2d1c97d0a55d657c7615f035fecb0fd6c7841a0944ce9ecf5bb063).
 #   aws-Richtungen: aws-us/bericht.md Checksumgate-Tabelle; Artefakte in
 #     ff2-aws-us-20260816.tar.zst (SHA-256 bce14312b8b49abd6dabdf0d71b53725d5071eb654db268db293135778e04ade).
 # gruppe: Anzeige-Gruppierung der Abbildung.
 gruppe,richtung,g_zu,g_n,c_zu,c_n,k_zu,k_n
-EU-Paare,1blu -> mcs,0,20,20,20,20,20
-EU-Paare,mcs -> 1blu,0,20,20,20,20,20
+EU-Paare,1blue -> mcs,0,20,20,20,20,20
+EU-Paare,mcs -> 1blue,0,20,20,20,20,20
 EU-Paare,mcs -> hel,0,20,20,20,10,10
 EU-Paare,hel -> mcs,0,20,20,20,10,10
-EU-Paare,hel -> 1blu,0,20,20,20,10,10
-EU-Paare,1blu -> hel,0,20,20,20,10,10
+EU-Paare,hel -> 1blue,0,20,20,20,10,10
+EU-Paare,1blue -> hel,0,20,20,20,10,10
 AWS-Paare,aws -> mcs,0,20,20,20,10,10
 AWS-Paare,mcs -> aws,0,20,20,20,10,10
 AWS-Paare,aws -> hel,0,20,20,20,10,10
 AWS-Paare,hel -> aws,0,20,20,20,10,10
-AWS-Paare,aws -> 1blu,0,20,20,20,10,10
-AWS-Paare,1blu -> aws,20,20,20,20,10,10
+AWS-Paare,aws -> 1blue,0,20,20,20,10,10
+AWS-Paare,1blue -> aws,20,20,20,20,10,10
 Amazon-Backbone,aws -> aws2,20,20,20,20,10,10
 Amazon-Backbone,aws2 -> aws,20,20,20,20,10,10

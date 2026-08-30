@@ -5,15 +5,10 @@
 \chapter{Evaluation und Diskussion}
 \label{chap:evaluation}
 
-Dieses Kapitel setzt die Referenzimplementierung und ihre Prüfanlage aus \chapref{chap:entwurf} auf die
-Forschungsfragen an: FF1 betrifft die technische Erfüllbarkeit der 67 Matrixzeilen unter Linux, IPv4 und
-Benutzerraum, FF2 den Erhalt der Surplus Area auf realen Pfaden (\secref{sec:zielsetzung}). Maßstäbe sind
-die Kategorien aus \secref{sec:ff1-kriterien} und das Pfadmodell aus \secref{sec:ff2-pfadmodell}.
-
-\secref{sec:testkonzept} legt das Test- und Messkonzept fest. Danach folgen die Pfadergebnisse zu FF2
-(\secref{sec:beobachtbarkeit-eval}), der Soll-Ist-Abgleich zu FF1 (\secref{sec:soll-ist}), die Reflexion
-der KI-gestützten Arbeitsweise (\secref{sec:ki-reflexion}) und die Diskussion der Grenzen
-(\secref{sec:diskussion-grenzen}).
+Die Bibliothek aus \chapref{chap:entwurf} wird an den Kategorien aus \secref{sec:ff1-kriterien} und am
+Pfadmodell aus \secref{sec:ff2-pfadmodell} geprüft. Nach dem Messkonzept (\secref{sec:testkonzept}) folgen
+die Pfadergebnisse (\secref{sec:beobachtbarkeit-eval}), der Soll-Ist-Abgleich (\secref{sec:soll-ist}), die
+KI-Reflexion (\secref{sec:ki-reflexion}) und die Grenzen (\secref{sec:diskussion-grenzen}).
 
 \section{Test- und Messkonzept}
 \label{sec:testkonzept}
@@ -33,45 +28,34 @@ festgelegten Zellplan, verzichtet aber auf einen Teil dieses Vollpakets; ein \te
 Funktionsprobe ohne Mitschnitt oder Manifest; eine \textbf{Vorstufe} prüft eine Richtung mit einem
 Datagramm je Klasse. Alle Läufe dieser Arbeit ordnet \tabref{tab:eval-messlaeufe} ein:
 
-\begin{table}[!htb]
+\begin{table}[ht]
     \centering
-    \caption{Messläufe der Arbeit mit Pfad, Quellstand, Umfang und Einstufung}
+    \caption{Messläufe der Arbeit nach Pfad, Stand und Einstufung}
     \label{tab:eval-messlaeufe}
     \footnotesize
-    \setlength{\tabcolsep}{4pt}
-    \begin{tabularx}{\textwidth}{L{2.5cm} L{2.2cm} L{1.8cm} Y L{1.9cm} L{1.5cm}}
+    \setlength{\tabcolsep}{3.5pt}
+    \begin{tabularx}{\textwidth}{L{2.20cm} L{2.35cm} L{1.65cm} Y L{2.05cm} L{1.40cm}}
         \toprule
-        \textbf{Messlauf} & \textbf{Pfad} & \textbf{Quellstand} & \textbf{Umfang} & \textbf{Einstufung} &
+        \textbf{Lauf} & \textbf{Pfad} & \textbf{Stand} & \textbf{Umfang} & \textbf{Stufe} &
         \textbf{Archiv} \\
         \midrule
-        Lokale Lanes (Schritte 17, 18) & vier Namespace-Topologien & \file{f847895} &
-        5~Szenarien, 7~Verdikt-Klassen & Referenz\-läufe & Impl.-Repo \\
-        Externe Kampagne 10.08. & achim $\rightarrow$ mcs & \file{7b11140} &
-        je 1~Probe IPv4/IPv6, Tunnelkontrolle & Kampagne & extern \\
-        Bidirektionale Kampagne 11.08. & achim $\leftrightarrow$ mcs & \file{7b11140} &
-        Richtung A: 9/9 Options\-datagramme normalisiert, 18/18 FULL-Kontrollpakete intakt; Richtung B:
-        0/6 Options\-datagramme zugestellt, 15/15 FULL-Kontrollpakete intakt & Kampagne & bidir \\
-        Piloten 12./13.08. & achim, Mac, 1blu, mcs & \file{b12ba8e} &
-        0/13; 0/10; 1blu-Pfad je Richtung 6/6 & Piloten & piloten \\
-        Vorstufe S-00 14.08. & mcs $\rightarrow$ 1blu & Meta im Archiv &
-        11~Szenarien, 15~Datagramme, $n=1$ je Klasse & Vorstufe & piloten \\
-        P0/P1/P2 14./15.08. & 1blu $\leftrightarrow$ mcs & Meta im Archiv &
-        über 10\,000~Pakete (P0); 15~Klassen $\times$ 6 je Richtung (P1); S-49 570/570; S-50 12/12 &
-        Kampagnen & 1blu-mcs \\
-        Helsinki-Paare 15.08. & mcs $\leftrightarrow$ hel, hel $\leftrightarrow$ 1blu & \file{d7187eb} &
-        18~Szenarien je Paar, alle Läufe fehlerfrei & Kampagnen & hel \\
-        Prüfsummen-Gate-Zellen 15.08. & drei EU-Paare & \file{d7187eb} &
-        je Richtung 50~Pakete in drei Prüfformen; Erstlauf ohne Mitschnitt getrennt & Messzellen mit
-        Mitschnitt & hel \\
-        Hotspot-Reihen 2 bis 4, 15.08. & achim $\leftrightarrow$ mcs, 1blu & Meta im Archiv &
-        je Zelle $n=30$, atomare Zelle $n=10$, vorregistriert & Messreihen & hotspots \\
-        AWS-Suiten 16.08. & aws $\leftrightarrow$ mcs, hel, 1blu & \file{d7187eb}, \file{9d6c5bd} &
-        54~abschließende Katalogergebnisse mit Rückgabewert 0 nach Wiederholung eines S-35-Laufs;
-        ein S-50-Lauf verfehlte das 30-Sekunden-Zeitkriterium & Kampagnen & aws \\
-        GCP- und AWS-Zellen 16.08. & gcp, aws, aws2 & \file{d7187eb} &
-        Piloten; Diskriminator-Matrizen $n=20$ je Zelle & Piloten, Messreihen & gcp-us, aws-us \\
-        AP-Durchlauf 16.08. & 6~Regionen $\leftrightarrow$ mcs, 1blu & \file{d7187eb} &
-        Gate- und Kontrollzellen $n=20$, zwei Phasen & Messreihe mit Mitschnitt und Manifest & aws-ap \\
+        Lokale Lanes & 4 Namespaces & \file{f847895} & 5~Szenarien & Referenz & Impl. \\
+        Extern 10.08. & achim $\rightarrow$ mcs & \file{7b11140} & IPv4/IPv6, Tunnel & Kampagne & extern \\
+        Bidir 11.08. & achim $\leftrightarrow$ mcs & \file{7b11140} & 9/9 normalisiert, 0/6 Rückweg &
+        Kampagne & bidir \\
+        Piloten 12./13.08. & achim, Mac, 1blue, mcs & \file{b12ba8e} & 1blue 6/6; achim/Mac 0/13, 0/10 &
+        Pilot & piloten \\
+        Vorstufe 14.08. & mcs $\rightarrow$ 1blue & Archiv & 11~Szenarien, $n=1$ & Vorstufe & piloten \\
+        P0/P1/P2 14./15.08. & 1blue $\leftrightarrow$ mcs & Archiv & P0 $>$10k; P1/P2-Suiten & Kampagne &
+        1blue \\
+        Helsinki 15.08. & mcs, hel, 1blue & \file{d7187eb} & 18~Szenarien je Paar & Kampagne & hel \\
+        Gate-Zellen 15.08. & drei EU-Paare & \file{d7187eb} & G/C/K je Richtung & Messreihe & hel \\
+        Hotspot 15.08. & achim $\leftrightarrow$ mcs, 1blue & Archiv & $n=30$, ATOM $n=10$ & Messreihe &
+        hotspots \\
+        AWS-Suiten 16.08. & aws, mcs, hel, 1blue & \file{d7187eb} & 18~Szenarien, 3~Paare & Kampagne &
+        aws \\
+        GCP/AWS 16.08. & gcp, aws, aws2 & \file{d7187eb} & Piloten; Zellen $n=20$ & Pilot/Zelle & aws-us \\
+        AP 16.08. & 6 Regionen, mcs, 1blue & \file{d7187eb} & Zellen $n=20$ & Messreihe & aws-ap \\
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -88,12 +72,13 @@ Echo- und RTT-Semantik. S-24 ist empfängerseitig durch S-24r belegt und senders
 Grenze; S-51 wurde begründet gestrichen. Ohne vorher festgelegte Äquivalenzregel lässt sich keine
 korrigierte Vollständigkeitsquote bilden.
 
-Die Spalte Quellstand nennt den für einen Lauf dokumentierten Stand der Messprogramme. Die drei
+Die Spalte Stand nennt den für einen Lauf dokumentierten Stand der Messprogramme. Die drei
 Pilot-READMEs ordnen den Stand \file{b12ba8e} den dort genannten SHA-256-Werten zu. Die Binärdateien,
 zeitgenössische Prüfsummenprotokolle und ein Buildprotokoll sind im Korpus der elf Archive jedoch nicht
 enthalten; die Zuordnung lässt sich daraus nicht unabhängig prüfen. Der Commit war bei dieser Prüfung
 kein Vorfahr des Hauptzweigs und wurde im vollständig bezeichneten Korpus von keiner benannten Ref
-erreicht. Davon getrennt beziehen sich alle Aussagen über Quelltext und Tests auf \file{f847895}.
+erreicht. Davon getrennt beziehen sich alle Aussagen über Quelltext und Tests auf \file{f847895}. Die AWS-Suiten
+nutzen zusätzlich den Treiberstand \file{9d6c5bd}.
 Jedes der elf versiegelten Archive besitzt eine passende äußere SHA-256-Prüfsumme. Die inneren Manifeste
 sind nicht einheitlich portabel: Einige Archive besitzen kein Gesamtmanifest, zwei Manifeste verweisen
 zusätzlich auf eine fehlende temporäre Datei, und das GCP-Manifest enthält alte absolute Pfade. Das
@@ -129,6 +114,16 @@ definiert \path{docs/evaluation.md}.} Die lokalen Referenzläufe verwenden dageg
 Namespace-Topologien und sieben Verdikt-Klassen. Sie liefern einen kontrollierten Nullpunkt für
 ausgewählte Wire-, Options- und FRAG-Fälle, bilden den Realpfadkatalog aber nicht vollständig nach.
 
+Die externen Kampagnen vergleichen zeitnah gesendete, gleich große Kontroll- und Optionsdatagramme auf
+demselben gerichteten Pfad. Ein externer Lauf ist nur auswertbar, wenn die Senderaufzeichnung den Versand
+und die erwartete Surplus Area belegt. Die maschinelle Auswertung vergleicht Sender- und
+Empfängeraufzeichnung nach der je Kampagne dokumentierten Zuordnung: Zielport und Szenario,
+Sequenznummern, bei leeren Nutzdaten die Klassen- und Längeninformation sowie bei FRAG die Kennung des
+Fragmentsatzes. Abweichende Paketzahlen werden gesondert gemeldet und machen einen Lauf nur dann ungültig,
+wenn die Auswertung ein bestimmtes Sollergebnis erzwingt. Auch die Behandlung IP-fragmentierter Datagramme
+ist auswerterspezifisch: Der Referenzauswerter bricht bei jedem IPv4-Fragment mit einem Fehler ab, weil er
+Fragmente nicht zusammensetzt; die Kampagnenauswerter überspringen nur Folgefragmente.
+
 Ob die Messpfade während der Kampagnen stabil blieben, prüft eine eigene Auswertung der
 Lebensdauerfelder aller Mitschnitte:
 
@@ -140,10 +135,10 @@ Lebensdauerfelder aller Mitschnitte:
 \end{figure}
 
 Aus \figref{fig:eval-ttl} ist nicht für jede Richtung eine einheitliche Ankunfts-TTL abzulesen. Auf dem Rückweg
-von 1blu nach mcs kommen 7198 Pakete mit TTL 53 und 147 mit TTL 54 an; die zweite Gruppe umfasst 137
+von 1blue nach mcs kommen 7198 Pakete mit TTL 53 und 147 mit TTL 54 an; die zweite Gruppe umfasst 137
 Pakete desselben Flusses in einem zusammenhängenden Zeitfenster sowie zehn Einzelpakete mit eigenen
 Flusskennungen. Das belegt zeitweises Rerouting des Messflusses, und die Einzelpakete passen zusätzlich
-zu flussabhängiger Wegewahl. Von 1blu nach Helsinki kommen 7136 Pakete mit TTL 54 und 70 mit TTL 53 an;
+zu flussabhängiger Wegewahl. Von 1blue nach Helsinki kommen 7136 Pakete mit TTL 54 und 70 mit TTL 53 an;
 dort liegen 40 der 70 Pakete auf Kontrollen mit jeweils eigener Flusskennung, was eine flussabhängige
 Aufteilung stützt, aber nur für die Messfenster gilt. Beide Effekte kehren in
 \secref{sec:beobachtbarkeit-eval} als Wegevielfalt des Rückpfads wieder. Keine der Gruppen liefert einen
@@ -181,8 +176,9 @@ FF2 fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenste
 (\secref{sec:zielsetzung}). Die Ergebnisse folgen den fünf Pfadstufen aus \secref{sec:ff2-pfadmodell} in
 aufsteigender Netzferne: zunächst die kontrollierten Stufen Loopback, virtualisierte Topologien und
 Tunnel, ferner die öffentlichen Pfade in Europa, abschließend die interkontinentalen Pfade. Quer zu den
-Stufen ordnet das Fehlermodell jeden Befund einer der drei Mechanismenklassen aus
-\figref{fig:kantenmodell} zu; den Abschluss bildet die messbasierte Fassung dieser Typologie. Keiner der
+Stufen wird jede beobachtete Abweichung nur dem Attributionsintervall zwischen den eigenen Messpunkten
+zugeschrieben (\secref{sec:ff2-pfadmodell}); die dabei entstandene Typologie der Mechanismenklassen
+bündelt \secref{subsec:eval-mechanismen} am Ende des Abschnitts. Keiner der
 untersuchten Pfade vervollständigt FF2: Jeder Befund gilt für das beobachtete Paar, die Richtung und das
 Messfenster.
 
@@ -254,42 +250,52 @@ Transport.
 \label{subsec:eval-europa}
 
 Die vierte Pfadstufe umfasst zwei sehr verschiedene Umgebungen: das Cloud-Dreieck aus den Endpunkten mcs,
-helsinki und 1blu sowie den Mobilfunk-Zugangspfad des Entwicklungsrechners. Den Aufbau des Dreiecks zeigt
+helsinki und 1blue sowie den Mobilfunk-Zugangspfad des Entwicklungsrechners. Den Aufbau des Dreiecks zeigt
 \figref{fig:eval-eudreieck}:
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[
-        ep/.style={draw=sqtealrand, fill=sqteal, rounded corners=2pt, font=\scriptsize, align=center,
-            inner sep=3pt},
-        as/.style={draw=sqblaurand, fill=sqblau, rounded corners=8pt, font=\scriptsize, align=center,
-            inner sep=3pt},
-        uebergabe/.style={draw=feldlinie, fill=feldgrau, font=\tiny, inner sep=2pt},
-        unbekannt/.style={draw=sqgrau, fill=sqhell, dashed, font=\tiny, inner sep=2pt},
-        pf/.style={->, >=Stealth, semithick},
-        kante/.style={font=\tiny, text=feldlinie, align=center}]
-        \node[ep] (mcs) at (0,0) {mcs\\Hetzner-Cloud (KVM)\\Nürnberg, AS24940};
-        \node[ep] (hel) at (10.25,0) {helsinki\\Hetzner-Cloud, HEL1\\AS24940};
-        \node[ep] (blu) at (5.6,-4.1) {1blu\\OpenVZ-Container auf vh5011\\AS42730 (EVANZO)};
-        \node[as] (lumen) at (2.3,-2.35) {Lumen\\AS3356};
-        \node[as] (colt) at (5.6,-2.05) {COLT\\AS8220};
-        \node[uebergabe] (ear) at (0.75,-3.95) {1BLU-AG.ear5.Frankfurt1};
-        \node[unbekannt] at (1.75,-0.95) {2 stille Fabric-Hops};
-        \draw[pf, transform canvas={yshift=2pt}] (mcs) -- node[kante, above]
-            {Hetzner-Backbone, 13 Router je Richtung, RTT $\sim$24\,ms} (hel);
-        \draw[pf, transform canvas={yshift=-2pt}] (hel) -- (mcs);
-        \draw[pf] (mcs.south) .. controls (0.4,-2.6) .. node[kante, left, pos=0.40]
-            {hin: 11 Router\\Übergabe Frankfurt} (blu.west);
-        \draw[pf] (blu.north west) .. controls (3.4,-2.9) .. (lumen.south east);
-        \draw[pf] (lumen.north west) .. controls (0.6,-1.4) .. (mcs.south east);
-        \draw[pf] (blu.north) -- (colt.south);
-        \draw[pf] (colt.north) .. controls (4.6,-0.9) .. (mcs.east);
-        \draw[pf] (hel.south) .. controls (9.7,-2.6) .. node[kante, right, pos=0.55]
-            {hin: 12 Router\\zurück: 10 oder 11 (ECMP)} (blu.east);
-        \draw[pf, transform canvas={xshift=-4pt}] (blu.north east) .. controls (9.0,-2.9) .. (hel.south west);
-        \node[kante, anchor=north west, align=left, text width=10.6cm] at (0,-4.95) {zurück über die
-            1blu-Aggregation (ECMP): Lumen-Zweig 11 Router (RTT 14 bis 17\,ms), COLT-Zweig 10 Router
-            (RTT $\sim$4\,ms)};
+        x=1cm, y=1cm,
+        as/.style={ellipse, draw=gray!50, fill=gray!22, font=\scriptsize, align=center,
+            inner sep=3pt, minimum width=2.55cm, minimum height=1.05cm},
+        access/.style={ellipse, draw=sqblaurand, fill=sqblau, font=\scriptsize, align=center,
+            inner sep=3pt, minimum width=2.35cm, minimum height=0.90cm},
+        ixp/.style={draw=gray!55, fill=gray!40, font=\tiny, inner sep=2.5pt, align=center},
+        kante/.style={font=\tiny, text=feldlinie, align=center, inner sep=1.2pt},
+        pf/.style={-, draw=sqdunkel, semithick}]
+        % knpc-Ursprung ist die linke untere Ecke; shift setzt den visuellen Mittelpunkt auf den Pfadpunkt.
+        \fill[sqblau, opacity=0.18]
+          (0.35,3.40) .. controls (2.20,3.80) and (12.00,3.80) .. (13.85,3.40)
+          .. controls (14.20,2.40) and (12.40,1.40) .. (7.10,1.30)
+          .. controls (1.80,1.40) and (-0.00,2.40) .. (0.35,3.40);
+        \node[font=\scriptsize\bfseries, text=sqdunkel] at (7.10,3.30) {Hetzner AS24940};
+        \draw[pf] (1.50,2.15) -- (12.70,2.15);
+        \foreach \x in {2.55,3.70,4.85,9.35,10.50,11.65}
+          \path (\x,2.15) pic {knrtr};
+        \path (1.15,2.15) pic[shift={(-0.40,-0.49)}] {knpc};
+        \path (13.05,2.15) pic[shift={(-0.40,-0.49)}] {knpc};
+        \node[access] (mcs) at (1.15,0.80) {mcs\\Nürnberg, KVM};
+        \node[access] (hel) at (13.05,0.80) {helsinki\\HEL1};
+        \draw[pf] (1.15,1.84) -- (mcs.north);
+        \draw[pf] (13.05,1.84) -- (hel.north);
+        \node[kante] at (7.10,2.70) {13 Router je Richtung, RTT $\sim$24\,ms};
+        \node[kante] at (7.10,1.50) {2 stille Fabric-Hops};
+        \node[as] (lumen) at (3.20,-0.70) {Lumen\\AS3356};
+        \node[as] (colt) at (11.00,-0.70) {COLT\\AS8220};
+        \node[ixp] (ear) at (7.10,-1.90) {ear5 Frankfurt};
+        \path (7.10,-3.05) pic[shift={(-0.40,-0.49)}] {knpc};
+        \node[access] (blu) at (7.10,-4.40) {1blue\\AS42730, OpenVZ};
+        \draw[pf] (mcs.south) -- (lumen.north);
+        \draw[pf] (lumen.south) -- (ear.west);
+        \draw[pf] (hel.south) -- (colt.north);
+        \draw[pf] (colt.south) -- (ear.east);
+        \draw[pf] (ear.south) -- (7.10,-2.74);
+        \draw[pf] (7.10,-3.36) -- (blu.north);
+        \node[kante, align=center] at (1.50,-1.65) {mcs$\rightarrow$1blue\\11 Router};
+        \node[kante, align=center] at (12.70,-1.65) {hel$\rightarrow$1blue\\12 hin, 10 oder 11 zurück};
+        \node[kante] at (7.10,-5.45)
+            {Rückweg-ECMP: Lumen 11 Router (14 bis 17\,ms), COLT 10 Router ($\sim$4\,ms)};
     \end{tikzpicture}
     \caption{Europäisches Messdreieck mit zwei Endpunkt- und zwei beobachteten Transit-Netzen}
     \label{fig:eval-eudreieck}
@@ -304,7 +310,7 @@ zusammen 9000 von 9000, zugestellte Pakete in
 Sandwich-Tripeln gleicher Gesamtlänge (95-Prozent-Schranke der klassenweisen Verlustrate unter 0,6 Prozent
 je Richtung), der MTU-Sweep trug bis exakt 1500 Byte Gesamtlänge vollständig, und über zehntausend
 P0-Pakete blieben ohne unerklärten Verlust. Ferner überstand das goldene Prüfszenarien-Set aus
-\chapref{chap:entwurf} den Pfad von mcs nach 1blu unverändert: elf Szenarien mit 15 Datagrammen und 0 bis
+\chapref{chap:entwurf} den Pfad von mcs nach 1blue unverändert: elf Szenarien mit 15 Datagrammen und 0 bis
 308 Byte Surplus, an beiden Enden aufgezeichnet und beidseitig mit elf von elf Szenarien bestanden; als
 Vorstufe mit einer Richtung und einem Datagramm je Klasse ist das ein Pfadtransparenz-, kein
 Zustellungsnachweis. Zusammen mit dem Piloten vom 13.08. (je Richtung sechs von sechs Optionsdatagramme
@@ -323,7 +329,7 @@ und einem Prüfsummen-Gate. Die Wegevielfalt dokumentiert \figref{fig:eval-rerou
         anm/.style={font=\tiny, text=feldlinie},
         wert/.style={font=\scriptsize}]
         \node[font=\scriptsize\bfseries, anchor=west] at (0,1.35) {S-53-Zeitverlauf der Ankunfts-TTL
-            (1blu $\rightarrow$ mcs, 2000 Pakete, verlustfrei)};
+            (1blue $\rightarrow$ mcs, 2000 Pakete, verlustfrei)};
         \draw[seg53] (0,0) rectangle node[wert] {TTL 53: 1518} (9.11,0.55);
         \draw[seg54] (9.11,0) rectangle (9.93,0.55);
         \node[wert] at (9.52,0.85) {TTL 54: 137};
@@ -342,13 +348,14 @@ und einem Prüfsummen-Gate. Die Wegevielfalt dokumentiert \figref{fig:eval-rerou
 \end{figure}
 
 Aus \figref{fig:eval-reroute} geht hervor, dass derselbe Fluss für 2,93 Sekunden verlustfrei auf eine um
-einen Router kürzere Variante wechselte und zurück, und dass die 1blu-Aggregation den Portraum nahezu
+einen Router kürzere Variante wechselte und zurück, und dass die 1blue-Aggregation den Portraum nahezu
 hälftig auf einen Lumen- und einen COLT-Zweig verteilt; der Port-Sweep ist dabei eine Stichprobe des
 Hash-Raums, keine Lastmessung. Außerhalb des Fensters lag der feste Messfluss durchgehend auf der längeren
 Lumen-Variante. Diese Beobachtung hat zur direkten Konsequenz, dass ein Pfad seine Struktur auch ohne
 jedes Verlustsignal ändern kann; jede Pfadaussage dieser Arbeit gilt deshalb nur für ihr Messfenster.
 
-Der zweite Befund, das \textbf{Prüfsummen-Gate} aus \secref{sec:ff2-pfadmodell}, wurde zunächst in einer
+Der zweite Befund ist ein Zustellmuster, das einer fehlerhaften Prüfung der UDP-Prüfsumme über die
+gesamte IP-Nutzlast entspricht, im Folgenden \textbf{Prüfsummen-Gate}. Es wurde zunächst in einer
 lokalen, nicht versiegelten Voranalyse erkannt und danach durch die versiegelten Kreuztests auf weiteren
 Paaren repliziert. In der Voranalyse von 248 einzeln nachgerechneten Paketen stimmte die Zustellung ohne
 Abweichung mit
@@ -356,13 +363,13 @@ folgender Bedingung überein: Das UDP-Prüfsummenfeld war null oder die Einerkom
 Pseudo-Header und gesamte IP-Nutzlast ging auf, wobei die Pseudo-Header-Länge aus der IP-Gesamtlänge
 stammte statt aus dem UDP-Längenfeld. Der entscheidende Kreuztest bestand aus zwei Zellen: Zelle G
 trägt ein Pad-Byte \texttt{ff} bei rechnerisch gültiger OCS; sie ist wegen des Null-Pad-Gebots aus
-\secref{sec:extraktionsmethode} regelwidrig gebaut, ihre Legacy-Faltung geht nicht auf, und sie
+\secref{subsec:surplus-aufbau} regelwidrig gebaut, ihre Legacy-Faltung geht nicht auf, und sie
 verschwindet vollständig. Zelle C kompensiert denselben Pad-Fehler durch eine gegenkorrigierte OCS
 \texttt{5b53}; sie ist ebenso regelwidrig, ihre Faltung geht auf, und sie kommt vollständig an. In
 dieser Stichprobe folgt die Zustellung damit der Legacy-Summe und nicht der OCS. Algebraisch schließt
 sich das: Bei RFC-korrekter OCS ist die Legacy-Summe gleich dem Pad-Byte, denn der Längenzuschlag des
 Pseudo-Headers hebt sich exakt gegen den Längensummanden der OCS-Definition auf
-(\secref{subsec:surplus-ocs}). Damit ist die Frage aus \secref{sec:ff2-pfadmodell} beantwortet, ob
+(\secref{subsec:surplus-ocs}). Damit ist zugleich die entscheidende Anschlussfrage beantwortet, ob
 regelkonform gebaute Datagramme ein solches Gate passieren: Ja. Ein Datagramm mit Null-Pad und
 korrekter OCS besteht ein Gate dieses Typs zwingend, und genau das erklärt die verlustfreie
 P0-Grundlast; die Messung bestätigt das in Abschnitt~9 genannte Entwurfsziel der OCS, Datagramme durch
@@ -388,13 +395,13 @@ einen reinen Amazon-Vergleichspfad; \figref{fig:eval-gate} stellt alle Richtunge
 Aus \figref{fig:eval-gate} geht hervor, dass die regelwidrige, aber faltungsgültige Zelle C jede der 14
 Richtungen vollständig passiert, während die faltungsungültige Zelle G in elf Richtungen vollständig
 verschwindet und in drei Richtungen vollständig ankommt. Das Muster der Überlebensrichtungen trägt die
-Verortung: Der Amazon-Backbone lässt G beidseitig durch, ebenso der Weg von 1blu zu aws; die Ausfälle
-konzentrieren sich auf alle Richtungen mit Hetzner-Beteiligung und auf den 1blu-Eingang. Als sparsamstes
+Verortung: Der Amazon-Backbone lässt G beidseitig durch, ebenso der Weg von 1blue zu aws; die Ausfälle
+konzentrieren sich auf alle Richtungen mit Hetzner-Beteiligung und auf den 1blue-Eingang. Als sparsamstes
 Modell bleibt eine kanten- oder empfangsseitige Legacy-Prüfsummenvalidierung bei Hetzner in beiden
-Richtungen und bei 1blu nur eingehend, keine bei Amazon; das ist eine Schlussfolgerung aus
+Richtungen und bei 1blue nur eingehend, keine bei Amazon; das ist eine Schlussfolgerung aus
 Endpunkt-Mitschnitten, denn zwischen Provider-Kante und letztem Transit-Abschnitt kann ohne Messpunkt im
 Netz nicht unterschieden werden. Der Asien-Durchlauf replizierte beide Kantenbefunde aus sechs weiteren
-Transiten und ergänzte drei weitere G-Überlebensrichtungen von 1blu nach Mumbai, Singapur und Osaka. In
+Transiten und ergänzte drei weitere G-Überlebensrichtungen von 1blue nach Mumbai, Singapur und Osaka. In
 der ersten Überlebensrichtung wurde zudem erstmals das Empfängerbild einer zugestellten G-Zelle
 beobachtet: Der Empfänger verwirft die Optionen wegen des Pad-Bytes regelkonform und stellt die Nutzdaten
 zu. Diese Beobachtung hat zur direkten Konsequenz, dass ein regelwidriges Pad ein Datagramm auf vielen
@@ -407,40 +414,46 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[
-        ep/.style={draw=sqtealrand, fill=sqteal, rounded corners=2pt, font=\scriptsize, align=center,
-            inner sep=3pt},
-        mb/.style={draw=sqgoldrand, fill=sqgold, rounded corners=2pt, font=\scriptsize, align=center,
-            inner sep=3pt},
-        wolke/.style={draw=sqgrau, fill=sqhell, dashed, rounded corners=8pt, font=\scriptsize,
-            align=center, inner sep=4pt},
-        uebergabe/.style={draw=feldlinie, fill=feldgrau, font=\tiny, inner sep=2pt, align=center},
-        pf/.style={->, >=Stealth, semithick},
+        x=1cm, y=1cm,
+        cpe/.style={draw=gray!55, fill=gray!28, rounded corners=2pt, font=\tiny, align=center,
+            inner sep=3pt, minimum width=1.55cm, minimum height=0.7cm},
         kante/.style={font=\tiny, text=feldlinie, align=center},
-        mp/.style={font=\tiny, text=akzent}]
-        \node[ep] (gast1) at (0,0) {achim-Gast\\(NAT-Modus)};
-        \node[mb] (nat) at (2.5,0) {VMware-\\NAT};
-        \node[ep] (mac) at (4.6,0) {Mac\\en0};
-        \node[mb] (hot) at (6.6,0) {iPhone-\\Hotspot};
-        \node[wolke] (tele) at (9.75,-0.75) {Telefónica-Mobilfunknetz\\mit CGNAT\\(Attributionsintervall)};
-        \node[uebergabe] (dcix) at (12.15,-2.3) {DE-CIX\\Frankfurt};
-        \node[ep] (ziel) at (12.15,-3.65) {Ziel: mcs oder 1blu\\(16 bzw. 15 Router)};
-        \node[ep] (gast2) at (0,-1.75) {achim-Gast\\(Bridge-Modus)};
-        \draw[pf] (gast1) -- (nat);
-        \draw[pf] (nat) -- (mac);
-        \draw[pf] (mac) -- (hot);
-        \draw[pf] (hot.east) -- (tele.west);
-        \draw[pf] (gast2) .. controls (4.6,-1.75) .. node[kante, below=0.5mm, pos=0.5]
-            {direkt ins Hotspot-Subnetz} (hot.south);
-        \draw[pf] (tele) -- (dcix);
-        \draw[pf] (dcix) -- (ziel);
-        \node[mp] at (0,0.62) {$\triangle$ Mitschnitt Gast};
-        \node[mp] at (4.6,0.62) {$\triangle$ en0 (nur 10./11.08.)};
-        \node[mp, anchor=north] at (ziel.south) {$\triangle$ Mitschnitt Ziel};
-        \node[kante, anchor=north west, text width=7.6cm, align=left] at (0,-3.05) {Rückrichtung im
-            NAT-Modus: Antworten erreichen den Gast mit TTL 128. Dieses Bild ist mit einer Neuerzeugung
-            durch die NAT-Schicht vereinbar. Im Bridge-Modus kommt die Endpunkt-TTL an (48 von mcs, 51
-            von 1blu); alle Ziel-TTLs des Uplinks steigen um genau eins, weil der NAT-Sprung im
-            Messpfad entfällt};
+        pf/.style={-, draw=sqdunkel, semithick}]
+        \path (0.05,1.15) pic {knpc};
+        \node[font=\tiny, align=center] at (0.40,0.55) {achim-Gast\\NAT-Modus};
+        \node[cpe] (nat) at (2.55,0.95) {VMware-NAT};
+        \path (4.15,1.15) pic {knpc};
+        \node[font=\tiny, align=center] at (4.50,0.55) {Mac en0};
+        \node[cpe] (hot) at (6.55,0.95) {iPhone-\\Hotspot};
+        \draw[pf] (0.80,0.95) -- (nat.west);
+        \draw[pf] (nat.east) -- (4.15,0.95);
+        \draw[pf] (4.85,0.95) -- (hot.west);
+        \path (0.05,-0.85) pic {knpc};
+        \node[font=\tiny, align=center] at (0.40,-1.45) {achim-Gast\\Bridge-Modus};
+        \draw[pf] (0.80,-0.55) -- (6.55,0.55);
+        \node[kante] at (3.3,-0.85) {direkt ins Hotspot-Subnetz};
+        \fill[sqblau, opacity=0.20]
+          (7.55,1.85) .. controls (8.4,2.45) and (12.9,2.35) .. (13.55,1.55)
+          .. controls (14.15,0.55) and (12.7,-0.55) .. (10.55,-0.65)
+          .. controls (8.35,-0.55) and (7.15,0.55) .. (7.55,1.85);
+        \node[font=\scriptsize\bfseries, text=sqdunkel] at (10.55,1.55) {Telefónica};
+        \node[font=\tiny, text=feldlinie, align=center] at (10.55,1.05)
+            {Mobilfunknetz mit CGNAT};
+        \path (9.35,0.35) pic {knrtr};
+        \path (10.55,0.35) pic {knrtr};
+        \path (11.75,0.35) pic {knrtr};
+        \draw[pf] (hot.east) -- (8.05,0.95);
+        \node[draw=gray!55, fill=gray!40, font=\tiny, inner sep=3pt, align=center]
+            (dcix) at (10.55,-1.55) {DE-CIX Frankfurt};
+        \draw[pf] (10.55,-0.55) -- (dcix.north);
+        \path (12.85,-2.55) pic {knpc};
+        \node[font=\tiny, align=center] at (13.20,-3.15) {mcs oder 1blue\\16 bzw. 13 Router};
+        \draw[pf] (dcix.south east) -- (12.85,-2.35);
+        \node[kante, anchor=west, align=left] at (0.0,-2.15)
+            {Mitschnitte: Gast, en0 (nur 10./11.08.), Ziel.};
+        \node[kante, anchor=west, align=left, text width=7.2cm] at (0.0,-2.85)
+            {NAT-Rückweg TTL 128 (mit Neuaufbau vereinbar). Bridge: Endpunkt-TTL
+             48 von mcs, 51 von 1blue; Ziel-TTLs um eins höher ohne NAT-Sprung.};
     \end{tikzpicture}
     \caption{Zugangspfad über den Mobilfunk-Hotspot in den Betriebsarten NAT und Bridge}
     \label{fig:eval-heimpfad}
@@ -453,8 +466,9 @@ $p = 2{,}13 \cdot 10^{-7}$). Rückantworten mit TTL 128 und neu geschriebenen IP
 einem Neuaufbau aus dem Verbindungszustand der NAT vereinbar (\figref{fig:eval-heimpfad}). Die
 Messpunkte trennen \texttt{vmnet-natd} jedoch nicht von der macOS-VMnet-API und legen das interne
 Längenmodell nicht offen. Direkt belegt ist allein die Normalisierung auf IPv4-Kopflänge plus
-UDP-Länge, bei unveränderten Nutzdaten und entfernter Surplus Area. Nach \secref{sec:ff2-pfadmodell}
-ist das ein \textbf{Normalisierer} mit der Ergebnisklasse entfernt. Sein deutlichster Fall betrifft
+UDP-Länge, bei unveränderten Nutzdaten und entfernter Surplus Area. Dieses beobachtete Drahtbild
+definiert die Mechanismenklasse des \textbf{Normalisierers} mit der Ergebnisklasse entfernt; der interne
+Mechanismus des Geräts bleibt unbewiesen. Sein deutlichster Fall betrifft
 atomare FRAG-Datagramme, deren gesamter Inhalt in der Surplus Area liegt: Sie kommen als leere
 28-Byte-Hüllen an und werden zugestellt, zehn von zehn; die Anwendung erhält leere statt fehlender
 Datagramme, ohne jedes Verlustsignal. In der Rückrichtung verschwanden Optionsdatagramme dagegen
@@ -468,7 +482,8 @@ vollständig verschwinden (je null von 30; jeder Vergleich Fisher exakt, einseit
 $p = 8{,}5 \cdot 10^{-18}$). Damit diskriminiert der Verwerfer allein die \textbf{Präsenz} einer Surplus
 Area, also die Bedingung UDP-Länge kleiner als IP-Nutzlast: nicht den Optionsinhalt, nicht die
 Prüfsummenlage, nicht die Größe; ein Prüfsummen-Gate ist doppelt ausgeschlossen, weil auch die genullte
-Prüfsumme stirbt. Die Triangulation mit getauschtem fernen Ende (1blu statt mcs, anderes Endpunkt-Netz,
+Prüfsumme stirbt. Dieses Wirkungsbild definiert die Mechanismenklasse des \textbf{Präsenz-Verwerfers}.
+Die Triangulation mit getauschtem fernen Ende (1blue statt mcs, anderes Endpunkt-Netz,
 anderer Transit, identisches Zellenbild) verortet den Mechanismus in das gemeinsame Segment aus
 Hotspot-Anschluss und Telefónica-Mobilfunknetz. Der Bridge-Betrieb schließlich nahm die VMware-NAT aus
 dem Pfad: Erstmals verließen Surplus-Datagramme den Gast unversehrt, und nun verwarf der Pfad sie auch
@@ -489,32 +504,74 @@ Die fünfte Pfadstufe erweitert die Messbasis um zwei Hyperscaler-Fabrics und la
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[
-        ep/.style={draw=sqtealrand, fill=sqteal, rounded corners=2pt, font=\scriptsize, align=center,
-            inner sep=3pt},
-        block/.style={draw=sqblaurand, fill=sqblau, rounded corners=4pt, font=\scriptsize, align=center,
-            inner sep=4pt},
-        pf/.style={->, >=Stealth, semithick},
-        pfpilot/.style={->, >=Stealth, thin, dashed},
-        kante/.style={font=\tiny, text=feldlinie, align=center},
-        warn/.style={font=\scriptsize, text=warnton}]
-        \node[block] (eu) at (0,0) {\textbf{Europa}\\mcs (NBG) · helsinki (HEL)\\1blu (AS42730)\\
-            aws2 (eu-central-1)};
-        \node[block] (na) at (8.3,1.35) {\textbf{Nordamerika}\\aws (us-east-1)\\gcp (us-east1)};
-        \node[block] (ap) at (8.3,-2.75) {\textbf{Asien-Pazifik (je t3.micro)}\\Mumbai · Singapur ·
-            Tokio\\Osaka · Seoul · Sydney};
-        \draw[pf, transform canvas={yshift=2pt}] (eu.18) -- (na.west);
-        \draw[pf, transform canvas={yshift=-3pt}] (na.west) -- (eu.18);
-        \node[kante] at (4.05,1.95) {aws-Paare: Zellen und Suiten;\\14 bis 23 Hops, $\sim$91 bis
-            100\,ms};
-        \draw[pfpilot] (eu.-8) -- (na.200);
-        \node[kante] at (4.85,-0.42) {gcp: Piloten und Zellen; 7 bis 8 Router,\\$\sim$102\,ms;
-            \textcolor{warnton}{Fabric verwirft $\times$}};
-        \draw[pf] (eu.south) .. controls (1.4,-2.3) .. (ap.west);
-        \node[kante] at (2.4,-2.85) {G/C/Baseline-Zellen\\je Region};
-        \draw[pf] (na.south) -- (ap.north);
-        \node[kante, anchor=west] at (8.75,-0.7) {Amazon-intern\\(Piloten)};
-        \node[kante, anchor=west, align=left] at (0,-4.15) {aws2 nur für den Backbone-Vergleich;
-            Rückweg-Trace aws $\rightarrow$ 1blu fehlt};
+        x=1cm, y=1cm,
+        access/.style={ellipse, draw=sqblaurand, fill=sqblau, font=\scriptsize, align=center,
+            inner sep=2.4pt, minimum width=1.72cm, minimum height=0.78cm},
+        ap/.style={ellipse, draw=sqblaurand, fill=sqblau, font=\tiny, align=center,
+            inner sep=2pt, minimum width=1.85cm, minimum height=0.58cm},
+        smallas/.style={ellipse, draw=gray!50, fill=gray!22, font=\tiny, align=center,
+            inner sep=2pt, minimum width=1.85cm, minimum height=0.70cm},
+        kante/.style={font=\tiny, text=feldlinie, align=center, inner sep=1pt},
+        pf/.style={-, draw=sqdunkel, semithick},
+        pfpilot/.style={-, draw=sqdunkel, thin, dashed}]
+        % knpc: shift setzt den visuellen Mittelpunkt auf den Pfadpunkt.
+        % Bahn 1: Amazon-Pfade (keine Kreuzlinien, Quellen links, Ziel rechts)
+        \fill[gray!10, rounded corners=5pt] (-0.10,1.18) rectangle (14.30,3.52);
+        \node[font=\scriptsize\bfseries, text=sqdunkel, anchor=west] at (0.05,3.32)
+            {Amazon-Pfade};
+        \fill[sqblau, opacity=0.22, rounded corners=4pt]
+            (0.05,1.28) rectangle (3.55,3.12);
+        \node[font=\tiny\bfseries, text=sqdunkel] at (1.80,2.96) {Hetzner AS24940};
+        \fill[gray!22, rounded corners=4pt] (9.70,1.28) rectangle (14.20,3.12);
+        \node[font=\tiny\bfseries, text=sqdunkel] at (11.95,2.96) {Amazon};
+        \path (0.90,2.48) pic[shift={(-0.40,-0.49)}] {knpc};
+        \path (2.70,2.48) pic[shift={(-0.40,-0.49)}] {knpc};
+        \path (4.70,2.48) pic[shift={(-0.40,-0.49)}] {knpc};
+        \path (10.70,2.48) pic[shift={(-0.40,-0.49)}] {knpc};
+        \node[access] (mcsA) at (0.90,1.58) {mcs};
+        \node[access] (helA) at (2.70,1.58) {helsinki};
+        \node[access] (bluA) at (4.70,1.58) {1blue\\AS42730};
+        \node[access] (awsu) at (10.70,1.58) {aws\\us-east-1};
+        \node[smallas] (aws2) at (13.15,1.58) {aws2\\eu-central-1};
+        \draw[pf] (5.05,2.48) -- (10.35,2.48);
+        \foreach \x in {6.55,7.85,9.15}
+          \path (\x,2.48) pic {knrtr};
+        \draw[pf] (0.90,2.17) -- (mcsA.north);
+        \draw[pf] (2.70,2.17) -- (helA.north);
+        \draw[pf] (4.70,2.17) -- (bluA.north);
+        \draw[pf] (10.70,2.17) -- (awsu.north);
+        \draw[pf] (awsu.east) -- (aws2.west);
+        \node[kante] at (7.95,3.08) {14 bis 23 Hops, $\sim$91 bis 100\,ms};
+        \node[kante] at (12.00,2.05) {Backbone};
+        % Bahn 2: Google-Pfade. Dieselben x-Positionen wie oben; hel entfällt (kein gcp-Pilot).
+        \fill[warnhell, opacity=0.55, rounded corners=5pt] (-0.10,-1.22) rectangle (14.30,1.05);
+        \node[font=\scriptsize\bfseries, text=warnton, anchor=west] at (0.05,0.86)
+            {Google-Pfade (Pilot)};
+        \node[access] (mcsG) at (0.90,-0.12) {mcs};
+        \node[access] (bluG) at (4.70,-0.12) {1blue};
+        \node[access] (gcpu) at (10.70,-0.12) {gcp\\us-east1};
+        \node[font=\tiny\bfseries, text=warnton] at (10.70,0.58) {Google};
+        \draw[pfpilot] (mcsG.south) -- (0.90,-0.92);
+        \draw[pfpilot] (bluG.south) -- (4.70,-0.92);
+        \draw[pfpilot] (0.90,-0.92) -- (10.70,-0.92);
+        \draw[pfpilot] (10.70,-0.92) -- (gcpu.south);
+        \path (7.20,-0.92) pic {knrtr};
+        \path (8.70,-0.92) pic {knrtr};
+        \node[kante, text=warnton, align=center] at (7.70,0.42)
+            {7 bis 8 Router, $\sim$102\,ms\\Fabric verwirft};
+        % Bahn 3: Asien-Pazifik, Zellen ohne Fächerlinien
+        \fill[sqblau, opacity=0.16, rounded corners=5pt] (-0.10,-2.58) rectangle (14.30,-1.35);
+        \node[font=\scriptsize\bfseries, text=sqdunkel, anchor=west] at (0.05,-1.54)
+            {Asien-Pazifik, je t3.micro};
+        \node[ap] at (1.15,-2.18) {Mumbai};
+        \node[ap] at (3.45,-2.18) {Singapur};
+        \node[ap] at (5.75,-2.18) {Tokio};
+        \node[ap] at (8.05,-2.18) {Osaka};
+        \node[ap] at (10.35,-2.18) {Seoul};
+        \node[ap] at (12.65,-2.18) {Sydney};
+        \node[kante, anchor=west, align=left, text width=14.1cm] at (0.05,-2.88)
+            {aws-Paare: Zellen und Suiten. gcp: Piloten und Zellen. AP: G/C/Baseline-Zellen von mcs
+             und 1blue.\\aws2 nur Backbone-Vergleich; Rückweg-Trace aws nach 1blue fehlt.};
     \end{tikzpicture}
     \caption{Interkontinentale Messendpunkte mit Belegstufe und Rundlaufzeiten}
     \label{fig:eval-interkontinental}
@@ -530,19 +587,17 @@ erreichten auf allen drei aws-Paaren die erwarteten funktionalen Zustellmengen e
 MTU-Kante bei exakt 1500 Byte. Damit ist zweierlei belegt: Der Präsenz-Verwerfer ist keine Eigenschaft
 von Hyperscaler-Fabrics an sich, und der EU-US-Transit verwirft die Klasse nicht; dies sind die ersten
 interkontinentalen Pfade dieser Arbeit, auf denen RFC~9868 in beiden Richtungen funktioniert. Ein
-Lauf des Szenarios S-50 verfehlte allerdings wegen einer 47,448-sekündigen Sendepause das
-vorregistrierte 30-Sekunden-Kriterium: 32 der 64 Terminalfragmente folgten ihrem Erstfragment erst nach
-51,927 bis 52,749 Sekunden; die Sekundenwerte sind aus den PCAP-Zeitstempeln des Laufs abgeleitet.
-In den sechs Läufen dieser Richtung kamen insgesamt 966 von 966 Fragmenten
-an, und im betroffenen Lauf wurden alle 64 erwarteten Sätze vor dem 60-Sekunden-Cachetimeout
-zugestellt; der funktionale Cachebefund blieb also erhalten, der Lauf war dennoch nicht
-abweichungsfrei. Die Google-Fabric dagegen verwarf die Klasse bidirektional und inhaltsblind: Baselines
-40 von 40, alle fünf Surplus-Zellformen null von 200, keine leeren Hüllen; auch die Zelle, die jedes
-Legacy-Gate passieren würde, stirbt. Die Endpunktmitschnitte grenzen den Verlust auf das Intervall nach
-der sendenden und vor der empfangenden Gast-Schnittstelle ein, und der gleiche Befund gegen mcs und
-1blu macht ein gemeinsames Google-seitiges Element zum sparsamsten Modell; die konkrete Komponente ist
-ohne Zwischenmesspunkt nicht nachgewiesen. Ein \textbf{Präsenz-Verwerfer} tritt hier als Eigenschaft
-einer Cloud-Fabric auf, providerspezifisch statt klassentypisch.
+Lauf des Szenarios S-50 auf dem Pfad von aws nach 1blue lag mit einem Terminalfragment außerhalb des
+vorregistrierten 30-Sekunden-Fensters (Lauf 3, rückwärts). In den sechs Läufen dieser Richtung kamen
+insgesamt 966 von 966 Fragmenten an, und im betroffenen Lauf wurden alle 64 erwarteten Sätze vor dem
+60-Sekunden-Cachetimeout zugestellt; der funktionale Cachebefund blieb also erhalten, der Lauf war
+dennoch nicht abweichungsfrei. Die Google-Fabric dagegen verwarf die Klasse bidirektional und
+inhaltsblind: Baselines 40 von 40, alle fünf Surplus-Zellformen null von 200, keine leeren Hüllen; auch
+die Zelle, die jedes Legacy-Gate passieren würde, stirbt. Die Endpunktmitschnitte grenzen den Verlust auf
+das Intervall nach der sendenden und vor der empfangenden Gast-Schnittstelle ein, und der gleiche Befund
+gegen mcs und 1blue macht ein gemeinsames Google-seitiges Element zum sparsamsten Modell; die konkrete
+Komponente ist ohne Zwischenmesspunkt nicht nachgewiesen. Ein \textbf{Präsenz-Verwerfer} tritt hier als
+Eigenschaft einer Cloud-Fabric auf, providerspezifisch statt klassentypisch.
 
 Auf den Hinwegen nach Asien-Pazifik zeigte sich dieselbe Mechanismenklasse ein drittes Mal, nun im
 Transit und quellabhängig; \figref{fig:eval-opfermatrix} fasst die Lage zusammen:
@@ -555,14 +610,15 @@ Transit und quellabhängig; \figref{fig:eval-opfermatrix} fasst die Lage zusamme
 \end{figure}
 
 Aus \figref{fig:eval-opfermatrix} geht hervor, dass die Opfermenge von der Quelle abhängt. In den drei
-Eskalationsmatrizen kamen von mcs nach Tokio und Seoul sowie von 1blu nach Sydney jeweils alle
+Eskalationsmatrizen kamen von mcs nach Tokio und Seoul sowie von 1blue nach Sydney jeweils alle
 Baselines an, aber keine der fünf Surplus-Zellen; die jeweilige Gegenrichtung blieb mit 120 von 120
 Paketen sauber, zusammen also mit 360 von 360 Paketen. Die Helsinki-Piloten nach Tokio und Seoul
 lieferten je drei Baselines, aber keines der je sechs Optionsdatagramme, während die Amazon-Piloten
 nach Tokio, Seoul, Sydney und Osaka je drei Baselines und sechs Optionsdatagramme vollständig
 zustellten. Zwei Kontrollen stützen die Deutung: Osaka teilt mit Tokio die sichtbare AS-Kette und
 bleibt dennoch transparent, sodass die sichtbare Kette allein den Unterschied nicht erklärt, das
-Wirkintervall mit Endpunktmitschnitten aber auch nicht weiter zu trennen ist; und die Sydney-Anomalie
+Attributionsintervall mit Endpunktmitschnitten aber auch nicht weiter zu trennen ist; und die
+Sydney-Anomalie
 blieb im zeitversetzten Gegentest quellabhängig. Interkontinentale Erreichbarkeit der Surplus Area ist
 damit für die beobachteten Messfenster eine Eigenschaft des konkreten Paars aus Quelle und Ziel, nicht
 des Ziels allein.
@@ -570,17 +626,72 @@ des Ziels allein.
 \subsection{Mechanismenklassen und Folgen}
 \label{subsec:eval-mechanismen}
 
-Die Messungen füllen die drei Mechanismenklassen aus \secref{sec:ff2-pfadmodell} mit beobachteten
-Wirkintervallen zwischen eigenen Messpunkten; die Zuordnung ist kein Gerätenachweis. Abschnitt~25.6 des
-RFC beschreibt sowohl das Entfernen von Optionen durch UDP-Vermittler als auch das Verwerfen
-optionsbehafteter Datagramme auf bestimmten Pfaden \cite[Sec.~25.6]{rfc9868}. Dazu passen der
+Aus den Vorversuchen und Messungen sind drei wiederkehrende Mechanismenklassen entstanden.
+\figref{fig:kantenmodell} zerlegt einen Messpfad aus Sicht der beiden Messpunkte in Kanten und ordnet die
+Klassen den beobachteten Attributionsintervallen zu (\secref{sec:ff2-pfadmodell}); die Zuordnung ist kein
+Gerätenachweis, und keine Klasse ist an die gezeigten Kanten gebunden, denn Kanten können Verkehr
+quellabhängig behandeln:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        x=1cm, y=1cm,
+        >={Stealth[length=5pt, width=4pt]},
+        station/.style={draw=sqblaurand, fill=sqblau, rounded corners=3pt, semithick, align=center,
+            font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt, minimum height=0.95cm},
+        kante/.style={draw=sqgrau, fill=sqhell, rounded corners=3pt, semithick, align=center,
+            font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt, minimum height=0.95cm},
+        mech/.style={draw=sqroserand, fill=sqrose, rounded corners=3pt, semithick, align=center,
+            font=\scriptsize\linespread{1.0}\selectfont, inner sep=3pt},
+        messpunkt/.style={draw=sqtealrand, fill=sqteal, rounded corners=2pt, thin, align=center,
+            font=\tiny\linespread{1.0}\selectfont, inner sep=2.5pt},
+        fluss/.style={->, draw=sqdunkel, thin},
+    ]
+        \node[station, anchor=west] (tx) at (0.35,0) {Sender\\ (Bibliothek)};
+        \node[kante, anchor=west] (zugang) at ([xshift=0.5cm]tx.east)
+            {Zugangs- oder\\ Anbieternetz des Absenders\\ (NAT; mögliches CGNAT)};
+        \node[kante, anchor=west] (transit) at ([xshift=0.5cm]zugang.east) {Transit\\ (AS-Kette)};
+        \node[kante, anchor=west] (ingress) at ([xshift=0.5cm]transit.east)
+            {Empfänger-Kante\\ (Provider-Ingress)};
+        \node[station, anchor=west] (rx) at ([xshift=0.5cm]ingress.east) {Empfänger\\ (Bibliothek)};
+        \draw[fluss] (tx) -- (zugang);
+        \draw[fluss] (zugang) -- (transit);
+        \draw[fluss] (transit) -- (ingress);
+        \draw[fluss] (ingress) -- (rx);
+        \node[messpunkt] (egress) at (1.25,-1.15) {Sender-PCAP};
+        \node[messpunkt] (inpcap) at (13.55,-1.15) {Empfänger-PCAP};
+        \draw[draw=sqtealrand, thin] (tx) -- (egress);
+        \draw[draw=sqtealrand, thin] (rx) -- (inpcap);
+        \node[mech] (norm) at (3.1,1.85)
+            {Normalisierer\\ {\tiny VMware-NAT-Grenze}};
+        \node[mech] (praes) at (7.5,1.85)
+            {Präsenz-Verwerfer\\ {\tiny Zugangsnetz, Cloud-Fabric,}\\ {\tiny quellabhängiger Transit}};
+        \node[mech] (gate) at (11.4,1.85)
+            {Prüfsummen-Gate\\ {\tiny Hetzner beidseitig,}\\ {\tiny 1blue eingehend}};
+        \draw[fluss, dashed, draw=sqroserand] (norm) -- (zugang.north west);
+        \draw[fluss, dashed, draw=sqroserand] (praes.west) to[out=190, in=80] (zugang.north);
+        \draw[fluss, dashed, draw=sqroserand] (praes) -- (transit);
+        \draw[fluss, dashed, draw=sqroserand] (praes.south east) -- (ingress.north west);
+        \draw[fluss, dashed, draw=sqroserand] (gate) -- (ingress);
+        \draw[decorate, decoration={brace, mirror, amplitude=5pt}, draw=sqgrau, thin]
+            (2.3,-1.5) -- (12.5,-1.5);
+        \node[font=\tiny, text=feldlinie, align=center] at (7.4,-1.95)
+            {Attributionsintervall: Befunde sind nur zwischen den Messpunkten eingrenzbar};
+    \end{tikzpicture}
+    \caption{Kantenmodell eines Messpfads mit den beobachteten Attributionsintervallen der drei
+        Mechanismenklassen}
+    \label{fig:kantenmodell}
+\end{figure}
+
+Abschnitt~25.6 des RFC beschreibt sowohl das Entfernen von Optionen durch UDP-Vermittler als auch das
+Verwerfen optionsbehafteter Datagramme auf bestimmten Pfaden \cite[Sec.~25.6]{rfc9868}. Dazu passen der
 \textbf{Normalisierer} an der Grenze aus VMware-NAT und VMnet mit der Ergebnisklasse entfernt, das
-\textbf{Prüfsummen-Gate} in den Randintervallen der beiden Hetzner-Endpunkte und am 1blu-Eingang mit
+\textbf{Prüfsummen-Gate} in den Randintervallen der beiden Hetzner-Endpunkte und am 1blue-Eingang mit
 der Ergebnisklasse verworfen für alle faltungsungültigen Datagramme sowie der
 \textbf{Präsenz-Verwerfer} in drei Habitaten, nämlich Zugangsnetz, Cloud-Fabric und quellabhängigem
 Transit, mit der Ergebnisklasse verworfen für die gesamte Klasse. Die Amazon-seitigen Intervalle und
 der reine Amazon-Backbone zeigten kein Prüfsummen-Gate. Das macht die vollständigen Pfade zu Hetzner
-und von Amazon zu 1blu nicht gatefrei; dort begrenzen die Endpunktmessungen das Gate auf die jeweils
+und von Amazon zu 1blue nicht gatefrei; dort begrenzen die Endpunktmessungen das Gate auf die jeweils
 entfernte Seite oder den letzten Transitabschnitt. Dazu tritt der Maskierungseffekt als Wechselwirkung:
 Ein Normalisierer vor einem Präsenz-Verwerfer entfernt dessen Auslöser und macht den nachgelagerten
 Verwerfer dadurch unsichtbar. Was das für ein einzelnes Datagramm bedeutet, bündelt
@@ -598,7 +709,7 @@ Gegenstücken:
         anm/.style={font=\tiny, text=feldlinie},
         reihe/.style={font=\scriptsize\bfseries}]
         % Reihe 1: pad-odd unveraendert (Skala 0.055 cm/Byte)
-        \node[reihe, anchor=west] at (0,0.55) {pad-odd (42 Byte): unverändert, mcs $\rightarrow$ 1blu};
+        \node[reihe, anchor=west] at (0,0.55) {pad-odd (42 Byte): unverändert, mcs $\rightarrow$ 1blue};
         \node[iph, anchor=west, minimum width=1.1cm] at (0,0) {IPv4 20};
         \node[udph, anchor=west, minimum width=0.44cm] at (1.1,0) {8};
         \node[nutz, anchor=west, minimum width=0.17cm] at (1.54,0) {3};
@@ -652,8 +763,8 @@ Verfahren werden normative Anforderungen einschließlich unmarkierter normativer
 (\chapref{chap:analyse}); nicht gewählte MAY-Funktionen und Aussagen außerhalb des gewählten Umfangs
 bleiben sichtbar, zählen aber weder als erfüllt noch als technisch unmöglich (\chapref{chap:methodik}).
 Die FR- und NFR-Kennungen dienen als Nachweisindex und nicht als zweiter Nenner; 58 der 67 Matrixzeilen
-tragen eine solche Kennung. Je bewerteter Zeile
-folgt der Nachweis einer festen Reihenfolge: zuerst die Notiz der Matrixzeile, dann die verknüpfte
+tragen im eingefrorenen Repository-Arbeitsindex mindestens eine solche Kennung. Je bewerteter Zeile folgt
+der Nachweis einer festen Reihenfolge: zuerst die Notiz der Matrixzeile, dann die verknüpfte
 Anforderungskennung, dann Quelltext und Test, zuletzt, wo vorhanden, das Realpfadszenario. Damit ist
 auch die aus \chapref{chap:entwurf} übergebene Frage zu beantworten, ob die zusammengefassten
 Empfangsberichte für die Messkampagnen ausreichen: allein nicht. Weil ein Pad-Fehler und eine
@@ -662,26 +773,37 @@ Datagramm} erscheinen, stützt sich jeder Realpfadnachweis auf das Kampagnenpake
 Sendemanifest und Auswerterlauf; ein Ausbleiben (etwa der Reassemblierungs-Timeout, der keine eigene
 Verwerfmeldung erzeugt) ist nur über diese Negativevidenz messbar.
 
-Die am Primärtext korrigierte Einzelzuordnung aller 67 Zeilen zeigt \tabref{tab:eval-sollist}. Sie trennt
-Anwendbarkeit (Spalte A), Implementierungsstand (Spalte I) und technische Erfüllbarkeit (Spalte T). Dabei
-steht V für vollständig, P für teilweise und N für nicht anwendbar. Die Belegspalte kürzt die Module ab:
-W steht für \file{src/wire}, O für \file{src/options}, R für \file{src/recv}, F für \file{src/frag},
-A für die Schnittstelle unter \file{src/api} und K für die Kampagnenartefakte; jede Modulangabe schließt
-die zugehörigen Tests ein. Code und eigene Tests gelten dabei nicht als voneinander unabhängige
-Belegfamilien.\footnote{Die Einzelzuordnung liegt als \file{thesis/daten/konformitaet"=kategorien.csv} im
-Repositorium der Arbeit; ein Prüfskript erzeugt Tabelle und Datei aus demselben Bestand und erzwingt die
-Übereinstimmung der Summen.}
+Die am Primärtext korrigierte Einzelzuordnung aller 67 Zeilen zeigt \tabref{tab:eval-sollist} in
+Anhang~\ref{chap:anhang-konformitaet}. \tabref{tab:eval-sollist-summe} fasst die Summen zusammen.
 
-\input{tikz/ff1-sollist}
+\begin{table}[H]
+    \centering
+    \caption{Summen der Konformitätsmatrix}
+    \label{tab:eval-sollist-summe}
+    \small
+    \begin{tabularx}{\textwidth}{@{}Yr@{}}
+        \toprule
+        \textbf{Größe} & \textbf{Anzahl} \\
+        \midrule
+        Matrixzeilen insgesamt & 67 \\
+        anwendbar oder gewählt & 57 \\
+        technisch vollständig erfüllbar & 57 \\
+        technisch teilweise oder nicht erfüllbar & 0 \\
+        vollständig umgesetzt & 50 \\
+        teilweise umgesetzt & 7 \\
+        nicht anwendbar, nicht gewählt oder Leitlinie & 10 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
-Aus \tabref{tab:eval-sollist} geht hervor, dass 58 der 67 Zeilen anwendbar oder für die
-Referenzimplementierung gewählt sind und dass alle 58 im untersuchten Rahmen technisch vollständig
-erfüllbar sind; die Kategorien \zitat{teilweise} und \zitat{nicht erfüllbar} bleiben bei der technischen
-Erfüllbarkeit leer. Davon zu trennen ist der Implementierungsstand: 52 Zeilen sind vollständig und sechs
-teilweise umgesetzt, neun sind nicht anwendbar, nicht gewählt oder reine Leitlinie. Die sechs
-Teilumsetzungen sind die Zeilen 199, 218, 219, 222, 225 und 226; keine davon belegt eine Grenze von
-Linux, IPv4 oder Raw Sockets. Die neun nicht anwendbaren oder leitenden Zeilen sind 188, 206, 207, 208,
-209, 211, 223, 227 und 228.
+Von den 67 Zeilen sind 57 anwendbar oder für die Referenzimplementierung gewählt. Die Einzelprüfung
+findet für diese 57 Zeilen keine technische Grenze des gewählten Rahmens; Spalte T enthält deshalb
+57-mal V und zehnmal \texttt{n.a.}, die Kategorien \zitat{teilweise} und \zitat{nicht erfüllbar} bleiben
+bei der technischen Erfüllbarkeit leer. Der Implementierungsstand ist davon zu trennen: 50 Zeilen sind
+vollständig und sieben teilweise umgesetzt, zehn Zeilen sind nicht anwendbar, nicht gewählt oder reine
+Leitlinie. Die sieben Teilumsetzungen sind die Zeilen 199, 216, 218, 219, 221, 222 und 225; keine davon
+belegt eine Grenze von Linux, IPv4 oder Raw Sockets. Die zehn nicht anwendbaren oder leitenden Zeilen
+sind 188, 206, 207, 208, 209, 211, 223, 226, 227 und 228.
 
 Eine leere Kategorie \zitat{nicht erfüllbar} besagt nur, dass im gewählten Prüfraster kein grundsätzlicher
 technischer Hinderungsgrund gefunden wurde: Die harten Grenzen des Benutzerraum-Zugangs treffen den
@@ -693,11 +815,7 @@ Davon getrennt bleibt der Implementierungsnachweis des geprüften Protokollkerns
 Ausrichtung der Surplus Area, die OCS-Arithmetik samt Nullregeln, die TLV-Rahmung mit ihren Längen- und
 Ordnungspflichten, die acht must-support-Optionen und die FRAG-Verarbeitung einschließlich
 Reassemblierung. Er stützt sich auf die sechs Ebenen der Testarchitektur aus
-\secref{sec:pruefarchitektur}. Am eingefrorenen Stand enthält das Repositorium 212 Testattributzeilen:
-156 unter \file{src/}, 55 unter \file{tests/} und eine im Wire-Beispiel. Hinzu kommen zehn
-Property-Dateien mit 1024 Fällen je Eigenschaft, neun Fuzz-Ziele, 172 Lean-Theoreme in elf Fachmodulen
-und die Wire-Prüfung mit drei getrennten Prüfern. Sieben Testfunktionen sind im normalen Lauf ignoriert;
-sechs sind privilegierte Integrationsszenarien, eine ist ihr Hilfsprozess.
+\secref{sec:pruefarchitektur}.
 
 Die Realpfadprüfung aus \secref{sec:beobachtbarkeit-eval} ergänzt 15 Empfängerklassen. Die
 Negativkampagne auf der Empfangsseite erfüllte in allen 15 Klassen die im Auswerter hinterlegten
@@ -708,28 +826,27 @@ berührten RFC-Anforderungen ab; insbesondere verarbeitet S-21 die NOP-Leiter tr
 lokalen Meldeschwelle weiter. Die Robustheitswelle ergänzte EOL-Füllbytes, NOP-Leitern, erweiterte
 Längenfelder, ein atomares FRAG-Einzelfragment, parallele Fragmentsätze und ungleiche Optionssätze je
 Fragment. Auf jedem der sechs vollständigen Hostpaare liefen dieselben 18 Treiberszenarien, nämlich auf
-dem Referenzpaar 1blu $\leftrightarrow$ mcs, auf beiden Helsinki-Paaren und transatlantisch auf drei
+dem Referenzpaar 1blue $\leftrightarrow$ mcs, auf beiden Helsinki-Paaren und transatlantisch auf drei
 aws-Paaren. Die Katalogtreue einzelner Kennungen ist davon getrennt zu bewerten
 (\secref{sec:testkonzept}).
 
-Sechs Matrixzeilen sind \textbf{teilweise} umgesetzt: eine mit MUST-Anteil, zwei unmarkierte normative
-API-Formen und drei mit SHOULD-Anteil, davon zwei bedingte. Zeile 199 betrifft die Trennung der
-Reassemblierungsgrenze: Die tiefe Schnittstelle verlangt einen Cache je Adress-und-Port-Paar als
-dokumentierte Aufruferpflicht, die mitgelieferte Komfortebene bindet ihren Empfänger jedoch nur an die
-Ports, sodass Datagramme verschiedener Adresspaare dieselbe Mengengrenze teilen
-(\secref{sec:betriebsgrenzen}). Die Empfangs-API prüft Pflichtoptionen gebündelt je Datagramm oder
-Fragmentsatz, bietet aber weder getrennte Regeln je Fragment noch eine Ausschlussliste einzelner
-Optionsarten (Zeilen 218 und 219). Der Sende-API fehlen getrennte Optionslisten je Fragment und eine vom
-Aufrufer gewählte Mindestlänge (Zeile 222). Die Sicherheitsabwägungen sind wegen des begründeten
-Verzichts auf eine Höchstzahl von Optionen und der beim Empfang nicht erzwungenen Referenzordnung nur
-teilweise umgesetzt (Zeilen 225 und 226). Das sind Implementierungs- und Entwurfsentscheidungen, keine
-technischen Grenzen von Linux, IPv4 oder Raw Sockets.
+Sieben Matrixzeilen sind \textbf{teilweise} umgesetzt: 199, 216, 218, 219, 221, 222 und 225. Zeile 199
+korrigiert die damalige Repository-Selbstauskunft \texttt{Covered yes}: Die tiefe Schnittstelle verlangt
+einen Cache je Adress-und-Port-Paar als dokumentierte Aufruferpflicht, die mitgelieferte Komfortebene
+bindet ihren Empfänger jedoch nur an die Ports, sodass Datagramme verschiedener Adresspaare dieselbe
+Mengengrenze teilen (\secref{sec:betriebsgrenzen}). Bei den Zeilen 216 und 221 liefert die öffentliche
+API für ignorierte oder fehlgeschlagene Optionen Kind und Status, aber nicht immer die empfangenen
+Parameter. Die Empfangs-API prüft Pflichtoptionen zudem gebündelt je Datagramm oder Fragmentsatz und
+bietet weder getrennte Regeln je Fragment noch eine Ausschlussliste einzelner Optionsarten (Zeilen 218
+und 219). Der Sende-API fehlen getrennte Optionslisten je Fragment und eine vom Aufrufer gewählte
+Mindestlänge (Zeile 222). Zeile 225 fasst teilweise umgesetzte Schutzgrenzen zusammen. Das sind
+Implementierungs- und Entwurfsentscheidungen, keine technischen Grenzen von Linux, IPv4 oder Raw Sockets.
 
 Die NOP-Regel (Zeile 189) gilt nach der Primärtextprüfung dagegen als vollständig erfüllt. Abschnitt~11.2
 verlangt vom Empfänger nur, dauerhaft auftretende Läufe von mehr als sieben aufeinanderfolgenden NOP
 zumindest gelegentlich zu melden, und kein Beenden der Verarbeitung; die Bibliothek erkennt und meldet
-solche Läufe. Die Pflicht, Ressourcen zu begrenzen, steht im bedingten SHOULD von Abschnitt~25 und ist
-dort als Zeile 225 geführt, sodass dieselbe Lücke nicht zweimal zählt \cite[Sec.~11.2, 25.3]{rfc9868}.
+solche Läufe. Die bedingte Empfehlung zur Ressourcenbegrenzung steht in Abschnitt~25.2 und ist dort als
+Zeile 225 geführt, sodass dieselbe Lücke nicht zweimal zählt \cite[Sec.~11.2 und 25.2]{rfc9868}.
 
 Außerhalb der Matrix treten die erwarteten Betriebsgrenzen hinzu: Der Sendeweg trägt bis exakt 1500 Byte
 Gesamtlänge und scheitert darüber am Kernel. Je Richtung wurden elf Längenstufen bis 1500 Byte geprüft,
@@ -739,15 +856,17 @@ wiederholte sich auf allen sechs Hostpaaren einschließlich der transatlantische
 Pfad-MTU-Ermittlung fehlt, und die Cache-Bereinigung bleibt aufrufergesteuert. Die Bibliothek setzt den
 geprüften Protokollkern damit um, bildet aber nicht alle bewerteten API-Anforderungen vollständig ab.
 
-\textbf{Nicht anwendbar} sind neun Zeilen: die nicht gewählte Empfangsprüfung der Bytes nach EOL, die
-nicht implementierten Optionen TIME und EXP, die reservierten AUTH- und UNSAFE-Arten, die Entwurfs- und
-Namensregeln für neue Optionsarten, die Multicast-Betrachtungen sowie die API-Leitlinie zu
-Optionsreihenfolge und Fragmentgrenzen. Die letztgenannte Zeile bleibt Leitlinie, weil der Primärtext
-sie ausdrücklich als nicht beabsichtigte Nutzersteuerung und nicht als Vorgabe formuliert
-\cite[Sec.~15]{rfc9868}. Die unmarkierte Sende-API-Form ist dagegen anwendbar und teilweise umgesetzt
-(Zeile 222). Eine formgültige TIME-Option lief auf dem Realpfad als unbekannte SAFE-Option still mit;
-das belegt das stille Übergehen einer unbekannten SAFE-Option, nicht die Umsetzung von TIME, und ändert
-die Umfangseinstufung nicht.
+\textbf{Nicht anwendbar} oder leitend sind zehn Zeilen: 188, 206, 207, 208, 209, 211, 223, 226, 227 und
+228. Dazu gehören die nicht gewählte Empfangsprüfung der Bytes nach EOL, die nicht implementierten
+Optionen TIME und EXP, die reservierten AUTH- und UNSAFE-Arten, die Entwurfs- und Namensregeln für neue
+Optionsarten, die Multicast-Betrachtungen sowie die API-Leitlinie zu Optionsreihenfolge und
+Fragmentgrenzen; letztere bleibt Leitlinie, weil der Primärtext sie ausdrücklich als nicht beabsichtigte
+Nutzersteuerung formuliert \cite[Sec.~15]{rfc9868}. Zeile 226 betrifft die bedingte Empfehlung zur
+empfangsseitigen Referenzordnung aus Abschnitt~25.2: Das vorangehende \texttt{MAY} wurde nicht gewählt,
+und die kanonische Sendereihenfolge erfüllt keine empfangsseitige Ordnung. Die unmarkierte
+Sende-API-Form ist dagegen anwendbar und teilweise umgesetzt (Zeile 222). Eine formgültige TIME-Option
+lief auf dem Realpfad als unbekannte SAFE-Option still mit; das belegt das stille Übergehen einer
+unbekannten SAFE-Option, nicht die Umsetzung von TIME, und ändert die Umfangseinstufung nicht.
 
 Vier \textbf{Differenzen zwischen Spezifikation, Modell, Programm und Laufzeit} verdienen eigene
 Sätze. Erstens ist die Kombination aus UDP-Prüfsumme null und OCS null aus dem Benutzerraum exakt
@@ -821,8 +940,8 @@ Fragmentierung und Soft-State lassen sich in vier getrennte Grenzen zerlegen, di
         Kontrollen und atomares Fragment zugestellt \\
         Zeit und Bereinigung & Standardtimeout höchstens zwei Minuten; kein ICMP (Sec.~11.4) &
         Grenze bei 120 Sekunden; Ablauf wird bei Einfügung oder durch \texttt{gc} wirksam; kein
-        Hintergrundlauf & S-50 nutzte 60 Sekunden; in einem Lauf folgten 32 Terminalfragmente erst nach
-        51,927 bis 52,749 Sekunden und wurden noch zugestellt \\
+        Hintergrundlauf & S-50 nutzte 60 Sekunden; in einem Lauf lag ein Terminal außerhalb von
+        30~Sekunden und wurde noch zugestellt \\
         Trennung & Grenzen nicht socketübergreifend berechnen (Sec.~11.4) & ein Cache je \texttt{Peer};
         der Raw-Empfänger filtert nur Ports, daher können verschiedene Adresspaare dieselbe Grenze
         teilen & Teilumsetzung der Matrixzeile 199; keine Messung konkurrierender Adresspaare \\
@@ -854,10 +973,10 @@ von Sprachmodellen, beschreibt der folgende Abschnitt.
 \section{Reflexion der KI-gestützten Arbeitsweise}
 \label{sec:ki-reflexion}
 
-Dieser Abschnitt liefert die in \chapref{chap:methodik} offen gebliebenen beschreibenden Kennzahlen der
-Zusammenarbeit nach. Er ist rein deskriptiv: Er berichtet belegte Fälle mit ihren Ausgängen und erhebt
+Dieser Abschnitt ergänzt die Offenlegung aus \chapref{chap:methodik} um beschreibende Kennzahlen der
+Zusammenarbeit. Er ist rein deskriptiv: Er berichtet belegte Fälle mit ihren Ausgängen und erhebt
 keine Wirksamkeitsaussage, denn eine Prüfung ohne Sprachmodelle als Vergleichsgruppe existiert nicht.
-Die Rollen sind die aus \chapref{chap:methodik}: das führende Werkzeug für Entwürfe und Quelltext, der
+Die Rollen sind die aus \chapref{chap:methodik}: das umsetzende Werkzeug für Entwürfe und Quelltext, der
 getrennte Zweitprüfer mit dem Auftrag, Fehler und Gegenbeispiele zu suchen, und der Autor, der
 entscheidet und verantwortet. Grundlage ist ein Befundregister aus zwölf Fällen, jeder mit öffentlichem
 Anker im Implementierungsrepositorium oder in den versiegelten Archiven;\footnote{Register als
@@ -919,9 +1038,7 @@ Arbeit nicht.
 \section{Diskussion und Grenzen der Aussagekraft}
 \label{sec:diskussion-grenzen}
 
-Technische Umsetzbarkeit am Endpunkt und Durchlässigkeit des Pfads sind getrennte Eigenschaften. Im
-gewählten Umfang sind alle 58 anwendbaren oder gewählten Matrixzeilen technisch vollständig erfüllbar;
-umgesetzt sind 52 vollständig und sechs teilweise, neun sind nicht anwendbar oder Leitlinie
+Technische Umsetzbarkeit am Endpunkt und Durchlässigkeit des Pfads sind getrennte Eigenschaften
 (\tabref{tab:eval-sollist}). Die Pfadmessungen zeigen zugleich, dass selbst regelkonform erzeugte
 Optionsdatagramme nicht auf jedem Pfad zugestellt werden: Ob eine Surplus Area ankommt, entscheiden
 Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer entlang des konkreten Pfads. Erreichbarkeit ist
@@ -949,8 +1066,9 @@ Fehler statt Fehlerfreiheit, und die Folge der Modellausgaben früher Projektpha
 überliefert; eine Wirksamkeitsaussage zur KI-gestützten Arbeitsweise folgt daraus nicht
 (\secref{sec:ki-reflexion}).
 
-Auf Implementierungsseite bleiben die sechs Teilumsetzungen, darunter die auf der Komfortebene nur
-teilweise eingelöste Paarbindung des Reassemblierungs-Caches. Hinzu tritt eine Lücke der Prüfkette: Die
+Auf Implementierungsseite bleiben die sieben Teilumsetzungen, darunter die auf der Komfortebene nur
+teilweise eingelöste Paarbindung des Reassemblierungs-Caches und die für ignorierte oder
+fehlgeschlagene Optionen nicht bereitgestellten Parameter. Hinzu tritt eine Lücke der Prüfkette: Die
 Auswerter für P0, P1 und P2 überführen semantische Abweichungen nicht in einen Fehlerstatus. P1 und P2
 sammeln solche Befunde bereits, beenden den Lauf aber unabhängig von deren Zahl mit Status 0, und P0
 gibt negative Prüfresultate aus, ohne den Rückgabewert zu ändern; das ist kein Einzelfall, sondern

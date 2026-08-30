@@ -1,0 +1,24 @@
+% =============================================================================
+% Anhang A: Konformitätsmatrix
+% =============================================================================
+
+\chapter{Konformitätsmatrix}
+\label{chap:anhang-konformitaet}
+
+Die folgende Tabelle enthält die am Primärtext geprüfte Einzelzuordnung aller 67 Zeilen der
+Konformitätsmatrix. Die Summen und ihre Auswertung stehen in \secref{sec:soll-ist};
+\tabref{tab:eval-sollist-summe} fasst sie zusammen.
+
+Die Tabelle trennt Anwendbarkeit (Spalte A), Implementierungsstand (Spalte I) und technische
+Erfüllbarkeit (Spalte T). In Spalte A steht J für anwendbar und N für nicht anwendbar. In Spalte I
+steht V für vollständig und P für teilweise umgesetzt; nicht anwendbare Zeilen erhalten N. In Spalte T
+steht V für vollständig, P für teilweise und X für technisch nicht erfüllbar; \texttt{n.a.}
+kennzeichnet Zeilen ohne technisches Urteil. Die Belegspalte kürzt die Module ab: W steht für
+\file{src/wire}, O für \file{src/options}, R für \file{src/recv}, F für \file{src/frag}, A für die
+Schnittstelle unter \file{src/api} und K für die Kampagnenartefakte; jede Modulangabe schließt die
+zugehörigen Tests ein. Code und eigene Tests gelten dabei nicht als voneinander unabhängige
+Belegfamilien.\footnote{Die Einzelzuordnung liegt als \file{thesis/daten/konformitaet"=kategorien.csv}
+im Repositorium der Arbeit; ein Prüfskript erzeugt Tabelle und Datei aus demselben Bestand, in dem
+die drei Urteile je Zeile getrennt gespeichert sind, und prüft die Summen.}
+
+\input{tikz/ff1-sollist}

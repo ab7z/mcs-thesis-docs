@@ -5,34 +5,23 @@
 \chapter{Analyse und Anforderungsmodell}
 \label{chap:analyse}
 
-Dieses Kapitel wendet die Quellen- und Bewertungsregeln aus \chapref{chap:methodik} an. Es extrahiert den
-RFC-Primärtext (\secref{sec:extraktionsmethode}), prüft den Anforderungsbestand des
-Implementierungs-Repositorys (\secref{sec:anforderungsmatrix}) und definiert die FF1-Kriterien
-(\secref{sec:ff1-kriterien}). Davon getrennt entsteht in \secref{sec:ff2-pfadmodell} aus der Akteurskette
-von \secref{sec:netzpfad} und den Vorversuchen das nicht aus dem Standard abgeleitete Pfad- und Fehlermodell
-für FF2. \secref{sec:technologieauswahl} begründet abschließend die Werkzeuge.
-
-Das Kapitel legt damit die Maßstäbe fest, fällt aber keine Erfüllungsurteile. Diese Trennung legt
-\secref{sec:forschungsdesign} fest. Konformität und Verhalten auf realen Pfaden bewertet erst
-\chapref{chap:evaluation} anhand dieser Kriterien.
+\chapref{chap:methodik} legt die Quellenregeln fest. Dieses Kapitel wendet sie auf RFC~9868 an
+(\secref{sec:extraktionsmethode}), überführt den Anforderungskatalog in den FF1-Maßstab
+(\secref{sec:anforderungsmatrix}) und bildet das FF2-Pfad- und Auswertungsmodell
+(\secref{sec:ff2-pfadmodell}).
+Die Technologieauswahl (\secref{sec:technologieauswahl}) schließt die Analyse ab.
 
 \section{Anwendung der Extraktionsmethode}
 \label{sec:extraktionsmethode}
 
-Wie in \secref{sec:rfc-auswertung} festgelegt, werden die normativen Aussagen aus dem Primärtext gewonnen;
-die Kontrollzahl bilden die dort ermittelten 103 mit \texttt{>{}>} markierten Absätze, und unmarkierte
-normative Sätze bleiben einbezogen \cite{rfc2119,rfc8174}.
+Die Auswertung wendet die in \secref{sec:rfc-auswertung} festgelegte Methode auf den Primärtext an. Die
+103 mit \texttt{>{}>} markierten Absätze dienen als Kontrollzahl; unmarkierte normative Festlegungen
+bleiben Teil des Maßstabs \cite{rfc2119,rfc8174}. Extrahiert wird satzgenau und nicht absatzweise, denn
+ein markierter Absatz kann mehrere Pflichten mit verschiedenen Adressaten bündeln. Jede
+extrahierte Aussage wird zu einem Prüfpunkt für den Anforderungsbestand des Implementierungs-Repositorys
+(\secref{sec:anforderungsmatrix}).
 
-Jede extrahierte Aussage wird zu einem Prüfpunkt für den Anforderungsbestand des
-Implementierungs-Repositorys (\secref{sec:anforderungsmatrix}); beschreibende Definitionen bekommen keinen
-eigenen Prüfpunkt, sondern binden als Kontext die Aussagen, die auf ihnen aufbauen.
-Extrahiert wird satzgenau und nicht absatzweise, denn
-ein markierter Absatz kann mehrere Pflichten mit verschiedenen Adressaten bündeln; das Beispiel aus
-Abschnitt~8 unten zeigt genau diesen Fall. Mehrere Schlüsselwörter im selben Satz bleiben eine Aussage,
-wenn sie dieselbe Pflicht für denselben Adressaten ausdrücken.
-
-Die Extraktion folgt der Leserichtung des RFC; \figref{fig:normverteilung} zeigt, wie sich die 103
-markierten Absätze auf die Abschnitte verteilen:
+\figref{fig:normverteilung} zeigt, wie sich die 103 markierten Absätze auf die Abschnitte verteilen:
 
 \begin{figure}[H]
   \centering
@@ -50,50 +39,35 @@ markierten Absätze auf die Abschnitte verteilen:
     \node[font=\scriptsize, text=feldlinie, align=center] at (1.5,-0.95) {Abschnitte 1 bis 7:\\ keine};
     \node[font=\scriptsize, text=feldlinie] at (8.85,-0.85) {Nummer des RFC-Abschnitts};
   \end{tikzpicture}
-  \caption{Verteilung der markierten Absätze über die Abschnitte von RFC~9868 (eigene Zählung)}
+  \caption{Verteilung der markierten normativen Absätze über die Abschnitte}
   \label{fig:normverteilung}
 \end{figure}
 
 Knapp zwei Drittel der markierten Absätze (65 von 103) liegen in den Abschnitten~10 und 11, also beim
 Optionsformat mit seinen Verarbeitungsregeln und bei den einzelnen Optionen; der Vorspann bis einschließlich
-Abschnitt~7 enthält keinen einzigen markierten Absatz.
-
-Aus dem Vorspann stammt dennoch eine Vorgabe des Projektumfangs: Abschnitt~7 verringert die Obergrenze der
-\texttt{UDP Length} um vorangehende Shim-Header, und bei solchen Ketten kann das \texttt{Protocol}-Feld von
-17 abweichen \cite[Sec.~7]{rfc9868}. Die Implementierung verfolgt Shim-Ketten nicht und verarbeitet nur
+Abschnitt~7 enthält keinen einzigen markierten Absatz, wohl aber eine Vorgabe des Projektumfangs:
+Abschnitt~7 verringert die Obergrenze der \texttt{UDP Length} um vorangehende Shim-Header.
+Die Implementierung verfolgt Shim-Ketten nicht und verarbeitet nur
 \texttt{Protocol}~17; das ist eine ausdrückliche Umfangsvorgabe dieser Arbeit, kein Verbot des RFC.
 
-Abschnitt~8 zeigt die satzgenaue Zerlegung an den ersten zwei markierten Absätzen des Dokuments. Der erste
-erlaubt als \texttt{MAY}, dass Optionen an jedem gültigen \texttt{UDP Length}-Offset beginnen. Der zweite
-bündelt zwei Pflichten mit verschiedenen Adressaten: Der Sender muss (\texttt{MUST}) die Ausrichtungsbytes
-vor dem OCS auf null setzen, der Empfänger muss (\texttt{MUST}) andernfalls alle Optionen ignorieren und die
-Surplus Area still verwerfen; verworfen wird die Surplus Area, nicht das Datagramm
-(\secref{subsec:surplus-aufbau}) \cite[Sec.~8]{rfc9868}. Aus dem Absatz entstehen deshalb zwei getrennte
-Prüfpunkte. Wie das Implementierungs-Repository seine Anforderungen führt und wie diese Arbeit sie gegen
-den Maßstab hält, zeigt der folgende Abschnitt.
-
-\section{Anforderungskatalog und Konformitätsmatrix}
+\section{Anforderungskatalog und FF1-Maßstab}
 \label{sec:anforderungsmatrix}
+\label{sec:ff1-kriterien}
 
-Die Anforderungen der Implementierung führt das Implementierungs-Repository (\chapref{chap:entwurf}) in der
-Datei \texttt{docs/requirements.md}. Sie entstand vor dem ersten Funktionsschritt und wurde parallel zur
-Umsetzung fortgeschrieben.\footnote{Angelegt mit Commit \texttt{36cc465} am 30.05.2026; einschließlich
-dieser Anlage wurde die Datei bis zum Stand \texttt{f847895} in 14 Commits des Hauptzweigs bearbeitet.}
-Sie enthält 49 funktionale und zwölf nichtfunktionale Anforderungen (\texttt{FR-01} bis \texttt{FR-50},
-wobei \texttt{FR-47} mit der IPv6-Umfangsentscheidung entfiel, sowie \texttt{NFR-01} bis \texttt{NFR-12})
-und eine Konformitätsmatrix mit 67 Zeilen zu RFC~9868. Diese Matrix ist der Sache nach ein Arbeitsindex:
-Sie mischt markierte Normsätze, unmarkierte normative Festlegungen, Beschreibungen und Leitlinien. Jede
-Zeile muss deshalb vor der FF1-Bewertung am Primärtext eingestuft werden. 58 der 67 Zeilen verweisen auf
-tragende FR- oder NFR-Kennungen; die Spalte \texttt{Covered} bleibt eine Repository-Selbstauskunft und kein
-Urteil dieser Arbeit.
+Das Implementierungs-Repository (\chapref{chap:entwurf}) führt in \texttt{docs/requirements.md} 49
+funktionale und zwölf nichtfunktionale Anforderungen (\texttt{FR-01} bis \texttt{FR-50} ohne die
+entfallene Nummer \texttt{FR-47}, \texttt{NFR-01} bis \texttt{NFR-12}) sowie eine Konformitätsmatrix;
+die Datei entstand vor dem
+ersten Funktionsschritt und wurde parallel zur Umsetzung fortgeschrieben. Die Matrix ist der Sache nach
+ein Arbeitsindex: Sie mischt markierte Normsätze, unmarkierte normative Festlegungen, Beschreibungen und
+Leitlinien. Die Prüfung aus \secref{sec:extraktionsmethode}
+stuft deshalb jede Zeile satzgenau am Primärtext ein und überführt sie in die geprüfte Matrix in
+Anhang~\ref{chap:anhang-konformitaet}. \tabref{tab:anforderungsmatrix} zeigt eine eigene
+übersetzte Auswahl; Normstufe und Abdeckung stehen im Wortlaut der Datei:
 
-Die folgenden Zeilen zeigen einen Auszug aus der Konformitätsmatrix. Die Aussagen sind ins Deutsche
-gekürzt; Normstufe und Abdeckung stehen im Wortlaut der Datei:
-
-\begin{table}[!htb]
+\begin{table}[H]
   \centering
-  \caption{Auszug aus dem RFC-Arbeitsindex des Implementierungs-Repositorys (Stand \texttt{f847895};
-    Einstufung am Primärtext noch zu prüfen \cite{rfc9868})}
+  \caption{Auszug aus dem RFC-Arbeitsindex des Implementierungs-Repositorys}
   \label{tab:anforderungsmatrix}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -109,162 +83,79 @@ gekürzt; Normstufe und Abdeckung stehen im Wortlaut der Datei:
       FR-21 \\
     Sec.~10 & Optionen über 254~Byte nutzen das erweiterte Format; das kleinste Format ist empfohlen &
       \texttt{MUST/} \texttt{SHOULD} & \texttt{yes (send); local strict receive} & FR-09, FR-14 \\
-    Sec.~11.4 & Reassemblierungsspeicher begrenzen und nicht über Paare teilen & \texttt{SHOULD} &
-      \texttt{yes} & FR-34, NFR-06 \\
-    Sec.~11.8 & TIME optional; Zeitwerte bei Nutzung nicht null & \texttt{MAY; MUST NOT zero} &
-      \texttt{out} & keine; außerhalb des Umfangs \\
+    Sec.~11.2 & Höchstens sieben NOPs in Folge; übermäßige Folgen protokollieren und Ressourcen begrenzen &
+      \texttt{SHOULD} & \texttt{partial} & FR-16, NFR-05 \\
+    Sec.~12 & UCMP, UENC und UEXP sind reservierte UNSAFE-Optionen & \texttt{reserved} & \texttt{out} & FR-39 \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
 Aus \tabref{tab:anforderungsmatrix} geht die Arbeitsteilung der Datei hervor: Die Konformitätsmatrix hält
-die Normseite fest, die FR- und NFR-Zeilen tragen die Umsetzung, und die Abdeckungsspalte unterscheidet
-erfüllte, nur differenziert erfüllte und ausdrücklich außerhalb des Umfangs gehaltene Aussagen. Die erste
-Zeile ist die zweite Pflicht aus dem Abschnitt-8-Beispiel in \secref{sec:extraktionsmethode}; die
-Abdeckung ist eine Selbstauskunft des Repositorys und noch kein Erfüllungsurteil dieser Arbeit.
+die Normseite fest, die FR- und NFR-Zeilen tragen die Umsetzung. Die Auswahl zeigt zugleich die Grenzen
+des Arbeitsindex. Die Zeile zu Abschnitt~11.2 bündelt die Ressourcengrenze aus Abschnitt~25.2 mit den
+NOP-Pflichten \cite[Sec.~25.2]{rfc9868}.
 
-Der Maßstab dieser Arbeit bleibt der Primärtext: Die 103 markierten Absätze aus
-\secref{sec:extraktionsmethode} bilden das Prüfraster, gegen das die Konformitätsmatrix satzgenau gehalten
-wird. Dass dieses Raster nötig ist, zeigen zwei Befunde des Abgleichs: Die Matrix führt zur Lage der
-Surplus Area eine \texttt{MUST}-Zeile zu Abschnitt~7, obwohl dieser Abschnitt keinen markierten Absatz
-enthält und die Lage dort beschreibend festgelegt wird, und sie stützt ihre Zeile zum Optionsbereich auf
-den beschreibenden Eröffnungssatz von Abschnitt~8; beide Stellen bleiben als Einstufungsabweichungen
-festgehalten. Ob die Abdeckungsangaben je Aussage dem Quelltext standhalten, bewertet
-\secref{sec:soll-ist}. Mit welchen Kategorien \chapref{chap:evaluation} dabei arbeitet, definiert der
-folgende Abschnitt.
+Bewertet wird gegen den Maßstab von FF1: welche Anforderungen sich unter Linux und IPv4 im Benutzerraum
+\zitat{vollständig, teilweise oder nicht} erfüllen lassen (\secref{sec:zielsetzung}). Die Bewertung nutzt
+drei Kategorien und eine Sonderklasse, die \tabref{tab:operationalisierung} bereits verankert.
+\textbf{Vollständig} erfüllbar ist eine Anforderung, wenn sie unter den eigenen Vorgaben der Arbeit ohne
+Abstriche umsetzbar ist; diese Vorgaben sind die Plattform aus \secref{sec:zielsetzung} (Linux, IPv4,
+Benutzerraum mit Raw Sockets) und die Protokollgrenze aus \secref{sec:extraktionsmethode} (nur
+\texttt{Protocol}~17, keine Shim-Ketten).
+\textbf{Teilweise} erfüllbar ist sie, wenn nur ein Teil erreichbar bleibt und die Ursache der
+Einschränkung belegt ist. \textbf{Nicht erfüllbar} ist sie, wenn dokumentiertes Betriebssystem- oder
+Schnittstellenverhalten die Umsetzung im Benutzerraum grundsätzlich ausschließt. \textbf{Nicht anwendbar}
+bleibt als Sonderklasse sichtbar, wird aber nicht bewertet; hierhin gehören Aussagen außerhalb des Umfangs
+und nicht gewählte \texttt{MAY}-Funktionen.
 
-\section{FF1-Bewertungskriterien}
-\label{sec:ff1-kriterien}
-
-FF1 fragt, welche Anforderungen sich unter Linux und IPv4 im Benutzerraum \zitat{vollständig, teilweise oder
-nicht} erfüllen lassen (\secref{sec:zielsetzung}). Die Bewertung nutzt dafür drei Kategorien und eine
-Sonderklasse, die \tabref{tab:operationalisierung} bereits verankert. \textbf{Vollständig} erfüllbar ist eine
-Anforderung, wenn sie unter den eigenen Vorgaben der Arbeit ohne Abstriche umsetzbar ist; diese Vorgaben
-sind die Plattform aus \secref{sec:zielsetzung} (Linux, IPv4, Benutzerraum mit Raw Sockets) und die
-Protokollgrenze aus \secref{sec:extraktionsmethode} (nur \texttt{Protocol}~17, keine Shim-Ketten).
-Quelltext und der vorgesehene Nachweis müssen das belegen. \textbf{Teilweise} erfüllbar ist sie, wenn nur ein Teil
-erreichbar bleibt und die Ursache der Einschränkung belegt ist. \textbf{Nicht erfüllbar} ist sie, wenn
-dokumentiertes Betriebssystem- oder Schnittstellenverhalten die Umsetzung im Benutzerraum grundsätzlich
-ausschließt. \textbf{Nicht anwendbar} bleibt als Sonderklasse sichtbar, wird aber nicht bewertet; hierhin
-gehören Aussagen außerhalb des Umfangs und nicht gewählte \texttt{MAY}-Funktionen.
-
-Zwei Eigenschaften seien vorweggenommen. Erstens dürfen Kategorien leer bleiben: Findet die Bewertung keine
-grundsätzlich unerfüllbare Anforderung, ist das ein Ergebnis und kein Mangel des Maßstabs. Zweitens liegen
-die erwarteten Einschränkungen im gewählten Zugangsweg (\secref{subsec:surplus-zugang}): Die MTU-Bindung mit
-\texttt{EMSGSIZE} im \texttt{IP\_HDRINCL}-Sendepfad und die auf die Bibliothek verlagerten UDP-Prüfungen des
-Raw-Empfangs sind Prüflasten, aber noch keine Teilbewertung; ob daraus eine nur teilweise erfüllbare
-Anforderung wird, entscheidet erst \secref{sec:soll-ist} je Aussage. Damit ist der Maßstab für FF1 vollständig;
-FF2 benötigt keinen Normmaßstab, sondern ein Modell der untersuchten Pfade und ihrer Fehler.
-
-\section{FF2-Pfad- und Fehlermodell}
+\section{FF2-Pfad- und Auswertungsmodell}
 \label{sec:ff2-pfadmodell}
 
 FF2 fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten bleibt
-(\secref{sec:zielsetzung}). Untersuchungseinheit und Ergebnisklassen stehen seit
-\tabref{tab:operationalisierung} fest: Verglichen wird je Pfad, Richtung und Messzeitpunkt ein
-kontrolliertes Szenario aus Kontroll- und Optionsverkehr, das mehrere Wiederholungen oder bei FRAG mehrere
-Wire-Datagramme umfassen kann; die Surplus Area kommt \textbf{erhalten}, \textbf{verändert} oder
-\textbf{entfernt} an, oder das Datagramm wird \textbf{verworfen}. Darauf bauen drei Festlegungen auf: die
-Pfadstufen, die Zählregeln und das Fehlermodell; zwei Tabellen grenzen am Ende den Geltungsbereich ab.
-
-Die Messpfade gliedern sich in fünf \textbf{Pfadstufen} mit zunehmender Netzferne. Jede Stufe ist eine
-eigene Klasse von Messpfaden und keine Erweiterung der vorigen Stufe; mit jeder Stufe kommen mehr fremde
-Akteure aus der in \secref{sec:netzpfad} beschriebenen Kette hinzu:
+(\secref{sec:zielsetzung}). Ausgewertet wird je Pfad, Richtung und Messzeitpunkt ein kontrolliertes
+Szenario aus Kontroll- und Optionsverkehr, das mehrere Wiederholungen oder bei FRAG mehrere
+Wire-Datagramme umfassen kann (\tabref{tab:operationalisierung}). Ein gültiger Lauf endet mit
+\textbf{erhalten}, \textbf{verändert}, \textbf{entfernt} oder \textbf{verworfen}; fehlerhafte Messungen
+erhalten den Status \textbf{Lauf ungültig} und gehen nicht in die Bewertung ein
+(\secref{sec:testkonzept}). Die fünf \textbf{Pfadstufen} bilden getrennte Messklassen mit
+unterschiedlicher externer Netzbeteiligung:
 
 \begin{enumerate}
   \item \textbf{Loopback:} Sende- und Empfangspfad auf demselben Host; prüft Bibliothek und Messwerkzeuge
     ohne fremde Akteure.
-  \item \textbf{Virtualisierte Topologien:} Netzpfade von virtuellen Maschinen und Containern (NAT und
-    Bridge); die ersten Middleboxes, noch unter eigener Kontrolle.
-  \item \textbf{Tunnel:} Kapselung über einen realen Pfad (WireGuard); der Pfad sieht nur die Hülle und
-    transportiert die Surplus Area im Inneren unbesehen.
+  \item \textbf{Lokale virtuelle Testumgebung:} Eine Ubuntu-VM unter VMware Fusion,
+    mit Linux-Netzwerk-Namensräumen und \texttt{veth}.
+  \item \textbf{Tunnel:} Kapselung über einen realen Pfad (WireGuard); der äußere Pfad transportiert das
+    innere Datagramm samt Surplus Area unbesehen zwischen den Tunnelendpunkten.
   \item \textbf{Öffentliche Pfade in Europa:} Cloud-Endpunkte in Deutschland und Finnland sowie ein
     Mobilfunk-Zugangsnetz; reale Zugangs-, Transit- und Provider-Kanten.
   \item \textbf{Interkontinentale Pfade:} Endpunkte in Nordamerika und Asien-Pazifik; lange Transitketten
     und die Netzstrukturen großer Cloud-Anbieter.
 \end{enumerate}
 
-Die Stufenfolge ordnet die Abdeckung, nicht die Ursache: Sie legt fest, welche Pfadklassen untersucht werden;
-einen Befund ordnet erst das Fehlermodell einem Pfadabschnitt zu. Für die Zählung gelten drei Regeln.
-Erstens ist die Einheit das beobachtete Szenario; Befunde gelten nur für die beobachteten Pfade, Richtungen
-und Zeitpunkte (\tabref{tab:operationalisierung}). Zweitens zählen als getrennt nur Beobachtungen ohne bekannte
-gemeinsame Kante, denn Kampagnen und Messstrecken (Paare aus Quelle und Ziel) können dieselben Geräte
-durchlaufen; geteilte Kanten dienen umgekehrt der Eingrenzung eines Befunds. Drittens gelten Vorversuche
-ohne beidseitige Mitschnitte und Ablaufprotokolle als Piloten und werden nicht verallgemeinert; was eine
-vollständige Kampagne archiviert, legt das Testkonzept fest (\secref{sec:testkonzept}).
+Vorversuche ohne beidseitige Mitschnitte und Ablaufprotokolle bleiben Piloten und werden nicht verallgemeinert
+(\secref{sec:testkonzept}).
 
-Das \textbf{Fehlermodell} beantwortet schließlich, wo und wie eine Surplus Area auf dem Pfad scheitern kann.
-Es entstand schrittweise aus den Vorversuchen dieser Arbeit und dient \chapref{chap:evaluation} als
-Klassifikationsrahmen; die Ergebnisklassen aus \tabref{tab:operationalisierung} blieben davon unberührt.
-Sein Grundgedanke ist ein Kantenmodell: Aus Sicht der zwei Messpunkte zerfällt ein Messpfad in Kanten, und
-ein Befund lässt sich nur einem Intervall zwischen den Messpunkten zuschreiben, nicht einem einzelnen Gerät.
-\figref{fig:kantenmodell} zeigt es mit den drei erwarteten Mechanismenklassen:
+Die \textbf{Auswertung} verknüpft für jedes gerichtete Szenario Sendeversuch, Sendemanifest, Sender-PCAP,
+Empfänger-PCAP und Empfängerausgabe. Dadurch lassen sich Senderfehler, Veränderungen oder Verluste auf dem
+Pfad sowie Verwerfungen durch die Empfängerimplementierung unterscheiden. Jede Messung hat dabei genau
+zwei eigene Messpunkte: den Mitschnitt beim Sender und den Mitschnitt beim Empfänger. Alles dazwischen,
+auf realen Pfaden etwa Zugangs-, Transit- und Provider-Kanten, hat keinen eigenen Messpunkt. Verlässt ein
+Datagramm den Sender nachweislich korrekt und kommt beim Empfänger verändert oder gar nicht an, ist die
+einzige belegbare Aussage: Die Abweichung ist irgendwo zwischen diesen zwei Punkten entstanden. Dieses
+Pfadstück zwischen den vorhandenen Messpunkten heißt \textbf{Attributionsintervall}, das Intervall, dem
+ein Befund zugeschrieben (attribuiert) werden darf. Einem einzelnen Gerät wird ein Befund nie
+zugeschrieben; dafür fehlen Messpunkte unmittelbar davor und dahinter.
 
-\begin{figure}[htbp]
-  \centering
-  \begin{tikzpicture}[
-      x=1cm, y=1cm,
-      >={Stealth[length=5pt, width=4pt]},
-      station/.style={draw=sqblaurand, fill=sqblau, rounded corners=3pt, semithick, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt, minimum height=0.95cm},
-      kante/.style={draw=sqgrau, fill=sqhell, rounded corners=3pt, semithick, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=4pt, minimum height=0.95cm},
-      mech/.style={draw=sqroserand, fill=sqrose, rounded corners=3pt, semithick, align=center,
-        font=\scriptsize\linespread{1.0}\selectfont, inner sep=3pt},
-      messpunkt/.style={draw=sqtealrand, fill=sqteal, rounded corners=2pt, thin, align=center,
-        font=\tiny\linespread{1.0}\selectfont, inner sep=2.5pt},
-      fluss/.style={->, draw=sqdunkel, thin},
-    ]
-    \node[station] (tx) at (1.25,0)   {Sender\\ (Bibliothek)};
-    \node[kante] (zugang) at (4.35,0) {Zugangs- oder\\ Anbieternetz des Absenders\\ (NAT, CGNAT)};
-    \node[kante] (transit) at (7.5,0) {Transit\\ (AS-Kette)};
-    \node[kante] (ingress) at (10.55,0) {Empfänger-Kante\\ (Provider-Ingress)};
-    \node[station] (rx) at (13.55,0)  {Empfänger\\ (Bibliothek)};
-    \draw[fluss] (tx) -- (zugang);
-    \draw[fluss] (zugang) -- (transit);
-    \draw[fluss] (transit) -- (ingress);
-    \draw[fluss] (ingress) -- (rx);
-    \node[messpunkt] (egress) at (1.25,-1.15) {Sender-PCAP};
-    \node[messpunkt] (inpcap) at (13.55,-1.15) {Empfänger-PCAP};
-    \draw[draw=sqtealrand, thin] (tx) -- (egress);
-    \draw[draw=sqtealrand, thin] (rx) -- (inpcap);
-    \node[mech] (norm) at (3.1,1.65)  {Normalisierer};
-    \node[mech] (praes) at (7.5,1.65) {Präsenz-Verwerfer};
-    \node[mech] (gate) at (11.4,1.65) {Prüfsummen-Gate};
-    \draw[fluss, dashed, draw=sqroserand] (norm) -- (zugang.north west);
-    \draw[fluss, dashed, draw=sqroserand] (praes.west) to[out=190, in=80] (zugang.north);
-    \draw[fluss, dashed, draw=sqroserand] (praes) -- (transit);
-    \draw[fluss, dashed, draw=sqroserand] (gate) -- (ingress);
-    \draw[decorate, decoration={brace, mirror, amplitude=5pt}, draw=sqgrau, thin]
-      (2.3,-1.5) -- (12.5,-1.5);
-    \node[font=\tiny, text=feldlinie, align=center] at (7.4,-1.95)
-      {Attributionsintervall: Befunde sind nur zwischen den Messpunkten eingrenzbar};
-  \end{tikzpicture}
-  \caption{Kantenmodell eines Messpfads mit den erwarteten Mechanismenklassen}
-  \label{fig:kantenmodell}
-\end{figure}
-
-Aus \figref{fig:kantenmodell} gehen die drei Mechanismenklassen hervor, mit denen das Modell rechnet. Ein
-\textbf{Normalisierer} baut Pakete aus seinem Verbindungszustand neu auf und schreibt die Längenfelder ohne
-Surplus Area; das kann bei NAT-Stufen auftreten, die als Vermittler arbeiten, und führt zur Ergebnisklasse
-entfernt. Ein
-\textbf{Prüfsummen-Gate} rechnet die UDP-Prüfsumme fälschlich über die gesamte IP-Nutzlast statt nur bis
-\texttt{UDP Length} und verwirft Datagramme, deren Rechnung nicht aufgeht. Die OCS-Bauart aus
-\secref{subsec:surplus-ocs} ist nach der Entwurfsabsicht des RFC genau darauf ausgelegt, diese Rechnung zu
-neutralisieren \cite[Sec.~9]{rfc9868}. Ein \textbf{Präsenz-Verwerfer} verwirft ein Datagramm allein deshalb,
-weil \texttt{UDP Length} kleiner ist als die IP-Nutzlast, unabhängig vom Inhalt der Surplus Area.
-
-Die eingezeichneten Wirkorte sind typische Plätze: Die drei Mechanismenklassen sind nicht an die gezeigten
-Kanten gebunden. Befunde gelten deshalb nur für die jeweilige Messstrecke, denn Kanten können Verkehr
-quellabhängig behandeln. Zudem kann ein früher Eingriff einen späteren verdecken: Entfernt ein Normalisierer
-die Surplus Area, erreicht sie einen nachfolgenden Präsenz-Verwerfer nicht. Ob regelkonform gebaute
-Datagramme ein Prüfsummen-Gate auf einem konkreten Pfad tatsächlich passieren, prüft erst
-\chapref{chap:evaluation}.
+Die Vorversuche dienten darüber hinaus dazu, mögliche Ursachen für beobachtete Veränderungen und Verluste
+zu formulieren und gezielte Folgemessungen zu planen. Da diese Hypothesen aus Messbeobachtungen
+entstanden, gehören die daraus abgeleiteten Mechanismenklassen zu den Ergebnissen dieser Arbeit; sie
+werden mit ihren Belegen in \chapref{chap:evaluation} dargestellt.
 
 Zwei Tabellen grenzen abschließend den Geltungsbereich ab: \tabref{tab:scope-implementierung} den
 Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfrastruktur:
 
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{Implementierungsumfang}
   \label{tab:scope-implementierung}
@@ -278,13 +169,14 @@ Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfr
     Ausführungsort   & Benutzerraum mit Raw Sockets & Kernelimplementierungen \\
     Artefakt         & Bibliothek mit Mess- und Beispielprogrammen & eigenständiger Dienst;
       Protokollautomaten für REQ/RES und TIME \\
-    Optionsumfang    & die acht \textit{must-support}-Optionen & alle übrigen SAFE- und UNSAFE-Arten
-      (etwa TIME; reservierte wie AUTH, UCMP, UENC) \\
+    Optionsumfang    & acht \textit{must-support}-Optionen sowie generische Empfangsregeln für unbekannte
+      SAFE- und UNSAFE-Arten & typisierte Erzeugung und Verarbeitung weiterer Arten wie TIME, AUTH, EXP,
+      UCMP, UENC und UEXP \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{Messinfrastruktur}
   \label{tab:scope-messung}
@@ -295,8 +187,8 @@ Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfr
     \midrule
     Linux-Endpunkte: lokale virtuelle Maschine und Cloud-Instanzen in Europa, Nordamerika
       und Asien-Pazifik & Sende- und Empfangsendpunkte der Kampagnen; Mitschnitt mit \texttt{tcpdump} \\
-    Mobilfunk-Zugang über einen Hotspot & reale Zugangsnetz-Kette mit NAT und CGNAT vor dem ersten
-      Transit \\
+    Mobilfunk-Zugang über einen Hotspot & reale Zugangsnetzkette mit Hotspot-NAT; der Anteil eines
+      möglichen CGNAT bleibt ohne zusätzlichen Messpunkt offen \\
     macOS-Messpunkt \texttt{en0} (\texttt{access\_bpf}) & zusätzlicher Beobachtungspunkt am Zugangsnetz;
       keine Implementierungsplattform \\
     native IPv6-Kontrollen & Einordnung einzelner Pfadbefunde; außerhalb der Bibliothek \\
@@ -305,24 +197,18 @@ Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfr
   \end{tabularx}
 \end{table}
 
-Die Implementierung ist auf Linux, IPv4, Benutzerraum und die acht \textit{must-support}-Optionen begrenzt
-(\tabref{tab:scope-implementierung}). macOS-Messpunkt, IPv6-Kontrollen und WireGuard-Tunnel erweitern nur
-die Messinfrastruktur; FF2 bewertet weiterhin Datagramme über IPv4 (\tabref{tab:scope-messung}). Damit sind
-Maßstab und Messrahmen festgelegt; die folgende Technologieauswahl begründet die Werkzeuge.
+macOS-Messpunkt, IPv6-Kontrollen und WireGuard-Tunnel erweitern nur die Messinfrastruktur; FF2 bewertet
+weiterhin Datagramme über IPv4 (\tabref{tab:scope-messung}).
 
 \section{Technologieauswahl}
 \label{sec:technologieauswahl}
 
-Vorab ist die Form des Artefakts festzuhalten: Die Implementierung entsteht als \textit{Bibliothek}, also
-als einbindbarer Baustein anderer Programme, nicht als eigenständiges Werkzeug und nicht als Kernelmodul.
-Der RFC sieht diese Form vor, ohne andere auszuschließen: Seine Entwurfsprinzipien verorten nötigen Zustand
-und jede Antwort in der Anwendung oder in einer in ihrem Auftrag arbeitenden Bibliothek
-(\secref{subsec:surplus-prinzipien}) \cite[Sec.~3 und 6]{rfc9868}. Gewählt wurde die Bibliothek, weil sie
-sich in die Messprogramme dieser Arbeit ebenso einbetten lässt wie in spätere Anwendungen; wenn diese Arbeit
-von der Implementierung spricht, meint sie diese Bibliothek samt ihren schmalen Mess- und
-Beispielprogrammen. Die Umsetzung verlangt vier Entscheidungen: die Wahl der Programmiersprache, den Zugang
-zur Surplus Area, die Werkzeuge für Mitschnitt und Auswertung sowie die Gegenproben jenseits der Tests.
-Dieser Abschnitt begründet sie in dieser Reihenfolge.
+Die Implementierung entsteht als einbindbare \textit{Bibliothek} mit schmalen Mess- und
+Beispielprogrammen, nicht als eigenständiger Dienst und nicht als Kernelmodul. Diese Form folgt den
+Entwurfsprinzipien von RFC~9868, die nötigen Zustand und jede Antwort in der Anwendung oder einer in ihrem
+Auftrag arbeitenden Bibliothek verorten (\secref{subsec:surplus-prinzipien}) \cite[Sec.~3 und 6]{rfc9868},
+und eignet sich für die Messprogramme dieser Arbeit ebenso wie für spätere Anwendungen. Zu begründen sind
+die Sprache, der Zugang zur Surplus Area, die Messwerkzeuge sowie Fuzzing und formale Gegenproben.
 
 \subsection{Programmiersprache}
 \label{subsec:programmiersprache}
@@ -330,20 +216,21 @@ Dieser Abschnitt begründet sie in dieser Reihenfolge.
 Die Wahl der Programmiersprache folgt aus vier Bedingungen. Erstens braucht die Bibliothek im Benutzerraum
 Zugriff auf das vollständige IP-Datagramm über die durch \texttt{UDP Length} begrenzten Nutzdaten hinaus
 (\secref{sec:netzpfad}); den gewählten Zugang begründet \secref{subsec:surplus-zugang}. Zweitens verlangt
-das Wire-Format eine bytegenaue Kontrolle über das Datagramm, denn jede implizite Umordnung oder Auffüllung
-durch die Sprache würde die TLV-Kodierung und die OCS-Ausrichtung zerstören. Drittens verarbeitet der Parser
-Pakete, die jeder beliebige Absender im Netz erzeugt haben kann; er liegt damit an der
-\textit{Vertrauensgrenze} des Systems, an der eingehende Daten als potentiell bösartig gelten müssen, und
-muss auch fehlerhafte oder gezielt konstruierte Pakete robust verarbeiten. Viertens soll die Bibliothek ohne
-eigene Laufzeitumgebung und ohne automatische Speicherbereinigung (Garbage Collector) auskommen, damit sie
-sich einbetten lässt und ihr Zeitverhalten vorhersagbar bleibt. Die ersten beiden Bedingungen folgen aus der
-Umsetzung im Benutzerraum, die letzten beiden sind Qualitätsziele dieser Arbeit.
+das Wire-Format bytegenaue Kontrolle: Der Serialisierer schreibt jedes Feld ausdrücklich in
+Netzwerkbyteordnung; native Strukturabbilder mit möglichem Padding dienen nicht als Wire-Format. Drittens
+verarbeitet der Parser Pakete, die jeder beliebige Absender im Netz erzeugt haben kann; er liegt damit an
+der \textit{Vertrauensgrenze} des Systems, an der eingehende Daten als potentiell bösartig gelten müssen,
+und muss auch fehlerhafte oder gezielt konstruierte Pakete robust verarbeiten. Viertens soll die
+Bibliothek ohne eigene Laufzeitumgebung und ohne automatische Speicherbereinigung (Garbage Collector)
+auskommen; das erleichtert das Einbetten und vermeidet GC-Pausen, macht das Zeitverhalten aber nicht
+allgemein vorhersagbar. Die ersten beiden Bedingungen folgen aus der Umsetzung im Benutzerraum, die
+letzten beiden sind Qualitätsziele dieser Arbeit.
 
-Diese Bedingungen erfüllen \textit{Systemprogrammiersprachen}: Sprachen mit hardwarenahem Zugriff auf
-Speicher und Betriebssystemschnittstellen, die ohne obligatorische Laufzeitumgebung zu nativem Maschinencode
-übersetzt werden; etablierte Vertreter sind C, C++, Zig und Rust. Sprachen mit Garbage Collector wie Go oder
-Java scheiden an genau der vierten Bedingung aus; das ist kein Eignungsurteil über diese Sprachen, sondern
-die Folge des bewusst gesetzten Qualitätsziels.
+Diese Bedingungen erfüllen \textit{Systemprogrammiersprachen} wie C, C++, Zig und Rust: Sprachen mit
+hardwarenahem Zugriff auf Speicher und Betriebssystemschnittstellen, die ohne obligatorische
+Laufzeitumgebung zu nativem Maschinencode übersetzt werden. Sprachen mit Garbage Collector wie Go oder
+Java scheiden an der vierten Bedingung aus; das ist kein Eignungsurteil, sondern die Folge des bewusst
+gesetzten Qualitätsziels.
 
 Alle vier Kandidaten bieten die nötige Kontrolle. Den Ausschlag gibt die Speichersicherheit an der
 Vertrauensgrenze. Sie schließt Zugriffe außerhalb eines Speicherbereichs (\textit{Buffer Overflow}), auf
@@ -365,7 +252,7 @@ Die entscheidungsrelevanten Eigenschaften fasst \tabref{tab:sprachvergleich} zus
     \toprule
     \textbf{Kriterium} & \textbf{C} & \textbf{C++} & \textbf{Zig} & \textbf{Rust} \\
     \midrule
-    Speichersicherheit & nein & nein & teilweise & ja \\
+    Speichersicherheit & nein & nein & teilweise & ja in Safe Rust; \texttt{unsafe} vertragsabhängig \\
     Schutzmechanismus & keiner & optional & Übersetzung, modusabhängige Laufzeit & Compiler, Laufzeit \\
     Speicherverwaltung & manuell & manuell, RAII & Allokatoren & Ownership \\
     Sprachfassung & ISO-Norm & ISO-Norm & vor 1.0 & 1.0 seit 2015 \\
@@ -373,35 +260,29 @@ Die entscheidungsrelevanten Eigenschaften fasst \tabref{tab:sprachvergleich} zus
   \end{tabularx}
 \end{table}
 
-Rust verbindet als einziger Kandidat der Tabelle standardmäßige Speichersicherheit mit einer
-Speicherverwaltung ohne Garbage Collector. Der Compiler erzwingt viele Regeln zur Übersetzungszeit;
-Bereichsprüfungen lösen zur Laufzeit einen definierten \textit{panic} statt undefinierten Verhaltens aus
-\cite{rust-lang,rust-book}. C und C++ geben dieselbe Kontrolle ohne sprachseitige Garantie: Der C-Standard
-kennt bei Pufferüberläufen undefiniertes Verhalten \cite{iso-c}, C++-Mittel wie RAII und Smart Pointer
-sind optional, und nachgelagerte Prüfwerkzeuge melden nur erreichte Fehlerfälle
+Rust verbindet als einziger Kandidat der Tabelle Safe-Rust-Garantien mit einer Speicherverwaltung ohne
+Garbage Collector; Bereichsprüfungen lösen zur Laufzeit einen definierten \textit{panic} statt
+undefinierten Verhaltens aus \cite{rust-lang,rust-book}, während der C-Standard bei Pufferüberläufen
+undefiniertes Verhalten kennt \cite{iso-c}. Diese Garantien setzen korrekte Verträge an jeder
+\texttt{unsafe}-Grenze voraus. Statische Werkzeuge können Quelltext ohne ausgeführten Programmpfad prüfen;
+nur dynamische Prüfungen und Fuzzing bleiben auf erreichte Pfade beschränkt
 \cite{kernel-devtools,nsa-memory-safety}. Zig prüft auch zur Übersetzungszeit; seine Laufzeitprüfungen
 hängen vom Build-Modus ab, und die Sprache hat noch keine Fassung~1.0 erreicht \cite{zig-lang}. Die
 Migration von Bun von Zig nach Rust bildet dazu den Referenzfall aus \secref{sec:externe-faelle}
-\cite{bun-in-rust}. Daher fiel die Wahl auf Rust.
+\cite{bun-in-rust}. Für die Vertrauensgrenze dieser Bibliothek fiel die Wahl deshalb auf Rust.
 
-Drei Rust-Mittel tragen die Implementierung. Erstens liest der Parser die Surplus Area ohne Kopie als
-geborgte Byte-Ausschnitte; der Borrow Checker verhindert, dass diese Sichten ihren Empfangspuffer
-überdauern \cite{rust-book}. Zweitens bilden \texttt{enum} und \texttt{Result} Optionsarten, vollständige
-Fallunterscheidungen und Fehler ab. Drittens markiert \texttt{unsafe}\footnote{Das Rust-Schlüsselwort
-\texttt{unsafe} ist von der UNSAFE-Optionsklasse aus \secref{subsec:surplus-prinzipien} zu unterscheiden.}
-Operationen, deren Sicherheit der Compiler nicht beweist. Die Garantien von Safe Rust setzen deshalb
-voraus, dass jeder \texttt{unsafe}-Block seinen Vertrag erfüllt; deren wenige Stellen behandelt
-\chapref{chap:entwurf}. Externe Parser-Bibliotheken entfallen, weil die Mechanik von RFC~9868 selbst
+Drei Rust-Mittel tragen die Implementierung. Der Parser liest die Surplus Area ohne Kopie als geborgte
+Byte-Ausschnitte, die ihren Empfangspuffer nicht überdauern können \cite{rust-book}. \texttt{enum} und
+\texttt{Result} bilden Optionsarten und Fehler vollständig ab. Wenige
+\texttt{unsafe}\footnote{Das Rust-Schlüsselwort \texttt{unsafe} ist von der UNSAFE-Optionsklasse aus
+\secref{subsec:surplus-prinzipien} zu unterscheiden.}-Blöcke kapseln die Systemgrenzen; ihre Verträge
+prüft \chapref{chap:entwurf}. Externe Parser-Bibliotheken entfallen, weil die Mechanik von RFC~9868 selbst
 Untersuchungsgegenstand ist.
 
-Nachteile bleiben das Ownership-Lernen, das gegenüber C jüngere Ökosystem der hardwarenahen
-Netzprogrammierung und längere Übersetzungszeiten. Im KI-gestützten Prozess liefern Fehler des erzeugten
-Quelltexts jedoch frühe strukturierte Diagnosen, und die Prüfkette aus \secref{sec:pruefkette} kann sich
-außerhalb der gekapselten \texttt{unsafe}-Blöcke auf die Protokolllogik richten. Dort bleibt Safe Rust
-fehlbar: Ein Um-eins- und Offsetfehler bei ungeradem Beginn der Surplus Area überstand 23
-selbstgeschriebene Tests und fiel erst im Pull-Request auf. Er verletzte die Protokolllogik, nicht die
-Speichersicherheit. Danach erhielt jeder Schritt mit neuer Parsefläche Property-Tests und ein Fuzz-Ziel
-(\chapref{chap:entwurf}).
+Safe Rust verhindert keine Protokollfehler. Ein Um-eins- und Offsetfehler bei ungeradem Beginn der
+Surplus Area überstand 23 selbstgeschriebene Tests und fiel erst im Pull-Request auf; er verletzte die
+Protokolllogik, nicht die Speichersicherheit. Danach erhielt jeder Schritt mit neuer Parsefläche
+Property-Tests und ein Fuzz-Ziel (\chapref{chap:entwurf}).
 
 \subsection{Zugang zur Surplus Area}
 \label{subsec:surplus-zugang}
@@ -422,8 +303,8 @@ Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (
       & UDP-Nutzdaten bis \texttt{UDP Length}
       & keiner
       & Surplus Area nicht zugänglich; ausgeschlossen \cite[Sec.~18]{rfc9868} \\
-    Packet Socket
-      & Rahmen der Verbindungsschicht
+    Packet Socket mit \texttt{AF\_PACKET/} \texttt{SOCK\_RAW}
+      & vollständiger Rahmen der Verbindungsschicht
       & \texttt{CAP\_NET\_RAW}, Schnittstellen- und Link-Layer-Behandlung
       & vollständiger Rahmen, aber unnötige Bindung an die Verbindungsschicht \cite{man7packet} \\
     TUN/TAP
@@ -439,7 +320,7 @@ Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (
       & passender Kernelbau, Laden und privilegierter Kernelraum
       & voller Zugriff, aber versionsgebunden und keine gewöhnliche Benutzerraumbibliothek
         \cite{linux510modules} \\
-    Raw Socket mit \texttt{IP\_HDRINCL}
+    Raw Sockets: Senden mit \texttt{IP\_HDRINCL}, Empfang mit \texttt{IPPROTO\_UDP}
       & vollständiges IP-Datagramm
       & \texttt{CAP\_NET\_RAW}; eigene IPv4-, UDP- und Optionsverarbeitung
       & gewählt: kleinster Unterbau mit der nötigen Sicht \cite{man7raw} \\
@@ -447,40 +328,34 @@ Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (
   \end{tabularx}
 \end{table}
 
-Raw Sockets liefern die nötige IP-Sicht ohne eigenes Netzgerät oder Kernelmodul; ihre Mechanik beschreibt
-\secref{sec:netzpfad}. Als Betriebssystem trägt diese Entscheidung Linux, denn dort ist der Weg dokumentiert
-und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der Kampagnen
-(\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen, UDP-Prüfsumme und
-Optionen selbst prüft. Beim Senden ergänzt der Kernel einzelne IP-Felder, fragmentiert den
-\texttt{IP\_HDRINCL}-Puffer aber nicht; jedes Optionsdatagramm muss in die MTU passen \cite{man7raw}. Diese
-Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
+Gewählt wurden Raw Sockets, weil sie ohne eigenes Netzgerät und ohne Kernelmodul Zugriff auf das
+vollständige IP-Datagramm geben. Als Betriebssystem trägt Linux diese Entscheidung: Dort ist der Weg
+dokumentiert und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der
+Kampagnen (\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen,
+UDP-Prüfsumme und Optionen selbst prüft. Beim Senden liefert sie mit \texttt{IP\_HDRINCL} den IPv4-Kopf;
+der Kernel ergänzt einzelne Felder, fragmentiert den Sendepuffer aber nicht, sodass jedes Optionsdatagramm
+in die MTU passen muss \cite{man7raw}. Diese Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
 
 \subsection{Mitschnitt und Auswertung}
 \label{subsec:mitschnittwerkzeuge}
 
-Die dritte Entscheidung betrifft die Messwerkzeuge. Da Wireshark in der verwendeten Version~4.6 die Surplus
-Area nicht dekodiert (\secref{sec:netzpfad}), zeichnet \texttt{tcpdump} die Kampagnen skriptgesteuert auf;
-die PCAP-Dateien bleiben als archivierbare Beweisdateien jeder Kampagne erhalten. Die Deutung der Surplus
-Area übernimmt der eigene Prüfer aus \secref{sec:pruefkette}, der OCS und Optionsstruktur aus den
-aufgezeichneten Bytes eigenständig nachrechnet; \texttt{tshark}, die Kommandozeilenfassung von Wireshark,
-dient daneben als fremde Gegenprobe für die IPv4- und UDP-Felder. Aufzeichnen, Deuten und Gegenprüfen
-übernehmen damit drei verschiedene Werkzeuge.
+Die Kampagnenskripte zeichnen den Verkehr mit \texttt{tcpdump} in archivierbaren PCAP-Beweisdateien auf. Der
+eigene Prüfer aus \secref{sec:pruefkette} rechnet OCS und Optionsstruktur aus den Bytes nach, weil
+Wireshark in der verwendeten Version~4.6 die Surplus Area nicht dekodiert (\secref{sec:netzpfad});
+\texttt{tshark} prüft unabhängig davon die IPv4- und UDP-Felder. Aufzeichnen, Deuten und Gegenprüfen
+liegen damit bei drei verschiedenen Werkzeugen.
 
 \subsection{Fuzzing und formale Gegenprobe}
 \label{subsec:formale-gegenprobe}
 
-Die vierte Entscheidung stellt der Testsuite zwei Gegenproben zur Seite, die beide auf das Gefahrenmodell der
-KI-gestützten Entwicklung (\secref{sec:gefahrenmodell}) antworten. Das über \texttt{cargo-fuzz} eingebundene
-libFuzzer-Fuzzing sucht abdeckungsgeleitet im echten Parsercode nach Abstürzen und verletzten Invarianten
-und mutiert dabei jenseits der von der Entwicklung vorausgewählten Beispieleingaben \cite{libfuzzer}. Das
-Lean-Modell prüft ausgewählte Invarianten mit maschinengeprüften Beweisen an handgeschriebenen Modellen;
-den Begriff führt \secref{subsec:pruefmittel} ein, die gebauten Ziele und den Beweisumfang beziffert
-\secref{sec:pruefarchitektur}. Beide
-Gegenproben ergänzen sich spiegelbildlich: Das Fuzzing prüft den echten Code und beweist nichts; der Beweis
-gilt ausnahmslos, aber nur für das Modell, nicht für den Rust-Code, der es umsetzt. Dass daneben auch die
-Norm selbst Prüfgegenstand bleiben muss, zeigte die Schlussphase der Implementierung: Ein nachträglicher
-RFC-Abgleich fand trotz grüner Prüfkette noch Konformitätslücken und wurde als eigener Korrekturschritt
-umgesetzt (\chapref{chap:entwurf}).
-
-Damit sind die Form des Artefakts und die vier Entscheidungen begründet; \chapref{chap:entwurf} baut mit
-ihnen das Messinstrument dieser Arbeit.
+Die vierte Entscheidung stellt der Testsuite zwei Gegenproben zur Seite, die auf das Gefahrenmodell der
+KI-gestützten Entwicklung antworten (\secref{sec:gefahrenmodell}). Das über \texttt{cargo-fuzz}
+eingebundene libFuzzer-Fuzzing mutiert Eingaben des echten Parsercodes abdeckungsgeleitet und sucht
+Abstürze und verletzte Invarianten \cite{libfuzzer}. Lean beweist ausgewählte Eigenschaften
+handgeschriebener Modelle unter den Voraussetzungen der jeweiligen Theoreme; den Begriff führt
+\secref{subsec:pruefmittel} ein, die gebauten Ziele und den Beweisumfang beziffert
+\secref{sec:pruefarchitektur}. Fuzzing beweist keine Fehlerfreiheit, und ein Lean-Beweis gilt nicht
+automatisch für den Rust-Code, der das Modell umsetzt. Dass daneben auch die Norm selbst Prüfgegenstand
+bleiben muss, zeigte die Schlussphase der Implementierung: Ein nachträglicher RFC-Abgleich fand trotz
+grüner Prüfkette noch Konformitätslücken und wurde als eigener Korrekturschritt umgesetzt
+(\chapref{chap:entwurf}).
