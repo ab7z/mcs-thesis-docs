@@ -287,49 +287,15 @@ Property-Tests und ein Fuzz-Ziel (\chapref{chap:entwurf}).
 \subsection{Zugang zur Surplus Area}
 \label{subsec:surplus-zugang}
 
-Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (\secref{sec:netzpfad}).
-\tabref{tab:surplus-zugang} vergleicht die verfügbaren Linux-Wege zum vollständigen Datagramm.
+Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (\secref{sec:netzpfad})
+\cite[Sec.~18]{rfc9868}. Packet Sockets, TUN/TAP und \texttt{AF\_XDP} bieten zwar Zugriff auf vollständige
+Rahmen oder IP-Pakete, erfordern aber die Behandlung der Verbindungsschicht, ein virtuelles Netzgerät oder
+ein XDP-Programm samt Speicher- und Warteschlangenaufbau \cite{man7packet,linux510tuntap,linux510afxdp}. Ein
+Kernelmodul liegt außerhalb des Projektumfangs. Raw Sockets geben der Benutzerraumbibliothek dagegen ohne
+eigenes Netzgerät Zugriff auf das vollständige IP-Datagramm und bilden daher den kleinsten geeigneten
+Unterbau \cite{man7raw}.
 
-\begin{table}[htbp]
-  \centering
-  \caption{Entscheidungsmatrix für den Zugang zur Surplus Area unter Linux}
-  \label{tab:surplus-zugang}
-  \footnotesize
-  \begin{tabularx}{\textwidth}{@{}L{2.2cm}L{3.1cm}L{4.0cm}Y@{}}
-    \toprule
-    \textbf{Weg} & \textbf{Sicht} & \textbf{Zusätzlicher Unterbau} & \textbf{Bewertung} \\
-    \midrule
-    Standard-UDP-Socket
-      & UDP-Nutzdaten bis \texttt{UDP Length}
-      & keiner
-      & Surplus Area nicht zugänglich; ausgeschlossen \cite[Sec.~18]{rfc9868} \\
-    Packet Socket mit \texttt{AF\_PACKET/} \texttt{SOCK\_RAW}
-      & vollständiger Rahmen der Verbindungsschicht
-      & \texttt{CAP\_NET\_RAW}, Schnittstellen- und Link-Layer-Behandlung
-      & vollständiger Rahmen, aber unnötige Bindung an die Verbindungsschicht \cite{man7packet} \\
-    TUN/TAP
-      & IP-Pakete bei TUN, Ethernet-Rahmen bei TAP
-      & virtuelles Netzgerät, Konfiguration und Routing
-      & verändert die Topologie und ist mehr als eine einbindbare Bibliothek \cite{linux510tuntap} \\
-    \texttt{AF\_XDP}
-      & Rahmen aus einer Empfangswarteschlange
-      & XDP-Programm, UMEM und Warteschlangenbindung
-      & leistungsfähig, aber zusätzlicher Kernel- und Speicheraufbau \cite{linux510afxdp} \\
-    Kernelmodul
-      & Verarbeitung im Kernel
-      & passender Kernelbau, Laden und privilegierter Kernelraum
-      & voller Zugriff, aber versionsgebunden und keine gewöhnliche Benutzerraumbibliothek
-        \cite{linux510modules} \\
-    Raw Sockets: Senden mit \texttt{IP\_HDRINCL}, Empfang mit \texttt{IPPROTO\_UDP}
-      & vollständiges IP-Datagramm
-      & \texttt{CAP\_NET\_RAW}; eigene IPv4-, UDP- und Optionsverarbeitung
-      & gewählt: kleinster Unterbau mit der nötigen Sicht \cite{man7raw} \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-Gewählt wurden Raw Sockets, weil sie ohne eigenes Netzgerät und ohne Kernelmodul Zugriff auf das
-vollständige IP-Datagramm geben. Als Betriebssystem trägt Linux diese Entscheidung: Dort ist der Weg
+Als Betriebssystem trägt Linux diese Entscheidung: Dort ist der Weg
 dokumentiert und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der
 Kampagnen (\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen,
 UDP-Prüfsumme und Optionen selbst prüft. Beim Senden liefert sie mit \texttt{IP\_HDRINCL} den IPv4-Kopf;
