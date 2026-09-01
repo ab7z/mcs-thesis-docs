@@ -5,74 +5,15 @@
 \chapter{Entwurf und Implementierung}
 \label{chap:entwurf}
 
-Die Referenzimplementierung folgt den Vorgaben aus \chapref{chap:analyse}. Der Weg geht vom
-Entstehungsprozess (\secref{sec:vorgehen}) über die Komponenten (\secref{sec:architektur}) zu Sendeweg
-(\secref{sec:sendepfad}), Empfangsweg (\secref{sec:empfangspfad}) und Optionsverarbeitung
-(\secref{sec:optionsverarbeitung}), danach zu Testarchitektur, Betriebsgrenzen und bewussten Grenzen
-(\secref{sec:pruefarchitektur}, \secref{sec:betriebsgrenzen}, \secref{sec:grenzen-implementierung}).
-Vorversuchsbefunde erscheinen nur, wenn sie den Bau begründen. Die Entscheidungen aus
-\secref{sec:technologieauswahl} und die Mechanik aus \chapref{chap:grundlagen} werden angewandt.
+Dieses Kapitel beschreibt die Referenzimplementierung und das Messinstrument. Es folgt den Datenpfaden
+der Bibliothek: von der Architektur über das Senden und Empfangen bis zu den Pflichtoptionen, FRAG und
+den Betriebsgrenzen.
 
-\section{Vorgehen der Implementierung}
-\label{sec:vorgehen}
-
-Die Umsetzung begann mit dem Plan. Der erste Commit des Repositorys legte den vollständigen Projektplan an,
-achtzehn Schrittdateien mit je Ziel, Anforderungen, Plan, Aufgaben und Abschlusskriterien, dazu die
-Modulgerüste.\footnote{Commit \texttt{3c17252} vom 30.05.2026; die Detailpläne, der Anforderungskatalog
-(\secref{sec:anforderungsmatrix}) und die Architektur- und Formatreferenzen folgten am selben Tag mit
-Commit \texttt{36cc465}.} Der Plan bezeichnet sich selbst als schrittweise abzuarbeitenden Masterplan mit
-einem Menschen in der Schleife; der Anforderungskatalog stand damit vor dem ersten Funktionsschritt.
-
-Ab Schritt~1 lief der Kernzyklus aus \figref{fig:stepzyklus}: ein eigener Arbeitszweig, die Umsetzung mit
-Tests im selben Sammelcommit, das lokale Gate mit am Ende 18 Prüfläufen, der Pull-Request mit der kleineren
-CI-Kette und zwei angeforderten KI-Prüfungen, zuletzt die menschliche Durchsicht des Diffs und ein
-freigegebener Sammelcommit auf dem Hauptzweig; die Schritte 14, 15 und 17 teilten sich einen solchen
-Commit. Die Schritte 0 und 0.5 bildeten die frühe Ausnahme und verteilten sich auf mehrere Commits und
-Pull-Requests. Die Regeln des reifen Zyklus stehen versioniert im Repository selbst, einschließlich des
-Grundsatzes, dass jede Änderung vor der Übernahme von einem Menschen gelesen und verantwortet wird.
-
-Der Plan blieb dabei beweglich: Ein Machbarkeits-Vorversuch (Schritt 0.5, \secref{sec:empfangspfad}) und
-die unabhängige Wire-Prüfung (Schritt 10.5, \secref{sec:pruefarchitektur}) wurden eingeschoben, Schritt 9
-ging in Schritt 8 auf, und die zunächst mitgebaute IPv6-Unterstützung wurde mit Schritt 16 samt der
-Katalogzeile FR-47 wieder aus dem Umfang entfernt (\secref{sec:grenzen-implementierung}). Den Abschluss
-bildete kein Funktionsschritt, sondern eine Prüfung: Schritt 18 hielt die Befunde eines nachträglichen
-RFC-Abgleichs als eigene Schrittdatei fest und arbeitete sie gesammelt ab, darunter die Behandlung
-unbekannter UNSAFE-Optionen vor einem FRAG und den vollständigen Statusabgleich des
-Anforderungskatalogs.\footnote{Commit \texttt{4c82ab0} vom 02.08.2026 mit 53 geänderten Dateien; die
-Schrittdatei ist \path{docs/plan/steps/18-rfc9868-audit-remediation.md}.}
-
-Dass diese Schleifen nicht Förmelei waren, zeigen belegte Fänge: Die Prüfung gegen den RFC-Primärtext fand
-vier Fehler in mehreren Vertragsdokumenten des Repositorys, darunter eine falsch wiedergegebene
-Ausrichtungsregel.\footnote{Commit \texttt{f85815f} mit vier geänderten Vertragsdateien
-(\path{CLAUDE.md}, \path{docs/architecture.md}, \path{docs/requirements.md}, \path{docs/wire-format.md}).}
-Die Zweitprüfung im Pull-Request fing den Um-eins-Fehler der Surplus-Ortung, den 23 selbstgeschriebene Tests
-übersehen hatten (\secref{sec:pruefarchitektur}). Der Schlussaudit deckte trotz grüner Prüfkette weitere
-Konformitätslücken auf, darunter die Verarbeitung einer unbekannten UNSAFE-Option vor einem FRAG;
-Schritt~18 behob sie gesammelt. Ebenso klar sind die Grenzen der Belegbarkeit: Die Sammelcommits
-verschmelzen die innere Reihenfolge eines Schritts, die KI-Prüfungen waren angefordert, aber nicht
-erzwungen, und für das Lean-Gate ist kein Fang eines echten Produktfehlers belegt; es sicherte den
-Modellbestand (\secref{sec:pruefarchitektur}). Mit diesem Vorgehen im Rücken zeigt der Rest des Kapitels
-den fertigen Bau.
-
-\section{Gesamtarchitektur}
+\section{Architektur}
 \label{sec:architektur}
 
-Den Plattform- und Funktionsumfang legt \secref{sec:abgrenzung} fest; \secref{sec:technologieauswahl}
-begründet die vier technischen Entscheidungen, die hier angewandt werden. Innerhalb dieses Rahmens
-entsteht das Artefakt aus \tabref{tab:scope-implementierung}: eine Bibliothek, die die Surplus Area baut,
-liest und prüft, samt zwei schmalen Messprogrammen für die Kampagnen.
-
-Die Bibliothek\footnote{Implementierungs-Repository \texttt{udp-transport-options}, Commit
-\texttt{f847895}; alle Datei- und Zeilenangaben dieses Kapitels beziehen sich auf diesen Stand.} besteht
-aus acht Modulen und zwei Messprogrammen, zusammen rund 8.600 physische Rust-Zeilen\footnote{Gezählt mit
-\texttt{wc -l} über alle \texttt{.rs}-Dateien der neun Quelleinheiten unter \texttt{src/} (sieben
-Verzeichnisse sowie die Einzeldateien \texttt{error.rs} und \texttt{model.rs}), ohne die 40 Zeilen von
-\texttt{src/lib.rs}: genau 8.606 Zeilen.}: Sechs Module tragen je einen fachlichen Baustein, vom
-Wire-Format bis zur öffentlichen Schnittstelle, zwei liegen als Querschnitt unter allen. Komponente meint
-in diesem Kapitel einen solchen Baustein zusammen mit seiner Quelleinheit: Der Modulname bestimmt zugleich
-die Quelleinheit unter \texttt{src/}, ein gleichnamiges Verzeichnis oder eine gleichnamige Rust-Datei.
-
-Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponenten}:
+Die Implementierung umfasst eine Bibliothek sowie die Messprogramme \texttt{udpopt-send} und
+\texttt{udpopt-recv}. \figref{fig:komponenten} zeigt ihre Aufgaben und ausgewählte Abhängigkeiten.
 
 \begin{figure}[htbp]
   \centering
@@ -92,17 +33,18 @@ Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponent
       anno/.style={font=\tiny\linespread{1.0}\selectfont, text=feldlinie, align=center},
     ]
     \node[modul] (bin) at (4.2,6.50)
-      {\textbf{bin}: udpopt-send, udpopt-recv\\ gemeinsam: direkte Abhängigkeiten\\ zu allen acht Modulen};
+      {\textbf{bin}: udpopt-send, udpopt-recv\\ zusammen: direkte Importe\\ aus allen acht Modulen};
     \node[modul] (api) at (4.2,4.8) {\textbf{api} (\texttt{Peer})\\ importiert die sieben\\ übrigen Module};
     \node[modul] (frag) at (0.9,3.4) {\textbf{frag}\\ split, reassembly};
     \node[modul] (recv) at (4.2,3.4) {\textbf{recv}\\ pipeline};
     \node[akzent] (socket) at (7.9,3.4) {\textbf{socket}\\ send, recv};
     \node[modul] (options) at (4.2,1.75) {\textbf{options}\\ kind, parse, serialize,\\ ocs, typed};
     \node[modul] (wire) at (4.2,0.25) {\textbf{wire}\\ ip, udp, checksum, surplus};
-    \node[quer] (error) at (12.0,3.6) {\textbf{error}\\ Fehlertypen};
-    \node[quer] (model) at (12.0,2.25) {\textbf{model}\\ Konstanten, Grenzen};
-    \node[anno] at (12.0,1.15) {von allen fachlichen\\ Komponenten importiert,\\ ohne Bezüge zu\\ anderen Modulen};
-    \node[betriebssystem] (rawsock) at (9.2,0.7) {Betriebssystem: Raw Socket\\ (SOCK\_RAW, IP\_HDRINCL)};
+    \node[quer] (error) at (12.0,4.80) {\textbf{error}\\ Fehlertypen};
+    \node[quer] (model) at (12.0,3.40) {\textbf{model}\\ Konstanten, Grenzen};
+    \node[anno] at (12.0,2.00) {von allen fachlichen\\ Komponenten importiert,\\ ohne Bezüge zu\\ anderen Modulen};
+    \node[betriebssystem] (rawsock) at (9.2,0.7)
+      {Betriebssystem: Sockets\\ (SOCK\_RAW; Senden mit\\ IP\_HDRINCL)};
     \node[betriebssystem] (urandom) at (0.7,1.75) {Betriebssystem:\\ /dev/urandom};
     \draw[import] (bin) -- (api);
     \draw[import] (api.south west) -- (frag.north);
@@ -121,47 +63,30 @@ Die Module, die Programme und ihre Importbeziehungen zeigt \figref{fig:komponent
     \node[anno, anchor=west] at (-0.45,-0.4)
       {Pfeil: ausgewählte Importbeziehung. Gestrichelte Linie: ausgewählter Betriebssystemkontakt.};
   \end{tikzpicture}
-  \caption{Komponenten der Bibliothek und ihre Abhängigkeiten}
+  \caption{Module der Bibliothek, Messprogramme und ihre Abhängigkeiten}
   \label{fig:komponenten}
 \end{figure}
 
-Aus \figref{fig:komponenten} geht zweierlei hervor. Erstens zeigen die Kanten ausgewählte tatsächliche
-Importe und bilden keine strikte Schichtung; so nutzt die Socket-Schicht für eine Längendiagnose einen
-Helfer der Empfangspipeline. Zweitens liegen die Netz-Systemaufrufe innerhalb der Bibliothek allein in
-\texttt{socket}, und mit ihnen die beiden \texttt{unsafe}-Blöcke in \texttt{src/}
-(\secref{subsec:programmiersprache}), gekapselt hinter sicheren Schnittstellen. Daneben liest \texttt{frag}
-für die FRAG-Identifikation das Zufallsgerät \texttt{/dev/urandom}, \texttt{api} und \texttt{socket} fragen
-für Fristen die monotone Uhr ab, und die beiden Messprogramme kommen mit Konsolenausgabe hinzu;
+Die Kanten zeigen ausgewählte tatsächliche Importe und keine strikte Schichtung. \texttt{wire}
+verarbeitet IPv4- und UDP-Köpfe, Prüfsummen und die Surplus Area. \texttt{options} serialisiert und
+liest den Optionsstrom. \texttt{recv} führt für eingehende UDP-Datagramme einschließlich ihrer UDP-Optionen
+die von RFC~9868 vorgegebenen Prüfschritte nacheinander aus \cite[Sec.~14]{rfc9868}. \texttt{frag} zerlegt
+und reassembliert Datagramme, und \texttt{api} bündelt diese Funktionen im Typ \texttt{Peer}.
+\texttt{error} und \texttt{model} stellen gemeinsame Fehlertypen, Konstanten und Grenzen bereit.
+
+Im Produktionsquelltext unter \texttt{src/} liegen die Netz-Systemaufrufe der Bibliothek in
+\texttt{socket}; dort stehen auch die beiden \texttt{unsafe}-Blöcke. Für die Kennungsgeneratoren von
+\texttt{Peer} und \texttt{udpopt-send} liest \texttt{frag} beim Aufbau einmalig vier Bytes aus
+\texttt{/dev/urandom}, falls kein Startwert vorgegeben ist. Vier Bytes ergeben eine 32-Bit-Kennung. Der
+Empfänger nutzt sie, um zusammengehörige Fragmente zu erkennen. Der zufällige Start senkt das Risiko, dass
+neue Fragmente mit noch gespeicherten Fragmenten verwechselt werden. Danach zählt der Generator die
+Kennungen hoch.
+
+\texttt{api} und \texttt{socket} verwenden die monotone Uhr. Sie misst nur, wie viel Zeit vergangen ist,
+und wird durch Änderungen der Systemzeit nicht verstellt. So kann \texttt{api} prüfen, ob unvollständige
+Fragmentgruppen abgelaufen sind. \texttt{socket} kann damit die gesamte Empfangsfrist zuverlässig einhalten.
+Beide Messprogramme schreiben auf die Konsole. Nur
 \texttt{udpopt-send} kann zusätzlich eine JSONL-Manifestdatei fortschreiben.
-Daraus folgt eine Eigenschaft, die die Testarchitektur in \secref{sec:pruefarchitektur} trägt: Die reinen
-Protokollpfade erhalten Zeitpunkte und Identifikation als Parameter, jede Protokollentscheidung ist damit
-ohne Netz und ohne erhöhte Rechte prüfbar.
-
-Unten liegt \texttt{wire}, die reine Bytesicht: IPv4-Kopf, UDP-Kopf, Prüfsummenarithmetik und die Ortung
-der Surplus Area. Hier wird der IPv4-Kopf geprüft und nur \texttt{Protocol}~17 angenommen (Umfangsvorgabe aus
-\secref{sec:extraktionsmethode}), und hier liegt die Ortungsregel, nach der Optionen an jedem gültigen
-\texttt{UDP Length}-Offset beginnen dürfen \cite[Sec.~8]{rfc9868}: Aus Gesamtlänge, Kopflänge und \texttt{UDP Length}
-bestimmt \texttt{wire} Beginn, Pad-Bedarf und Länge der Surplus Area, ohne ein einziges Optionsbyte zu
-deuten.
-
-Darüber teilen sich drei Komponenten die Optionslogik. \texttt{options} trägt den Optionskörper:
-Optionsverzeichnis, Parser, Serialisierer, die typisierten Optionswerte und die OCS-Rechenregeln
-(FR-19, FR-21). \texttt{recv} enthält mit der Pipeline die Empfangsordnung, die für jedes an sie übergebene Datagramm
-über Annahme oder Verwerfen entscheidet (FR-20, FR-38). \texttt{frag} zerlegt große Nachrichten in Fragmente und
-setzt sie unter begrenztem Speicher wieder zusammen (FR-34, NFR-06). Die acht \textit{must-support}-Optionen
-(\cite[Sec.~10]{rfc9868}) verteilen sich über diese drei Komponenten; die Vertiefung folgt in \secref{sec:empfangspfad}
-bis \secref{sec:betriebsgrenzen}.
-
-Oben bündelt \texttt{api} alles im Typ \texttt{Peer}, der Gegenstelle als Bibliothekstyp: Eine Anwendung
-konfiguriert einen \texttt{Peer} und erhält Senden und Empfangen als je einen Aufruf, ohne
-Socket-Verwaltung, Prüfreihenfolge oder Optionsbau selbst zu übernehmen; Aufruferpflicht bleiben die
-erhöhten Rechte für Raw Sockets, die Wahl der Empfangsstrenge und der anwendungsseitige Protokollzustand,
-etwa die Herkunft eines RES-Tokens; Rechte und Strenge behandelt \secref{sec:betriebsgrenzen}.
-Die zwei Programme \texttt{udpopt-send} und \texttt{udpopt-recv} sind
-schmale Messaufsätze für die Kampagnen. Quer zu allem liegen \texttt{error} mit den
-Fehlertypen und \texttt{model} mit den Protokollkonstanten sowie den Reassemblierungs- und Schutzgrenzen:
-von allen fachlichen Komponenten importiert, selbst ohne Abhängigkeiten zu anderen
-Bibliotheksmodulen. Wie ein Datagramm dieses Gefüge von oben nach unten durchläuft, zeigt der Sendepfad.
 
 \section{Sendepfad}
 \label{sec:sendepfad}
@@ -859,7 +784,7 @@ Was jede Ebene leistet und was nicht, stellt \tabref{tab:pruefmittel} einander g
 Aus \tabref{tab:pruefmittel} geht hervor, dass keine Prüfebene die anderen ersetzt. Das zeigte der
 Um-eins-Fehler der Surplus-Ortung, den 23 Attributtests übersahen und erst die Zweitprüfung fand. Danach
 wurden Property-Tests und Fuzz-Ziele je Parsefläche verpflichtend. Schritt~18 fand trotz grüner Prüfkette
-weitere Konformitätslücken (\secref{sec:vorgehen}).
+weitere Konformitätslücken (\secref{sec:soll-ist}).
 
 Den Schluss der Klammer, die \secref{sec:architektur} geöffnet hat, bildet die Rückverfolgbarkeit.
 \secref{sec:architektur} bis \secref{sec:optionsverarbeitung} haben die tragenden Komponenten mit den
