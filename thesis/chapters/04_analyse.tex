@@ -61,9 +61,15 @@ die Datei entstand vor dem
 ersten Funktionsschritt und wurde parallel zur Umsetzung fortgeschrieben. Die Matrix ist der Sache nach
 ein Arbeitsindex: Sie mischt markierte Normsätze, unmarkierte normative Festlegungen, Beschreibungen und
 Leitlinien. Die Prüfung aus \secref{sec:extraktionsmethode}
-stuft deshalb jede Zeile satzgenau am Primärtext ein und überführt sie in die geprüfte Matrix in
-Anhang~\ref{chap:anhang-konformitaet}. \tabref{tab:anforderungsmatrix} zeigt eine eigene
-übersetzte Auswahl; Normstufe und Abdeckung stehen im Wortlaut der Datei:
+stuft deshalb jede Zeile am Primärtext ein und überführt sie in die geprüfte
+Einzelzuordnung.\footnote{Vollständige Konformitätsmatrix als
+\href{https://github.com/ab7z/mcs-thesis-docs/blob/%
+6a5239a89dda0e31be438770c298a126ed4174de/thesis/daten/konformitaet-kategorien.csv}{Datei im
+öffentlichen GitHub-Repository}, Commit \texttt{6a5239a}.}
+Zeilen, die mehrere Normsätze oder Adressaten bündeln, etwa die Zeilen zu den Abschnitten 11.2, 16 und 19
+sowie 25.2 bis 25.4, bleiben eine Zeile und werden nur mit ihrem FF1-Anteil bewertet.
+\tabref{tab:anforderungsmatrix} zeigt eine eigene übersetzte Auswahl; Normstufe und Abdeckung stehen im
+Wortlaut der Datei:
 
 \begin{table}[H]
   \centering
@@ -319,9 +325,8 @@ KI-gestützten Entwicklung antworten (\secref{sec:gefahrenmodell}). Das über \t
 eingebundene libFuzzer-Fuzzing mutiert Eingaben des echten Parsercodes abdeckungsgeleitet und sucht
 Abstürze und verletzte Invarianten \cite{libfuzzer}. Lean beweist ausgewählte Eigenschaften
 handgeschriebener Modelle unter den Voraussetzungen der jeweiligen Theoreme; den Begriff führt
-\secref{subsec:pruefmittel} ein, die gebauten Ziele und den Beweisumfang beziffert
-\secref{sec:pruefarchitektur}. Fuzzing beweist keine Fehlerfreiheit, und ein Lean-Beweis gilt nicht
+\secref{subsec:pruefmittel} ein. Fuzzing beweist keine Fehlerfreiheit, und ein Lean-Beweis gilt nicht
 automatisch für den Rust-Code, der das Modell umsetzt. Dass daneben auch die Norm selbst Prüfgegenstand
 bleiben muss, zeigte die Schlussphase der Implementierung: Ein nachträglicher RFC-Abgleich fand trotz
 grüner Prüfkette noch Konformitätslücken und wurde als eigener Korrekturschritt umgesetzt
-(\chapref{chap:entwurf}).
+(\secref{sec:soll-ist}).

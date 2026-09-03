@@ -106,7 +106,6 @@
 \usepackage{float}
 \usepackage{booktabs}           % Schöne Tabellen
 \usepackage{tabularx}           % Flexible Tabellen
-\usepackage{longtable}          % Mehrseitige Tabellen
 \usepackage{multirow}           % Mehrzeilige Zellen
 \renewcommand{\arraystretch}{1.2} % Etwas luftigere Tabellenzeilen
 \usepackage{amssymb}            % Für \checkmark Symbol
@@ -167,8 +166,7 @@
     sensitive=true,
     comment=[l]{//},
     morecomment=[s]{/*}{*/},
-    morestring=[b]",
-    morestring=[b]'
+    morestring=[b]"
 }
 
 \lstdefinelanguage{Hexdump}{
@@ -383,12 +381,6 @@
 \input{chapters/05_entwurf_implementierung}
 \input{chapters/06_evaluation}
 \input{chapters/07_fazit}
-
-% -----------------------------------------------------------------------------
-% ANHANG
-% -----------------------------------------------------------------------------
-\appendix
-\input{chapters/a_konformitaet}
 
 % -----------------------------------------------------------------------------
 % BACKMATTER

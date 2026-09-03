@@ -204,7 +204,7 @@ zstd -t <archiv>.tar.zst
 zstd -dc <archiv>.tar.zst | tar -tf - > /dev/null
 ```
 
-Geplante Versionierung: Nach der Kündigung der Messserver wird `thesis/evidence/` aus `.git/info/exclude`
-genommen und mit allen Archiven versioniert; Verweise aus der Arbeit nennen dann das GitHub-Repository
-(`github.com/ab7z/mcs-thesis-docs`), den Archivpfad und die SHA-256. Bis dahin gelten die lokalen Archive
-mit den hier dokumentierten Prüfsummen.
+Versionierung: Seit Commit `e82dba2` vom 25.08.2026 sind die elf Archive, ihre Prüfsummendateien und diese
+README unter `thesis/evidence/` im öffentlichen Repositorium der Arbeit (`github.com/ab7z/mcs-thesis-docs`)
+versioniert. Kapitel 6 nennt das Repositorium, diese Revision und das Archivverzeichnis; diese README ordnet
+die Kurzkennungen der Arbeit den Dateinamen und SHA-256-Sollwerten zu.

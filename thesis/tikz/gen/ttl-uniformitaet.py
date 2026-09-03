@@ -2,16 +2,23 @@
 """Datenschicht und TikZ-Generator fuer die TTL-Auswertung (Abbildung fig:eval-ttl, Kapitel 6.1).
 
 Zwei Betriebsarten:
-  --ableiten   parst die ttl-report.py-Ausgabetabellen (Arbeitskopien unter lernnotizen/) und schreibt
-               die versionierte Datenschicht thesis/daten/ttl-verteilung.csv (aggregierte Paketsummen
-               je Richtung, Erfassungsseite, Verkehrsklasse und TTL; keine Adressen, keine Rohpfade).
+  --ableiten [TABELLE ...]
+               parst ttl-report.py-Ausgabetabellen und schreibt die versionierte Datenschicht
+               thesis/daten/ttl-verteilung.csv (aggregierte Paketsummen je Richtung, Erfassungsseite,
+               Verkehrsklasse und TTL; keine Adressen, keine Rohpfade). Ohne Tabellenargumente werden
+               die lokalen Arbeitskopien unter lernnotizen/ (nicht versioniert) gelesen.
   (ohne Flag)  liest thesis/daten/ttl-verteilung.csv und schreibt das TikZ-Fragment
                thesis/tikz/ttl-uniformitaet.tex.
 
-Reproduzierbarkeit: Die Quelltabellen sind mit scripts/ttl-report.py des Implementierungsrepos aus den
-PCAPs der versiegelten Archive erzeugbar (p0p1p2-kampagnen-1blu-mcs-20260814-15.tar.zst,
-hel-kampagne-20260815.tar.zst; Tabellenkopien in ff2-ttl-pfadanalyse-20260815.tar.zst). Die Kopfzeilen
-der CSV nennen die Archive samt SHA-256.
+Reproduzierbarkeit aus den versiegelten Archiven (am 2026-09-02 nachvollzogen, CSV identisch):
+  1. Paar 1blue/mcs: die archivierte Tabellenkopie ttl-report-alle-captures.md aus
+     ff2-ttl-pfadanalyse-20260815.tar.zst (enthaelt die Kampagnen-Stamps und die lokale
+     p1-checksumgate-Reihe).
+  2. Helsinki-Paare: scripts/ttl-report.py des Implementierungsrepos (Stand f847895) ueber alle PCAPs der
+     p0-, p1- und p2-Stamps aus hel-kampagne-20260815.tar.zst (ohne die checksumgate-Stamps; die
+     AppleDouble-Eintraege ._*.pcap des Archivs sind keine Mitschnitte und auszuschliessen).
+  Aufruf: ttl-uniformitaet.py --ableiten <ttl-report-alle-captures.md> <hel-tabelle.md>
+Die Kopfzeilen der CSV nennen die Archive samt SHA-256 und die Einschlussregel je Paar.
 """
 import csv
 import re
@@ -39,13 +46,18 @@ ARCHIVE_KOPF = [
     "#   Tabellenkopien in ff2-ttl-pfadanalyse-20260815.tar.zst",
     "#   (SHA-256 0e9cbbcd1391756e6e3f64a24058b571177b1ec5d0dd6b84710657b57e7aedca).",
     "# Werkzeug: scripts/ttl-report.py (Implementierungsrepo, Auswertungsstand f847895).",
+    "# Einschlussregel: Die Richtungen des Paars 1blue/mcs enthalten neben den Kampagnen-Stamps die lokale,",
+    "#   nicht versiegelte p1-checksumgate-Reihe (je Richtung 124 Egress- und 72 Ingress-Pakete, Differenz 52);",
+    "#   die vier Helsinki-Richtungen enthalten nur die Kampagnen-Stamps, nicht die checksumgate-Stamps des",
+    "#   hel-Archivs (je Richtung 51 Egress- und 31 Ingress-Pakete, Differenz 20). Nur mit Kampagnen-Stamps",
+    "#   stimmen Egress und Ingress auf allen sechs Richtungen ueberein.",
 ]
 
 
-def ableiten() -> None:
+def ableiten(quellen=None) -> None:
     agg = defaultdict(int)
     zeilen = 0
-    for quelle in QUELLEN:
+    for quelle in (quellen or QUELLEN):
         for line in quelle.read_text().splitlines():
             if not line.startswith("|") or line.startswith("|---") or "| Klasse |" in line or "| Datei |" in line:
                 continue
@@ -69,7 +81,7 @@ def ableiten() -> None:
     with DATEN.open("w", newline="") as fh:
         for kopf in ARCHIVE_KOPF:
             fh.write(kopf + "\n")
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")
         w.writerow(["richtung", "seite", "klasse", "ttl", "pakete"])
         for (richtung, seite, klasse, ttl), n in sorted(agg.items()):
             w.writerow([richtung, seite, klasse, ttl, n])
@@ -159,6 +171,7 @@ def generieren() -> None:
 
 if __name__ == "__main__":
     if "--ableiten" in sys.argv:
-        ableiten()
+        tabellen = [Path(a) for a in sys.argv[1:] if a != "--ableiten"]
+        ableiten(tabellen or None)
     else:
         generieren()

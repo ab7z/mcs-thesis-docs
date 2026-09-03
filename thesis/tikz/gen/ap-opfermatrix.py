@@ -59,7 +59,7 @@ for i, (quelle, zl) in enumerate(matrix.items()):
 y_fuss = -len(matrix) * (bh + gap) - 0.05
 tex.append(f"  \\node[font=\\scriptsize, text=feldlinie, anchor=north west, text width=13.6cm] "
            f"at (0,{y_fuss:.2f}) {{\\checkmark~Surplus-Klasse zugestellt; $\\times$~Surplus-Klasse "
-           f"verworfen (Baselines kamen in allen Lanes vollzählig an); $\\cdot$~nicht gemessen; "
+           f"verworfen (Kontrollen kamen in allen Lanes vollzählig an); $\\cdot$~nicht gemessen; "
            f"dünner Rahmen: Pilotbeleg ohne Mitschnitt ($n=6$ je Lane), sonst Zellenbeleg mit "
            f"Mitschnitten ($n=20$ je Zelle und Richtung)}};")
 tex.append("\\end{tikzpicture}")

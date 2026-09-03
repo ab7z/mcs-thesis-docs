@@ -1,4 +1,4 @@
-# Datenschicht fuer die Anhangstabelle tab:eval-sollist (FF1-Einzelbewertung).
+# Vollstaendige FF1-Einzelbewertung der 67 Matrixzeilen.
 # Quelle: docs/requirements.md
 # Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895. Die Spalten level und
 # covered geben die Repository-Selbstauskunft wieder; normstufe, anwendbar, kategorie

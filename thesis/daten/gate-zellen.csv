@@ -1,7 +1,7 @@
 # Datenschicht fuer fig:eval-gate. Zellwerte des Pruefsummen-Gate-Kreuztests je Richtung.
 # Zellen: G = Pad ff mit korrekter OCS (OCS-gueltig, aber RFC-widrig wegen Pad ungleich null und
 #   legacy-ungueltig); C = kompensierte OCS 5b53 (RFC-widrig, legacy-gueltig); K = Kontrolle ohne
-#   Fehler (P1-A: Pad 00 mit korrekter OCS, n=20; Kreuzzellen: Baseline ohne Surplus, n=10).
+#   Fehler (P1-A: Pad 00 mit korrekter OCS, n=20; Kreuzzellen: Kontrolle ohne Surplus, n=10).
 # Quellen (Primaertabellen):
 #   1blue-mcs: p1-ergebnisse.md Befund P1-A (Kreuztest, je Richtung identisch); die
 #     p1-checksumgate-Rohdaten (248-Paket-Stichprobe samt SHA-256-Manifest) liegen nur im lokalen,

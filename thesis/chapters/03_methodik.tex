@@ -145,7 +145,8 @@ Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und 
     \textbf{FF} & \textbf{Untersuchungseinheit} & \textbf{Nachweis} & \textbf{Bewertung und Grenze} \\
     \midrule
     FF1
-      & jede anwendbare normative Anforderung im Projektumfang
+      & jede anwendbare Zeile des Arbeitsindex aus \secref{sec:anforderungsmatrix} im Projektumfang
+        (eine normative Aussage oder ein Bündel davon)
       & je nach Status: Normfundstelle sowie Quelltext und Prüfung oder Beleg einer technischen Grenze
       & vollständig, teilweise oder nicht erfüllbar; nicht anwendbar bleibt unbewertet \\
     FF2
@@ -167,7 +168,8 @@ Referenzimplementierung gewählt wurde.
 
 Wie diese Regeln auf die einzelnen Anforderungen angewandt werden, legt \secref{sec:ff1-kriterien} fest; die
 Auswertungsregeln der Messläufe für FF2 stehen in \secref{sec:testkonzept}. Beide Regelwerke stehen damit
-ebenfalls vor der Ergebnisbewertung fest.
+ebenfalls vor der Ergebnisbewertung fest. Der neben der Erfüllbarkeit berichtete Umsetzungsstand bewertet den
+Endpunkt aus Bibliothek und aufrufender Schicht; die zugehörige Regel definiert \secref{sec:soll-ist}.
 
 Der Maßstab für FF1 entsteht aus dem Primärtext. Normativ ist RFC~9868; RFC~768 liefert ergänzend das
 UDP-Format, RFC~1071 als informative Referenz die Rechenregeln der Prüfsummen. Die Schlüsselwörter
@@ -428,7 +430,7 @@ Pflichtstufe und nicht in der kontinuierlichen Integration.
 Lean ist ein Beweisassistent: Regeln werden als Modell formuliert, Aussagen darüber als Theoreme bewiesen, und ein
 kleiner Kern prüft jeden Beweisschritt nach \cite{lean4}. Die Lean-Prüfung baut diese Modelle und
 kontrolliert ihre Axiome. Bewiesen ist damit das handgeschriebene Modell mit seinen Annahmen, nicht der
-Rust-Quelltext; den gebauten Umfang beziffert \secref{sec:pruefarchitektur}.
+Rust-Quelltext.
 
 Eine besondere Gefahr sind Fehler, die Implementierung und Test gemeinsam haben. Sender und Empfänger der
 Bibliothek verwenden getrennte Module für Serialisierung und Parsing, beruhen aber auf denselben

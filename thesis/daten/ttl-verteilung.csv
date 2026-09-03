@@ -5,6 +5,11 @@
 #   Tabellenkopien in ff2-ttl-pfadanalyse-20260815.tar.zst
 #   (SHA-256 0e9cbbcd1391756e6e3f64a24058b571177b1ec5d0dd6b84710657b57e7aedca).
 # Werkzeug: scripts/ttl-report.py (Implementierungsrepo, Auswertungsstand f847895).
+# Einschlussregel: Die Richtungen des Paars 1blue/mcs enthalten neben den Kampagnen-Stamps die lokale,
+#   nicht versiegelte p1-checksumgate-Reihe (je Richtung 124 Egress- und 72 Ingress-Pakete, Differenz 52);
+#   die vier Helsinki-Richtungen enthalten nur die Kampagnen-Stamps, nicht die checksumgate-Stamps des
+#   hel-Archivs (je Richtung 51 Egress- und 31 Ingress-Pakete, Differenz 20). Nur mit Kampagnen-Stamps
+#   stimmen Egress und Ingress auf allen sechs Richtungen ueberein.
 richtung,seite,klasse,ttl,pakete
 1blue->hel,egress,canary,64,50
 1blue->hel,egress,frag,64,1920

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Datenschicht fuer die Anhangstabelle tab:eval-sollist: FF1-Einzelbewertung der 67 Matrixzeilen.
+"""Datenschicht fuer die FF1-Einzelbewertung der 67 Matrixzeilen.
 
 Quelle: docs/requirements.md Abschnitt 3 des Implementierungsrepos am Auswertungsstand f847895
 (Zeilen 162 bis 228; Spalten RFC area, Normative item, Level, Covered, Step, Notes). Die Spalten
-level und covered geben diese Repository-Selbstauskunft unveraendert wieder. Die Spalten normstufe,
+level und covered geben diese Repository-Selbstauskunft inhaltlich wieder. Die Spalten normstufe,
 anwendbar, kategorie und technisch tragen die am RFC-Primaertext und am Quelltext gepruefen Urteile
 dieser Arbeit; Anwendbarkeit (A), Implementierungsstand (I) und technische Erfuellbarkeit (T) sind
 seit der Zweitpruefung vom 2026-08-28 je Zeile getrennt gespeichert und werden unten nur noch auf
@@ -27,10 +27,9 @@ Fruehere Aenderungen (dritte Faktencheckrunde, 2026-08-26): Zeile 189 teilweise 
 normative Festlegung der Sec.-15-Einleitung). Zeile 224 buendelt eine Transit- und eine
 Endpunktpflicht; nur die Endpunkthaelfte ist FF1-Gegenstand, die Zeile bleibt ungeteilt.
 
-Das Skript schreibt thesis/daten/konformitaet-kategorien.csv und thesis/tikz/ff1-sollist.tex
-(Anhangstabelle tab:eval-sollist) und prueft die Summen (67 Zeilen; Gruppen 8/17/22/9/7/4;
-Implementierungsstand 50/7/0/10; technische Erfuellbarkeit 57 vollstaendig, 0 teilweise, 0 nicht
-erfuellbar, 10 nicht anwendbar).
+Das Skript schreibt thesis/daten/konformitaet-kategorien.csv und prueft die Summen (67 Zeilen;
+Gruppen 8/17/22/9/7/4; Implementierungsstand 50/7/0/10; technische Erfuellbarkeit 57 vollstaendig,
+0 teilweise, 0 nicht erfuellbar, 10 nicht anwendbar).
 """
 import csv
 from collections import Counter, OrderedDict
@@ -38,7 +37,6 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 CSV = REPO / "thesis" / "daten" / "konformitaet-kategorien.csv"
-FRAGMENT = REPO / "thesis" / "tikz" / "ff1-sollist.tex"
 
 V, T, N, A = "vollstaendig", "teilweise", "nicht erfuellbar", "nicht anwendbar"
 
@@ -198,9 +196,6 @@ ZEILEN = [
 GRUPPEN_SOLL = OrderedDict([("Sec. 7-9", 8), ("Sec. 10", 17), ("Sec. 11.x", 22),
                             ("Sec. 12-14", 9), ("Sec. 15-19", 7), ("Sec. 23-26", 4)])
 
-KUERZEL_I = {V: "V", T: "P", N: "X", A: "N"}
-KUERZEL_T = {V: "V", T: "P", N: "X", A: "n.a."}
-
 assert len(ZEILEN) == 67, f"Zeilenzahl {len(ZEILEN)} statt 67"
 gruppen = Counter(z[1] for z in ZEILEN)
 for g, soll in GRUPPEN_SOLL.items():
@@ -223,7 +218,7 @@ assert [z[0] for z in ZEILEN if z[8] == A] == [188, 206, 207, 208, 209, 211, 223
     "Menge der nicht anwendbaren Zeilen falsch"
 
 with CSV.open("w", newline="") as fh:
-    fh.write("# Datenschicht fuer die Anhangstabelle tab:eval-sollist (FF1-Einzelbewertung).\n")
+    fh.write("# Vollstaendige FF1-Einzelbewertung der 67 Matrixzeilen.\n")
     fh.write("# Quelle: docs/requirements.md\n")
     fh.write("# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895. Die Spalten level und\n")
     fh.write("# covered geben die Repository-Selbstauskunft wieder; normstufe, anwendbar, kategorie\n")
@@ -237,89 +232,7 @@ with CSV.open("w", newline="") as fh:
     for z in ZEILEN:
         w.writerow(list(z))
 
-UML = {"ae": "ä", "oe": "ö", "ue": "ü", "Ae": "Ä", "Oe": "Ö", "Ue": "Ü", "ss": "ß"}
-
-
-def tex(s, slash=False):
-    """Setzt den ASCII-Datenbestand fuer LaTeX; nur Umlaute der Kurztexte werden ausgeschrieben."""
-    for quelle, ziel in (
-        ("Ungueltige", "Ungültige"), ("gemaess", "gemäß"), ("Laenge", "Länge"),
-        ("laenge", "länge"), ("Laengen", "Längen"), ("ueber", "über"), ("uebergehen", "übergehen"),
-        ("unterstuetzte", "unterstützte"), ("Ueberlauf", "Überlauf"), ("Ueberlappung", "Überlappung"),
-        ("Ungueltig", "Ungültig"), ("gueltig", "gültig"), ("Gueltige", "Gültige"),
-        ("standardmaessig", "standardmäßig"), ("hoechstens", "höchstens"), ("Hoechstens", "Höchstens"),
-        ("Faelle", "Fälle"), ("Laeufe", "Läufe"),
-        ("abhaengig", "abhängig"), ("unabhaengig", "unabhängig"), ("duerfen", "dürfen"),
-        ("ausser", "außer"), ("Nullpruefung", "Nullprüfung"), ("Pruefsumme", "Prüfsumme"),
-        ("uebrige", "übrige"), ("verfuegbar", "verfügbar"), ("Mindestlaenge", "Mindestlänge"),
-        ("Optionsueberlauf", "Optionsüberlauf"), ("unveraendert", "unverändert"),
-        ("socketuebergreifend", "socketübergreifend"), ("fuer", "für"), ("Namensregeln", "Namensregeln"),
-        ("Entwurfsregeln", "Entwurfsregeln"), ("Kuerzel", "Kürzel"), ("Pruefung", "Prüfung"),
-        ("gewaehlt", "gewählt"), ("genuegt", "genügt"),
-    ):
-        s = s.replace(quelle, ziel)
-    if slash:
-        s = s.replace("/", r"\slash ")
-    return s
-
-
-zeilen_tex = []
-zeilen_tex.append("% Generiert von thesis/tikz/gen/ff1-kategorien.py aus dem dortigen Datenbestand.")
-zeilen_tex.append("% Nicht von Hand aendern; Aenderungen im Skript oder in der Datenschicht vornehmen.")
-zeilen_tex.append(r"\begingroup")
-zeilen_tex.append(r"\footnotesize")
-zeilen_tex.append(r"\setlength{\tabcolsep}{2pt}")
-zeilen_tex.append(r"\renewcommand{\arraystretch}{1.00}")
-zeilen_tex.append(r"\begin{longtable}{@{}r l L{4.45cm} L{2.00cm} c c c L{4.20cm}@{}}")
-zeilen_tex.append(r"\caption{Prüfung der 67 Matrixzeilen gegen RFC 9868 und den Implementierungsstand}")
-zeilen_tex.append(r"\label{tab:eval-sollist}\\")
-kopf = (r"\textbf{Z.} & \textbf{Sec.} & \textbf{Normtext, gekürzt} & \textbf{Stufe} & \textbf{A} &"
-        "\n" r"\textbf{I} & \textbf{T} & \textbf{Beleg} \\")
-zeilen_tex.append(r"\toprule")
-zeilen_tex.append(kopf)
-zeilen_tex.append(r"\midrule")
-zeilen_tex.append(r"\endfirsthead")
-zeilen_tex.append(r"\toprule")
-zeilen_tex.append(kopf)
-zeilen_tex.append(r"\midrule")
-zeilen_tex.append(r"\endhead")
-zeilen_tex.append(r"\bottomrule")
-zeilen_tex.append(r"\endfoot")
-for z in ZEILEN:
-    spalten = [
-        str(z[0]),
-        z[2],
-        tex(z[3]),
-        tex(z[6], slash=True),
-        "J" if z[7] == "ja" else "N",
-        KUERZEL_I[z[8]],
-        KUERZEL_T[z[9]],
-        tex(z[10]),
-    ]
-    zeile = " & ".join(spalten) + r" \\"
-    if len(zeile) > 120:
-        teile, akt = [], spalten[0]
-        for sp in spalten[1:]:
-            if len(akt) + 3 + len(sp) > 116:
-                teile.append(akt + " &")
-                akt = "  " + sp
-            else:
-                akt = akt + " & " + sp
-        teile.append(akt + r" \\")
-        zeilen_tex.extend(teile)
-    else:
-        zeilen_tex.append(zeile)
-zeilen_tex.append(r"\midrule")
-zeilen_tex.append(r"\multicolumn{8}{@{}l@{}}{Implementierung: %d V, %d P, %d N. "
-                  r"Technisch: %d V, %d P, %d nicht erfüllbar; %d n.a.} \\"
-                  % (impl[V], impl[T], impl[A], tech[V], tech[T], tech[N], tech[A]))
-zeilen_tex.append(r"\end{longtable}")
-zeilen_tex.append(r"\endgroup")
-
-FRAGMENT.write_text("\n".join(zeilen_tex) + "\n", encoding="utf-8")
-
 print(f"geschrieben: {CSV} (67 Zeilen)")
-print(f"geschrieben: {FRAGMENT}")
 print("Implementierungsstand:", {k: v for k, v in impl.items()})
 print("Technische Erfuellbarkeit:", {k: v for k, v in tech.items()})
 print(f"{'Gruppe':<11} {'n':>2} {'voll':>4} {'teil':>4} {'n.erf':>5} {'n.anw':>5}")

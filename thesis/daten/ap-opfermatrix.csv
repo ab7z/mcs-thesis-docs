@@ -1,9 +1,9 @@
 # Datenschicht fuer fig:eval-opfermatrix. Hinwege EU/US -> Asien-Pazifik: Schicksal der gesamten
-# Surplus-Klasse (Baselines kamen in allen Lanes vollzaehlig an).
+# Surplus-Klasse (Kontrollen kamen in allen Lanes vollzaehlig an).
 # status: ok = Klasse zugestellt; kill = Klasse verworfen; leer = nicht gemessen.
-# beleg: zellen = G/C/Baseline-Zellen n=20 je Richtung mit Captures (mcs- und 1blue-Quellen;
+# beleg: zellen = G/C/Kontroll-Zellen n=20 je Richtung mit Captures (mcs- und 1blue-Quellen;
 #   Eskalations-Matrizen B/T/C/Z/G2/ATOM fuer mcs-Tokio, mcs-Seoul, 1blue-Sydney);
-#   pilot = 3 Baseline + 6 Typed ohne Captures (hel- und aws-us-Quellen).
+#   pilot = 3 Kontrollen + 6 Typed ohne Captures (hel- und aws-us-Quellen).
 # Quelle: aws-ap/bericht.md (Phasen M und B, Eskalationen 1 bis 5); Artefakte in
 #   ff2-aws-ap-20260816.tar.zst (SHA-256 097bd983d3777062036d1772a39cfd7c844a68ebadc4061f45de8bc2631b2870).
 quelle,ziel,status,beleg

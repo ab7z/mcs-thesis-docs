@@ -8,8 +8,9 @@
 \section{Beantwortung der Forschungsfragen}
 \label{sec:ff-beantwortung}
 
-\textbf{FF1} fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 im Benutzerraum
-vollständig, teilweise oder nicht erfüllen lassen. Die Zuordnung im geprüften Umfang steht in
+\textbf{FF1} fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 mit einer
+Raw-Socket-Implementierung im Benutzerraum vollständig, teilweise oder nicht erfüllen lassen. Die
+Zuordnung im geprüften Umfang steht in
 \tabref{tab:fazit-synthese}. Die sieben Teilumsetzungen sind Implementierungs- und Entwurfsgrenzen, keine
 nachgewiesenen Plattformgrenzen. Der Index selbst mischt markierte BCP-14-Anforderungen, unmarkierte
 normative API-Formen, Beschreibungen, Leitlinien und zusammengesetzte Aussagen; er ist ein Arbeitsindex
@@ -17,14 +18,15 @@ und kein Verzeichnis aller Pflichten des Standards. Das Ergebnis beantwortet FF1
 erklärten Prüfraster und beweist weder die Satzgenauigkeit der Zerlegung noch vollständige Konformität
 mit allen Aussagen von RFC~9868.
 
-\textbf{FF2} fragt, in welchem Umfang die Surplus Area auf realen Pfaden bis zur Gegenstelle erhalten
-bleibt. Im europäischen Messdreieck und auf den drei transatlantischen Hostpaaren zwischen den
-AWS-US-Endpunkten und den europäischen Gegenstellen blieb sie in den jeweiligen Messfenstern erhalten.
-Die VMware-NAT wirkte als \textbf{Normalisierer} und entfernte sie. Der gebridgte
-Mobilfunk-Hotspot-Pfad und die Google-Fabric wirkten als \textbf{Präsenz-Verwerfer} und verwarfen die
-gesamte Klasse in beiden Richtungen; auf einzelnen Hinwegen zu AWS-Regionen in Asien-Pazifik trat
-derselbe Totalverlust quellabhängig im Transit auf. Die beobachteten \textbf{Prüfsummen-Gates} verwarfen
-Datagramme, deren Einerkomplementsumme über Pseudo-Header und gesamte IP-Nutzlast nicht aufging;
+\textbf{FF2} fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Netzpfaden bis zur
+Gegenstelle unverändert erhalten bleibt. Im europäischen Messdreieck und auf den drei transatlantischen
+Hostpaaren zwischen den AWS-US-Endpunkten und den europäischen Gegenstellen blieb sie in den jeweiligen
+Messfenstern erhalten. An der Grenze aus VMware-NAT und VMnet wirkte ein \textbf{Normalisierer} und
+entfernte sie. Im gebridgten Mobilfunk-Zugangspfad und, auf Pilotniveau, im Google-seitigen Messintervall
+wirkte ein \textbf{Präsenz-Verwerfer} und verwarf die gesamte Klasse in beiden Richtungen; auf einzelnen
+Hinwegen zu AWS-Regionen in Asien-Pazifik trat derselbe Totalverlust quellabhängig im Intervall zwischen
+den eigenen Messpunkten auf. Die beobachteten \textbf{Prüfsummen-Gates} verwarfen Datagramme, deren
+Einerkomplementsumme über Pseudo-Header und gesamte IP-Nutzlast nicht aufging;
 regelkonforme Datagramme mit Null-Pad und gültiger OCS passierten sie. Jede dieser Aussagen gilt nur für
 das beobachtete Paar, die Richtung und das Messfenster.
 
