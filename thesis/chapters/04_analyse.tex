@@ -65,7 +65,7 @@ stuft deshalb jede Zeile am Primärtext ein und überführt sie in die geprüfte
 Einzelzuordnung.\footnote{Vollständige Konformitätsmatrix als
 \href{https://github.com/ab7z/mcs-thesis-docs/blob/%
 6a5239a89dda0e31be438770c298a126ed4174de/thesis/daten/konformitaet-kategorien.csv}{Datei im
-öffentlichen GitHub-Repository}, Commit \texttt{6a5239a}.}
+öffentlichen GitHub-Repository} (Stand: Commit \texttt{6a5239a}).}
 Zeilen, die mehrere Normsätze oder Adressaten bündeln, etwa die Zeilen zu den Abschnitten 11.2, 16 und 19
 sowie 25.2 bis 25.4, bleiben eine Zeile und werden nur mit ihrem FF1-Anteil bewertet.
 \tabref{tab:anforderungsmatrix} zeigt eine eigene übersetzte Auswahl; Normstufe und Abdeckung stehen im
@@ -305,8 +305,8 @@ Als Betriebssystem trägt Linux diese Entscheidung: Dort ist der Weg
 dokumentiert und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der
 Kampagnen (\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen,
 UDP-Prüfsumme und Optionen selbst prüft. Beim Senden liefert sie mit \texttt{IP\_HDRINCL} den IPv4-Kopf;
-der Kernel ergänzt einzelne Felder, fragmentiert den Sendepuffer aber nicht, sodass jedes Optionsdatagramm
-in die MTU passen muss \cite{man7raw}. Diese Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
+da dieser Pfad nicht fragmentiert, muss jedes Optionsdatagramm in die MTU passen (\secref{sec:netzpfad}).
+Diese Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
 
 \subsection{Mitschnitt und Auswertung}
 \label{subsec:mitschnittwerkzeuge}

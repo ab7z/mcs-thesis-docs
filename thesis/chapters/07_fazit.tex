@@ -20,9 +20,9 @@ mit allen Aussagen von RFC~9868.
 
 \textbf{FF2} fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Netzpfaden bis zur
 Gegenstelle unverändert erhalten bleibt. Im europäischen Messdreieck und auf den drei transatlantischen
-Hostpaaren zwischen den AWS-US-Endpunkten und den europäischen Gegenstellen blieb sie in den jeweiligen
-Messfenstern erhalten. An der Grenze aus VMware-NAT und VMnet wirkte ein \textbf{Normalisierer} und
-entfernte sie. Im gebridgten Mobilfunk-Zugangspfad und, auf Pilotniveau, im Google-seitigen Messintervall
+AWS-Hostpaaren blieb sie in den jeweiligen Messfenstern erhalten. An der Grenze aus VMware-NAT und VMnet
+wirkte ein \textbf{Normalisierer} und entfernte sie. Im gebridgten Mobilfunk-Zugangspfad und, auf
+Pilotniveau, im Google-seitigen Messintervall
 wirkte ein \textbf{Präsenz-Verwerfer} und verwarf die gesamte Klasse in beiden Richtungen; auf einzelnen
 Hinwegen zu AWS-Regionen in Asien-Pazifik trat derselbe Totalverlust quellabhängig im Intervall zwischen
 den eigenen Messpunkten auf. Die beobachteten \textbf{Prüfsummen-Gates} verwarfen Datagramme, deren
@@ -49,33 +49,29 @@ das beobachtete Paar, die Richtung und das Messfenster.
     \end{tabularx}
 \end{table}
 
-Aus \tabref{tab:fazit-synthese} geht hervor, dass beide Ergebnisse unabhängig voneinander ausfallen. Die
-Leitfrage, wie sich UDP um Transportoptionen erweitern lässt, ohne seine grundlegenden Eigenschaften
-aufzugeben, ist damit zweigeteilt zu beantworten. Auf der Entwurfsseite bleibt der UDP-Header
-unverändert, die Optionen liegen in der Surplus Area, und ein Empfänger liefert die Nutzdaten auch dann
-aus, wenn eine SAFE-Option fehlschlägt; Nachrichtenorientierung, Verbindungslosigkeit und der Verzicht
+Die Leitfrage, wie sich UDP um Transportoptionen erweitern lässt, ohne seine grundlegenden Eigenschaften
+aufzugeben, ist zweigeteilt zu beantworten. Auf der Entwurfsseite bleibt der UDP-Header
+unverändert, die Optionen liegen in der Surplus Area, und Nutzdaten werden auch bei fehlgeschlagener
+SAFE-Option zugestellt; Nachrichtenorientierung, Verbindungslosigkeit und der Verzicht
 auf Sequenznummern, Fenster und Zeitgeber bleiben erhalten (\secref{subsec:udp-eigenschaften}). Die
 einzige belegte Ausnahme ist die Reassemblierung von FRAG-Datagrammen: Sie legt am Empfänger einen
-zeitlich und mengenmäßig begrenzten Zustand an, und die Messungen zeigen dessen Verhalten an der
-Mengengrenze und am Zeitablauf (\tabref{tab:eval-frag-softstate}). Auf der Pfadseite zeigen die
-Messungen, dass die Abwärtskompatibilität des Wire-Formats keine allgemeine Zustellbarkeit garantiert.
+zeitlich und mengenmäßig begrenzten Zustand an, dessen Verhalten an Mengengrenze und Zeitablauf
+\tabref{tab:eval-frag-softstate} zeigt. Auf der Pfadseite zeigen die
+Messungen, dass die Abwärtskompatibilität des Wire-Formats keine allgemeine Zustellbarkeit garantiert:
 Technische Umsetzbarkeit am Endpunkt und Durchlässigkeit des Pfads sind unabhängige Eigenschaften.
 
 \section{Ausblick}
 \label{sec:ausblick}
 
-Für eine Weiterentwicklung der Bibliothek liegen die sieben Teilumsetzungen nahe: der fehlende
-Geltungsbereich für Optionen vor oder nach der Fragmentierung, eine vom Aufrufer wählbare Mindestlänge
-der Sende-API, quellenspezifische Empfangsregeln, die Bereitstellung der empfangenen Parameter auch für
-ignorierte oder fehlgeschlagene Optionen und eine klar dokumentierte Trennung des
-Reassemblierungsspeichers zwischen Socket-Kontexten. Die hohe Sende-API könnte zusätzlich die Leitlinie
-zur paketweisen Fragmentierungssteuerung abbilden. Eine Prüfkette, die semantische Abweichungen ihrer
-Auswerter in einen Fehlerstatus überführt, würde den Rückgabewert wieder aussagekräftig machen.
+Für eine Weiterentwicklung der Bibliothek liegen die sieben Teilumsetzungen aus \secref{sec:soll-ist}
+nahe; die hohe Sende-API könnte zusätzlich die Leitlinie zur paketweisen Fragmentierungssteuerung
+abbilden. Eine Prüfkette, die semantische Abweichungen ihrer Auswerter in einen Fehlerstatus überführt,
+würde den Rückgabewert wieder aussagekräftig machen.
 
-Für künftige Untersuchungen bleiben die Grenzen dieser Arbeit die naheliegenden Ansatzpunkte: eine
-unabhängige Implementierung, weitere Zugangsnetze, IPv6, andere Messzeitpunkte und das Zusammenspiel mit
-RFC~9869 \cite{rfc9869} könnten Interoperabilität und zeitliche Stabilität der hier berichteten Befunde
-einordnen. Wer auf der lokalen 248-Paket-Voranalyse aufbauen will, sollte sie zuvor versiegeln;
+Für künftige Untersuchungen bleiben die Grenzen dieser Arbeit die Ansatzpunkte: eine unabhängige
+Implementierung, weitere Zugangsnetze, IPv6, andere Messzeitpunkte und das Zusammenspiel mit RFC~9869
+\cite{rfc9869} könnten Interoperabilität und zeitliche Stabilität der Befunde einordnen. Wer auf der lokalen
+248-Paket-Voranalyse aufbauen will, sollte sie zuvor versiegeln;
 portable innere Manifeste würden die äußeren Archivprüfsummen sinnvoll ergänzen.
 
 \section{Schlusswort}

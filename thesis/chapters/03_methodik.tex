@@ -178,7 +178,9 @@ Practice. BCP~14 umfasst RFC~2119 und dessen Aktualisierung RFC~8174.} gelesen. 
 Formen tragen die dort festgelegte besondere Bedeutung; normative Aussagen können die Schlüsselwörter aber
 auch auslassen \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Wörtern zusätzlich das
 Zeichenpaar \texttt{>{}>} voran. Die eigene Zählung von 103 markierten Absätzen ist deshalb nur eine
-Kontrollzahl und keine vollständige Anforderungsliste.
+Kontrollzahl und keine vollständige Anforderungsliste. Für die Belegform gilt: Normbezüge nennen den
+maßgeblichen RFC-Abschnitt im Fließtext oder im Zitatmarker; bei BCP-14-Aussagen sowie bei Zahlen und
+Grenzwerten trägt der Marker die Abschnittsangabe immer.
 
 Jede so gewonnene Aussage wird nach demselben Muster erfasst: Fundstelle, Normstufe, Anwendbarkeit und
 Projektumfang. Dieses Muster ist zugleich das Zeilenschema des Anforderungskatalogs im
@@ -252,10 +254,10 @@ Arbeitssitzungen und sind zugleich der Maßstab, an dem eine Modellausgabe gepr�
 mehrfachen Ablage ist belegt: Ein Abgleich am Primärtext fand vier falsche RFC-Angaben in vier
 Vertragsdokumenten zugleich.
 
-Die Versionsgeschichte schreibt diese Vorgaben dem Autor zu: Der erste Commit des Repositorys legte die
-Roadmap und die Schrittdateien an, der zweite am selben Tag den Anforderungskatalog sowie die Architektur-
-und Formatreferenz. Die Roadmap bezeichnet sich als Masterplan, der Schritt für Schritt mit einem Menschen
-in der Schleife ausgeführt wird: ein geprüfter Commit je Schritt. Der Autor legt damit Plan, Maßstab und
+Die Versionsgeschichte schreibt diese Vorgaben dem Autor zu: Die beiden ersten Commits des Repositorys
+legten Roadmap, Schrittdateien, Anforderungskatalog sowie Architektur- und Formatreferenz an. Die Roadmap
+bezeichnet sich als Masterplan mit einem Menschen in der Schleife: ein geprüfter Commit je Schritt. Der
+Autor legt damit Plan, Maßstab und
 Abschlusskriterien fest und gibt jedes Ergebnis frei; die Werkzeuge arbeiten innerhalb dieser Vorgaben.
 Zwei Grenzen bleiben: Die Sammelcommits verschmelzen die innere Reihenfolge eines Schritts, und die
 Commit-Historie trennt den Beitrag von Autor und Werkzeug je Änderung nicht auf.
@@ -300,7 +302,8 @@ Spezifikation vor der Umsetzung und den Beweis danach; \figref{fig:stepzyklus} z
     \draw[fluss] (freigabe.north) -- ++(0,0.55) -| (schritt.south);
     \node[flusstext] at (3.68,-1.5) {nächster Schritt};
   \end{tikzpicture}
-  \caption{Kernzyklus eines Implementierungsschritts bis Schritt 18 (Ausnahmen gestrichelt)}
+  \caption[Kernzyklus eines Implementierungsschritts]{Kernzyklus eines Implementierungsschritts bis
+    Schritt 18 (Ausnahmen gestrichelt)}
   \label{fig:stepzyklus}
 \end{figure}
 
@@ -353,11 +356,10 @@ Arbeit grundsätzlich geprüft wird. Aus diesem Grund wurden drei Arbeitsregeln 
     ist wertvoller als eines, das gefällig zustimmt.
 \end{enumerate}
 
-Diese Regeln beschreiben den Sollprozess. Welche Prüfungen tatsächlich stattfanden, wird nicht aus ihm
-abgeleitet, sondern aus den vorhandenen Protokollen rekonstruiert (\secref{sec:reproduzierbarkeit}). Warum diese
-Trennung nötig ist, zeigt der folgende Abschnitt.
+Diese Regeln beschreiben den Sollprozess; welche Prüfungen tatsächlich stattfanden, wird nicht aus ihm
+abgeleitet, sondern aus den Protokollen rekonstruiert (\secref{sec:reproduzierbarkeit}). Warum diese Trennung
+nötig ist, zeigt der folgende Abschnitt.
 
-\clearpage
 \section{Bekannte Schwächen der Sprachmodelle}
 \label{sec:gefahrenmodell}
 

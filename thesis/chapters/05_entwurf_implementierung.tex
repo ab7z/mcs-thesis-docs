@@ -203,9 +203,7 @@ MDS-Option. \figref{fig:paketentstehung} zeigt die drei Zustände bis zum fertig
 Den Optionsbereich aus Zustand~2 erzeugt der gemeinsame Optionskern. Er prüft zuerst, ob die gewählte
 Option unterstützt wird und ihre Länge stimmt. Bei mehreren Einträgen stellt er die Pflichtoptionen vor
 andere SAFE-Optionen und legt danach die Bytes in einer festen eigenen Reihenfolge ab
-\cite[Sec.~10]{rfc9868}. Im Beispiel entsteht ein Bereich von acht Byte: zwei Nullbytes als Platzhalter
-für das OCS, die MDS-Option
-\texttt{04 04 05 c0}, die Endemarkierung \texttt{EOL} und ein abschließendes Nullbyte. Der Wert
+\cite[Sec.~10]{rfc9868}. Im Beispiel entsteht so der acht Byte lange Bereich aus Zustand~2; der MDS-Wert
 \texttt{0x05C0} entspricht den angekündigten 1.472~Byte. Beim Empfang liest derselbe Optionskern diesen
 Aufbau wieder zurück.
 
@@ -224,11 +222,11 @@ Pad-Byte selbst gehört nicht zu den summierten Wörtern. Nach der Invertierung 
 Der Empfänger erhält mit \texttt{0x09C4 + 0xF632 + 0x0009 = 0xFFFF} das erwartete Ergebnis
 (\secref{subsec:surplus-ocs}). Ergibt eine verwendete Prüfsumme rechnerisch null, schreibt die Bibliothek
 stattdessen \texttt{0xFFFF}. Für UDP verlangt dies RFC~768. Beim OCS folgt es daraus, dass
-\texttt{0x0000} ein ungenutztes OCS kennzeichnet \cite{rfc768}\cite[Sec.~9]{rfc9868}.
+\texttt{0x0000} ein ungenutztes OCS kennzeichnet \cites{rfc768}[Sec.~9]{rfc9868}.
 
-Mit \texttt{IP\_HDRINCL} übergibt die Bibliothek anschließend das vollständige Datagramm an den Kernel.
-Dieser setzt die IPv4-Gesamtlänge und die IP-Kopfprüfsumme selbst. Eine noch leere IPv4-Identifikation
-füllt er ebenfalls \cite{man7raw}. UDP-Kopf und Surplus Area bleiben auf diesem Weg unverändert; selbst
+Mit \texttt{IP\_HDRINCL} übergibt die Bibliothek anschließend das vollständige Datagramm an den Kernel;
+dieser ergänzt nur IPv4-Gesamtlänge, IP-Kopfprüfsumme und eine noch leere IPv4-Identifikation
+\cite{man7raw}. UDP-Kopf und Surplus Area bleiben auf diesem Weg unverändert; selbst
 die vom RFC erlaubte Kombination aus UDP-Prüfsumme null und OCS null gelangt so auf die Leitung
 (\secref{sec:soll-ist}). Spätere Paketfilter können das Datagramm weiterhin verändern oder verwerfen
 (\secref{sec:netzpfad}).
@@ -405,8 +403,8 @@ Empfangsaufruf ohne Ergebnis; eine laufende Messung konnte dadurch still enden. 
 überspringt unlesbare Köpfe, eigene Kopien und nicht passende Ports innerhalb einer Empfangsschleife.
 
 Für diese Schleife gilt eine einzige Gesamtfrist. Vor jedem weiteren Leseversuch erhält der Socket nur
-die verbleibende Zeit. Ständiger fremder Verkehr kann die Wartezeit deshalb nicht immer wieder
-verlängern. Erst wenn bis zum Ablauf der Gesamtfrist kein passendes Datagramm eintrifft, meldet die
+die verbleibende Zeit; ständiger fremder Verkehr verlängert die Wartezeit deshalb nicht. Erst wenn bis
+zum Ablauf der Gesamtfrist kein passendes Datagramm eintrifft, meldet die
 Socket-Schicht einen Fristablauf. Die öffentliche Schnittstelle fasst diesen Ausgang weiterhin mit
 Dekodierfehlern zusammen. Dasselbe gilt für ein noch unvollständig gepuffertes Fragment, einen
 Verwerfungsweg und eine Richtlinienentscheidung. Alle erscheinen dort nur als \zitat{kein Datagramm}; die
@@ -569,7 +567,8 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
        Empfangspipeline (\secref{sec:empfangspfad}) genau einmal erneut; weitere Reassemblierung\\
        ist gesperrt. Der UDP-Kopf ist nicht maßstäblich gezeichnet.};
   \end{tikzpicture}
-  \caption{Zerlegung und Reassemblierung eines Datagramms mit 2918 Nutzdatenbytes}
+  \caption[Zerlegung und Reassemblierung eines Datagramms]{Zerlegung und Reassemblierung eines Datagramms
+    mit 2918 Nutzdatenbytes}
   \label{fig:frag-ablauf}
 \end{figure}
 
@@ -606,8 +605,8 @@ fn complete(&self) -> InsertResult {
 \end{lstlisting}
 \end{minipage}
 
-Eine Lücke lässt den Satz unvollständig. Eine Überlappung verwirft ihn. Nur ein lückenloser Bereich bis
-zum terminalen Ende erzeugt ein Ergebnis.
+Nur ein lückenloser Bereich bis zum terminalen Ende erzeugt ein Ergebnis; eine Überlappung verwirft den
+Satz.
 
 Ein intern vollständig identisches Duplikat wird übergangen. Lage, Endwert, Daten, Fragmentoptionen und
 Fehlerliste müssen dafür übereinstimmen. Andernfalls gelten die normalen Grenz- und
@@ -615,11 +614,10 @@ Fehlerliste müssen dafür übereinstimmen. Andernfalls gelten die normalen Gren
 
 Die Fragmentberichte werden ebenfalls zusammengeführt. Bei MDS gilt der kleinste Wert. Bei MRDS werden
 Größe und Fragmentzahl getrennt minimiert. Von REQ und RES bleibt jeweils das zuletzt gesehene Token;
-ein Fehlschlag in einem Fragment gilt für den ganzen Satz. Danach entsteht aus Daten und
-\texttt{UDP Length} ein neues Datagramm. Es durchläuft die normale Empfangspipeline genau einmal
-erneut; eine weitere Reassemblierung ist dabei gesperrt. Erst in diesem Durchlauf wird eine APC des
-Ursprungsdatagramms geprüft; eine APC in einem einzelnen Fragment wertet die Bibliothek nicht aus
-\cite[Sec.~11.3]{rfc9868}.
+ein Fehlschlag in einem Fragment gilt für den ganzen Satz. Das neu gebildete Datagramm durchläuft
+danach die Empfangspipeline genau einmal erneut (\figref{fig:frag-ablauf}). Erst in diesem Durchlauf
+wird eine APC des Ursprungsdatagramms geprüft; eine APC in einem einzelnen Fragment wertet die
+Bibliothek nicht aus \cite[Sec.~11.3]{rfc9868}.
 
 Der Parser wahrt die Abwärtskompatibilität auch bei unbekannten Optionen. Eine unbekannte SAFE-Option
 übergeht er und meldet sie als übergangen. Bei einer unbekannten UNSAFE-Option darf er die Nutzdaten
@@ -682,9 +680,9 @@ der nächsten Einfügung oder bei einem Bereinigungsaufruf. Ein voller Cache wei
 Sätze ab und verdrängt keine vorhandenen. Ein für sich vollständiges Fragment kann weiterhin
 zugestellt werden.
 
-Die maximale Sendelänge ist eine Vorgabe des Aufrufers und keine Pfad-MTU-Ermittlung. Der
-\texttt{IP\_HDRINCL}-Pfad fragmentiert nicht auf IP-Ebene. Oberhalb der MTU meldet der Kernel
-\texttt{EMSGSIZE}; die Bibliothek reicht den E/A-Fehler weiter \cite{man7raw}.
+Die maximale Sendelänge ist eine Vorgabe des Aufrufers und keine Pfad-MTU-Ermittlung. Oberhalb der MTU
+meldet der Kernel \texttt{EMSGSIZE} \cite{man7raw}; die Bibliothek reicht den E/A-Fehler weiter
+(\secref{sec:sendepfad}).
 
 Damit sind das Messinstrument und seine Betriebsgrenzen beschrieben; \chapref{chap:evaluation} setzt
 es auf die Forschungsfragen an.

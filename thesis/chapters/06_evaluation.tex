@@ -17,16 +17,14 @@ Für die Ergebnisse gelten die in \chapref{chap:analyse} und \chapref{chap:metho
 und Bewertungskategorien unverändert (\secref{sec:ff2-pfadmodell}, \secref{sec:ff1-kriterien}).
 
 Die Messläufe tragen unterschiedliche, vorab festgelegte Beweiskraft. Eine \textbf{Kampagne} umfasst
-beidseitige Mitschnitte, ein Sendemanifest, einen
-Auswerterlauf und ein versiegeltes Archiv; eine \textbf{vorregistrierte Messreihe} folgt einem vorab
-festgelegten Zellplan, verzichtet aber auf einen Teil dieses Vollpakets; ein \textbf{Pilot} ist eine
-Funktionsprobe ohne Mitschnitt oder Manifest; eine \textbf{Vorstufe} prüft eine Richtung mit einem
-Datagramm je Klasse. Ein \textbf{Referenzlauf} ist eine kontrollierte lokale Messung ohne fremde
-Netzbeteiligung; die Tabelle kürzt Referenzlauf und vorregistrierte Messreihe zu Referenz und Messreihe. Eine
-\textbf{Zelle} ist eine Messung mit fester Datagrammzahl je Zellform und Richtung
-außerhalb einer Kampagne; sie trägt die Stufe ihrer Artefakte, mit beidseitigen Mitschnitten und
-Sendemanifest wie eine Messreihe, ohne Senderaufzeichnung wie ein Pilot.
-Alle Läufe dieser Arbeit ordnet \tabref{tab:eval-messlaeufe} ein:
+beidseitige Mitschnitte, Sendemanifest, Auswerterlauf und ein versiegeltes Archiv; eine
+\textbf{vorregistrierte Messreihe} (in der Tabelle kurz Messreihe) folgt einem festen Zellplan, verzichtet
+aber auf einen Teil dieses Vollpakets; ein \textbf{Pilot} ist eine Funktionsprobe ohne Mitschnitt oder
+Manifest; eine \textbf{Vorstufe} prüft eine Richtung mit einem Datagramm je Klasse; ein
+\textbf{Referenzlauf} (kurz Referenz) ist eine kontrollierte lokale Messung ohne fremde Netzbeteiligung.
+Eine \textbf{Zelle} ist eine Messung mit fester Datagrammzahl je Zellform und Richtung außerhalb einer
+Kampagne; ihre Stufe folgt den Artefakten: mit beidseitigen Mitschnitten und Sendemanifest wie eine
+Messreihe, ohne Senderaufzeichnung wie ein Pilot. Alle Läufe ordnet \tabref{tab:eval-messlaeufe} ein:
 
 \begin{table}[ht]
     \centering
@@ -80,15 +78,16 @@ Die Spalte Stand nennt den dokumentierten Binärstand eines Laufs; abweichende T
 Fußnote aus.\footnote{Alle Kurzkennungen bezeichnen Commits des öffentlichen Implementierungsrepositoriums
 \url{https://github.com/ab7z/udp-transport-options}; der Auswertungsstand \file{f847895} ist die Revision
 \texttt{f8478951b71a943dd9538ad4917f421dccb8a212}. Für Helsinki waren die Kampagnenbinärdateien
-bitidentisch zu \file{d7187eb}; die Treiberskripte liefen aus dem Arbeitsbaum und wurden erst danach als
-\file{d3e22db}, \file{8627860} und \file{74bc65a} festgeschrieben, laut Ergebnisnotiz inhaltsgleich zum
-Laufzeitstand. Die AWS-Suiten nutzten zusätzlich \file{9d6c5bd} als Treiberstand.} Die drei Pilot-READMEs
+bitidentisch zu \file{d7187eb}; die Treiberskripte liefen aus dem Arbeitsbaum und wurden erst nachträglich
+festgeschrieben, laut Ergebnisnotiz inhaltsgleich zum Laufzeitstand (Einzelstände in
+\file{thesis/evidence/README.md}). Die AWS-Suiten nutzten zusätzlich \file{9d6c5bd} als Treiberstand.}
+Die drei Pilot-READMEs
 ordnen den Stand \file{b12ba8e} den dort genannten SHA-256-Werten zu. Die Binärdateien, zeitgenössische
 Prüfsummenprotokolle und ein Buildprotokoll sind im Korpus der elf Archive jedoch nicht enthalten; die
 Zuordnung lässt sich daraus nicht unabhängig prüfen. Der Commit war bei dieser Prüfung kein Vorfahr des
 Hauptzweigs und wurde im vollständig bezeichneten Korpus von keiner benannten Ref erreicht; dasselbe gilt
-für \file{347d5b5}, den Stand der Vorstufe und der P0-Kampagne vom 14.08., die zudem mit lokalen Änderungen
-liefen. Davon getrennt beziehen sich alle Aussagen über Quelltext und Tests auf \file{f847895}.
+für den Stand der Vorstufe und der P0-Kampagne vom 14.08., die zudem mit lokalen Änderungen liefen. Davon
+getrennt beziehen sich alle Aussagen über Quelltext und Tests auf \file{f847895}.
 Jedes der elf versiegelten Archive besitzt eine passende äußere SHA-256-Prüfsumme. Die inneren Manifeste
 sind nicht einheitlich portabel (teils kein Gesamtmanifest, zwei Manifeste mit Verweis auf eine fehlende
 temporäre Datei, ein archivübergreifendes Manifest, alte absolute Pfade im GCP-Manifest); das begrenzt
@@ -141,7 +140,8 @@ Lebensdauerfelder aller Mitschnitte:
 \begin{figure}[H]
     \centering
     \input{tikz/ttl-uniformitaet}
-    \caption{Ankunfts-TTL je Richtung über die Mitschnitte der europäischen Messpfade}
+    \caption[Ankunfts-TTL je Richtung]{Ankunfts-TTL je Richtung über die Mitschnitte der europäischen
+      Messpfade}
     \label{fig:eval-ttl}
 \end{figure}
 
@@ -308,7 +308,8 @@ helsinki und 1blue sowie den Mobilfunk-Zugangspfad des Entwicklungsrechners. Den
         \node[kante] at (7.10,-5.45)
             {Rückweg-ECMP: Lumen 11 Router (14 bis 17\,ms), COLT 10 Router ($\sim$4\,ms)};
     \end{tikzpicture}
-    \caption{Europäisches Messdreieck mit zwei Endpunkt- und zwei beobachteten Transit-Netzen}
+    \caption[Europäisches Messdreieck]{Europäisches Messdreieck mit zwei Endpunkt- und zwei beobachteten
+      Transit-Netzen}
     \label{fig:eval-eudreieck}
 \end{figure}
 
@@ -357,7 +358,8 @@ und einem Prüfsummen-Gate. Die Wegevielfalt dokumentiert \figref{fig:eval-rerou
         \draw[seg53] (0,-2.1) rectangle node[wert] {16 Ports: TTL 53, Lumen, 11 Router} (6.4,-1.55);
         \draw[seg54] (6.65,-2.1) rectangle node[wert] {14 Ports: TTL 54, COLT, 10 Router} (11.95,-1.55);
     \end{tikzpicture}
-    \caption{Reroute-Fenster im Szenario S-53 und Aufteilung des Quellportraums auf die ECMP-Zweige}
+    \caption[Reroute-Fenster im Szenario S-53]{Reroute-Fenster im Szenario S-53 und Aufteilung des
+      Quellportraums auf die ECMP-Zweige}
     \label{fig:eval-reroute}
 \end{figure}
 
@@ -369,10 +371,9 @@ Lumen-Variante. Ein Pfad kann seine Struktur also ohne jedes Verlustsignal ände
 dieser Arbeit gilt deshalb nur für ihr Messfenster.
 
 Der zweite Befund ist ein Zustellmuster, das einer fehlerhaften Prüfung der UDP-Prüfsumme über die
-gesamte IP-Nutzlast entspricht, im Folgenden \textbf{Prüfsummen-Gate}. Es wurde zunächst in einer
-lokalen, nicht versiegelten Voranalyse erkannt und danach durch die versiegelten Kreuztests auf weiteren
-Paaren repliziert. In der Voranalyse von 248 einzeln nachgerechneten Paketen stimmte die Zustellung ohne
-Abweichung mit
+gesamte IP-Nutzlast entspricht, im Folgenden \textbf{Prüfsummen-Gate}. Es wurde in einer lokalen, nicht
+versiegelten Voranalyse erkannt und durch die versiegelten Kreuztests auf weiteren Paaren repliziert. In der
+Voranalyse von 248 einzeln nachgerechneten Paketen stimmte die Zustellung ohne Abweichung mit
 folgender Bedingung überein: Das UDP-Prüfsummenfeld war null oder die Einerkomplementsumme über
 Pseudo-Header und gesamte IP-Nutzlast ging auf, wobei die Pseudo-Header-Länge aus der IP-Gesamtlänge
 stammte statt aus dem UDP-Längenfeld. Der entscheidende Kreuztest bestand aus zwei Zellen: Zelle G
@@ -404,7 +405,8 @@ einen reinen Amazon-Vergleichspfad; \figref{fig:eval-gate} stellt alle Richtunge
 \begin{figure}[H]
     \centering
     \input{tikz/gate-matrix}
-    \caption{Prüfsummen-Gate-Kreuzzellen je Messrichtung; die beiden Richtungen des Paars 1blue zu mcs
+    \caption[Prüfsummen-Gate-Kreuzzellen je Messrichtung]{Prüfsummen-Gate-Kreuzzellen je Messrichtung;
+      die beiden Richtungen des Paars 1blue zu mcs
         stammen aus einer lokalen, nicht versiegelten Reihe mit abweichender Kontrollzelle und weiteren,
         hier nicht dargestellten Zellen}
     \label{fig:eval-gate}
@@ -476,7 +478,8 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
             {NAT-Rückweg TTL 128 (mit Neuaufbau vereinbar). Bridge: Endpunkt-TTL
              48 von mcs, 51 von 1blue; Ziel-TTLs um eins höher ohne NAT-Sprung.};
     \end{tikzpicture}
-    \caption{Zugangspfad über den Mobilfunk-Hotspot in den Betriebsarten NAT und Bridge}
+    \caption[Zugangspfad über den Mobilfunk-Hotspot]{Zugangspfad über den Mobilfunk-Hotspot in den
+      Betriebsarten NAT und Bridge}
     \label{fig:eval-heimpfad}
 \end{figure}
 
@@ -651,7 +654,8 @@ zusammen:
 \begin{figure}[H]
     \centering
     \input{tikz/ap-opfermatrix}
-    \caption{Schicksal der Surplus-Klasse auf den Hinwegen nach Asien-Pazifik je Quelle}
+    \caption[Schicksal der Surplus-Klasse nach Asien-Pazifik]{Schicksal der Surplus-Klasse auf den
+      Hinwegen nach Asien-Pazifik je Quelle}
     \label{fig:eval-opfermatrix}
 \end{figure}
 
@@ -726,7 +730,8 @@ quellabhängig behandeln:
         \node[font=\tiny, text=feldlinie, align=center] at (7.4,-1.95)
             {Attributionsintervall: Befunde sind nur zwischen den Messpunkten eingrenzbar};
     \end{tikzpicture}
-    \caption{Kantenmodell eines Messpfads mit den beobachteten Attributionsintervallen der drei
+    \caption[Kantenmodell eines Messpfads]{Kantenmodell eines Messpfads mit den beobachteten
+      Attributionsintervallen der drei
         Mechanismenklassen}
     \label{fig:kantenmodell}
 \end{figure}
@@ -795,10 +800,8 @@ Gegenstücken:
 
 Aus \figref{fig:eval-paketformen} geht hervor, dass zwischen Erhalt und Verlust eine dritte, schwer
 erkennbare Form liegt: das zugestellte leere Datagramm, bei dem der Inhalt ohne Verlustsignal
-verschwindet. Regelkonforme Optionsdatagramme blieben im europäischen Cloud-Dreieck und auf den
-untersuchten Amazon-Pfaden erhalten. Sie scheiterten dagegen am Mobilfunkzugang, im Google-seitigen
-Messintervall und auf einzelnen interkontinentalen Paarpfaden. Ein regelwidriges Pad scheiterte
-zusätzlich an einem Prüfsummen-Gate. FF2 wird deshalb als Typologie mit Einzelbefunden je Paar und
+verschwindet. Die Einzelbefunde je Pfad fallen unterschiedlich aus; sie tragen \secref{subsec:eval-europa}
+und \secref{subsec:eval-interkontinental}. FF2 wird deshalb als Typologie mit Einzelbefunden je Paar und
 Richtung beantwortet und nicht als Gesamtquote: Ohne vorher festgelegte Äquivalenzregel für Kampagnen,
 Messreihen, Zellen und Piloten ließe sich keine über die Stufen hinweg gültige Rate bilden. Ob die
 Anforderungen des Standards erfüllbar bleiben, bewertet der folgende Soll-Ist-Abgleich.
@@ -972,8 +975,8 @@ Fünf \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf. Erstens beende
 auf öffentlichen Hosts still beim ersten fremden UDP-Paket; Ursache war ein als Ende gewerteter
 Filterausgang, und die Korrektur besteht aus dem Weiterlesen nach gefiltertem Rauschen und einer
 Gesamtfrist.\footnote{Commits \texttt{f3bf430} und \texttt{8f8c11b} im Implementierungsrepositorium.}
-Die externe Kampagne vom 10.08. und die bidirektionale Kampagne vom 11.08. nutzten noch
-\texttt{7b11140}, also einen Stand vor beiden Korrekturen. In der bidirektionalen Kampagne hielt eine
+Die externe Kampagne vom 10.08. und die bidirektionale Kampagne vom 11.08. nutzten noch einen Stand vor
+beiden Korrekturen (\tabref{tab:eval-messlaeufe}). In der bidirektionalen Kampagne hielt eine
 äußere Neustartschleife den Empfänger verfügbar; die Ankunftszahlen beruhen deshalb auf den
 PCAP-Dateien, während die lückenhaften JSONL-Dateien dort nur die Decodierung belegen. Die
 vollständigen P0-, P1- und P2-Kampagnen ab dem 14.08. liefen mit beiden Korrekturen. Zweitens überstand

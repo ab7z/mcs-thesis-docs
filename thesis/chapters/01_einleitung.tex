@@ -66,10 +66,9 @@ RFC~9868 stellt explizit klar: \emph{\enquote{UDP is unidirectional; UDP Options
 \cite[Sec.~6]{rfc9868}.
 
 Für Mechanismen, die Bidirektionalität voraussetzen, fordert RFC~9868 eine getrennte Spezifikation
-\cite[Sec.~6]{rfc9868}. RFC~9869 definiert einen solchen Einsatz von REQ und RES für die Pfad-MTU-Ermittlung
-\cite[Sec.~3]{rfc9869}. Diese Vorgabe schließt einen Datenaustausch in beiden Richtungen nicht aus. Sie bedeutet,
-dass die UDP-Optionsschicht keine Antwort selbstständig erzeugt. Nicht das Protokoll, sondern die Anwendung oder
-eine in ihrem Auftrag arbeitende Bibliothek löst eine Antwort aus.
+\cite[Sec.~6]{rfc9868}; RFC~9869 definiert einen solchen Einsatz von REQ und RES für die Pfad-MTU-Ermittlung
+\cite[Sec.~3]{rfc9869}. Die Optionsschicht erzeugt also keine Antwort selbstständig; das Prinzip vertieft
+\secref{subsec:surplus-prinzipien}.
 
 \subsection{Herausforderungen}
 
@@ -135,9 +134,8 @@ Außerhalb des Umfangs liegt der REQ/RES"=Anwendungsfall zur Pfad-MTU-Ermittlung
 \cite{rfc9869}. Die Implementierung unterstützt nur die in RFC~9868 festgelegten Formate von REQ und RES. Ebenfalls
 nicht implementiert wird die TIME-Option. RFC~9868 beschreibt zwar ihr Format und den Anwendungszweck, die Schätzung
 der Paketumlaufzeit (\textit{Round-Trip Time}, RTT), legt aber kein nutzendes Protokoll fest. Die Kennungen für AUTH,
-UCMP und UENC sind in RFC~9868 lediglich reserviert und werden daher ebenfalls nicht implementiert (AUTH
-\cite[Sec.~11.9]{rfc9868}, UCMP \cite[Sec.~12.1]{rfc9868}, UENC \cite[Sec.~12.2]{rfc9868}). Kernel-Module werden
-nicht entwickelt.
+UCMP und UENC sind in RFC~9868 lediglich reserviert und werden daher ebenfalls nicht implementiert
+\cite[Sec.~11.9, 12.1 und 12.2]{rfc9868}. Kernel-Module werden nicht entwickelt.
 
 IPv6 wird weder implementiert noch auf Konformität geprüft. Die hier untersuchten Mechanismen des RFC~9868
 (\textit{Surplus Area}, OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen. Die

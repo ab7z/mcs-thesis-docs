@@ -99,6 +99,9 @@
 \setcounter{biburlnumpenalty}{100}
 \setcounter{biburlucpenalty}{100}
 \setcounter{biburllcpenalty}{100}
+% Bei Eintraegen mit DOI die redundante URL samt Abrufdatum unterdruecken; der DOI bleibt der
+% persistente Bezeichner. Eintraege ohne DOI behalten URL und urldate unveraendert.
+\AtEveryBibitem{\iffieldundef{doi}{}{\clearfield{url}\clearfield{urlyear}\clearfield{urlmonth}\clearfield{urlday}}}
 
 % Grafiken und Tabellen
 \usepackage{graphicx}

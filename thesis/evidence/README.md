@@ -119,7 +119,10 @@ sha256sum -c SHA256SUMS
 - Kampagnenkennung: `hel-kampagne-20260815`
 - Quellstand der Messung: Kampagnen-Binaries bitidentisch `d7187eb` auf allen drei Endpunkten
   (mcs, helsinki, 1blue); Treiber ab Commit `d3e22db`, `pair-campaign.sh` und `pair-pilot.sh` aus
-  `8627860`, `checksumgate-cell.sh` aus `74bc65a`
+  `8627860`, `checksumgate-cell.sh` aus `74bc65a`. Die Treiberskripte liefen zur Messzeit aus dem
+  Arbeitsbaum und wurden erst nachträglich unter diesen Commits festgeschrieben; ihre Inhaltsgleichheit
+  zum Laufzeitstand ist nur durch die interne Ergebnisnotiz belegt, nicht durch ein zeitgenössisches
+  Prüfsummenprotokoll
 - Ursprünglicher Pfad: `../udp-transport-options/target/` mit den sechs Kampagnen-Stamps
   `p0/p1/p2-campaign-20260815T205110Z-mcs-hel` und `p0/p1/p2-campaign-20260815T214507Z-hel-1blu`
 - Enthaltene Stamps: die sechs Kampagnen-Stamps sowie drei Checksumgate-Stamps
@@ -170,7 +173,8 @@ Python-Cachedateien und Finder-Metadaten.
   509680 Byte, entpackt 33280000 Byte, 607 Einträge; SHA-256
   `644955e5bf51d03dd353273a5606e7e2bc9150c723393ddc9a2e889e85566dad`.
 - `p0p1p2-kampagnen-aws-20260816.tar.zst`: die neun Kampagnen-Stamps der transatlantischen FF1-Suiten
-  (aws-mcs, aws-hel, aws-1blu, je p0/p1/p2) sowie die beiden NAT-Split-Smoke-Läufe; 1479690 Byte,
+  (aws-mcs, aws-hel, aws-1blu, je p0/p1/p2) sowie die beiden NAT-Split-Smoke-Läufe; Treiberstand der
+  Suiten zusätzlich `9d6c5bd`; 1479690 Byte,
   entpackt 90951680 Byte, 1575 Einträge; SHA-256
   `d5f5a4d89eaa76f6ce872807461f26ec94bd9649f63ac91d2a202833e88c1d9a`.
 - `piloten-und-nachtraege-20260810-15.tar.zst`: die drei Piloten vom 12./13.08. (pilot-1blu,

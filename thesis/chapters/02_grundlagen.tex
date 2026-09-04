@@ -17,8 +17,8 @@ für UDP \cite{rfc791}. Für RFC~9868 ist es nötig, weil erst \texttt{UDP Lengt
 bestimmte Datagrammende Lage und Größe der Surplus Area festlegen \cite[Sec.~7]{rfc9868}.
 
 Diese Arbeit beschränkt sich auf IPv4. Bei IPv4 bestimmen \texttt{IHL} und \texttt{Total Length} die
-IP-Nutzlast; bei IPv6 ergeben sich ihre Grenzen aus dem Basis-Header und der Kette der Extension Header
-\cite[Sec.~7]{rfc9868}\cite{rfc8200}.
+IP-Nutzlast \cite[Sec.~7]{rfc9868}; bei IPv6 ergeben sich ihre Grenzen aus dem Basis-Header und der Kette
+der Extension Header \cite{rfc8200}.
 Auch Randwerte unterscheiden sich: Endpunkte müssen mindestens zwei Fragmente zerlegen und wieder
 zusammensetzen können, von denen jedes in die Ethernet-MTU von 1\,500~Byte passt
 \cite[Sec.~11.4]{rfc9868}. Die zugehörige lokale MRDS-size beträgt mindestens 2\,926~Byte bei IPv4 und
@@ -30,7 +30,7 @@ Der Abschnitt behandelt deshalb nur die für RFC~9868 und die Messung nötigen I
 \texttt{Total Length}, \texttt{Protocol}, Adressen, Header-Prüfsumme, Fragmentierungsfelder und
 \texttt{Time to Live}.
 
-Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header} \cite{rfc791}.
+Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header}.
 
 \begin{figure}[H]
   \centering
@@ -73,7 +73,8 @@ Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header
     \draw[klammer] (32.35,-4.10) -- (32.35,-4.82)
       node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {$(\textit{IHL}-5) \times 4$~Byte};
   \end{tikzpicture}
-  \caption{Der IPv4-Header nach RFC~791 \cite{rfc791}. Hervorgehoben sind die beiden Längenangaben, auf denen
+  \caption[Der IPv4-Header nach RFC~791]{Der IPv4-Header nach RFC~791 \cite{rfc791}. Hervorgehoben sind
+    die beiden Längenangaben, auf denen
     die Bestimmung der Surplus Area beruht; gestrichelte Felder sind nur vorhanden, wenn \texttt{IHL} über dem
     Minimalwert~5 liegt.}
   \label{fig:ipv4-header}
@@ -83,29 +84,22 @@ Im Zentrum stehen die beiden Längenangaben der ersten Zeile. \texttt{Total Leng
 Datagramms in Byte an, Header und Nutzlast zusammen; als 16-Bit-Feld erlaubt es höchstens 65\,535~Byte.
 
 Die zweite Längenangabe, die \texttt{IHL} (Internet Header Length), beziffert die Länge des Headers. Sie zählt
-dabei nicht in Byte, sondern in 32-Bit-Wörtern zu je 4~Byte. Der Grund liegt in der Breite des Feldes: Mit
-seinen 4~Bit kann es höchstens den Wert~15 darstellen. In Byte gezählt würde das nicht einmal für den festen
-Headeranteil von 20~Byte reichen; in 32-Bit-Wörtern gezählt beschreibt derselbe Wertebereich dagegen Header bis
-60~Byte \cite{rfc791}. Die Headerlänge ergibt sich daher als
+dabei nicht in Byte, sondern in 32-Bit-Wörtern zu je 4~Byte: Das 4-Bit-Feld erreicht höchstens den Wert~15,
+und erst die Zählung in Wörtern deckt damit Header bis 60~Byte ab \cite{rfc791}. Die Headerlänge ergibt sich
+daher als
 \begin{equation}
   \textit{Headerlänge} = \textit{IHL} \times 4~\mbox{Byte}.
   \label{eq:ihl-headerlaenge}
 \end{equation}
-Der Minimalwert~5 entspricht dem optionslosen 20-Byte-Header, der Maximalwert~15 einem Header von 60~Byte.
-Eine IPv4-Headerlänge ist damit stets ein Vielfaches von~4; diese unscheinbare Eigenschaft kehrt bei der
-Ausrichtung der UDP Options wieder.
+Der Minimalwert~5 entspricht dem optionslosen 20-Byte"=Header. Eine IPv4"=Headerlänge ist damit stets ein
+Vielfaches von~4; diese unscheinbare Eigenschaft kehrt bei der Ausrichtung der UDP Options wieder.
 
-Zwischen festem Header und Nutzlast können zudem IP-Optionen liegen. Sie stellen Steuerfunktionen für
-Sonderfälle bereit, die die gewöhnliche Kommunikation nicht braucht, und dienen als zusätzliche Felder zur
-Erweiterung der IP-Header \cite{rfc791}: \texttt{Record Route} etwa sammelt die Adressen der durchlaufenen
-Router ein, \texttt{Internet Timestamp} deren Zeitstempel. In der Praxis werden solche Optionen kaum genutzt.
-Wie ein Router optionstragende Pakete behandelt, hängt von seiner Architektur und Konfiguration ab: Er kann
-sie mit Leitungsgeschwindigkeit weiterleiten oder filtern oder die Optionen im allgemeinen Prozessor oder in
-Spezialhardware verarbeiten; vor allem die Verarbeitung im allgemeinen Prozessor birgt bei großen
-Paketmengen ein Überlastrisiko. Zugleich ist das Verwerfen optionstragender Pakete verbreitete Praxis
-\cite[Sec.~1 und 3.1]{rfc7126}. Zudem fasst der 40-Byte-Optionsraum bei \texttt{Record Route} höchstens neun
-Adressen und damit viele reale Pfade nicht \cite{rfc791}. Abschließend gilt, dass erst die \texttt{IHL} und
-keine Konstante den Beginn der Nutzlast festlegt.
+Zwischen festem Header und Nutzlast können zudem IP-Optionen liegen: zusätzliche Steuerfelder für
+Sonderfälle, die die gewöhnliche Kommunikation nicht braucht; \texttt{Record Route} etwa sammelt die
+Adressen der durchlaufenen Router ein \cite{rfc791}. In der Praxis werden solche Optionen kaum genutzt, ihre
+Verarbeitung belastet je nach Architektur und Konfiguration den allgemeinen Prozessor des Routers, und das
+Verwerfen optionstragender Pakete ist verbreitete Praxis \cite[Sec.~1 und 3.1]{rfc7126}. Der Beginn der
+Nutzlast folgt damit stets aus der \texttt{IHL}, nie aus einer Konstante.
 
 Aus den beiden Längenangaben \texttt{Total Length} und \texttt{IHL} ergibt sich die Größe, auf die sich
 RFC~9868 durchgängig bezieht: Die Nutzlast eines IPv4-Datagramms beginnt nach \texttt{IHL} $\times$ 4 Byte
@@ -118,20 +112,17 @@ nicht UDP an, und die Obergrenze verringert sich zusätzlich um die Gesamtlänge
   \textit{UDP Length} \leq \textit{Total Length} - \textit{Headerlänge}.
   \label{eq:udp-length-obergrenze}
 \end{equation}
-Die rechte Seite der Ungleichung ist die Länge dieser Nutzlast, also der Platz hinter dem IP-Header.
-Die linke Seite ist die Länge, die das UDP-Datagramm für sich beansprucht. Die Bedingung verlangt damit, dass
-das UDP-Datagramm vollständig in die Nutzlast des IP-Datagramms passt; UDP darf nie mehr Platz beanspruchen, als
-das IP-Datagramm hergibt. Bei Gleichheit füllt das UDP-Datagramm die Nutzlast exakt aus; so arbeiten
-klassische Sender. Bleibt \texttt{UDP Length} dagegen zurück, ist die Differenz genau der Raum, den
-\secref{sec:surplus-area} als Surplus Area einführt.
+Die rechte Seite der Ungleichung ist der Platz hinter dem IP-Header, die linke die Länge, die das
+UDP-Datagramm für sich beansprucht: Das UDP-Datagramm muss vollständig in die Nutzlast des IP-Datagramms
+passen. Bei Gleichheit füllt es sie exakt aus; so arbeiten klassische Sender. Bleibt \texttt{UDP Length}
+dagegen zurück, ist die Differenz genau der Raum, den \secref{sec:surplus-area} als Surplus Area einführt.
 
 Von den übrigen Feldern braucht die Arbeit nur wenige. \texttt{Protocol} benennt das Transportprotokoll der
 Nutzlast; der Wert~17 steht für UDP. Die \texttt{Header Checksum} sichert ausschließlich den Header, nicht die
 Nutzlast; deren Fehlererkennung bleibt der UDP-Prüfsumme überlassen (\secref{subsec:udp-struktur}). Quell- und
-Zieladresse geben Absender und Empfänger des Datagramms an. Sie werden später noch einmal wichtig: Die
-UDP-Prüfsumme bezieht beide Adressen über einen sogenannten Pseudo-Header in ihre Berechnung ein.
-\texttt{Version} und \texttt{Type of Service} berühren den Optionsmechanismus nicht und werden nicht weiter
-vertieft.
+Zieladresse geben Absender und Empfänger des Datagramms an; die UDP-Prüfsumme bezieht beide später über
+einen sogenannten Pseudo-Header in ihre Berechnung ein.
+\texttt{Version} und \texttt{Type of Service} berühren den Optionsmechanismus nicht.
 
 Auch \texttt{Time to Live} spielt für die Optionen keine Rolle, kehrt in der Evaluation aber als Messgröße
 wieder. Jede weiterleitende Instanz verringert den Wert um mindestens eins und verwirft das Datagramm bei
@@ -144,26 +135,23 @@ gehört vollständig zur Fragmentierung, der sich der Rest dieses Abschnitts wid
 Wie groß ein Datagramm praktisch werden kann, entscheidet allerdings nicht das 16-Bit-Längenfeld, sondern der
 Übertragungsweg. Jede Technik der Sicherungsschicht begrenzt die Nutzlast eines einzelnen Rahmens; diese
 Obergrenze heißt Maximum Transmission Unit (MTU) und liegt für Ethernet üblicherweise bei 1500~Byte. Streng
-genommen ist die MTU also eine Eigenschaft der Sicherungsschicht. Ihre Folgen trägt jedoch die
-Vermittlungsschicht, denn ein Datagramm durchquert auf dem Weg zum Ziel mehrere Netze mit möglicherweise
-unterschiedlichen MTUs, und IP muss festlegen, was mit einem Datagramm geschieht, das nicht in den nächsten
-Rahmen passt \cite{rfc791}.
+genommen ist die MTU also eine Eigenschaft der Sicherungsschicht; ihre Folgen trägt jedoch die
+Vermittlungsschicht, denn ein Datagramm durchquert mehrere Netze mit möglicherweise unterschiedlichen MTUs,
+und IP muss festlegen, was mit einem zu großen Datagramm geschieht \cite{rfc791}.
 
 IPv4 beantwortet das mit Fragmentierung. Ist ein Datagramm größer als die MTU und das Flag \texttt{DF} (Don't
-Fragment) nicht gesetzt, zerlegt die IP-Schicht es in mehrere Fragmente. Das übernimmt nicht nur der
-Absender: Bei IPv4 darf auch jeder Router unterwegs ein Datagramm zerlegen, das nicht in sein nächstes Netz
-passt \cite{rfc791}. Jedes Fragment erhält einen eigenen IP-Header, übernimmt die \texttt{Identification} des
-Originals, trägt in \texttt{Fragment Offset} seine Position in Einheiten von 8~Byte und setzt das Flag
-\texttt{MF} (More Fragments), das nur beim letzten Fragment fehlt. Der Empfänger sammelt zusammengehörige
-Fragmente anhand von Quelladresse, Zieladresse, Protokoll und
-\texttt{Identification} und setzt das Datagramm vor der Übergabe an die Transportschicht wieder zusammen
-\cite{rfc791}. Ist \texttt{DF} dagegen gesetzt, verwirft ein Router das zu große Datagramm und meldet dies dem
+Fragment) nicht gesetzt, zerlegt die IP-Schicht es in mehrere Fragmente; bei IPv4 darf das auch jeder Router
+unterwegs. Jedes Fragment erhält einen eigenen IP-Header; \texttt{Identification}, \texttt{Fragment Offset}
+und das Flag \texttt{MF} (More Fragments) steuern die Zuordnung, und der Empfänger setzt das Datagramm
+anhand von Quelladresse, Zieladresse, Protokoll und \texttt{Identification} vor der Übergabe an die
+Transportschicht wieder zusammen \cite{rfc791}. Ist \texttt{DF} dagegen gesetzt, verwirft ein Router das zu
+große Datagramm und meldet dies dem
 Absender per ICMP; auf dieser Rückmeldung baut die Path MTU Discovery auf, mit der ein Sender die kleinste MTU
 seines Pfades ermittelt \cite[Sec.~3.2]{rfc8085}.
 
 Für diese Arbeit ist an der Fragmentierung vor allem eine Konsequenz bedeutsam: Der UDP-Header gehört aus Sicht
 von IP zur Nutzlast und landet deshalb vollständig im ersten Fragment. Was das für die übrigen Fragmente
-bedeutet, zeigt \figref{fig:ip-fragmentierung} am Beispiel eines in drei Teile zerlegten Datagramms.
+bedeutet, zeigt \figref{fig:ip-fragmentierung}.
 
 \begin{figure}[H]
   \centering
@@ -213,8 +201,6 @@ IP-Fragmentierung so meist entgeht \cite{rfc9293}, erzeugt UDP je Nachricht gena
 diese Lücke schließt die FRAG-Option von RFC~9868: Sie verlagert die Fragmentierung auf die Transportschicht
 und wiederholt die Portnummern in jedem Fragment \cite[Sec.~11.4]{rfc9868}; den Verlust einzelner Fragmente
 behebt allerdings auch FRAG nicht. Darauf kommt \chapref{chap:evaluation} zurück.
-
-Der folgende Abschnitt wendet sich dem Protokoll zu, das RFC~9868 tatsächlich erweitert: UDP.
 
 \section{Das User Datagram Protocol (UDP)}
 \label{sec:udp}
@@ -314,7 +300,7 @@ auch Informationen der Vermittlungsschicht ein. Dieser Pseudo-Header ist kein Te
 keiner Stelle im Paket: Sender und Empfänger bauen ihn jeweils nur für die Berechnung im Speicher auf und
 stellen ihn dem UDP-Header dabei gedanklich voran \cite{rfc768}. Dieses Konzept stellt sicher, dass ein
 Datagramm, das durch einen IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt
-und verworfen werden kann. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header} \cite{rfc768}.
+und verworfen werden kann. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header}.
 
 \begin{figure}[H]
   \centering
@@ -455,7 +441,8 @@ IP-Datagramms \textit{Surplus Area}; dort liegen die UDP Options. Die Lage beide
     \draw[klammer] (9.4,-1.56) -- (2.6,-1.56)
       node[midway, below=7pt, font=\scriptsize, text=feldlinie] {\texttt{UDP Length} = 32};
   \end{tikzpicture}
-  \caption{IP Transport Payload und Surplus Area eines Datagramms mit \texttt{Total Length} 60}
+  \caption[IP Transport Payload und Surplus Area]{IP Transport Payload und Surplus Area eines Datagramms
+    mit \texttt{Total Length} 60}
   \label{fig:surplus-area}
 \end{figure}
 
@@ -568,7 +555,7 @@ jedem gültigen \texttt{UDP-Length}-Offset beginnen lassen, und Ausrichtungsbyte
 sein. Findet der Empfänger dort einen anderen Wert, greift zum ersten Mal eine Grundregel, die alle weiteren
 Prüfungen dieses Abschnitts teilen: Im Standardfall kostet ein Fehler in der Surplus Area nur die Optionen.
 Der Empfänger verwirft die Optionsliste still und stellt die Nutzdaten trotzdem zu, wie es auch ein
-Altempfänger täte \cite[Sec.~8 und 9]{rfc9868}. Standardfall heißt dabei: Das Datagramm selbst ist gültig,
+Altempfänger täte \cite[Sec.~8 und 14]{rfc9868}. Standardfall heißt dabei: Das Datagramm selbst ist gültig,
 denn eine falsche \texttt{UDP Length} oder eine fehlgeschlagene UDP-Prüfsumme verwirft es komplett, noch
 bevor Optionen betrachtet werden, während eine zulässig ungenutzte Prüfsumme (\secref{subsec:udp-struktur})
 kein Fehler ist \cite[Sec.~10 und 14]{rfc9868}; die Anwendung hat kein strengeres Verhalten angefordert; und
@@ -676,7 +663,7 @@ Surplus Area: Mit gesetztem OCS fällt die UDP-Prüfsumme in beiden Rechnungen g
 Ausdehnung des Prüfbereichs scheitert das Datagramm bei solchen Geräten also nicht \cite[Sec.~9]{rfc9868}.
 In erster Linie dient das OCS ohnehin dem
 Erkennen zufälliger Fehler und anderweitiger, nicht standardkonformer Nutzungen der Surplus Area; ein Schutz
-gegen gezielte Angriffe ist es ausdrücklich nicht \cite[Sec.~9]{rfc9868}. Wie die UDP-Prüfsumme ist das OCS
+gegen gezielte Angriffe ist es ausdrücklich nicht. Wie die UDP-Prüfsumme ist das OCS
 zudem bedingt abschaltbar: Der Wert \texttt{0x0000} bedeutet ungenutzt, zulässig ist das nur, wenn auch die
 UDP-Prüfsumme null ist, und Implementierungen müssen standardmäßig ein echtes OCS setzen
 \cite[Sec.~9]{rfc9868}. Schlägt die Prüfung beim Empfänger fehl, gilt die Grundregel aus
@@ -876,12 +863,9 @@ Prüfsumme, demultiplexiert nach Adresse, Port und Socketmerkmalen und liefert n
 \cite[Sec.~18]{rfc9868}. Sendeseitig baut der Kernel beide Header und lässt hinter den Nutzdaten keinen
 Raum. Ein UDP-Socket kann die Surplus Area daher weder lesen noch erzeugen.
 
-Der normale Kernelweg verläuft beim Senden von \texttt{write()} über \texttt{sock\_sendmsg()} und
-\texttt{udp\_sendmsg()} zu \texttt{ip\_send\_skb()} und \texttt{dev\_queue\_xmit()};
-\texttt{udp\_send\_skb()} schreibt dabei den UDP-Header. Empfangsseitig führt der Weg von
-\path{netif_receive_skb()} über \texttt{ip\_rcv()}, \texttt{udp\_recvmsg()} und
-\texttt{sock\_recvmsg()} zu \texttt{read()}; ausgeliefert wird erst nach der UDP-Prüfsumme
-\cite{linux510udp,stephan2024packetpath}. Diese Folge berichtigt zwei Beschriftungen der Vorlage (dort
+Der normale Kernelweg führt sendeseitig von \texttt{write()} über die Socket- und UDP-Schicht zur
+IP-Schicht, empfangsseitig entsprechend zurück zu \texttt{read()}; ausgeliefert wird erst nach der
+UDP-Prüfsumme \cite{linux510udp,stephan2024packetpath}. Diese Folge berichtigt zwei Beschriftungen der Vorlage (dort
 Abbildung~5): Auf der Socket-Schicht stehen \texttt{sock\_sendmsg()} und \texttt{sock\_recvmsg()}, und der
 UDP-Sendepfad übergibt an \texttt{ip\_send\_skb()} statt \texttt{ip\_queue\_xmit()}.
 
@@ -892,7 +876,7 @@ folgenden Abbildungen trennen beide Richtungen. Er arbeitet unterhalb von UDP di
 IP-Datagrammen: Die Anwendung schreibt den UDP-Header selbst, und die IP-Längenangabe bemisst der Kernel an
 der übergebenen Pufferlänge statt am UDP-Datagramm; alles, was die Anwendung hinter das UDP-Datagramm in
 den Puffer legt, wird so zur Surplus Area \cite{man7raw}. Mit der Socket-Option \texttt{IP\_HDRINCL} baut
-sie darüber hinaus den IP-Header selbst, statt ihn vom Kernel erzeugen zu lassen \cite{man7raw}; diesen Weg
+sie darüber hinaus den IP-Header selbst, statt ihn vom Kernel erzeugen zu lassen; diesen Weg
 nutzt die Referenzimplementierung, die damit das vollständige Datagramm selbst baut
 (\secref{sec:technologieauswahl}). Die vertauschten Rollen beider Sendewege zeigt \figref{fig:sendepfade}:
 
@@ -1048,9 +1032,8 @@ dieser Kette zuzuordnen, bevor er der Implementierung oder dem Standard angelast
 beiden Enden grenzen ihn dabei auf ein Intervall der Kette ein; welches Gerät eingreift, bleibt ohne
 zusätzliche Messpunkte oder unabhängige Evidenz offen (\chapref{chap:evaluation}).
 
-Wireshark und tshark 4.6 dekodieren RFC~9868 nicht: Ihre UDP-Ansicht endet ohne Feld, Trailer oder Warnung
-an \texttt{UDP Length}. Die Kampagnen benötigen deshalb einen eigenen Prüfer für PCAP-Dateien
-(\chapref{chap:evaluation}); der fehlende Dissektor zeigt zugleich die geringe bisherige
-Werkzeugunterstützung.
+Wireshark und tshark 4.6 dekodieren RFC~9868 nicht; die Kampagnen benötigen deshalb einen eigenen Prüfer
+für PCAP-Dateien (\secref{subsec:mitschnittwerkzeuge}), und der fehlende Dissektor zeigt zugleich die
+geringe bisherige Werkzeugunterstützung.
 
 Die Auswertungsmethode folgt in \chapref{chap:methodik}.
