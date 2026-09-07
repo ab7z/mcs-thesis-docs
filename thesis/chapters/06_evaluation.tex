@@ -5,6 +5,19 @@
 \chapter{Evaluation und Diskussion}
 \label{chap:evaluation}
 
+RFC~9868 berichtet in Abschnitt~18 von Interoperabilitätstests mit Linux, macOS und Windows Cygwin sowie
+vom erfolgreichen Durchgang durch NAT-Geräte. Der Abschnitt nennt jedoch weder den genauen Versuchsaufbau
+noch die verwendeten Netzpfade. Ob diese Tests im Labor oder über öffentliche Netze stattfanden, bleibt
+damit offen \cite[Sec.~18]{rfc9868}.
+
+Messungen auf realen Internetpfaden sind in der 2020 veröffentlichten Studie von Zullo, Jones und
+Fairhurst dokumentiert, auf die RFC~9868 in den Abschnitten~9 und 25.6 verweist
+\cite[Sec.~9 und 25.6]{rfc9868}. Die Messungen fanden im November 2018 statt und untersuchten, ob
+Datagramme mit UDP-Optionen die ausgewählten Pfade durchquerten und welche Prüfungen ihre Zustellung
+verhinderten \cite[Sec.~III und IV]{zullo2020sorrows}. Grundlage war ein damaliger Entwurf der UDP-Optionen.
+Die Studie prüfte somit nicht die endgültige Fassung von RFC~9868, die erst im Oktober 2025 veröffentlicht
+wurde \cite{rfc9868}.
+
 Die Bibliothek aus \chapref{chap:entwurf} wird an den Kategorien aus \secref{sec:ff1-kriterien} und am
 Pfadmodell aus \secref{sec:ff2-pfadmodell} geprüft. Nach dem Messkonzept (\secref{sec:testkonzept}) folgen
 die Pfadergebnisse (\secref{sec:beobachtbarkeit-eval}), der Soll-Ist-Abgleich (\secref{sec:soll-ist}), die
@@ -188,10 +201,15 @@ Konzept auf die realen Pfade an.
 
 FF2 fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Netzpfaden bis zur Gegenstelle
 unverändert erhalten bleibt (\secref{sec:zielsetzung}). Die Ergebnisse folgen den fünf Pfadstufen aus
-\secref{sec:ff2-pfadmodell} in aufsteigender Netzferne. Jede beobachtete Abweichung wird nur dem
-Attributionsintervall zwischen den eigenen Messpunkten zugeschrieben; die entstandene Typologie der
-Mechanismenklassen bündelt \secref{subsec:eval-mechanismen}. Kein einzelner untersuchter Pfad
-beantwortet FF2 vollständig; die Reichweite jedes Befunds grenzt \secref{sec:diskussion-grenzen} ein.
+\secref{sec:ff2-pfadmodell} in aufsteigender Netzferne.
+
+Die Tests umfassten IP-Weiterleitung, Netzwerkadressumsetzung und Paketfilterung. Im kontrollierten Aufbau
+waren diese Funktionen bekannt und gezielt konfiguriert. Auf öffentlichen Netzpfaden ließ sich das
+beobachtete Verändern oder Verwerfen von Datagrammen dagegen meist keinem konkreten Gerätetyp zuordnen.
+Jede beobachtete Abweichung wird daher nur dem Intervall zwischen den eigenen Messpunkten zugeschrieben.
+Die Mechanismenklassen in \secref{subsec:eval-mechanismen} beschreiben dieses Verhalten, nicht den
+Gerätetyp. Kein einzelner untersuchter Pfad beantwortet FF2 vollständig; die Reichweite jedes Befunds
+grenzt \secref{sec:diskussion-grenzen} ein.
 
 \subsection{Kontrollierte Stufen: Loopback, eigene Topologien, Tunnel}
 \label{subsec:eval-kontrolliert}

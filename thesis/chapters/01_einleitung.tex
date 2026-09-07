@@ -14,27 +14,37 @@ Die ursprüngliche Spezifikation des User Datagram Protocol (UDP), RFC~768 aus d
 Zwischen beiden Dokumenten liegen 45 Jahre; die Klartextfassung des RFC~9868 ist mehr als 27-mal so umfangreich
 wie die des RFC~768.
 
+Diese Arbeit verwendet durchgängig die folgenden Begriffe. \emph{Header} bezeichnet den festen Kopf einer
+Protokolleinheit, etwa eines IP- oder UDP-Datagramms; die englische Form ist in der deutschen Fachsprache
+üblich und entspricht den Feldnamen der RFCs. \emph{Nutzlast} ist der Datenteil eines IP-Datagramms oder
+Rahmens hinter dessen Header; \emph{Nutzdaten} sind die Bytes hinter dem UDP-Header bis zu dem Ende, das
+\texttt{UDP Length} angibt, im RFC \textit{user data}. Ein \emph{Altempfänger}, im RFC \textit{legacy
+receiver}, ist ein Endpunkt, der UDP nach RFC~768 verarbeitet und RFC~9868 nicht kennt; in der Regel liefert
+er nur die Nutzdaten an die Anwendung. \emph{Altsysteme} umfassen solche Endpunkte und die Zwischensysteme
+auf dem Pfad, die RFC~9868 nicht kennen. Den Gegenbegriff zum Altempfänger bildet der \emph{optionsfähige
+Empfänger}, im RFC \textit{option-aware receiver}.
+
 UDP besitzt einen acht Byte langen Header aus vier 16-Bit-Feldern: Quellport, Zielport, Länge und
 Prüfsumme \cite{rfc768}. RFC~9868 beschreibt UDP als weit verbreitet und stellt fest, dass der
 ursprüngliche Header keinen Raum für Optionen bietet \cite[Sec.~4]{rfc9868}.
 
 RFC~9868 greift Funktionen auf, die UDP ursprünglich der Anwendung oder einer darüberliegenden Schicht überließ:
-Transportfragmentierung, eine zusätzliche Nutzdatenprüfsumme sowie Optionen für Größen- und Zeitinformationen
-\cite[Sec.~5, 11.3 und 11.8]{rfc9868}. Für ihre Bereitstellung kommen grundsätzlich drei Wege in Betracht:
+Transportfragmentierung, eine zusätzliche Nutzdatenprüfsumme sowie Optionen zur Mitteilung maximaler Datagrammgrößen
+und zum Austausch von Zeitstempeln \cite[Sec.~11.3 bis 11.6 und 11.8]{rfc9868}. Für ihre Bereitstellung kommen
+grundsätzlich drei Wege in Betracht:
 
-\begin{itemize}
-    \item Erweiterung innerhalb der Nutzdaten: Jede Anwendung definiert ein eigenes Rahmenformat
-        in der UDP-Nutzlast.
+\begin{enumerate}
+    \item Erweiterung innerhalb der Nutzdaten: Jede Anwendung definiert dort ein eigenes Rahmenformat.
     \item Ein neues Transportprotokoll: Alle gewünschten Mechanismen können so von Beginn an vorgesehen werden.
     \item Erweiterung des bestehenden Formats: UDP selbst erhält einen Optionsmechanismus, der für
-        Bestandssysteme möglichst unsichtbar bleibt.
-\end{itemize}
+        Altempfänger möglichst unsichtbar bleibt.
+\end{enumerate}
 
 RFC~9868 wählt den dritten Weg (die Muster hinter diesen Wegen vergleicht \chapref{chap:grundlagen}) und
 nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich zwischen dem Ende der UDP-Nutzdaten
-und dem Ende des IP-Datagramms. Da das UDP-Length-Feld die Länge des UDP-Datagramms
-angibt und diese kleiner sein kann als die \emph{IP Transport Payload}, also alles, was im IP-Datagramm auf
-den IP-Header folgt, entsteht ein bisher ungenutzter Bereich für Erweiterungen (\secref{sec:surplus-area}).
+und dem Ende des IP-Datagramms. Das UDP-Length-Feld gibt die Länge des UDP-Datagramms an. Diese kann
+kleiner sein als die Größe des im IP-Datagramm für UDP verfügbaren Bereichs. Der verbleibende Raum hinter
+den UDP-Nutzdaten kann deshalb für Erweiterungen genutzt werden (\secref{sec:surplus-area}).
 Auf dieser Grundlage definiert RFC~9868 ein erweiterbares Rahmenwerk für Transportoptionen.
 
 Damit stellt sich die Frage, die diese Arbeit als Leitfrage begleitet:
@@ -73,9 +83,10 @@ Für Mechanismen, die Bidirektionalität voraussetzen, fordert RFC~9868 eine get
 \subsection{Herausforderungen}
 
 Die zentrale Herausforderung bei der Implementierung von UDP-Optionen liegt im Zugriff auf die Surplus Area.
-Die in RFC~9868 getesteten Systeme Linux, macOS und Windows Cygwin lieferten nur die durch das
-\texttt{UDP-Length}-Feld begrenzten Nutzdaten an die Anwendung und verwarfen die Surplus Area still. Ein
-ebenfalls dokumentiertes eingebettetes Gerät wich davon ab und reichte das gesamte IP-Datagramm weiter
+RFC~9868 berichtet von Interoperabilitätstests mit Linux, macOS und Windows Cygwin. Diese Systeme lieferten
+nur die durch das \texttt{UDP-Length}-Feld begrenzten Nutzdaten an die Anwendung und verwarfen die Surplus
+Area still. Außerdem berichtet der RFC von einem eingebetteten Gerät, das das gesamte IP-Datagramm an die
+UDP-Anwendungsschicht weitergab
 \cite[Sec.~18]{rfc9868}. Den Weg eines UDP-Pakets durch den Linux-Kernel bis zu dieser Socket-Schnittstelle
 dokumentieren Stephan und Wüstrich \cite{stephan2024packetpath}.
 
@@ -117,9 +128,9 @@ Gegenprobe für Prüfsummenarithmetik sowie Längen- und Anordnungsregeln; das V
 Betriebssystemen und Zwischensystemen bleibt Gegenstand empirischer Prüfungen. Dieses Prüfprogramm schafft die
 Grundlage für die Beantwortung von FF1.
 
-Für FF2 vergleicht die Evaluation gewöhnliche UDP-Datagramme mit gleich großen Datagrammen, die eine Surplus Area
-enthalten, auf ausgewählten realen Netzpfaden. Sie unterscheidet zwischen unveränderter Zustellung, Entfernung der
-Surplus Area und Paketverlust. Die Schlussfolgerungen bleiben auf die beobachteten Pfade begrenzt.
+Für FF2 vergleicht die Evaluation Datagramme ohne Surplus Area mit gleich großen Datagrammen, die eine Surplus Area
+enthalten, auf ausgewählten realen Netzpfaden. Sie unterscheidet zwischen unveränderter oder veränderter Zustellung,
+Entfernung der Surplus Area und Paketverlust. Die Schlussfolgerungen bleiben auf die beobachteten Pfade begrenzt.
 
 \section{Abgrenzung und Umfang}
 \label{sec:abgrenzung}
