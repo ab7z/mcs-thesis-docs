@@ -5,32 +5,21 @@
 \chapter{Grundlagen}
 \label{chap:grundlagen}
 
-IPv4 und UDP sind die beteiligten Protokolle (\secref{sec:ipv4}, \secref{sec:udp}), gefolgt von den
-Erweiterungsmustern (\secref{sec:erweiterungsmuster}), der Surplus Area (\secref{sec:surplus-area}) sowie
-Betriebssystem und Netzpfad (\secref{sec:netzpfad}).
+Dieses Kapitel erklärt zunächst IPv4 und UDP (\secref{sec:ipv4}, \secref{sec:udp}). Danach folgen die
+Surplus Area (\secref{sec:surplus-area}) sowie Betriebssystem und Netzpfad (\secref{sec:netzpfad}).
 
 \section{IPv4}
 \label{sec:ipv4}
 
 Das Internet Protocol (IP) vermittelt Datagramme zwischen Endsystemen und bildet die Vermittlungsschicht
-für UDP \cite{rfc791}. Für RFC~9868 ist es nötig, weil erst \texttt{UDP Length} und das durch den IP-Header
-bestimmte Datagrammende Lage und Größe der Surplus Area festlegen \cite[Sec.~7]{rfc9868}.
+für UDP \cite{rfc791}. \texttt{UDP Length} und das durch den IP-Header bestimmte Datagrammende legen
+Lage und Größe der Surplus Area fest \cite[Sec.~7]{rfc9868}.
 
-Diese Arbeit beschränkt sich auf IPv4. Bei IPv4 bestimmen \texttt{IHL} und \texttt{Total Length} die
-IP-Nutzlast \cite[Sec.~7]{rfc9868}; bei IPv6 ergeben sich ihre Grenzen aus dem Basis-Header und der Kette
-der Extension Header \cite{rfc8200}.
-Auch Randwerte unterscheiden sich: Endpunkte müssen mindestens zwei Fragmente zerlegen und wieder
-zusammensetzen können, von denen jedes in die Ethernet-MTU von 1\,500~Byte passt
-\cite[Sec.~11.4]{rfc9868}. Die zugehörige lokale MRDS-size beträgt mindestens 2\,926~Byte bei IPv4 und
-2\,886~Byte bei IPv6 \cite[Sec.~11.6]{rfc9868}; bei IPv6-Jumbograms mit \texttt{UDP Length} null sind UDP
-Options nicht nutzbar \cite[Sec.~22]{rfc9868}. Die Grundstruktur des Mechanismus bleibt gleich,
-Implementierung und Evaluation betrachten jedoch nur IPv4 (\secref{sec:abgrenzung}).
+Entsprechend der Abgrenzung in \secref{sec:abgrenzung} behandelt dieser Abschnitt nur die für RFC~9868
+und die Messung nötigen IPv4-Felder: \texttt{IHL}, \texttt{Total Length}, \texttt{Protocol}, Adressen,
+Header-Prüfsumme, Fragmentierungsfelder und \texttt{Time to Live}.
 
-Der Abschnitt behandelt deshalb nur die für RFC~9868 und die Messung nötigen IPv4-Felder: \texttt{IHL},
-\texttt{Total Length}, \texttt{Protocol}, Adressen, Header-Prüfsumme, Fragmentierungsfelder und
-\texttt{Time to Live}.
-
-Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header}.
+\figref{fig:ipv4-header} zeigt den Aufbau des IPv4-Headers.
 
 \begin{figure}[H]
   \centering
@@ -80,78 +69,72 @@ Den Ausgangspunkt bildet der Header; seinen Aufbau zeigt \figref{fig:ipv4-header
   \label{fig:ipv4-header}
 \end{figure}
 
-Im Zentrum stehen die beiden Längenangaben der ersten Zeile. \texttt{Total Length} gibt die Gesamtlänge des
-Datagramms in Byte an, Header und Nutzlast zusammen; als 16-Bit-Feld erlaubt es höchstens 65\,535~Byte.
+\texttt{Total Length} gibt die Gesamtlänge des Datagramms in Byte an, Header und Nutzlast zusammen;
+als 16-Bit-Feld erlaubt es höchstens 65\,535~Byte.
 
-Die zweite Längenangabe, die \texttt{IHL} (Internet Header Length), beziffert die Länge des Headers. Sie zählt
-dabei nicht in Byte, sondern in 32-Bit-Wörtern zu je 4~Byte: Das 4-Bit-Feld erreicht höchstens den Wert~15,
-und erst die Zählung in Wörtern deckt damit Header bis 60~Byte ab \cite{rfc791}. Die Headerlänge ergibt sich
-daher als
+Die zweite Längenangabe, die \texttt{IHL} (Internet Header Length), beziffert die Länge des Headers.
+\texttt{IHL} zählt in 32-Bit-Wörtern zu je 4~Byte. Das 4-Bit-Feld erreicht höchstens den Wert~15 und kann
+damit Headerlängen bis 60~Byte angeben \cite{rfc791}. Die Headerlänge ergibt sich daher als
 \begin{equation}
   \textit{Headerlänge} = \textit{IHL} \times 4~\mbox{Byte}.
   \label{eq:ihl-headerlaenge}
 \end{equation}
 Der Minimalwert~5 entspricht dem optionslosen 20-Byte"=Header. Eine IPv4"=Headerlänge ist damit stets ein
-Vielfaches von~4; diese unscheinbare Eigenschaft kehrt bei der Ausrichtung der UDP Options wieder.
+Vielfaches von~4. Diese Eigenschaft ist für die Ausrichtung der UDP Options wichtig.
 
 Zwischen festem Header und Nutzlast können zudem IP-Optionen liegen: zusätzliche Steuerfelder für
 Sonderfälle, die die gewöhnliche Kommunikation nicht braucht; \texttt{Record Route} etwa sammelt die
-Adressen der durchlaufenen Router ein \cite{rfc791}. In der Praxis werden solche Optionen kaum genutzt, ihre
-Verarbeitung belastet je nach Architektur und Konfiguration den allgemeinen Prozessor des Routers, und das
-Verwerfen optionstragender Pakete ist verbreitete Praxis \cite[Sec.~1 und 3.1]{rfc7126}. Der Beginn der
-Nutzlast folgt damit stets aus der \texttt{IHL}, nie aus einer Konstante.
+Adressen der durchlaufenen Router ein \cite{rfc791}. IP-Optionen werden in der Praxis kaum genutzt.
+Ihre Verarbeitung belastet je nach Architektur und Konfiguration den allgemeinen Prozessor des Routers.
+Zudem ist das Verwerfen von Paketen mit IP-Optionen verbreitet \cite[Sec.~1 und 3.1]{rfc7126}.
+Der Beginn der Nutzlast folgt damit stets aus der \texttt{IHL}, nie aus einer Konstante.
 
-Aus den beiden Längenangaben \texttt{Total Length} und \texttt{IHL} ergibt sich die Größe, auf die sich
-RFC~9868 durchgängig bezieht: Die Nutzlast eines IPv4-Datagramms beginnt nach \texttt{IHL} $\times$ 4 Byte
-und endet bei \texttt{Total Length}. Für ein
-UDP-Datagramm fordert RFC~9868 deshalb \cite[Sec.~7]{rfc9868}\footnote{In Ausnahmefällen liegen zwischen
-IPv4- und UDP-Header noch Shim-Header, etwa bei IPsec oder IPComp; das Feld \texttt{Protocol} zeigt dann
-nicht UDP an, und die Obergrenze verringert sich zusätzlich um die Gesamtlänge dieser Shim-Header
-\cite[Sec.~7]{rfc9868}. Diese Arbeit betrachtet solche Ketten nicht weiter.}
+\texttt{Total Length} und \texttt{IHL} bestimmen die Größe der IPv4-Nutzlast: Sie beginnt nach
+\texttt{IHL} $\times$ 4 Byte und endet bei \texttt{Total Length}. Für ein UDP-Datagramm fordert RFC~9868
+deshalb \cite[Sec.~7]{rfc9868}\footnote{Zusätzliche Header zwischen IPv4- und UDP-Header (Shim-Header)
+verringern den für das UDP-Datagramm verfügbaren Platz um ihre Gesamtlänge; das Feld \texttt{Protocol}
+zeigt dann nicht UDP an \cite[Sec.~7]{rfc9868}. Diese Arbeit betrachtet solche Ketten nicht weiter.}
 \begin{equation}
   \textit{UDP Length} \leq \textit{Total Length} - \textit{Headerlänge}.
   \label{eq:udp-length-obergrenze}
 \end{equation}
 Die rechte Seite der Ungleichung ist der Platz hinter dem IP-Header, die linke die Länge, die das
 UDP-Datagramm für sich beansprucht: Das UDP-Datagramm muss vollständig in die Nutzlast des IP-Datagramms
-passen. Bei Gleichheit füllt es sie exakt aus; so arbeiten klassische Sender. Bleibt \texttt{UDP Length}
-dagegen zurück, ist die Differenz genau der Raum, den \secref{sec:surplus-area} als Surplus Area einführt.
+passen. Bei Gleichheit füllt es sie exakt aus; das Datagramm hat dann keine Surplus Area. Ist
+\texttt{UDP Length} kleiner, bildet die Differenz die Surplus Area (\secref{sec:surplus-area}).
 
-Von den übrigen Feldern braucht die Arbeit nur wenige. \texttt{Protocol} benennt das Transportprotokoll der
-Nutzlast; der Wert~17 steht für UDP. Die \texttt{Header Checksum} sichert ausschließlich den Header, nicht die
+\texttt{Protocol} benennt das Transportprotokoll der Nutzlast; der Wert~17 steht für UDP.
+Die \texttt{Header Checksum} sichert ausschließlich den Header, nicht die
 Nutzlast; deren Fehlererkennung bleibt der UDP-Prüfsumme überlassen (\secref{subsec:udp-struktur}). Quell- und
 Zieladresse geben Absender und Empfänger des Datagramms an; die UDP-Prüfsumme bezieht beide später über
 einen sogenannten Pseudo-Header in ihre Berechnung ein.
 \texttt{Version} und \texttt{Type of Service} berühren den Optionsmechanismus nicht.
 
-Auch \texttt{Time to Live} spielt für die Optionen keine Rolle, kehrt in der Evaluation aber als Messgröße
-wieder. Jede weiterleitende Instanz verringert den Wert um mindestens eins und verwirft das Datagramm bei
-null \cite{rfc791}. Die Differenz zwischen gesendetem und empfangenem Wert entspricht deshalb nur unter der
-Annahme eines Dekrements von genau eins je Weiterleitung der Zahl der durchlaufenen IPv4-Router;
-\chapref{chap:evaluation} nutzt sie unter dieser Annahme, um die Stabilität der Messpfade zu prüfen. Die
-zweite Zeile des Headers schließlich (\texttt{Identification}, \texttt{Flags}, \texttt{Fragment Offset})
-gehört vollständig zur Fragmentierung, der sich der Rest dieses Abschnitts widmet.
+\texttt{Time to Live} hat keinen Einfluss auf den Optionsmechanismus; die Evaluation nutzt den Wert als
+Messgröße. Jeder weiterleitende Router verringert \texttt{Time to Live} um mindestens eins und verwirft
+das Datagramm bei null \cite{rfc791}. Wenn jeder Router den Wert bei der Weiterleitung um genau eins
+verringert, entspricht die Differenz zwischen gesendetem und empfangenem Wert der Zahl der durchlaufenen
+IPv4-Router. Diese Arbeit nutzt die Differenz unter dieser Annahme, um die Stabilität der Messpfade zu
+prüfen (\chapref{chap:evaluation}).
 
 Wie groß ein Datagramm praktisch werden kann, entscheidet allerdings nicht das 16-Bit-Längenfeld, sondern der
-Übertragungsweg. Jede Technik der Sicherungsschicht begrenzt die Nutzlast eines einzelnen Rahmens; diese
-Obergrenze heißt Maximum Transmission Unit (MTU) und liegt für Ethernet üblicherweise bei 1500~Byte. Streng
-genommen ist die MTU also eine Eigenschaft der Sicherungsschicht; ihre Folgen trägt jedoch die
-Vermittlungsschicht, denn ein Datagramm durchquert mehrere Netze mit möglicherweise unterschiedlichen MTUs,
-und IP muss festlegen, was mit einem zu großen Datagramm geschieht \cite{rfc791}.
+Übertragungsweg. Die Maximum Transmission Unit (MTU) begrenzt die Größe eines IP-Pakets, das eine Verbindung
+ohne Fragmentierung übertragen kann. Bei Ethernet beträgt sie üblicherweise 1500~Byte. Ein Datagramm kann
+mehrere Netze mit unterschiedlichen MTUs durchqueren; IP muss deshalb festlegen, was mit einem zu großen
+Datagramm geschieht \cite{rfc791}.
 
-IPv4 beantwortet das mit Fragmentierung. Ist ein Datagramm größer als die MTU und das Flag \texttt{DF} (Don't
-Fragment) nicht gesetzt, zerlegt die IP-Schicht es in mehrere Fragmente; bei IPv4 darf das auch jeder Router
-unterwegs. Jedes Fragment erhält einen eigenen IP-Header; \texttt{Identification}, \texttt{Fragment Offset}
-und das Flag \texttt{MF} (More Fragments) steuern die Zuordnung, und der Empfänger setzt das Datagramm
-anhand von Quelladresse, Zieladresse, Protokoll und \texttt{Identification} vor der Übergabe an die
-Transportschicht wieder zusammen \cite{rfc791}. Ist \texttt{DF} dagegen gesetzt, verwirft ein Router das zu
+Ist ein Datagramm größer als die MTU und das Flag \texttt{DF} (Don't Fragment) nicht gesetzt, zerlegt die
+IP-Schicht es in mehrere Fragmente; bei IPv4 darf das auch jeder Router unterwegs. Jedes Fragment erhält
+einen eigenen IP-Header. \texttt{Identification}, \texttt{Fragment Offset} und das Flag \texttt{MF}
+(More Fragments) steuern die Zuordnung. Der Empfänger setzt das Datagramm anhand von Quelladresse,
+Zieladresse, Protokoll und \texttt{Identification} wieder zusammen, bevor er es an die Transportschicht
+übergibt \cite{rfc791}. Ist \texttt{DF} dagegen gesetzt, verwirft ein Router das zu
 große Datagramm und meldet dies dem
 Absender per ICMP; auf dieser Rückmeldung baut die Path MTU Discovery auf, mit der ein Sender die kleinste MTU
 seines Pfades ermittelt \cite[Sec.~3.2]{rfc8085}.
 
-Für diese Arbeit ist an der Fragmentierung vor allem eine Konsequenz bedeutsam: Der UDP-Header gehört aus Sicht
-von IP zur Nutzlast und landet deshalb vollständig im ersten Fragment. Was das für die übrigen Fragmente
-bedeutet, zeigt \figref{fig:ip-fragmentierung}.
+Der UDP-Header gehört aus Sicht von IP zur Nutzlast und liegt deshalb vollständig im ersten Fragment.
+Was das für die übrigen Fragmente bedeutet, zeigt \figref{fig:ip-fragmentierung}.
 
 \begin{figure}[H]
   \centering
@@ -190,38 +173,33 @@ bedeutet, zeigt \figref{fig:ip-fragmentierung}.
 \end{figure}
 
 Aus \figref{fig:ip-fragmentierung} geht hervor, dass nur das erste Fragment den UDP-Header enthält: Alle
-Folgefragmente tragen keine Portnummern. Zwischensysteme wie NATs und Firewalls, die Pakete anhand
-vollständiger Header zuordnen oder prüfen, können solche Fragmente nicht einordnen und verwerfen sie teils
-pauschal; zudem macht der Verlust eines einzelnen Fragments das gesamte Datagramm unbrauchbar. RFC~8085 wertet
-beides als grundsätzliches Problem der IP-Fragmentierung, das jedes Transportprotokoll trifft, und rät
-UDP-Anwendungen deshalb, IP-Fragmentierung zu vermeiden \cite[Sec.~3.2]{rfc8085}. Dass der Rat gerade an UDP
-geht, hat einen Grund: Während TCP seinen Datenstrom selbst in passende Segmente zerlegt und der
-IP-Fragmentierung so meist entgeht \cite{rfc9293}, erzeugt UDP je Nachricht genau ein Datagramm
-(\secref{subsec:udp-eigenschaften}); ein zu großes Datagramm kann bislang nur die IP-Schicht zerteilen. Genau
-diese Lücke schließt die FRAG-Option von RFC~9868: Sie verlagert die Fragmentierung auf die Transportschicht
+Folgefragmente tragen keine Portnummern. Manche NATs und Firewalls benötigen vollständige IP-Pakete,
+setzen Fragmente jedoch nicht zusammen und verwerfen sie deshalb pauschal. Außerdem macht der Verlust
+eines einzelnen Fragments das gesamte Datagramm unbrauchbar. RFC~8085
+beschreibt diese Probleme und rät UDP-Anwendungen deshalb, IP-Fragmentierung zu vermeiden
+\cite[Sec.~3.2]{rfc8085}. TCP zerlegt seinen Datenstrom selbst in passende Segmente und vermeidet so meist
+IP-Fragmentierung \cite{rfc9293}. UDP erzeugt je Nachricht genau ein Datagramm
+(\secref{subsec:udp-eigenschaften}). Ein zu großes UDP-Datagramm kann bislang nur die IP-Schicht zerteilen.
+Genau diese Lücke schließt die FRAG-Option von RFC~9868: Sie verlagert die Fragmentierung auf die Transportschicht
 und wiederholt die Portnummern in jedem Fragment \cite[Sec.~11.4]{rfc9868}; den Verlust einzelner Fragmente
-behebt allerdings auch FRAG nicht. Darauf kommt \chapref{chap:evaluation} zurück.
+behebt allerdings auch FRAG nicht (\chapref{chap:evaluation}).
 
 \section{Das User Datagram Protocol (UDP)}
 \label{sec:udp}
 
-Das User Datagram Protocol (UDP) ist ein verbindungsloses, nachrichtenorientiertes Transportprotokoll. Es
-arbeitet ohne vorherigen Handshake und bietet selbst keine Garantie für Zustellung, Reihenfolge oder
+Das User Datagram Protocol (UDP) ist ein verbindungsloses, nachrichtenorientiertes Transportprotokoll.
+UDP benötigt keinen vorherigen Verbindungsaufbau und bietet selbst keine Garantie für Zustellung, Reihenfolge oder
 Duplikaterkennung \cite{rfc768}. Zuverlässigkeit und Staukontrolle muss ein nutzendes Protokoll bei Bedarf
 oberhalb von UDP bereitstellen \cite[Sec.~3.1 bis 3.3]{rfc8085}. UDP verwendet die IP-Protokollnummer~17 und
-ist als STD~6 standardisiert. Bemerkenswert ist, dass RFC~768 seit seiner Veröffentlichung im August 1980
-über 45~Jahre hinweg keine formelle Aktualisierung erfahren hat. Erst RFC~9868 trägt den Header-Eintrag
+ist als STD~6 standardisiert. RFC~768 wurde seit seiner Veröffentlichung im August 1980 über 45~Jahre
+hinweg nicht formell aktualisiert. Erst RFC~9868 trägt den Header-Eintrag
 \texttt{Updates:~768} und erweitert damit den ursprünglichen UDP-Standard erstmalig direkt \cite{rfc9868}.
 
-Historisch geht UDP auf die Aufspaltung des ursprünglichen \emph{Transmission Control Program} zurück, das
-Cerf, Dalal und Sunshine Ende 1974 noch als monolithische Einheit aus Netzwerk- und Transportfunktionen
-beschrieben \cite{rfc675}. Mit deren Trennung in IP und TCP entstand Raum für eine schlanke,
-transaktionsorientierte Alternative ohne den Overhead von TCP \cite{rfc768}. Der UDP-Kern blieb über die
-folgenden Jahrzehnte unverändert, und Begleitdokumente wie die Einsatzrichtlinien von RFC~8085 klärten
-Randfragen, ohne den Standard formell zu ändern \cite{rfc8085}. Die Motivation, ihn nun doch direkt zu
-erweitern, benennt RFC~9868 selbst: UDP zählt zu den meistgenutzten Protokollen ohne Raum für
-Header-Optionen, und weil inzwischen viele Protokolle UDP direkt nutzen, wäre eine Zwischenschicht oberhalb
-von UDP für Bestandsanwendungen kaum noch auszurollen \cite[Sec.~4 und 5]{rfc9868}.
+UDP geht auf die Aufspaltung des ursprünglichen \emph{Transmission Control Program} zurück, in dem
+Cerf, Dalal und Sunshine Ende 1974 Netzwerk- und Transportfunktionen noch gemeinsam beschrieben
+\cite{rfc675}. Die Trennung in IP und TCP schuf Raum für UDP als transaktionsorientierte Alternative ohne
+den Zusatzaufwand von TCP \cite{rfc768}. Begleitdokumente wie RFC~8085 geben Einsatzrichtlinien für UDP vor,
+ohne den Standard formell zu ändern \cite{rfc8085}.
 
 \subsection{Protokollstruktur}
 \label{subsec:udp-struktur}
@@ -252,22 +230,24 @@ den Aufbau des Headers zeigt \figref{fig:udp-header} \cite{rfc768}.
   \label{fig:udp-header}
 \end{figure}
 
-Aus \figref{fig:udp-header} geht hervor, dass der gesamte Header aus genau vier Feldern zu je 16~Bit
-besteht; unter ihnen das Längenfeld, für das \secref{sec:ipv4} mit \eqnref{eq:udp-length-obergrenze} bereits
-die Obergrenze aufgestellt hat. Die vier Felder im Einzelnen:
+\newpage
+
+Der UDP-Header besteht aus vier Feldern zu je 16~Bit (\figref{fig:udp-header}):
 
 \begin{itemize}
     \item \texttt{Source Port}: Die Portnummer des sendenden Prozesses. Dieses Feld ist optional; wird es nicht
-    benötigt, wird es auf null gesetzt \cite{rfc768}. In der Praxis nutzen Anwendungen den \textit{Source Port}
-    zur Identifikation des Absenders, damit der Empfänger Antworten an den korrekten Port zurücksenden kann.
+    benötigt, wird es auf null gesetzt \cite{rfc768}.\footnote{Dies ist etwa möglich, wenn weder Antworten noch
+    eine Zuordnung des Senders über den Quellport nötig sind; RFC~8085 rät jedoch von Quellport~0 ab
+    \cite[Sec.~5.1]{rfc8085}.} In der Praxis nutzt die empfangende Anwendung den \textit{Source Port},
+    um den Absender zuzuordnen und Antworten an dessen Port zu senden.
 
-    \item \texttt{Destination Port}: Die Portnummer des Zielprozesses auf dem empfangenden Host. Zusammen mit der
-    IP-Zieladresse ermöglicht dieses Feld die \textit{Demultiplexierung} eingehender Datagramme an die korrekte
-    Anwendung.
+    \item \texttt{Destination Port}: Die Portnummer des Zielprozesses auf dem empfangenden Host.
+    Anhand von IP-Zieladresse und Zielport ordnet der Empfänger eingehende Datagramme der richtigen Anwendung zu.
 
     \item \texttt{Length}: Die Gesamtlänge des UDP-Datagramms in Byte, bestehend aus Header \emph{und} Nutzdaten.
     Der Minimalwert beträgt~8, was einem Datagramm ohne Nutzdaten entspricht \cite{rfc768}. Da das Feld 16~Bit
-    breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte.
+    breit ist, ergibt sich eine theoretische Maximalgröße von 65\,535~Byte. Die durch IP gesetzte Obergrenze
+    steht in \eqnref{eq:udp-length-obergrenze} (\secref{sec:ipv4}).
 
     \item \texttt{Checksum}: Eine Prüfsumme zur Fehlererkennung über einen Pseudo-Header, den UDP-Header
     und die Nutzdaten; ihr Verfahren und ihre Sonderwerte erläutert der folgende Absatz.
@@ -277,30 +257,32 @@ die Obergrenze aufgestellt hat. Die vier Felder im Einzelnen:
 Die Prüfsumme dient der Fehlererkennung: Mit ihr erkennt der Empfänger, ob einzelne Bits des Datagramms auf
 dem Weg verändert wurden. Diese Prüfung auf der Transportschicht ist nötig, weil nicht jede Teilstrecke
 eines Pfades eigene Fehlererkennung bietet und Bits auch im Speicher eines Routers kippen können
-\cite{kurose2021topdown}. Für IPv4 darf der Sender die Prüfsumme durch den Feldwert null ungenutzt lassen;
-bei IPv6 ist sie grundsätzlich verpflichtend, abgesehen von eigens geregelten Tunnel-Ausnahmen
-\cite[Sec.~3.4 und 3.4.1]{rfc8085}.
-Für die Berechnung summiert der Sender Pseudo-Header, UDP-Header und Nutzdaten
-als 16-Bit-Wörter im Einerkomplement auf (ein Übertrag wird am niederwertigen Ende wieder hinzugezählt);
-das invertierte Ergebnis bildet den Feldwert \cite{rfc768,rfc1071}. Der Empfänger summiert dieselben Wörter
+\cite{kurose2021topdown}. Der Feldwert null bedeutet: keine UDP-Prüfsumme.\footnote{Manche Anwendungen
+verzichten auf die UDP-Prüfsumme, um Rechenaufwand für ihre Berechnung und Prüfung zu sparen
+\cite[Sec.~4.1.3.4]{rfc1122}.}
+Der Sender berechnet die Prüfsumme aus den 16-Bit-Wörtern von Pseudo-Header, UDP-Header und Nutzdaten.
+Er addiert sie im Einerkomplement. Dabei addiert er einen Übertrag wieder zum 16-Bit-Ergebnis.
+Danach invertiert er die Bits des Ergebnisses und trägt den Wert in das Prüfsummenfeld ein
+\cite{rfc768,rfc1071}. Zur Prüfung einer verwendeten Prüfsumme summiert der Empfänger dieselben Wörter
 einschließlich des Prüfsummenfelds und erwartet lauter Einsen, also \texttt{0xFFFF}; jedes andere Ergebnis
 zeigt einen Übertragungsfehler an \cite{rfc1071}.
 
-Dabei hilft eine Eigenheit des Einerkomplements: Es kennt zwei Darstellungen der Null, \texttt{0x0000} und
-\texttt{0xFFFF}. Diese Doppelrolle nutzt UDP für die Sonderwerte des Feldes:
-eine übertragene \texttt{0x0000} bedeutet, dass der Sender keine berechnet hat. Ergibt die
-Berechnung selbst den Wert null, wird stattdessen \texttt{0xFFFF} übertragen.
-Dadurch bleibt im Einerkomplement die Zahl Null erhalten, und der Sonderwert bleibt eindeutig \cite{rfc768}.
-Dabei ist zu beachten, dass UDP Fehler nur erkennen und nicht beheben kann;
-ein beschädigtes Datagramm wird typischerweise verworfen \cite{kurose2021topdown}.
+Das Einerkomplement kennt zwei Darstellungen der Null: \texttt{0x0000} und \texttt{0xFFFF}.
+Eine übertragene \texttt{0x0000} bedeutet, dass der Sender keine Prüfsumme berechnet hat. Ergibt die
+Berechnung selbst den Wert null, wird stattdessen \texttt{0xFFFF} übertragen. Der Empfänger kann dadurch
+eine berechnete Prüfsumme mit dem Ergebnis null von einer ungenutzten Prüfsumme unterscheiden \cite{rfc768}.
+
+UDP kann Fehler nur erkennen und nicht beheben; ein beschädigtes Datagramm wird typischerweise verworfen
+\cite{kurose2021topdown}.
 
 \paragraph{Pseudo-Header.}
-Die UDP-Prüfsumme schützt nicht nur die Transportschichtdaten, sondern bezieht über einen \textit{Pseudo-Header}
-auch Informationen der Vermittlungsschicht ein. Dieser Pseudo-Header ist kein Teil des Datagramms und steht an
-keiner Stelle im Paket: Sender und Empfänger bauen ihn jeweils nur für die Berechnung im Speicher auf und
-stellen ihn dem UDP-Header dabei gedanklich voran \cite{rfc768}. Dieses Konzept stellt sicher, dass ein
-Datagramm, das durch einen IP-Fehler an den falschen Host oder das falsche Protokoll zugestellt wird, erkannt
-und verworfen werden kann. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header}.
+Der \textit{Pseudo-Header} bezieht ausgewählte IP-Angaben in die UDP-Prüfsumme ein. So können unbeabsichtigte
+Änderungen an IP-Adressen auffallen, selbst wenn UDP-Header und Nutzdaten unverändert sind \cite{rfc768}.
+Die UDP-Implementierung des Senders bezieht den Pseudo-Header zusammen mit dem UDP-Header und den Nutzdaten
+in die Berechnung ein und trägt das Ergebnis in das UDP-Prüfsummenfeld ein. Die UDP-Implementierung des
+Empfängers bildet den Pseudo-Header aus den empfangenen Angaben und verwendet ihn für die Prüfung einer
+UDP-Prüfsumme ungleich null \cite{rfc768}. Der Pseudo-Header wird nicht als eigener Header übertragen;
+seine Werte gehen nur in die Rechnung ein. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header}.
 
 \begin{figure}[H]
   \centering
@@ -328,19 +310,22 @@ und verworfen werden kann. Seinen Aufbau zeigt \figref{fig:udp-pseudo-header}.
 \end{figure}
 
 Der Pseudo-Header besteht aus beiden IP-Adressen, einem Nullbyte, \texttt{Protocol} und der wiederholten
-\texttt{UDP Length}. Sender und Empfänger bilden diese nicht übertragenen zwölf Byte aus den jeweils
-vorliegenden Werten \cite{rfc768}. Ohne Umschreibung sind die Werte an beiden Enden gleich; eine NAT kann
-Adressen oder Ports samt UDP-Prüfsumme anpassen \cite[Sec.~11.3]{rfc9868}. Das Nullbyte ergänzt das
-8-Bit-Protokollfeld zu einem 16-Bit-Wort, wie ein Nulloktett Nutzdaten ungerader Länge für die Rechnung
-auffüllt \cite{rfc768,rfc1071}. Ein veränderliches Feld wie \texttt{Time to Live} wäre ungeeignet, weil
+\texttt{UDP Length}. Sender und Empfänger verwenden dafür die Werte aus den jeweiligen IP- und UDP-Headern
+\cite{rfc768}. Ohne Änderungen an den Headern verwenden Sender und Empfänger dieselben Werte.
+Eine NAT kann Adressen oder Ports umschreiben und die UDP-Prüfsumme entsprechend anpassen, weil diese Felder
+in deren Berechnung eingehen \cite[Sec.~11.3]{rfc9868}. Das Nullbyte ergänzt das 8-Bit-Protokollfeld zu einem
+16-Bit-Wort. Auch Nutzdaten ungerader Länge werden für die Prüfsummenrechnung mit einem Nulloktett aufgefüllt
+\cite{rfc768,rfc1071}. Ein veränderliches Feld wie \texttt{Time to Live} wäre ungeeignet, weil
 Sender und Empfänger dann verschiedene Summen bildeten (\secref{sec:ipv4}).
+
+\newpage
 
 \subsection{Eigenschaften}
 \label{subsec:udp-eigenschaften}
 
 UDP ist nachrichtenorientiert: Jede Sendeoperation erzeugt ein Datagramm, das der Empfänger als Einheit
 entgegennimmt. TCP stellt dagegen einen Bytestrom bereit, segmentiert ihn selbst und überlässt der Anwendung
-die Kennzeichnung von Nachrichtengrenzen \cite[Sec.~2.2 und 3.7]{rfc9293}. Klassisches UDP hält zudem keine
+die Kennzeichnung von Nachrichtengrenzen \cite[Sec.~2.2 und 3.7]{rfc9293}. UDP nach RFC~768 hält zudem keine
 Sequenznummern, Fenstergrößen oder Zeitgeber je Kommunikationsbeziehung vor. Nur die Reassemblierung von
 FRAG-Datagrammen bildet in RFC~9868 eine begrenzte Ausnahme \cite[Sec.~6]{rfc9868}.
 
@@ -351,70 +336,23 @@ eines Verlusts zurückgehalten; dort entsteht kein \textit{Head-of-Line-Blocking
 Bytestrom. Benötigte Zuverlässigkeit oder Reihenfolge muss die Anwendung selbst herstellen
 \cite[Sec.~3.3]{rfc8085}.
 
-Diese Eigenschaften eignen sich für latenzempfindliche oder verlusttolerante Anwendungen. Dem festen
-UDP-Header fehlt jedoch ein eigener Erweiterungsraum. RFC~9868 nutzt dafür die Surplus Area, ohne den
-Header zu verändern (\secref{sec:surplus-area}).
-
-\section{Erweiterungsmuster im Vergleich}
-\label{sec:erweiterungsmuster}
-
-Ein Protokoll ohne freie Bits oder Versionsfeld lässt sich nur erweitern, wenn die Grenze zwischen Kopf,
-Nutzdaten und Zusatzraum anderweitig erkennbar ist. \tabref{tab:erweiterungsmuster} vergleicht die drei
-hier relevanten Muster.
-
-\begin{table}[htbp]
-  \centering
-  \caption{Muster für nachträgliche Protokollerweiterungen}
-  \label{tab:erweiterungsmuster}
-  \footnotesize
-  \begin{tabularx}{\textwidth}{@{}L{2.3cm}L{2.8cm}YL{3.2cm}L{2.1cm}@{}}
-    \toprule
-    \textbf{Muster} & \textbf{Lage und Kennzeichnung} & \textbf{Voraussetzung} &
-      \textbf{Verhalten alter Empfänger} & \textbf{Grenze} \\
-    \midrule
-    TCP- und IPv4-Header\-optionen
-      & zwischen festem Header und Nutzdaten; Offset im Header
-      & das ursprüngliche Format besitzt ein Offsetfeld
-      & Bestandteil des bereits definierten Headerformats; auf UDP nicht übertragbar
-      & bei TCP höchstens 40~Byte \cite{rfc9293} \\
-    Teredo-Trailer in den UDP-Nutzdaten
-      & hinter dem inneren IPv6-Paket; dessen Länge markiert das Ende
-      & Nutzdaten besitzen eine eigene, bekannte Grenze
-      & im Teredo-Protokoll auswertbar; für beliebige UDP-Altempfänger In-Band-Daten
-      & innerhalb der UDP-Nutzdaten \cite{rfc4380,rfc6081} \\
-    UDP Options in der Surplus Area
-      & hinter \texttt{UDP Length}, aber vor dem IP-Datagramm\-ende
-      & redundante Längenangaben von UDP und IP
-      & gewöhnliche Empfänger stoppen an \texttt{UDP Length}; dokumentierte Ausnahmen bleiben
-      & bis zum IP-Datagramm\-ende \cite[Sec.~4 und 18]{rfc9868} \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-Das erste Muster kennen TCP und IPv4 (\secref{sec:ipv4}); beide teilen dabei auch das Füllmuster aus den
-Ein-Byte-Codes \texttt{NOP} (No Operation) und \texttt{EOL} (End of Option List) \cite{rfc9293,rfc791}. UDP
-besitzt dagegen vier feste 16-Bit-Felder und kein Offset- oder Ankündigungsfeld. Eine Headererweiterung wäre
-daher nicht abwärtskompatibel. Eine In-Band-Konvention scheitert bei beliebigen Bestandsanwendungen, weil
-sie die Zusatzfelder als Nutzdaten lesen \cite[Sec.~4]{rfc9868}. RFC~9868 nutzt stattdessen, dass UDP
-seine Länge wiederholt: Endet \texttt{UDP Length} vor der IP-Nutzlast, bildet der Rest die Surplus Area.
-Dieser Mechanismus bleibt mit Teredo-Trailern kompatibel. Der historische Grund für das UDP-Längenfeld ist
-ungeklärt; RFC~9868 nennt vorgeschlagene Erklärungen, die nicht zu früheren UDP-Fassungen und zur
-zeitgleichen Multiplex-Konstruktion passen, und lässt die Ursache offen \cite[Sec.~4]{rfc9868}. Für
-bestehendes UDP ist damit nur der Surplus-Trailer allgemein einsetzbar. Seinen Aufbau behandelt der
-folgende Abschnitt.
-
+Diese Eigenschaften eignen sich für latenzempfindliche oder verlusttolerante Anwendungen.
 \section{Die Surplus Area}
 \label{sec:surplus-area}
+
+Der UDP-Header bietet keinen Platz für zusätzliche Optionsfelder. Zusätze innerhalb der UDP-Nutzdaten
+würden auch an Anwendungen weitergegeben, die keine Optionen unterstützen. RFC~9868 legt die Optionen
+deshalb hinter die UDP-Nutzdaten in die Surplus Area \cite[Sec.~4 und 7]{rfc9868}.
 
 \subsection{Lage und Kompatibilität}
 \label{subsec:surplus-lage}
 
-\texttt{UDP Length} umfasst nur den UDP-Header und die UDP-Nutzdaten. Die Längenangaben des IP-Headers können
-einen größeren Transportbereich ausweisen (\secref{sec:ipv4}). RFC~9868 nennt die gesamte Nutzlast hinter dem
-IP-Header \textit{IP Transport Payload} und den Teil zwischen dem Ende der UDP-Nutzdaten und dem Ende des
-IP-Datagramms \textit{Surplus Area}; dort liegen die UDP Options. Die Lage beider Bereiche zeigt
-\figref{fig:surplus-area} an einem Beispieldatagramm mit \texttt{Total Length} 60, \texttt{IHL} 5 und
-\texttt{UDP Length} 32 \cite[Sec.~7]{rfc9868}:
+\texttt{UDP Length} umfasst nur den UDP-Header und die UDP-Nutzdaten. Die Längenangaben im IP-Header können
+für UDP mehr Platz angeben, als \texttt{UDP Length} umfasst (\secref{sec:ipv4}). Die gesamte Nutzlast hinter
+dem IP-Header heißt in RFC~9868 \textit{IP Transport Payload}, in dieser Arbeit kurz IP-Nutzlast. Der Teil
+hinter den UDP-Nutzdaten bis zum Ende des IP-Datagramms heißt \textit{Surplus Area}. Dort liegen die UDP
+Options. Die Lage beider Bereiche zeigt \figref{fig:surplus-area} an einem Beispieldatagramm mit
+\texttt{Total Length} 60, \texttt{IHL} 5 und \texttt{UDP Length} 32 \cite[Sec.~7]{rfc9868}:
 
 \begin{figure}[H]
   \centering
@@ -446,45 +384,46 @@ IP-Datagramms \textit{Surplus Area}; dort liegen die UDP Options. Die Lage beide
   \label{fig:surplus-area}
 \end{figure}
 
-\figref{fig:surplus-area} zeigt drei Grenzen ab Byte~0 des IP-Datagramms: Die IP Transport Payload beginnt
-nach dem IP-Header, \texttt{UDP Length} deckt von dort nur UDP-Header und Nutzdaten ab, und die Surplus Area
-reicht bis zum IP-Datagrammende. Im Beispiel bleiben von $60-20=40$~Byte IP Transport Payload nach
-\texttt{UDP Length}~$=32$ genau 8~Byte. Allgemein gilt
+In \figref{fig:surplus-area} beginnt die IP Transport Payload nach dem IP-Header. \texttt{UDP Length}
+umfasst darin UDP-Header und Nutzdaten; die Surplus Area reicht bis zum Ende des IP-Datagramms. Im Beispiel
+bleiben von $60-20=40$~Byte IP Transport Payload nach Abzug von \texttt{UDP Length}~$=32$ genau 8~Byte
+Surplus Area. Allgemein gilt
 \begin{equation}
   \textit{Surplus-Länge} = \textit{Total Length} - \textit{IP-Headerlänge} - \textit{UDP Length}.
   \label{eq:surplus-laenge}
 \end{equation}
-Die Obergrenze aus \eqnref{eq:udp-length-obergrenze} verhindert negative Werte; bei Überschreitung ist das
-Datagramm ungültig und wird still verworfen \cite[Sec.~10]{rfc9868}. Ohne Optionen ist die Differenz null.
-RFC~768 verlangt diese Gleichheit jedoch nicht; RFC~9868 nutzt die seit 1980 bestehende Freiheit
-\cite[Sec.~7]{rfc9868}.
+Eine negative Surplus-Länge bedeutet, dass \texttt{UDP Length} die Obergrenze aus
+\eqnref{eq:udp-length-obergrenze} überschreitet. Der Empfänger verwirft ein solches Datagramm still als
+ungültig \cite[Sec.~10]{rfc9868}. Ohne Surplus Area ist die Differenz null. RFC~768 verlangt diese Gleichheit
+jedoch nicht; RFC~9868 nutzt die seit 1980 mögliche Längendifferenz \cite[Sec.~7]{rfc9868}.
 
 Ein Altempfänger verarbeitet gewöhnlich nur die durch \texttt{UDP Length} begrenzten Nutzdaten und
-überliest den Rest. RFC~9868 dokumentiert neben diesem Verhalten getesteter Standardsysteme auch
-Abweichungen: Ein eingebettetes Gerät reichte das ganze IP-Datagramm weiter, ein Erkennungssystem meldete
-die Differenz als Angriff \cite[Sec.~18]{rfc9868}. Die Erweiterung ist daher für Endsysteme typischerweise,
-nicht ausnahmslos, abwärtskompatibel; reale Pfade untersucht \chapref{chap:evaluation}. Für IP bleibt die
-Surplus Area gewöhnliche Transportnutzlast innerhalb von \texttt{Total Length}; neue IP-Felder oder eine
-geänderte IPv4-Verarbeitung entstehen nicht \cite[Sec.~16]{rfc9868}.
+ignoriert den Rest. RFC~9868 nennt auch abweichendes Verhalten: Ein eingebettetes Gerät reichte das ganze
+IP-Datagramm weiter, ein Erkennungssystem meldete die Differenz als Angriff \cite[Sec.~18]{rfc9868}. Die
+Erweiterung ist daher für Endsysteme typischerweise, nicht ausnahmslos, abwärtskompatibel; reale Pfade
+untersucht \chapref{chap:evaluation}. Für IP bleibt die Surplus Area gewöhnliche IP-Nutzlast innerhalb von
+\texttt{Total Length}; neue IP-Felder oder eine geänderte IPv4-Verarbeitung entstehen nicht
+\cite[Sec.~16]{rfc9868}.
 
-Die Surplus Area darf an jedem gültigen Byte-Offset, auch einem ungeraden, beginnen. Das
-Ausrichtungsproblem wird in ihr gelöst (\secref{subsec:surplus-aufbau}). \texttt{UDP Length} bleibt eine
-Länge und markiert zugleich den \textit{trailer options offset} \cite[Sec.~7]{rfc9868}. Damit erhält ein
-unverändertes Feld eine zusätzliche Bedeutung \cite[Sec.~21]{rfc9868}.
+Die Surplus Area darf an jedem gültigen Byte-Offset, auch einem ungeraden, beginnen
+(\secref{subsec:surplus-aufbau}). \texttt{UDP Length} gibt weiterhin die Gesamtlänge von UDP-Header und
+UDP-Nutzdaten an. Der Empfänger kann damit zugleich den Beginn einer vorhandenen Surplus Area bestimmen:
+Sie beginnt unmittelbar hinter diesem Bereich \cite[Sec.~7 und 21]{rfc9868}.
+
+\newpage
 
 \subsection{Aufbau und Ausrichtung}
 \label{subsec:surplus-aufbau}
 
-Trägt die Surplus Area Optionen, ist sie vollständig strukturiert; ungedeutete Restbytes gibt es dann nicht.
-Sie beginnt mit der \textit{Option Checksum} (OCS), einem 2~Byte großen Prüfsummenfeld an der ersten
-2-Byte-Grenze der Area, gemessen am Beginn des IP-Datagramms. Beginnt die Surplus Area an einem ungeraden
-Offset, stellt genau ein Nullbyte vor dem OCS diese Ausrichtung her (das \textit{Pad}). Hinter dem OCS folgt
-die Optionsliste im TLV-Format (Type-Length-Value, \secref{subsec:surplus-tlv}); bei gewöhnlichen
-Datagrammen läuft sie bis zum Ende der Surplus Area oder endet vorzeitig mit \texttt{EOL}, worauf nur noch
-Nullbytes folgen \cite[Sec.~8]{rfc9868}. Nur beim UDP-Fragment endet sie früher, denn dort folgt hinter den
-Optionen noch der Fragmentdatenbereich (\secref{subsec:surplus-prinzipien}).
-Diese Anatomie zeigt \figref{fig:surplus-struktur} an einem Datagramm mit 5~Byte Nutzdaten und einer
-einzelnen Option:
+Wenn die Surplus Area UDP Options enthält, ist die Verwendung aller Bytes festgelegt. An der ersten
+2-Byte-Grenze der Surplus Area steht das 2~Byte große Prüfsummenfeld \textit{Option Checksum} (OCS). Die
+Bytepositionen werden ab dem Beginn des IP-Datagramms gezählt. Beginnt die Surplus Area an einem ungeraden
+Offset, setzt der Sender genau ein Nullbyte vor das OCS, um es auszurichten (das \textit{Pad}). Hinter dem
+OCS folgt die Optionsliste im TLV-Format (Type-Length-Value, \secref{subsec:surplus-tlv}). Bei gewöhnlichen
+Datagrammen reicht sie bis zum Ende der Surplus Area oder endet vorzeitig mit \texttt{EOL}; danach folgen
+nur noch Nullbytes \cite[Sec.~8]{rfc9868}. Bei UDP-Fragmenten folgen hinter dem Optionsbereich noch die
+Fragmentdaten (\secref{subsec:surplus-prinzipien}). Diesen Aufbau zeigt \figref{fig:surplus-struktur} an einem
+Datagramm mit 5~Byte Nutzdaten und einer einzelnen Option:
 
 \begin{figure}[H]
   \centering
@@ -532,41 +471,43 @@ einzelnen Option:
     \draw[draw=feldlinie, thin] (2.0,-2.30) -- (5.3,-2.30);
     \draw[draw=feldlinie, thin] (2.0,-2.22) -- (2.0,-2.38);
     \draw[draw=feldlinie, thin] (5.3,-2.22) -- (5.3,-2.38);
-    \node[font=\tiny, text=feldlinie] at (3.65,-2.58) {Deckungsbereich der UDP-Prüfsumme};
-    \draw[draw=akzent, semithick] (5.38,-2.30) -- (13.05,-2.30);
-    \draw[draw=akzent, semithick] (5.38,-2.22) -- (5.38,-2.38);
+    \node[font=\tiny, text=feldlinie, align=center] at (3.65,-2.62) {Prüfbereich der\\UDP-Prüfsumme};
+    \draw[draw=feldlinie, thin, dashed] (5.3,-2.30) -- (5.85,-2.30);
+    \draw[draw=feldlinie, thin] (5.575,-2.30) -- (5.575,-3.0);
+    \node[font=\tiny, text=feldlinie, anchor=north] at (5.575,-3.05) {Pad: gesonderte Nullprüfung};
+    \draw[draw=akzent, semithick] (5.85,-2.30) -- (13.05,-2.30);
+    \draw[draw=akzent, semithick] (5.85,-2.22) -- (5.85,-2.38);
     \draw[draw=akzent, semithick] (13.05,-2.22) -- (13.05,-2.38);
-    \node[font=\tiny, text=akzent] at (9.2,-2.58) {Schutzbereich des OCS};
+    \node[font=\tiny, text=akzent] at (9.45,-2.58) {Prüfbereich des OCS};
   \end{tikzpicture}
-  \caption{Anatomie eines Datagramms mit UDP Options}
+  \caption{Aufbau eines Datagramms mit UDP Options}
   \label{fig:surplus-struktur}
 \end{figure}
 
-Aus \figref{fig:surplus-struktur} geht hervor, wie die Bausteine ineinandergreifen: \texttt{UDP Length}
-$= 8 + 5 = 13$ lässt die Surplus Area bei Byte $20 + 13 = 33$ beginnen. Dieser Offset ist ungerade, also
-rückt ein Pad-Byte das OCS auf die 2-Byte-Grenze bei Byte 34, und die erste Option beginnt bei Byte 36.
-Die unterste Ebene der Abbildung zeigt zugleich, dass sich die beiden Prüfbereiche im Datagramm lückenlos
-ergänzen: Die UDP-Prüfsumme endet an \texttt{UDP Length} (hinzu kommt nur ihr Pseudo-Header,
-\secref{subsec:udp-struktur}), das OCS schützt genau den Teil, den die UDP-Prüfsumme nie sieht
-\cite[Sec.~8]{rfc9868}.
+In \figref{fig:surplus-struktur} gilt \texttt{UDP Length} $= 8 + 5 = 13$. Die Surplus Area beginnt deshalb
+bei Byte $20 + 13 = 33$. Dieser Offset ist ungerade, also fügt der Sender ein Pad-Byte ein. Das OCS beginnt
+bei Byte 34, die erste Option bei Byte 36. Die Abbildung zeigt unten auch die Prüfbereiche bei verwendeten
+Prüfsummen: Die UDP-Prüfsumme erfasst den UDP-Header und die Nutzdaten; zusätzlich geht der Pseudo-Header
+in ihre Berechnung ein (\secref{subsec:udp-struktur}). Mit dem OCS prüft der Empfänger die Surplus Area ab
+dem OCS-Feld. Ein davorliegendes Pad-Byte prüft er gesondert auf null \cite[Sec.~8 und 9]{rfc9868}.
 
-Für diese Stelle formuliert RFC~9868 verbindliche Regeln \cite[Sec.~8]{rfc9868}: Der Sender darf Optionen an
-jedem gültigen \texttt{UDP-Length}-Offset beginnen lassen, und Ausrichtungsbytes vor dem OCS müssen null
-sein. Findet der Empfänger dort einen anderen Wert, greift zum ersten Mal eine Grundregel, die alle weiteren
-Prüfungen dieses Abschnitts teilen: Im Standardfall kostet ein Fehler in der Surplus Area nur die Optionen.
-Der Empfänger verwirft die Optionsliste still und stellt die Nutzdaten trotzdem zu, wie es auch ein
-Altempfänger täte \cite[Sec.~8 und 14]{rfc9868}. Standardfall heißt dabei: Das Datagramm selbst ist gültig,
-denn eine falsche \texttt{UDP Length} oder eine fehlgeschlagene UDP-Prüfsumme verwirft es komplett, noch
-bevor Optionen betrachtet werden, während eine zulässig ungenutzte Prüfsumme (\secref{subsec:udp-struktur})
-kein Fehler ist \cite[Sec.~10 und 14]{rfc9868}; die Anwendung hat kein strengeres Verhalten angefordert; und
-es ist kein UDP-Fragment, denn die Sonderwege von FRAG und UNSAFE behandelt \secref{subsec:surplus-prinzipien}.
-Die 2-Byte-Ausrichtung selbst begründet der RFC pragmatisch: Das OCS wird, wie der nächste Unterabschnitt
-zeigt, über 16-Bit-Wörter berechnet, und die Ausrichtung erspart dieser Rechnung das Vertauschen von Bytes
-\cite[Sec.~8]{rfc9868}.
+Der Sender darf Optionen an jedem gültigen \texttt{UDP-Length}-Offset beginnen lassen. Ausrichtungsbytes
+vor dem OCS müssen null sein \cite[Sec.~8]{rfc9868}. Für Fehler in der Surplus Area gilt im Standardfall:
+Der Empfänger verwirft die Optionsliste still und stellt die Nutzdaten trotzdem zu. Das gilt auch bei
+einem Ausrichtungsbyte ungleich null und entspricht dem Verhalten eines Altempfängers
+\cite[Sec.~8 und 14]{rfc9868}.
 
-Ob ein Pad-Byte nötig ist, entscheidet allein die Parität des Startoffsets; es gibt nur zwei Fälle, kein
-Pad oder genau eines. Den Unterschied zeigt \figref{fig:surplus-pad} an zwei sonst gleichen Datagrammen,
-deren Nutzdaten sich um ein einziges Byte unterscheiden:
+Dieser Standardfall setzt ein gültiges Datagramm voraus. Ist \texttt{UDP Length} ungültig oder schlägt die
+UDP-Prüfsumme fehl, verwirft der Empfänger das ganze Datagramm, noch bevor er Optionen betrachtet. Eine
+zulässig ungenutzte Prüfsumme (\secref{subsec:udp-struktur}) ist dagegen kein Fehler
+\cite[Sec.~10 und 14]{rfc9868}. Außerdem darf die Anwendung kein strengeres Verhalten angefordert haben.
+FRAG und UNSAFE sind von dieser vereinfachten Regel ausgenommen; ihre Sonderfälle behandelt
+\secref{subsec:surplus-prinzipien} \cite[Sec.~12 und 14]{rfc9868}.
+
+Das OCS wird aus 16-Bit-Wörtern berechnet; die 2-Byte-Ausrichtung vermeidet dabei das Vertauschen von Bytes
+\cite[Sec.~8]{rfc9868}. Bei einem geraden Startoffset ist kein Pad-Byte nötig, bei einem ungeraden genau
+eines. Den Unterschied zeigt \figref{fig:surplus-pad} an zwei sonst gleichen Datagrammen, deren Nutzdaten
+sich um ein einziges Byte unterscheiden:
 
 \begin{figure}[H]
   \centering
@@ -596,42 +537,50 @@ deren Nutzdaten sich um ein einziges Byte unterscheiden:
     \node[feldtext] at (8.755,-1.86) {Optionen \dots};
     \node[font=\tiny, text=feldlinie, anchor=west] at (10.3,-1.86) {gerade: kein Pad, OCS ab 34};
   \end{tikzpicture}
-  \caption{Paritätsentscheid für das Pad-Byte vor dem OCS}
+  \caption{Pad-Byte bei geradem und ungeradem Startoffset}
   \label{fig:surplus-pad}
 \end{figure}
 
-Aus \figref{fig:surplus-pad} geht hervor, dass bereits ein einziges Nutzdatenbyte über das Pad entscheidet:
-Bei einem IP-Header ohne Optionen liegt der Startoffset bei $20 + \textit{UDP Length}$, sodass allein die
-Parität von \texttt{UDP Length} den Ausschlag gibt. An der Größe der Surplus Area hängt zugleich, ob sie
-überhaupt Optionen trägt: Nötig sind mindestens 2~Byte bei geradem und 3~Byte bei ungeradem Start, damit das
-ausgerichtete OCS vollständig hineinpasst. Ein kleinerer Überschuss enthält schlicht keine Optionen und ist
-kein Fehlerfall; passt genau das OCS hinein und sonst nichts, ist die Optionsliste leer und das Datagramm
-ebenfalls gültig \cite[Sec.~7 und 8]{rfc9868}. Nutzdaten braucht es dagegen keine: Auch ein Datagramm mit
-\texttt{UDP Length} 8, also leerem Nutzdatenteil, kann Optionen tragen \cite[Sec.~8]{rfc9868}; davon macht
-später die FRAG-Option Gebrauch, deren Fragmente ihre Daten vollständig in der Surplus Area transportieren.
+Bei einem IP-Header ohne Optionen beginnt die Surplus Area bei Byte $20 + \textit{UDP Length}$. Durch ein
+zusätzliches Nutzdatenbyte wird aus einer geraden \texttt{UDP Length} eine ungerade oder umgekehrt. Dadurch
+ändert sich, ob ein Pad-Byte nötig ist (\figref{fig:surplus-pad}). An der Größe der Surplus Area hängt
+zugleich, ob sie überhaupt Optionen trägt: Nötig sind mindestens 2~Byte bei geradem und 3~Byte bei ungeradem
+Start, damit das ausgerichtete OCS vollständig hineinpasst. Ein kleinerer Überschuss enthält keine
+Optionen, ist aber kein Fehlerfall. Passt genau das OCS hinein und sonst nichts, ist die Optionsliste leer
+und das Datagramm ebenfalls gültig \cite[Sec.~7 und 8]{rfc9868}. Auch ein Datagramm mit \texttt{UDP Length} 8
+und damit ohne UDP-Nutzdaten kann Optionen tragen \cite[Sec.~8]{rfc9868}. Die FRAG-Option nutzt dies: Ihre
+Fragmente transportieren ihre Daten vollständig in der Surplus Area.
 
 \subsection{OCS und Fehlerbehandlung}
 \label{subsec:surplus-ocs}
 
-Das OCS selbst ist eine gewöhnliche Internet-Prüfsumme mit derselben Einerkomplementarithmetik, die
-\secref{subsec:udp-struktur} für die UDP-Prüfsumme beschreibt \cite{rfc1071}. Zwei Eigenheiten unterscheiden
-die beiden. Erstens schützt das OCS genau den Bereich, den die UDP-Prüfsumme ausspart: Die Summe läuft ab
-dem ausgerichteten OCS-Feld über den Rest der Surplus Area, wobei das OCS-Feld selbst als null gilt; das Pad
-davor wird getrennt auf null geprüft und ist so mitgeschützt \cite[Sec.~8 und 9]{rfc9868}. Zweitens geht
-zusätzlich die Länge der gesamten Surplus Area einschließlich des Pads als vorzeichenloser 16-Bit-Summand in
-die Rechnung ein, obwohl dieser Wert in keinem eigenen Feld des Pakets steht \cite[Sec.~9]{rfc9868}. Das
-folgt demselben Gedanken wie der Pseudo-Header aus \secref{subsec:udp-struktur}:
-Wie die UDP-Prüfsumme dort die \texttt{UDP Length} einbezieht, bezieht das OCS die Surplus-Länge ein, und
-beide Seiten können diesen Summanden unabhängig voneinander aus den Längenfeldern ableiten. Der Sender trägt
-das invertierte Ergebnis in das Feld ein. Abschnitt~9 verlangt ein OCS ungleich null, sobald die
-UDP-Prüfsumme ungleich null ist, und kennzeichnet ein ungenutztes OCS mit null \cite[Sec.~9]{rfc9868}. Eine
-ausdrückliche Senderegel für eine errechnete Null enthält der Abschnitt nicht; weil der Nullwert die
-unbenutzte Form kennzeichnet, bleibt für ein verwendetes OCS im Einerkomplement nur die Abbildung auf
-\texttt{0xFFFF}, analog zur UDP-Prüfsumme \cite{rfc768}. Der Empfänger summiert die Wörter der Surplus Area
-einschließlich des OCS-Felds sowie den Längensummanden und erwartet wie in \secref{subsec:udp-struktur}
-lauter Einsen, also \texttt{0xFFFF} \cite{rfc1071}.
+Das OCS ist eine gewöhnliche Internet-Prüfsumme mit derselben Einerkomplementarithmetik, die
+\secref{subsec:udp-struktur} für die UDP-Prüfsumme beschreibt \cite{rfc1071}. Es dient vor allem dazu,
+zufällige Fehler und nicht standardkonforme Nutzungen der Surplus Area zu erkennen. Es schützt nicht gegen
+gezielte Angriffe \cite[Sec.~9]{rfc9868}.
 
-\tabref{tab:ocs-rechenbeispiel} führt diese Rechnung an einem bewusst kleinen Beispiel vollständig vor.
+Der Sender summiert die 16-Bit-Wörter ab dem ausgerichteten OCS-Feld bis zum Ende der Surplus Area. Das
+OCS-Feld behandelt er dabei als null \cite[Sec.~8 und 9]{rfc9868}. Zusätzlich addiert er die Länge der
+gesamten Surplus Area einschließlich des Pads als vorzeichenlosen 16-Bit-Wert. Diese Länge ergibt sich aus
+den Längenfeldern des IP- und UDP-Headers (\eqnref{eq:surplus-laenge}); sie steht in keinem eigenen Feld des
+Pakets \cite[Sec.~9]{rfc9868}. Der Sender trägt das invertierte Ergebnis in das OCS-Feld ein.
+
+Wenn die UDP-Prüfsumme ungleich null ist, muss auch das OCS ungleich null sein. Ein OCS-Wert von
+\texttt{0x0000} kennzeichnet ein ungenutztes OCS. Das ist nur zulässig, wenn auch die UDP-Prüfsumme null ist.
+Implementierungen müssen standardmäßig ein OCS ungleich null setzen \cite[Sec.~9]{rfc9868}. Abschnitt~9
+enthält keine ausdrückliche Senderegel für den Fall, dass die OCS-Berechnung null ergibt. Aus der
+Kennzeichnung eines ungenutzten OCS mit \texttt{0x0000} folgt jedoch für ein verwendetes OCS: Der Sender
+trägt eine berechnete Null als \texttt{0xFFFF} ein, wie bei der UDP-Prüfsumme \cite{rfc768}.
+
+Der Empfänger bestimmt die Surplus-Länge unabhängig vom Sender aus den Längenfeldern. Ein Pad-Byte vor dem
+OCS prüft er gesondert auf null \cite[Sec.~8 und 9]{rfc9868}. Bei verwendetem OCS summiert er die Wörter ab
+dem OCS-Feld bis zum Ende der Surplus Area einschließlich des empfangenen OCS-Werts sowie den
+Längensummanden. Er erwartet wie bei der UDP-Prüfsumme in \secref{subsec:udp-struktur} lauter Einsen, also
+\texttt{0xFFFF} \cite{rfc1071}. Schlägt die OCS-Prüfung fehl, gilt die Grundregel aus
+\secref{subsec:surplus-aufbau}: Der Empfänger verwirft im Standardfall die Optionen still und stellt die
+Nutzdaten bei bestandener oder zulässig ungenutzter UDP-Prüfsumme dennoch zu \cite[Sec.~9]{rfc9868}.
+
+\tabref{tab:ocs-rechenbeispiel} zeigt die Berechnung an einem kleinen Beispiel.
 
 \begin{table}[htbp]
   \centering
@@ -653,65 +602,55 @@ lauter Einsen, also \texttt{0xFFFF} \cite{rfc1071}.
 \end{table}
 
 Die Optionswörter stehen für zwei \texttt{NOP}, ein \texttt{EOL} und ein Nullbyte. Die zwei \texttt{NOP}
-dienen nur der Rechnung; als Füllung vor \texttt{EOL} rät RFC~9868 von ihnen ab. Ein regulärer Sender
-schriebe \texttt{EOL} unmittelbar hinter das OCS \cite[Sec.~11.1]{rfc9868}.
+dienen nur der Rechnung; als Füllung vor \texttt{EOL} rät RFC~9868 von ihnen ab. Ein regulärer Sender würde
+in diesem Beispiel \texttt{EOL} unmittelbar hinter das OCS setzen \cite[Sec.~11.1]{rfc9868}.
 
-Diese Bauart hat einen praktischen Hintergrund: Manche fehlerhafte Middleboxes berechnen die UDP-Prüfsumme
-über die gesamte IP-Nutzlast statt nur bis \texttt{UDP Length}. Weil das OCS über die Surplus Area und deren
-Länge gebildet und anschließend invertiert wird, neutralisiert es den Beitrag der fälschlich einbezogenen
-Surplus Area: Mit gesetztem OCS fällt die UDP-Prüfsumme in beiden Rechnungen gleich aus; an dieser fehlerhaften
-Ausdehnung des Prüfbereichs scheitert das Datagramm bei solchen Geräten also nicht \cite[Sec.~9]{rfc9868}.
-In erster Linie dient das OCS ohnehin dem
-Erkennen zufälliger Fehler und anderweitiger, nicht standardkonformer Nutzungen der Surplus Area; ein Schutz
-gegen gezielte Angriffe ist es ausdrücklich nicht. Wie die UDP-Prüfsumme ist das OCS
-zudem bedingt abschaltbar: Der Wert \texttt{0x0000} bedeutet ungenutzt, zulässig ist das nur, wenn auch die
-UDP-Prüfsumme null ist, und Implementierungen müssen standardmäßig ein echtes OCS setzen
-\cite[Sec.~9]{rfc9868}. Schlägt die Prüfung beim Empfänger fehl, gilt die Grundregel aus
-\secref{subsec:surplus-aufbau}: Optionen still verwerfen, Nutzdaten bei bestandener oder zulässig
-ungenutzter UDP-Prüfsumme dennoch zustellen \cite[Sec.~9]{rfc9868}.
+Manche fehlerhafte Middleboxes berechnen die UDP-Prüfsumme über die gesamte IP-Nutzlast statt nur bis
+\texttt{UDP Length} und verwenden auch im Pseudo-Header diese größere Länge. Weil das OCS über die Surplus
+Area und deren Länge gebildet und anschließend invertiert wird, gleicht es den Beitrag der fälschlich
+einbezogenen Surplus Area und den Längenzuschlag im Pseudo-Header aus. Mit gültigem OCS fällt die
+UDP-Prüfsumme in diesem Fall genauso aus wie bei korrekter Berechnung \cite[Sec.~9]{rfc9868}.
 
 \subsection{TLV-Format und Empfangsentscheidung}
 \label{subsec:surplus-tlv}
 
-Die Optionen hinter dem OCS folgen dem TLV-Muster, dessen Syntax RFC~9868 bewusst an TCP anlehnt
-(\secref{sec:erweiterungsmuster}): Ein 1~Byte großes Feld \texttt{Kind}, benannt nach dem TCP-Vorbild,
-identifiziert die Option; das 1~Byte große Feld \texttt{Length} zählt die Gesamtlänge der Option
-einschließlich \texttt{Kind} und \texttt{Length} selbst; dahinter kann ein Wert folgen
-\cite[Sec.~8 und 10]{rfc9868}. Für die Größe des Werts ist das nur scheinbar eine enge Grenze: Im Standardformat
-fasst eine Option höchstens 254~Byte einschließlich \texttt{Kind} und \texttt{Length}; größere Optionen
-weichen auf ein erweitertes Format aus, in dem der Wert 255 im \texttt{Length}-Feld ein zusätzliches
-16-Bit-Längenfeld ankündigt. Damit sind je Option höchstens 65535~Byte einschließlich der Kopffelder
-kodierbar \cite[Sec.~10]{rfc9868}. Eine zusätzliche Gesamtgrenze für den Optionsraum kennt RFC~9868 dagegen
-bewusst nicht: Wie das Entwurfsprinzip der fehlenden Längengrenze in \secref{subsec:surplus-prinzipien}
-festhält, gilt allein die Grenze des UDP-Pakets selbst; bei einem nicht fragmentierten Datagramm begrenzt
-somit der im IP-Datagramm verfügbare Platz, wie viele Optionen es trägt. Auch die beiden Ein-Byte-Codes aus
-\secref{sec:erweiterungsmuster} kehren als einzige Ausnahmen ohne Längenfeld wieder: \texttt{NOP} (Kind 1)
-dient mit impliziter Länge eins der Ausrichtung zwischen Optionen und darf sich dafür wiederholen,
-\texttt{EOL} (Kind 0) beendet die Liste vorzeitig; die Bytes dahinter muss der Sender bis zum Ende der
-Surplus Area beziehungsweise des Optionsbereichs eines UDP-Fragments auf null setzen
-\cite[Sec.~8 und 11.1]{rfc9868}. Der Empfänger darf diese Nullfüllung prüfen,
-muss es aber nicht; findet er dabei ein Byte ungleich null, verwirft er nach der Grundregel aus
-\secref{subsec:surplus-aufbau} die gesamte Optionsliste still \cite[Sec.~11.1]{rfc9868}. Variable
-Optionslängen und künftige Erweiterungen sind damit im Format selbst angelegt.
+Die Optionen hinter dem OCS folgen dem TLV-Format. Das 1~Byte große Feld \texttt{Kind} identifiziert die
+Option. Das 1~Byte große Feld \texttt{Length} gibt die Gesamtlänge einschließlich \texttt{Kind} und
+\texttt{Length} an. Dahinter kann ein Wert folgen \cite[Sec.~8 und 10]{rfc9868}. Im Standardformat ist die
+gesamte Option einschließlich \texttt{Kind} und \texttt{Length} höchstens 254~Byte lang. Größere Optionen
+verwenden ein erweitertes Format: Der Wert 255 im \texttt{Length}-Feld kündigt ein zusätzliches
+16-Bit-Längenfeld an. Damit sind je Option höchstens 65535~Byte einschließlich der Headerfelder kodierbar
+\cite[Sec.~10]{rfc9868}.
 
-Für die Anzahl der Optionen gilt dasselbe Bild wie für ihre Länge: Eine feste Obergrenze gibt es nicht;
-ohne vorzeitiges \texttt{EOL} endet die Liste erst am Ende der Surplus Area. Begrenzend wirken stattdessen
-zwei Regelgruppen. Erstens die
-Wiederholungsregeln: Außer FRAG, \texttt{NOP} und den Experimentaloptionen soll jede Option höchstens einmal
-je Datagramm vorkommen, ein Empfänger wertet von einer solchen Option ohnehin nur die erste Instanz, und
-ein mehrfaches FRAG macht
-die gesamte Optionsliste ungültig \cite[Sec.~10]{rfc9868}; \texttt{NOP} wiederum soll höchstens siebenmal in
-Folge stehen und nicht als Ersatz für \texttt{EOL} samt Nullfüllung dienen \cite[Sec.~11.2]{rfc9868}.
-Zweitens die Vollständigkeitsregel: Jede Option muss ganz in die Surplus Area passen. Meldet ein
-\texttt{Length}-Feld eine Länge über deren Ende hinaus, gilt die gesamte Surplus Area als fehlerhaft, und
-der Empfänger verwirft still alle Optionen, nicht nur die angeschnittene \cite[Sec.~10]{rfc9868}; das
-verifizierte Erratum EID~8834 bestätigt diese Regel gegen eine ältere, weichere Formulierung in Abschnitt~14
-\cite{rfc9868-eid8834}. Im Regelfall entsteht diese Lage nicht, denn der Sender muss die Surplus Area von
-vornherein so bemessen, dass das OCS und alle Optionen vollständig hineinpassen \cite[Sec.~8]{rfc9868}.
+RFC~9868 setzt keine zusätzliche Gesamtgrenze für den Optionsraum; maßgeblich ist die Grenze des UDP-Pakets
+selbst (\secref{subsec:surplus-prinzipien}). Bei einem nicht fragmentierten Datagramm begrenzt der im
+IP-Datagramm verfügbare Platz, wie viele Optionen es trägt.
 
-Damit sind die Prüfschritte des Standardpfads beisammen. \figref{fig:surplus-empfang} ordnet sie in der
-Reihenfolge, in der ein optionsfähiger Empfänger sie durchläuft, und stellt ihnen die vorgelagerte Prüfung
-des Datagramms selbst voran:
+Die beiden Ein-Byte-Codes \texttt{NOP} und \texttt{EOL} besitzen kein Längenfeld. \texttt{NOP}
+(No Operation, Kind~1) ist ein Byte lang und dient der Ausrichtung zwischen Optionen. Dafür darf
+\texttt{NOP} mehrfach vorkommen.
+\texttt{EOL} (End of Option List, Kind~0) beendet die Liste vorzeitig; die Bytes dahinter muss der Sender
+bis zum Ende der Surplus Area beziehungsweise des Optionsbereichs eines UDP-Fragments auf null setzen
+\cite[Sec.~8 und 11.1]{rfc9868}. Der Empfänger darf diese Nullfüllung prüfen, muss es aber nicht. Findet er
+dabei ein Byte ungleich null, verwirft er nach der Grundregel aus \secref{subsec:surplus-aufbau} die gesamte
+Optionsliste still \cite[Sec.~11.1]{rfc9868}.
+
+Für die Anzahl der Optionen gibt es keine feste Obergrenze. Bei gewöhnlichen Datagrammen endet die Liste
+ohne vorzeitiges \texttt{EOL} erst am Ende der Surplus Area. Außer FRAG, \texttt{NOP} und den
+Experimentaloptionen soll jede Option höchstens einmal je Datagramm vorkommen. Wiederholt sich eine der
+übrigen Optionen, wertet der Empfänger nur ihr erstes Vorkommen aus. Mehrfaches FRAG macht die gesamte
+Optionsliste ungültig \cite[Sec.~10]{rfc9868}. \texttt{NOP} soll höchstens siebenmal in Folge stehen und
+nicht als Ersatz für \texttt{EOL} samt Nullfüllung dienen \cite[Sec.~11.2]{rfc9868}.
+
+Jede Option muss vollständig in die Surplus Area passen. Reicht eine Option laut ihrem
+\texttt{Length}-Feld über das Ende der Surplus Area hinaus, gilt die gesamte Surplus Area als fehlerhaft.
+Der Empfänger verwirft dann still alle Optionen \cite[Sec.~10]{rfc9868}. Das verifizierte Erratum EID~8834
+bestätigt diese Regel und korrigiert die ältere Formulierung in Abschnitt~14 \cite{rfc9868-eid8834}. Der
+Sender muss in der Surplus Area von vornherein genügend Platz für das OCS und alle Optionen vorsehen
+\cite[Sec.~8]{rfc9868}.
+
+\figref{fig:surplus-empfang} zeigt, in welcher Reihenfolge ein optionsfähiger Empfänger das Datagramm und
+die Surplus Area prüft:
 
 \begin{figure}[H]
   \centering
@@ -729,7 +668,7 @@ des Datagramms selbst voran:
     \node[frage] (q2) at (6.0,-2.2)  {Platz für das ausgerichtete OCS?};
     \node[frage] (q3) at (6.0,-3.2)  {Pad (falls nötig) gleich null?};
     \node[frage] (q4) at (6.0,-4.2)  {OCS gültig oder zulässig ungenutzt?};
-    \node[frage] (q5) at (6.0,-5.2)  {Kein listenweiter\\ Ablehnungsgrund?};
+    \node[frage] (q5) at (6.0,-5.2)  {Kein Grund, die gesamte\\Optionsliste zu verwerfen?};
     \node[ausgang, draw=warnton, fill=warnhell, semithick] (drop) at (11.8,0.1)
       {Datagramm verwerfen};
     \node[ausgang, draw=feldlinie, fill=feldgrau] (keine) at (1.6,-1.7)
@@ -739,7 +678,8 @@ des Datagramms selbst voran:
     \node[ausgang, draw=akzent, fill=akzenthell] (erfolg) at (6.0,-6.4)
       {Optionen einzeln auswerten,\\ Nutzdaten zustellen};
     \node[ausgang, draw=feldlinie, dashed, fill=white, font=\scriptsize\itshape, anchor=west]
-      (sonder) at (8.7,-6.4) {Sonderwege: FRAG puffert bis zur\\ Reassemblierung, UNSAFE nach 2.4.5};
+      (sonder) at (8.7,-6.4) {Sonderwege: FRAG puffert bis zur\\
+        Reassemblierung, UNSAFE nach \ref{subsec:surplus-prinzipien}};
     \draw[kante] (q0) -- node[kantentext, anchor=west] {ja} (q1);
     \draw[kante] (q1) -- node[kantentext, anchor=west] {ja} (q2);
     \draw[kante] (q2) -- node[kantentext, anchor=west] {ja} (q3);
@@ -758,127 +698,113 @@ des Datagramms selbst voran:
   \label{fig:surplus-empfang}
 \end{figure}
 
-Aus \figref{fig:surplus-empfang} geht hervor, dass nur die vorgelagerte Prüfung des Datagramms selbst
-Nutzdaten kosten kann: Eine ungültige \texttt{UDP Length} oder eine falsche UDP-Prüfsumme verwirft das
-ganze Datagramm \cite[Sec.~10 und 14]{rfc9868}. Alle Prüfungen der Surplus Area treffen dagegen höchstens
-die Optionen: Die beiden Größenfragen führen auf den harmlosen Ausgang links, die drei Prüfungen dahinter
-auf den Fehlerausgang rechts; genau das ist die Grundregel aus \secref{subsec:surplus-aufbau} im Bild. Bei
-der Auswertung selbst wird einzeln ignoriert, was nur lokal stört: eine unbekannte SAFE-Option ebenso wie
-spätere Instanzen einer gewöhnlichen wiederholten Option. Die ganze Liste ist bei den strukturellen
-Längenfehlern aus dem vorigen Absatz und bei mehrfachem FRAG ungültig; daneben darf der Empfänger sie
-verwerfen, wenn verpflichtend zu unterstützende Optionen (im RFC \textit{must-support}, ausgenommen
-\texttt{NOP} und \texttt{EOL}) nicht vor den übrigen SAFE-Optionen stehen, und er muss es, wenn seine
-freiwillige Nullfüllungsprüfung hinter \texttt{EOL} ein Byte ungleich null findet
-\cite[Sec.~10 und 11.1]{rfc9868}. Die
-gestrichelte Randnotiz markiert die Sonderwege: Ein UDP-Fragment wird erst gepuffert und nach der
-Reassemblierung zugestellt; UNSAFE-Optionen und strengere, von der Anwendung angeforderte Empfangsregeln
-behandelt der folgende Unterabschnitt.
+Im Standardfall können die Nutzdaten nur bei der vorgelagerten Prüfung des Datagramms verworfen werden.
+Der Empfänger verwirft das ganze Datagramm, wenn \texttt{UDP Length} ungültig ist oder die UDP-Prüfsumme
+fehlschlägt \cite[Sec.~10 und 14]{rfc9868}. Ist keine Surplus Area vorhanden oder passt das ausgerichtete
+OCS nicht hinein, stellt er die Nutzdaten ohne Optionen zu. Bei einem Fehler im Pad oder OCS verwirft er
+im Standardfall nur die Optionen und stellt die Nutzdaten trotzdem zu. Dasselbe gilt, wenn er die gesamte
+Optionsliste verwirft (\secref{subsec:surplus-aufbau}).
+
+Der Empfänger ignoriert unbekannte SAFE-Optionen einzeln. Bei wiederholten Optionen wertet er nur das
+erste Vorkommen aus; ausgenommen sind FRAG, \texttt{NOP} und die Experimentaloptionen. Strukturelle
+Längenfehler und mehrfaches FRAG machen die ganze Optionsliste ungültig. Stehen verpflichtend zu
+unterstützende Optionen (im RFC \textit{must-support}, ausgenommen \texttt{NOP} und \texttt{EOL}) nicht vor
+den übrigen SAFE-Optionen, darf der Empfänger alle Optionen verwerfen. Prüft er freiwillig die Nullfüllung
+hinter \texttt{EOL} und findet dabei ein Byte ungleich null, muss er alle Optionen verwerfen
+\cite[Sec.~10 und 11.1]{rfc9868}.
+
+Die dargestellte Empfangsentscheidung gilt für den Standardfall. Der Empfänger puffert UDP-Fragmente und
+stellt ihre Nutzdaten erst nach der Reassemblierung zu; darauf weist die gestrichelte Randnotiz hin.
+UNSAFE-Optionen und strengere, von der Anwendung angeforderte Empfangsregeln behandelt
+\secref{subsec:surplus-prinzipien}.
 
 \subsection{Entwurfsprinzipien und Optionsklassen}
 \label{subsec:surplus-prinzipien}
 
-Wie dieser Bereich genutzt werden darf, bindet RFC~9868 an sechs Entwurfsprinzipien, die ein gemeinsames Ziel
-haben: UDP soll durch die Optionen seinen Charakter nicht verlieren \cite[Sec.~6]{rfc9868}:
+RFC~9868 legt sechs Entwurfsprinzipien für UDP Options fest, damit UDP seine bisherigen Eigenschaften behält
+\cite[Sec.~6]{rfc9868}:
 
 \begin{itemize}
-    \item \textbf{Zustandslos:} Nötiger Zustand gehört in die Anwendung oder in eine Bibliothek, die in ihrem
-    Auftrag arbeitet. Die einzige, ausdrücklich begrenzte Ausnahme ist die Zusammenführung von Fragmenten.
+    \item \textbf{Zustandslos:} Nötiger Zustand gehört in die Anwendung oder in eine Bibliothek, die in ihrem Auftrag
+    arbeitet. Die einzige, ausdrücklich begrenzte Ausnahme ist die Zusammenführung von Fragmenten.
 
-    \item \textbf{Unidirektional:} Die UDP-Schicht erzeugt nie von sich aus eine Antwort auf eine Option; ob
-    und wann geantwortet wird, entscheidet die Anwendung oder eine Schicht beziehungsweise Bibliothek in
-    ihrem Auftrag. Verfahren, die auf Antworten angewiesen sind, verlagert der RFC in eigene Dokumente. Als
-    Einordnung dieser Arbeit, nicht als Begründung des RFC: Diese Zurückhaltung verhindert, dass schon der
-    Grundmechanismus mit gefälschter Absenderadresse als Reflektor missbraucht wird; ein ausdrücklich
-    aktiviertes Antwortverfahren muss diesen Missbrauch selbst abwehren, etwa durch die Ratenbegrenzung, die
-    RFC~9869 für eigens als Antwort erzeugte Datagramme vorschreibt \cite[Sec.~3.1]{rfc9869}.
+    \item \textbf{Unidirektional:} Die UDP-Schicht antwortet nicht selbstständig auf eine Option.
+    Über eine Antwort entscheidet die Anwendung oder eine Schicht beziehungsweise Bibliothek in ihrem Auftrag.
+    Verfahren, die auf Antworten angewiesen sind, verlagert der RFC in eigene Dokumente. Diese Arbeit wertet den
+    Verzicht auf automatische Antworten als Schutz vor Missbrauch: Ohne solche Antworten kann der Grundmechanismus nicht
+    dazu missbraucht werden, Antwortdatagramme an gefälschte Absenderadressen zu senden. Ein ausdrücklich aktiviertes
+    Antwortverfahren muss diesen Missbrauch selbst abwehren. RFC~9869 schreibt beispielsweise vor, die Zahl eigens
+    erzeugter Antwortdatagramme pro Zeit zu begrenzen \cite[Sec.~3.1]{rfc9869}.
 
-    \item \textbf{Keine eigene Längengrenze:} Für den Optionsraum gilt allein die Grenze des UDP-Pakets
-    selbst; bei einem nicht fragmentierten Paket ist das der im IP-Datagramm verfügbare Platz. Feste
-    Grenzen werden erfahrungsgemäß überschritten; der RFC verweist auf die Erfahrung mit TCP-Optionen
-    (40~Byte Optionsraum \cite{rfc9293}) und IPv4-Adressen (32~Bit \cite{rfc791}). Grenzen darf eine
-    Implementierung setzen, nicht die Spezifikation.
+    \item \textbf{Keine eigene Längengrenze:} Für den Optionsraum gilt allein die Grenze des UDP-Pakets selbst; bei
+    einem nicht fragmentierten Paket ist das der im IP-Datagramm verfügbare Platz. Der RFC nennt TCP-Optionen (40~Byte
+    Optionsraum \cite{rfc9293}) und IPv4-Adressen (32~Bit \cite{rfc791}) als Beispiele für feste Grenzen, die sich
+    später als zu eng erwiesen haben. Grenzen darf eine Implementierung setzen, nicht die Spezifikation.
 
-    \item \textbf{Kein Protokollersatz:} Optionen liefern Funktionen für den eigenen Verkehr einer Anwendung;
-    sie sollen NTP, ICMP (insbesondere Echo) und Netzwerk-Testgeräte weder ersetzen noch nachbauen.
+    \item \textbf{Kein Protokollersatz:} Optionen liefern Funktionen für den eigenen Verkehr einer Anwendung; sie sollen
+    NTP, ICMP (insbesondere Echo) und Netzwerk-Testgeräte weder ersetzen noch nachbauen.
 
-    \item \textbf{Rahmenwerk statt Protokoll:} RFC~9868 definiert Optionsformate auch dann, wenn sie noch
-    kein vollständiges Verfahren ergeben; die Nutzung regeln andere Dokumente. Für REQ/RES übernimmt das
-    RFC~9869 \cite{rfc9869}, für TIME bleibt sie bewusst offen. Das entspricht dem Muster von TCP, dessen
-    Basisnorm den Optionsmechanismus festlegt, während einzelne Optionen in eigenen Dokumenten folgten.
+    \item \textbf{Rahmenwerk statt Protokoll:} RFC~9868 definiert Optionsformate auch dann, wenn sie noch kein
+    vollständiges Verfahren ergeben; die Nutzung regeln andere Dokumente. Die Nutzung von REQ/RES regelt RFC~9869
+    \cite{rfc9869}; wie TIME genutzt wird, bleibt bewusst offen.
 
-    \item \textbf{Voreinstellung wie beim Altempfänger:} Empfangene Pakete werden standardmäßig auch dann
-    zugestellt, wenn Prüfsummen-, Authentifizierungs- oder Entschlüsselungsprüfungen der Optionen scheitern;
-    einzige Ausnahme sind UDP-Fragmente. Strengeres Verhalten muss die Anwendung ausdrücklich anfordern.
-    Optionen sind ein Angebot, kein Filter.
+    \item \textbf{Voreinstellung wie beim Altempfänger:} Empfangene Pakete werden standardmäßig auch dann zugestellt,
+    wenn Prüfsummen-, Authentifizierungs- oder Entschlüsselungsprüfungen der Optionen scheitern; einzige Ausnahme sind
+    UDP-Fragmente. Strengeres Verhalten muss die Anwendung ausdrücklich anfordern.
+
 \end{itemize}
 
-Der gemeinsame Nenner der sechs Prinzipien: RFC~9868 legt die Optionsformate und ihre Grundverarbeitung
-fest, aber kein vollständiges Anwendungsprotokoll. UDP bleibt ein minimales Transportprotokoll, und jede
-zusätzliche Fähigkeit wird von der Anwendung ausdrücklich aktiviert \cite[Sec.~6]{rfc9868}.
+UDP bleibt ein minimales Transportprotokoll, und jede zusätzliche Fähigkeit wird von der Anwendung ausdrücklich
+aktiviert \cite[Sec.~6]{rfc9868}.
 
-An das letzte Prinzip knüpft die zentrale Zweiteilung der Optionen an, und sie folgt unmittelbar aus der
-Abwärtskompatibilität: Weil ein Altempfänger die Surplus Area überliest, muss jede Option damit rechnen,
-ignoriert zu werden. \textit{SAFE}-Optionen (Kind 0 bis 191) sind genau dafür entworfen: Ein Empfänger, der
-sie nicht versteht, ignoriert sie, ohne dass sich die Bedeutung der Nutzdaten ändert. In diese Klasse
-gehören die Ein-Byte-Codes \texttt{NOP} und \texttt{EOL} ebenso wie FRAG \cite[Sec.~10 und 11]{rfc9868}.
+Ein Altempfänger überliest die Surplus Area und ignoriert damit die Optionen. Deshalb unterscheidet RFC~9868 zwischen
+SAFE- und UNSAFE-Optionen. \textit{SAFE}-Optionen (Kind 0 bis 191) sind genau dafür entworfen: Ein Empfänger, der sie
+nicht versteht, ignoriert sie, ohne dass sich die Bedeutung der Nutzdaten ändert. In diese Klasse gehören die
+Ein-Byte-Codes \texttt{NOP} und \texttt{EOL} ebenso wie FRAG \cite[Sec.~10 und 11]{rfc9868}.
 
-\textit{UNSAFE}-Optionen (Kind 192 bis 255) können dagegen die Nutzdaten verändern oder eine Änderung ihrer
-Deutung signalisieren, etwa durch Kompression oder Verschlüsselung; ein Empfänger, der die Option nicht
-versteht, würde die Nutzdaten falsch deuten. RFC~9868 löst das mit einer Transportbeschränkung:
-UNSAFE-Optionen dürfen nur in UDP-Fragmenten auftreten, deren regulärer Nutzdatenteil leer ist; die
-transportierten Daten liegen im Fragmentdatenbereich der Surplus Area hinter der Optionsliste
-\cite[Sec.~11.4]{rfc9868}. Ein Altempfänger sieht dann nur ein leeres Datagramm und verwirft die Daten
-still, statt sie falsch zu deuten. Ein optionsfähiger Empfänger, der eine UNSAFE-Option nicht unterstützt,
-muss die reassemblierten Nutzdaten ebenso still verwerfen, und dasselbe gilt, wenn eine UNSAFE-Option
-außerhalb eines Fragment- oder Reassemblierungskontexts erscheint; zugestellt wird in beiden Fällen
-höchstens ein leeres Datagramm
-\cite[Sec.~10, 12 und 14]{rfc9868}. Den Maßstab für die Einzelbewertung führt
-\secref{sec:anforderungsmatrix} ein; den Soll-Ist-Abgleich enthält \secref{sec:soll-ist}. Die Umsetzung
-der Optionen beschreibt \chapref{chap:entwurf}.
+\textit{UNSAFE}-Optionen (Kind 192 bis 255) können dagegen die Nutzdaten verändern oder eine Änderung ihrer Deutung
+signalisieren, etwa durch Kompression oder Verschlüsselung. Ein Empfänger, der die Option nicht versteht, würde die
+Nutzdaten falsch deuten. UNSAFE-Optionen dürfen nach RFC~9868 nur in UDP-Fragmenten auftreten. Deren regulärer
+Nutzdatenteil ist leer; die transportierten Daten liegen im Fragmentdatenbereich der Surplus Area hinter der
+Optionsliste \cite[Sec.~11.4]{rfc9868}. Ein Altempfänger sieht dann nur ein leeres Datagramm und verwirft die Daten
+still, statt sie falsch zu deuten. Unterstützt ein optionsfähiger Empfänger eine UNSAFE-Option nicht, muss er die
+reassemblierten Nutzdaten ebenfalls still verwerfen. Dasselbe gilt, wenn eine UNSAFE-Option außerhalb eines Fragment-
+oder Reassemblierungskontexts erscheint. In beiden Fällen wird höchstens ein leeres Datagramm zugestellt \cite[Sec.~10,
+12 und 14]{rfc9868}. Den Maßstab für die Einzelbewertung führt \secref{sec:anforderungsmatrix} ein; den
+Soll-Ist-Abgleich enthält \secref{sec:soll-ist}. Die Umsetzung der Optionen beschreibt \chapref{chap:entwurf}.
 
-Zwei Folgen dieser Prinzipien verdienen eine eigene Erwähnung. Erstens verteilt die FRAG-Option ein
-logisches Anwendungsdatagramm (im RFC \textit{user datagram}) künftig gegebenenfalls auf mehrere
-IP-Datagramme. Zweitens nimmt der RFC einen ausdrücklich benannten Unterschied in Kauf: Ein Altempfänger
-sieht jedes UDP-Fragment als leeres Datagramm, ein optionsfähiger Empfänger das reassemblierte Datagramm mit
-Inhalt. Diese Zählungen gleicht der RFC nicht an, weil leere Datagramme als Lebenszeichen ohnehin
-unzuverlässig sind \cite[Sec.~6 und 18]{rfc9868}.
+Die FRAG-Option kann ein logisches Anwendungsdatagramm (im RFC \textit{user datagram}) auf mehrere IP-Datagramme
+verteilen. Ein Altempfänger sieht jedes UDP-Fragment als leeres Datagramm, ein optionsfähiger Empfänger das
+reassemblierte Datagramm mit Inhalt. Der RFC gleicht die unterschiedliche Anzahl zugestellter Datagramme bewusst nicht
+an, weil leere Datagramme als Lebenszeichen unzuverlässig sind \cite[Sec.~6 und 18]{rfc9868}.
 
 \section{Betriebssystem und Netzpfad}
 \label{sec:netzpfad}
 
-Ob ein Datagramm mit Surplus Area sein Ziel erreicht, entscheidet sich an zwei Stellen außerhalb des
-Protokolls: im Betriebssystem der beiden Endpunkte und auf dem Netzpfad dazwischen. Betrachtet wird dabei
-durchgehend der Linux-Netzwerkstapel für IPv4, auf dem die Referenzimplementierung dieser Arbeit läuft;
-andere Betriebssysteme und IPv6 bleiben ausgeklammert. Dieser Abschnitt stellt zunächst die zwei
-Socket-Sichten vor, mit denen der Kernel UDP-Verkehr an Anwendungen übergibt, und anschließend die Akteure
-des Pfades; am Ende fügt \figref{fig:akteurskette} beides zu einem Gesamtbild zusammen. Allgemeine
-Netzwerkgrundlagen bleiben bewusst ausgespart: Es geht genau um die Kette, die die Messpfade dieser Arbeit
-tatsächlich durchlaufen.
+Die Betriebssysteme der Endpunkte und die Geräte auf dem Netzpfad bestimmen mit, ob ein Datagramm mit Surplus Area sein
+Ziel erreicht. Betrachtet wird dabei durchgehend der Linux-Netzwerkstapel für IPv4, auf dem die Referenzimplementierung
+dieser Arbeit läuft; andere Betriebssysteme und IPv6 bleiben ausgeklammert.
 
-\paragraph{Zwei Socket-Sichten.}
-Beim gewöhnlichen UDP-Socket übernimmt der Kernel die Protokollarbeit. Empfangsseitig prüft er Länge und
-Prüfsumme, demultiplexiert nach Adresse, Port und Socketmerkmalen und liefert nur die Nutzdaten bis
-\texttt{UDP Length} \cite{stephan2024packetpath}. Damit entspricht diese Sicht dem Altempfänger aus
-\secref{sec:surplus-area}; getestete Standardsysteme schneiden die Surplus Area ab
-\cite[Sec.~18]{rfc9868}. Sendeseitig baut der Kernel beide Header und lässt hinter den Nutzdaten keinen
-Raum. Ein UDP-Socket kann die Surplus Area daher weder lesen noch erzeugen.
+\paragraph{UDP-Socket und Raw Socket.}
+Bei einem gewöhnlichen UDP-Socket prüft der Kernel beim Empfang Länge und Prüfsumme. Anhand von Adresse, Port und
+Socketmerkmalen ordnet er das Datagramm einem Socket zu. Er liefert nur die Nutzdaten bis \texttt{UDP Length}
+\cite{stephan2024packetpath}. Damit entspricht diese Sicht dem Altempfänger aus \secref{sec:surplus-area}; getestete
+Altempfänger schneiden die Surplus Area ab \cite[Sec.~18]{rfc9868}. Sendeseitig baut der Kernel den IP- und UDP-Header
+und lässt hinter den Nutzdaten keinen Raum. Ein UDP-Socket kann die Surplus Area daher weder lesen noch erzeugen.
 
-Der normale Kernelweg führt sendeseitig von \texttt{write()} über die Socket- und UDP-Schicht zur
-IP-Schicht, empfangsseitig entsprechend zurück zu \texttt{read()}; ausgeliefert wird erst nach der
-UDP-Prüfsumme \cite{linux510udp,stephan2024packetpath}. Diese Folge berichtigt zwei Beschriftungen der Vorlage (dort
-Abbildung~5): Auf der Socket-Schicht stehen \texttt{sock\_sendmsg()} und \texttt{sock\_recvmsg()}, und der
-UDP-Sendepfad übergibt an \texttt{ip\_send\_skb()} statt \texttt{ip\_queue\_xmit()}.
+Beim Senden führt der Weg von \texttt{write()} über die Socket- und UDP-Schicht zur IP-Schicht. Beim Empfang verläuft er
+entsprechend zurück zu \texttt{read()}; die Anwendung erhält die Nutzdaten erst nach der Prüfung der UDP-Prüfsumme
+\cite{linux510udp,stephan2024packetpath}.
 
-Wer beides will, braucht die zweite Sicht: den \textit{Raw Socket}, den Linux nur Prozessen mit der
-Berechtigung \texttt{CAP\_NET\_RAW} öffnet \cite{man7raw}. Er zweigt auf der IP-Schicht ab: Der Sender
-speist dort ein selbst gebautes Datagramm ein, der Empfänger erhält vor dem UDP-Pfad eine Kopie; die
-folgenden Abbildungen trennen beide Richtungen. Er arbeitet unterhalb von UDP direkt mit
-IP-Datagrammen: Die Anwendung schreibt den UDP-Header selbst, und die IP-Längenangabe bemisst der Kernel an
-der übergebenen Pufferlänge statt am UDP-Datagramm; alles, was die Anwendung hinter das UDP-Datagramm in
-den Puffer legt, wird so zur Surplus Area \cite{man7raw}. Mit der Socket-Option \texttt{IP\_HDRINCL} baut
-sie darüber hinaus den IP-Header selbst, statt ihn vom Kernel erzeugen zu lassen; diesen Weg
-nutzt die Referenzimplementierung, die damit das vollständige Datagramm selbst baut
-(\secref{sec:technologieauswahl}). Die vertauschten Rollen beider Sendewege zeigt \figref{fig:sendepfade}:
+Zum Lesen und Erzeugen der Surplus Area ist ein \textit{Raw Socket} nötig. Linux öffnet ihn nur Prozessen mit der
+Berechtigung \texttt{CAP\_NET\_RAW} \cite{man7raw}. Der Raw Socket arbeitet auf der IP-Schicht direkt mit
+IP-Datagrammen. Beim Empfang erhält die Anwendung vor dem UDP-Pfad eine Kopie des IP-Datagramms.
+
+Zum Senden nutzt die Referenzimplementierung die Socket-Option \texttt{IP\_HDRINCL}: Sie baut das vollständige
+Datagramm einschließlich IP- und UDP-Header selbst (\secref{sec:technologieauswahl}). Der Kernel richtet die
+IP-Längenangabe nach dem übergebenen Puffer und nicht nach der UDP-Länge. Bytes, die in diesem Puffer hinter
+dem UDP-Datagramm liegen, werden dadurch zur Surplus Area \cite{man7raw}.
+Die Arbeitsteilung zwischen Anwendung und Kernel zeigt \figref{fig:sendepfade}:
 
 \begin{figure}[H]
   \centering
@@ -890,7 +816,8 @@ nutzt die Referenzimplementierung, die damit das vollständige Datagramm selbst 
     \node[station] (ua) at (2.6,0) {Anwendung\\{\tiny übergibt nur die Nutzdaten}};
     \node[akzentbox] (ra) at (9.0,0)
       {Anwendung\\{\tiny baut IP-Header, UDP-Header,}\\{\tiny Nutzdaten und Surplus Area}};
-    \node[akzentbox] (us) at (2.6,-1.85) {UDP-Socket\\{\tiny Kernel baut beide Header,}\\{\tiny Längen bündig}};
+    \node[akzentbox] (us) at (2.6,-1.85)
+      {UDP-Socket\\{\tiny Kernel baut beide Header,}\\{\tiny UDP füllt die IP-Nutzlast}};
     \node[station] (rs) at (9.0,-1.85) {Raw Socket mit \texttt{IP\_HDRINCL}\\{\tiny Kernel übernimmt das Datagramm}};
     \node[station] (ip) at (5.8,-3.55) {IP-Schicht und Netzwerkkarte\\{\tiny Routing, netfilter, Draht}};
     \draw[fluss] (ua) -- (us);
@@ -902,25 +829,18 @@ nutzt die Referenzimplementierung, die damit das vollständige Datagramm selbst 
   \label{fig:sendepfade}
 \end{figure}
 
-Aus \figref{fig:sendepfade} geht hervor, dass die Arbeitsteilung kippt: Am UDP-Socket baut der Kernel beide
-Header und bemisst die Längen bündig, am Raw Socket liefert die Anwendung das fertige Datagramm ab, und nur
-auf dem Raw-Socket-Weg entsteht hinter den Nutzdaten Platz für eine Surplus Area. Der Unterbau bleibt
-derselbe: Beide Wege münden in die IP-Schicht mit ihren netfilter-Stationen und enden an der Netzwerkkarte
-\cite{stephan2024packetpath}.
+Beide Wege führen über die IP-Schicht mit ihren netfilter-Stationen zur Netzwerkkarte \cite{stephan2024packetpath}.
 
-Ganz entlässt der Kernel den Raw-Sender allerdings nicht aus seiner Obhut, und diese Restarbeit prägt den
-Sendepfad der Implementierung. Routing, Nachbarauflösung und Link-Schicht bleiben Kernelsache, und im
-übergebenen IP-Header trägt der Kernel \texttt{Total Length} und die IP-Header-Prüfsumme stets selbst ein;
-UDP-Header und Surplus Area lässt er selbst dagegen unangetastet, die netfilter-Stationen dieses Wegs
-können das Datagramm gleichwohl noch verwerfen oder verändern \cite{man7raw,stephan2024packetpath}.
-Zugleich fragmentiert dieser Pfad nicht: Mit \texttt{IP\_HDRINCL} ist ein Datagramm auf die MTU des
-Interfaces begrenzt, ein größerer Sendeaufruf schlägt fehl \cite{man7raw}. Für RFC~9868 ist das kein
-Verlust: IP-Fragmentierung sollen UDP-Anwendungen ohnehin vermeiden (\secref{sec:ipv4})
-\cite[Sec.~3.2]{rfc8085}, und für große Nutzlasten stellt der RFC stattdessen die FRAG-Option auf
-Transportebene bereit.
+Beim Senden über den Raw Socket übernimmt der Kernel weiterhin Routing, Nachbarauflösung und Link-Schicht.
+Im übergebenen IP-Header trägt er \texttt{Total Length}
+und die IP-Header-Prüfsumme stets selbst ein. UDP-Header und Surplus Area lässt er unangetastet; die netfilter-Stationen
+dieses Wegs können das Datagramm jedoch noch verwerfen oder verändern \cite{man7raw,stephan2024packetpath}. Mit
+\texttt{IP\_HDRINCL} fragmentiert der Kernel nicht. Ein Datagramm ist dann auf die MTU des Interfaces begrenzt; ein
+größerer Sendeaufruf schlägt fehl \cite{man7raw}. UDP-Anwendungen sollen IP-Fragmentierung ohnehin vermeiden
+(\secref{sec:ipv4}) \cite[Sec.~3.2]{rfc8085}. Für große Datagramme stellt RFC~9868 die FRAG-Option auf Transportebene
+bereit.
 
-Beim Empfang entscheidet sich, an welcher Stelle ein Datagramm geprüft wird; den Weg vom Draht zu den
-beiden Sichten zeichnet \figref{fig:empfangspfad} nach:
+\figref{fig:empfangspfad} zeigt den Empfangsweg von der Netzwerkkarte zum UDP-Socket und zum Raw Socket:
 
 \begin{figure}[H]
   \centering
@@ -934,7 +854,7 @@ beiden Sichten zeichnet \figref{fig:empfangspfad} nach:
     \node[station] (nf) at (7.1,0) {netfilter\\{\tiny lokaler Paketfilter}};
     \node[station] (udp) at (10.65,0) {UDP-Pfad\\{\tiny prüft Länge, Prüfsumme, Port}};
     \node[akzentbox] (raw) at (7.1,-2.2)
-      {Raw Socket\\{\tiny Kopie des ganzen Datagramms}\\{\tiny samt Surplus Area,}\\{\tiny ohne UDP-Prüfung}};
+      {Raw Socket\\{\tiny Kopie des ganzen Datagramms}\\{\tiny samt Surplus Area,}\\{\tiny vor dem UDP-Pfad}};
     \node[station] (usock) at (10.65,-2.2) {UDP-Socket\\{\tiny Nutzdaten bis \texttt{UDP Length}}};
     \draw[fluss] (nic) -- (ips);
     \draw[fluss] (ips) -- (nf);
@@ -946,56 +866,53 @@ beiden Sichten zeichnet \figref{fig:empfangspfad} nach:
   \label{fig:empfangspfad}
 \end{figure}
 
-Aus \figref{fig:empfangspfad} geht hervor, dass sich der Weg hinter dem Paketfilter gabelt: Der Raw Socket
-erhält eine Kopie des gesamten IP-Datagramms samt Surplus Area, und zwar bevor der UDP-Pfad des Kernels
-Länge, Prüfsumme und Portzuordnung geprüft hat \cite{man7raw,stephan2024packetpath}. Ungeprüft heißt dabei:
-frei von jeder UDP-Prüfung; den IP-Header hat die IP-Schicht zu diesem Zeitpunkt dagegen bereits geprüft,
-wie die Abbildung zeigt. Ein Datagramm mit falscher UDP-Prüfsumme oder einer \texttt{UDP Length}, die
-über die IP-Nutzlast hinausweist, erreicht den Raw Socket deshalb unverändert. Die Prüfungen, die der Kernel dem
-UDP-Socket abnimmt, muss eine Raw-Empfangsschicht deshalb vollständig selbst ausführen, und zwar in der
-Reihenfolge, die RFC~9868 vorgibt: erst Mindestlänge und Längenkonsistenz des UDP-Headers, dann die
-UDP-Prüfsumme, erst danach Surplus-Ortung und OCS \cite[Sec.~10 und 14]{rfc9868}; wie die Implementierung
-das umsetzt, zeigt \chapref{chap:entwurf}. Zwei Arbeiten behält der Kernel dagegen auch hier. Die
-netfilter-Hooks bleiben beiden Sichten vorgeschaltet: Ein lokaler Paketfilter kann ein Datagramm
-verwerfen, bevor irgendeine Anwendung es sieht \cite{stephan2024packetpath}. Und ankommende IP-Fragmente
-setzt die IP-Schicht bereits vor der Zustellung wieder zusammen, auch für Raw Sockets; eine
-Raw-Empfangsschicht muss die IPv4-Reassemblierung deshalb nicht nachbauen
-\cite{man7raw,stephan2024packetpath}.
+Aus \figref{fig:empfangspfad} geht hervor, dass sich der Weg hinter dem Paketfilter gabelt: Der Raw Socket erhält eine
+Kopie des gesamten IP-Datagramms samt Surplus Area, und zwar vor den Prüfungen von Länge, Prüfsumme und Portzuordnung im
+regulären UDP-Empfangspfad \cite{man7raw,stephan2024packetpath}. Den IP-Header hat die IP-Schicht zu diesem Zeitpunkt
+bereits geprüft, wie die Abbildung zeigt. Sofern vorgeschaltete Filter es passieren lassen, kann ein Datagramm mit
+falscher UDP-Prüfsumme oder einer \texttt{UDP Length}, die über die IP-Nutzlast hinausweist, unverändert am Raw Socket
+ankommen.
+
+Die Raw-Empfangsschicht muss diese UDP-Prüfungen selbst ausführen. RFC~9868 verlangt folgende Reihenfolge: Zuerst prüft
+sie Mindestlänge und Längenkonsistenz des UDP-Headers, dann die UDP-Prüfsumme. Erst danach bestimmt sie die Grenzen der
+Surplus Area und prüft das OCS \cite[Sec.~10 und 14]{rfc9868}. Wie die Implementierung das umsetzt, zeigt
+\chapref{chap:entwurf}.
+
+Die netfilter-Hooks bleiben beiden Sichten vorgeschaltet: Ein lokaler Paketfilter kann ein Datagramm verwerfen, bevor
+irgendeine Anwendung es sieht \cite{stephan2024packetpath}. Ankommende IP-Fragmente setzt die IP-Schicht bereits vor der
+Zustellung wieder zusammen, auch für Raw Sockets; eine Raw-Empfangsschicht muss die IPv4-Reassemblierung deshalb nicht
+nachbauen \cite{man7raw,stephan2024packetpath}.
 
 \paragraph{Akteure auf dem Netzpfad.}
-Zwischen den Endpunkten kann das Datagramm auf \textit{Middleboxes} treffen. RFC~8085 nennt damit
-Zwischensysteme wie NATs und Firewalls, die zusätzliche Funktionen ausführen und typischerweise Zustand je
-Fluss führen \cite[Sec.~3.5]{rfc8085}. Für die Interpretation der späteren Messungen genügt der
-Sammelbegriff nicht, denn die Akteure setzen an verschiedenen Stellen an und hinterlassen verschiedene
-Spuren. Im Zugangsnetz ersetzt die NAT eines Heimrouters oder Hotspots Adressen und Ports und bindet
-jeden Fluss an einen Zustandseintrag mit Zeitschranke; ihre Provider-Variante \textit{Carrier-Grade NAT}
-(CGNAT) teilt dieselben öffentlichen Adressen zusätzlich unter vielen Kunden auf. Firewalls verwerfen an
-Netzgrenzen und Endsystemen nach Regelwerk, etwa anhand von Ports und Protokollen. Leicht zu übersehen
-sind die letzten beiden Akteure: die Virtualisierungsschicht eines Testrechners, deren eigener Netz- und
-NAT-Stack Kopffelder auf erwartete Normwerte umschreiben kann, und das Transitnetz selbst, die AS-Kette
-zwischen den Zugangsnetzen, in der einzelne Netze filtern.
+Zwischen den Endpunkten kann das Datagramm auf \textit{Middleboxes} treffen. RFC~8085 nennt damit Zwischensysteme wie
+NATs und Firewalls, die zusätzliche Funktionen ausführen und typischerweise Zustand je Fluss führen
+\cite[Sec.~3.5]{rfc8085}.
 
-Ob ein einzelner Akteur UDP Options kennt, lässt sich von außen nicht feststellen. Unbekannte
-Zwischensysteme können eine Surplus Area unverändert weiterleiten, verändern, entfernen oder das gesamte
-Datagramm verwerfen. Zustandsbehaftete NATs und Firewalls können dabei je Richtung und Messzeitpunkt
-unterschiedlich reagieren \cite[Sec.~3.5]{rfc8085}. Eine Kapselung, etwa in einen WireGuard-Tunnel,
-verbirgt das innere Datagramm vor den Akteuren zwischen den Tunnelendpunkten, die nur noch das äußere
-Tunnelpaket behandeln. Welche dieser Eingriffe auf den untersuchten Pfaden beobachtet wurden, bewertet
-\chapref{chap:evaluation}.
+Im Zugangsnetz ersetzt die NAT eines Heimrouters oder Hotspots Adressen und Ports. Sie speichert die Zuordnung für jeden
+Datenfluss für eine begrenzte Zeit. Die Provider-Variante \textit{Carrier-Grade NAT} (CGNAT) verwendet dieselben
+öffentlichen Adressen für viele Kunden. Firewalls verwerfen an Netzgrenzen und Endsystemen Datagramme nach Regelwerk,
+etwa anhand von Ports und Protokollen.
 
-Diese Kette erklärt zugleich, warum RFC~9868 seine Optionen ausgerechnet in einem Bereich ablegt, den
-Altempfänger nie lesen. Weil Middleboxes bevorzugt durchlassen, was sie kennen, weichen
-Protokollerweiterungen in Bereiche aus, die Bestandssysteme nicht deuten; dieses Erstarren des Netzes unter
-seinen Zwischensystemen wird als \textit{Ossifikation} bezeichnet. Unsichtbar ist die Surplus Area
-allerdings nur für die Endpunkte alter Anwendungen; für die Geräte auf dem Pfad bleibt sie ohne
-Verschlüsselung sichtbar \cite[Sec.~16]{rfc9868}, und RFC~9868 rechnet ausdrücklich mit deren Eingriffen:
-Fehlerhaft rechnende Middleboxes begründen Details der OCS-Berechnung (\secref{sec:surplus-area})
-\cite[Sec.~9]{rfc9868}, und UDP-Relays können eine Surplus Area beim Weiterleiten vollständig abstreifen
-\cite[Sec.~25.6]{rfc9868}.
+Auch der Netz- und NAT-Stack der Virtualisierungsschicht eines Testrechners kann Headerfelder auf erwartete Werte
+umschreiben. Im Transitnetz, der Kette eigenständig verwalteter Netze (autonomer Systeme, AS) zwischen den
+Zugangsnetzen, können einzelne Netze Datagramme filtern.
 
-Alle Stationen zusammen ordnet \figref{fig:akteurskette} zu einem Messmodell des Weges von der sendenden
-Anwendung bis zu dem Raw-Empfänger, der die Surplus Area auswertet; je nach Pfad können einzelne Stationen
-fehlen oder zusammenfallen.
+Ob ein einzelner Akteur UDP Options kennt, lässt sich von außen nicht feststellen. Unbekannte Zwischensysteme können
+eine Surplus Area unverändert weiterleiten, verändern, entfernen oder das gesamte Datagramm verwerfen. Zustandsbehaftete
+NATs und Firewalls können dabei je Richtung und Messzeitpunkt unterschiedlich reagieren \cite[Sec.~3.5]{rfc8085}. Eine
+Kapselung, etwa in einen WireGuard-Tunnel, verbirgt das innere Datagramm vor den Akteuren zwischen den Tunnelendpunkten,
+die nur noch das äußere Tunnelpaket behandeln. Welche dieser Eingriffe auf den untersuchten Pfaden beobachtet wurden,
+bewertet \chapref{chap:evaluation}.
+
+Middleboxes lassen bevorzugt bekannte Paketformate durch. Dadurch erschweren sie Änderungen an Protokollen; das wird als
+\textit{Ossifikation} bezeichnet. Protokollerweiterungen nutzen deshalb Bereiche, die Altsysteme nicht deuten.
+Anwendungen an Altempfängern erhalten die Surplus Area in der Regel nicht. Geräte auf dem Netzpfad können sie dagegen
+ohne Verschlüsselung lesen \cite[Sec.~16]{rfc9868}. RFC~9868 berücksichtigt bei der OCS-Berechnung auch Middleboxes, die
+UDP-Prüfsummen falsch berechnen (\secref{sec:surplus-area}) \cite[Sec.~9]{rfc9868}. UDP-Relays können eine Surplus Area
+beim Weiterleiten vollständig abstreifen \cite[Sec.~25.6]{rfc9868}.
+
+\figref{fig:akteurskette} ordnet alle Stationen zu einem Messmodell des Weges von der sendenden Anwendung bis zum
+Raw-Empfänger, der die Surplus Area auswertet; je nach Pfad können einzelne Stationen fehlen oder zusammenfallen.
 
 \begin{figure}[H]
   \centering
@@ -1024,16 +941,16 @@ fehlen oder zusammenfallen.
   \label{fig:akteurskette}
 \end{figure}
 
-Aus \figref{fig:akteurskette} geht hervor, dass zwischen Socket-Schicht und Empfänger-Kernel bis zu vier
-Stationen liegen, die das Datagramm außerhalb der Endpunkte berühren: Sie greifen teils mit Zustand ein und
-sind von außen nicht direkt beobachtbar. Für die Feldmessungen folgt daraus die Interpretationsregel dieser
-Arbeit: Geht ein optionsbehaftetes Datagramm verloren oder kommt es verändert an, ist der Befund zuerst
-dieser Kette zuzuordnen, bevor er der Implementierung oder dem Standard angelastet wird. Messpunkte an
-beiden Enden grenzen ihn dabei auf ein Intervall der Kette ein; welches Gerät eingreift, bleibt ohne
-zusätzliche Messpunkte oder unabhängige Evidenz offen (\chapref{chap:evaluation}).
+\figref{fig:akteurskette} zeigt zwischen Socket-Schicht und Empfänger-Kernel bis zu vier Stationen außerhalb der
+Endpunkte. Einige verarbeiten Datagramme abhängig von gespeichertem Zustand. Ihr Verhalten lässt sich von außen nicht
+direkt beobachten. Geht ein optionsbehaftetes Datagramm verloren oder kommt es verändert an, untersucht diese Arbeit
+zunächst mögliche Ursachen auf dem Datagrammweg, bevor sie einen Fehler der Implementierung oder des Standards annimmt.
+Mit Messpunkten an beiden Enden lässt sich eingrenzen, in welchem Abschnitt des Weges ein Verlust oder eine Veränderung
+auftritt. Welches Gerät eingreift, bleibt ohne zusätzliche Messpunkte oder unabhängige Evidenz offen
+(\chapref{chap:evaluation}).
 
-Wireshark und tshark 4.6 dekodieren RFC~9868 nicht; die Kampagnen benötigen deshalb einen eigenen Prüfer
-für PCAP-Dateien (\secref{subsec:mitschnittwerkzeuge}), und der fehlende Dissektor zeigt zugleich die
-geringe bisherige Werkzeugunterstützung.
+Wireshark und tshark 4.6 dekodieren UDP Options nach RFC~9868 nicht. Die Kampagnen benötigen deshalb einen eigenen
+Prüfer für PCAP-Dateien (\secref{subsec:mitschnittwerkzeuge}). Die fehlende Dekodierung zeigt zugleich die geringe
+bisherige Unterstützung von UDP Options durch Analysewerkzeuge.
 
 Die Auswertungsmethode folgt in \chapref{chap:methodik}.

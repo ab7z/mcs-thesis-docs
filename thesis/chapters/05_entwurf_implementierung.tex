@@ -78,7 +78,7 @@ zeigt ihre Aufgaben und ausgewählte Abhängigkeiten.
 \end{figure}
 
 Die Kanten zeigen ausgewählte tatsächliche Importe und keine strikte Schichtung. \texttt{wire}
-verarbeitet IPv4- und UDP-Köpfe sowie Prüfsummen und lokalisiert die Surplus Area. \texttt{options} serialisiert und
+verarbeitet IPv4- und UDP-Header sowie Prüfsummen und lokalisiert die Surplus Area. \texttt{options} serialisiert und
 liest den Optionsstrom. \texttt{recv} führt für eingehende UDP-Datagramme einschließlich ihrer UDP-Optionen
 die von RFC~9868 vorgegebenen Prüfschritte nacheinander aus \cite[Sec.~14]{rfc9868}. \texttt{frag} zerlegt
 und reassembliert Datagramme, und \texttt{api} bündelt diese Funktionen im Typ \texttt{Peer}.
@@ -117,8 +117,8 @@ Beim Senden baut die Bibliothek aus Nutzdaten und Optionen ein vollständiges IP
 es dem Raw Socket. Als Leitbeispiel dient eine Anwendung, die drei Nutzdatenbytes \texttt{odd} verschickt
 und ihrem Gegenüber dabei mitteilt, wie große Datagramme sie selbst empfangen kann. Dafür dient die Option
 Maximum Datagram Size (MDS). Im Beispiel nimmt die Anwendung an, dass IPv4-Datagramme bis 1.500~Byte ohne
-IP-Fragmentierung bei ihr ankommen. Nach Abzug des 20~Byte langen IPv4-Kopfs und des 8~Byte langen
-UDP-Kopfs trägt MDS deshalb den 16-Bit-Wert $1.500 - 20 - 8 = 1.472$~Byte
+IP-Fragmentierung bei ihr ankommen. Nach Abzug des 20~Byte langen IPv4-Headers und des 8~Byte langen
+UDP-Headers trägt MDS deshalb den 16-Bit-Wert $1.500 - 20 - 8 = 1.472$~Byte
 \cite[Sec.~11.5]{rfc9868}.
 
 MDS ist nur ein Hinweis, keine bekannte Pfadgrenze, und lässt den Platz für Optionen unberücksichtigt.
@@ -162,13 +162,13 @@ MDS-Option. \figref{fig:paketentstehung} zeigt die drei Zustände bis zum fertig
     \node[bytes] at (7.65,-3.55) {00};
     % Übergang 2
     \draw[uebergang] (9.6,-3.4) -- (9.6,-5.05);
-    \node[uebergangtext] at (9.9,-4.2) {Sendepfad: Köpfe, Pad-Byte,\\ UDP-Prüfsumme, OCS};
+    \node[uebergangtext] at (9.9,-4.2) {Sendepfad: Header, Pad-Byte,\\ UDP-Prüfsumme, OCS};
     % Zustand 3: Datagramm
     \node[zustand] at (0,-4.75) {Zustand 3: vollständiges IPv4-Datagramm, 40 Byte};
     \draw[feld] (0,-6.05) rectangle (3.2,-5.2);
-    \node[feldgross] at (1.6,-5.625) {IP-Kopf};
+    \node[feldgross] at (1.6,-5.625) {IP-Header};
     \draw[feld] (3.2,-6.05) rectangle (5.2,-5.2);
-    \node[feldgross] at (4.2,-5.625) {UDP-Kopf};
+    \node[feldgross] at (4.2,-5.625) {UDP-Header};
     \draw[feld] (5.2,-6.05) rectangle (6.3,-5.2);
     \node[feldgross] at (5.75,-5.625) {\texttt{odd}};
     \draw[feldoptional] (6.3,-6.05) rectangle (7.0,-5.2);
@@ -208,11 +208,11 @@ andere SAFE-Optionen und legt danach die Bytes in einer festen eigenen Reihenfol
 Aufbau wieder zurück.
 
 Sobald der Optionsbereich feststeht, kann der Sendepfad die endgültigen Längen bestimmen. Die drei
-Nutzdatenbytes ergeben zusammen mit dem acht Byte langen UDP-Kopf eine \texttt{UDP Length} von 11.
-Hinter dem 20~Byte langen IP-Kopf beginnt die Surplus Area deshalb bei Byte 31. Da dieser Offset ungerade
+Nutzdatenbytes ergeben zusammen mit dem acht Byte langen UDP-Header eine \texttt{UDP Length} von 11.
+Hinter dem 20~Byte langen IP-Header beginnt die Surplus Area deshalb bei Byte 31. Da dieser Offset ungerade
 ist, fügt die Bibliothek vor dem OCS ein Nullbyte zur Ausrichtung ein
 (\secref{subsec:surplus-aufbau}). Mit diesem Pad-Byte und dem acht Byte langen Optionsbereich wächst das
-IPv4-Datagramm auf 40~Byte. Die UDP-Prüfsumme schützt den UDP-Kopf und die Nutzdaten, aber nicht die
+IPv4-Datagramm auf 40~Byte. Die UDP-Prüfsumme schützt den UDP-Header und die Nutzdaten, aber nicht die
 Surplus Area.
 
 Das OCS wird zuletzt eingesetzt, weil erst jetzt der vollständige Optionsbereich und die gesamte
@@ -225,8 +225,8 @@ stattdessen \texttt{0xFFFF}. Für UDP verlangt dies RFC~768. Beim OCS folgt es d
 \texttt{0x0000} ein ungenutztes OCS kennzeichnet \cites{rfc768}[Sec.~9]{rfc9868}.
 
 Mit \texttt{IP\_HDRINCL} übergibt die Bibliothek anschließend das vollständige Datagramm an den Kernel;
-dieser ergänzt nur IPv4-Gesamtlänge, IP-Kopfprüfsumme und eine noch leere IPv4-Identifikation
-\cite{man7raw}. UDP-Kopf und Surplus Area bleiben auf diesem Weg unverändert; selbst
+dieser ergänzt nur IPv4-Gesamtlänge, IP-Headerprüfsumme und eine noch leere IPv4-Identifikation
+\cite{man7raw}. UDP-Header und Surplus Area bleiben auf diesem Weg unverändert; selbst
 die vom RFC erlaubte Kombination aus UDP-Prüfsumme null und OCS null gelangt so auf die Leitung
 (\secref{sec:soll-ist}). Spätere Paketfilter können das Datagramm weiterhin verändern oder verwerfen
 (\secref{sec:netzpfad}).
@@ -246,7 +246,7 @@ Payload Checksum (APC). Die Option enthält eine 32-Bit-Prüfsumme nach dem Verf
 Nutzdaten, hier \texttt{0xE3069283}. Der Sender trägt den Wert in Netzwerkbytefolge hinter Kind 2 und
 Länge 6 ein \cite[Sec.~11.3]{rfc9868}.
 
-Wichtig ist die Aufgabenteilung. Die APC schützt nur die Nutzdaten. Pseudo-Header und UDP-Kopf bleiben
+Wichtig ist die Aufgabenteilung. Die APC schützt nur die Nutzdaten. Pseudo-Header und UDP-Header bleiben
 Aufgabe der UDP-Prüfsumme, sofern diese verwendet wird. Für die Surplus Area greifen zwei andere
 Prüfungen zusammen: Das Pad vor dem ausgerichteten OCS wird getrennt auf null geprüft. Die OCS-Rechnung
 beginnt am OCS-Feld und reicht bis zum Ende der Surplus Area; zusätzlich geht die Länge des gesamten
@@ -264,9 +264,9 @@ Nutzdatenfehler erkennen, die der UDP-Prüfsumme entgehen \cite[Sec.~8, 9 und 11
       deckung/.style={font=\footnotesize, text=feldlinie, align=center},
     ]
     \draw[feld] (0,-0.85) rectangle (2.8,0);
-    \node[feldgross] at (1.4,-0.425) {IP-Kopf};
+    \node[feldgross] at (1.4,-0.425) {IP-Header};
     \draw[feld] (2.8,-0.85) rectangle (4.8,0);
-    \node[feldgross] at (3.8,-0.425) {UDP-Kopf};
+    \node[feldgross] at (3.8,-0.425) {UDP-Header};
     \draw[feld] (4.8,-0.85) rectangle (8.6,0);
     \node[feldgross] at (6.7,-0.425) {Nutzdaten \texttt{123456789}};
     \draw[feldoptional] (8.6,-0.85) rectangle (9.3,0);
@@ -296,7 +296,7 @@ Nutzdatenfehler erkennen, die der UDP-Prüfsumme entgehen \cite[Sec.~8, 9 und 11
     \draw[draw=feldlinie, thin] (2.8,-1.7) -- (8.6,-1.7);
     \draw[draw=feldlinie, thin] (2.8,-1.62) -- (2.8,-1.78);
     \draw[draw=feldlinie, thin] (8.6,-1.62) -- (8.6,-1.78);
-    \node[deckung] at (5.7,-2.0) {UDP-Prüfsumme: UDP-Kopf und Nutzdaten, dazu der Pseudo-Header};
+    \node[deckung] at (5.7,-2.0) {UDP-Prüfsumme: UDP-Header und Nutzdaten, dazu der Pseudo-Header};
     \draw[draw=akzent, semithick] (4.8,-2.55) -- (8.6,-2.55);
     \draw[draw=akzent, semithick] (4.8,-2.47) -- (4.8,-2.63);
     \draw[draw=akzent, semithick] (8.6,-2.47) -- (8.6,-2.63);
@@ -322,7 +322,7 @@ Nutzdatenfehler erkennen, die der UDP-Prüfsumme entgehen \cite[Sec.~8, 9 und 11
         font=\footnotesize, minimum width=7.0cm, minimum height=1.0cm, inner sep=4pt},
       pfeil/.style={->, draw=feldlinie, semithick},
     ]
-    \node[befund] (b1) at (3.2,0) {IPv4-Kopf, \texttt{UDP Length} oder\\ UDP-Prüfsumme ungültig};
+    \node[befund] (b1) at (3.2,0) {IPv4-Header, \texttt{UDP Length} oder\\ UDP-Prüfsumme ungültig};
     \node[verwurf] (f1) at (10.9,0) {Datagramm verworfen};
     \node[befund] (b2) at (3.2,-1.35) {Pad oder OCS fehlerhaft;\\ Optionsbereich strukturell ungültig};
     \node[ohneopt] (f2) at (10.9,-1.35) {Nutzdaten ohne Optionen zugestellt};
@@ -342,13 +342,13 @@ den Raw-Empfang. Die übrigen 28 überschritten die MTU von 1.500~Byte und schei
 mit \texttt{EMSGSIZE}. Unter den empfangenen Fällen waren vier gezielte
 Grenzfälle: eine UDP-Prüfsumme von null, eine absichtlich falsche UDP-Prüfsumme, eine
 \texttt{UDP Length} von 500 bei nur 48 verfügbaren Bytes und eine \texttt{UDP Length} von 4, die kürzer
-als der UDP-Kopf war. Der Raw Socket lieferte alle vier Fälle an den Benutzerraum. Der Versuch erfasste
+als der UDP-Header war. Der Raw Socket lieferte alle vier Fälle an den Benutzerraum. Der Versuch erfasste
 dabei die Ankunft, die Längenfelder und die Surplus-Bytes, aber keinen vollständigen Vergleich mit dem
 Sendepuffer. Außerdem enthielt der Sendepuffer in 42 der 69 empfangenen Fälle einen falschen Wert für
 \texttt{IP Total Length}. Der Kernel ersetzte alle 42 Werte vor der Übertragung durch die tatsächliche
 Pufferlänge.
 
-Zuerst prüft die Bibliothek das Datagramm selbst. Der IPv4-Kopf muss gültig sein. \texttt{UDP Length}
+Zuerst prüft die Bibliothek das Datagramm selbst. Der IPv4-Header muss gültig sein. \texttt{UDP Length}
 muss mindestens 8 betragen und darf die IP-Nutzlast nicht überschreiten. Eine UDP-Prüfsumme ungleich
 null muss stimmen; eine gespeicherte Null bleibt unter IPv4 zulässig (\secref{subsec:udp-struktur}).
 Scheitert eine dieser Prüfungen, wird das gesamte Datagramm verworfen
@@ -400,7 +400,7 @@ und wie sie endeten \cite[Sec.~14 und 15]{rfc9868}.
 Vor dieser Verarbeitung muss die Socket-Schicht zunächst ein passendes Datagramm finden. Ein Raw Socket
 sieht auch fremden UDP-Verkehr. In einer frühen Fassung beendete bereits das erste fremde Datagramm den
 Empfangsaufruf ohne Ergebnis; eine laufende Messung konnte dadurch still enden. Die heutige Fassung
-überspringt unlesbare Köpfe, eigene Kopien und nicht passende Ports innerhalb einer Empfangsschleife.
+überspringt unlesbare Header, eigene Kopien und nicht passende Ports innerhalb einer Empfangsschleife.
 
 Für diese Schleife gilt eine einzige Gesamtfrist. Vor jedem weiteren Leseversuch erhält der Socket nur
 die verbleibende Zeit; ständiger fremder Verkehr verlängert die Wartezeit deshalb nicht. Erst wenn bis
@@ -430,14 +430,14 @@ UDP-Ports \cite[Sec.~11.4]{rfc9868}. Die FRAG-Option ist im nichtterminalen Frag
 terminalen Fragment zwölf Byte lang.
 
 \texttt{Frag.Offset} bezeichnet die Lage der Fragmentdaten im ursprünglichen UDP-Datagramm, gemessen
-ab dessen UDP-Kopf. \texttt{Frag.Start} bezeichnet den Beginn der Fragmentdaten im aktuellen Fragment,
-ebenfalls ab dem UDP-Kopf. Er beträgt hier 20 Byte im nichtterminalen und 22 Byte im terminalen
+ab dessen UDP-Header. \texttt{Frag.Start} bezeichnet den Beginn der Fragmentdaten im aktuellen Fragment,
+ebenfalls ab dem UDP-Header. Er beträgt hier 20 Byte im nichtterminalen und 22 Byte im terminalen
 Fragment. Nur das terminale Format enthält den Reassembled Datagram Option Start (RDOS). Dieser Zeiger
 markiert im wiederhergestellten Datagramm das Ende der Nutzdaten und den Beginn der Datagrammoptionen.
 RDOS ergibt zugleich die \texttt{UDP Length} des wiederhergestellten Datagramms; etwaige
 Datagrammoptionen folgen dahinter in dessen Surplus Area \cite[Sec.~11.4]{rfc9868}.
 
-MRDS begrenzt die Größe des wiederhergestellten UDP-Datagramms einschließlich UDP-Kopf und
+MRDS begrenzt die Größe des wiederhergestellten UDP-Datagramms einschließlich UDP-Header und
 Datagrammoptionen. Ein zweites Feld begrenzt die Zahl der Fragmente \cite[Sec.~11.6]{rfc9868}. Ohne
 empfangene MRDS legt die Implementierung für IPv4 die vom RFC verlangten Mindestwerte von 2.926 Byte
 und zwei Fragmenten zugrunde.
@@ -446,7 +446,7 @@ Empfangene MRDS-Werte übernimmt die Bibliothek ebenso wenig automatisch in ihre
 empfangene MDS-Werte. Der Aufrufer muss sie selbst in \texttt{PeerFragmentLimits} übertragen. Auch MRDS
 lässt sich je Sendung erzeugen.
 
-Bei einer maximalen Datagrammlänge von 1.500 Byte bleiben nach IPv4- und UDP-Kopf 1.472 Byte für die
+Bei einer maximalen Datagrammlänge von 1.500 Byte bleiben nach IPv4- und UDP-Header 1.472 Byte für die
 Surplus Area. OCS und FRAG verringern die Datenkapazität auf 1.460 Byte im nichtterminalen und
 1.458 Byte im terminalen Fragment. Das Beispiel in \figref{fig:frag-ablauf} zerlegt deshalb
 2.918 Nutzdatenbytes in genau zwei Fragmente.
@@ -472,7 +472,7 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     ]
     \draw[feld] (0,-0.55) rectangle (1.4,0);
     \draw[feld] (1.4,-0.55) rectangle (7.4,0);
-    \node[feldtext, font=\tiny] at (0.7,-0.275) {UDP-Kopf};
+    \node[feldtext, font=\tiny] at (0.7,-0.275) {UDP-Header};
     \node[feldtext] at (4.4,-0.275) {Nutzdaten};
     \node[bitindex] at (0.7,-0.76) {8};
     \node[bitindex] at (4.4,-0.76) {2918};
@@ -489,8 +489,8 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     \draw[feldakzent] (2.7,-2.80) rectangle (3.3,-2.25);
     \draw[feldakzent] (3.3,-2.80) rectangle (5.5,-2.25);
     \draw[feld] (5.5,-2.80) rectangle (12.9,-2.25);
-    \node[feldtext, font=\tiny] at (0.6,-2.525) {IP-Kopf};
-    \node[feldtext, font=\tiny] at (1.95,-2.525) {UDP-Kopf};
+    \node[feldtext, font=\tiny] at (0.6,-2.525) {IP-Header};
+    \node[feldtext, font=\tiny] at (1.95,-2.525) {UDP-Header};
     \node[feldtext, font=\tiny] at (3.0,-2.525) {OCS};
     \node[feldtext, font=\tiny] at (4.4,-2.525) {FRAG};
     \node[feldtext] at (9.2,-2.525) {Fragmentdaten};
@@ -509,8 +509,8 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     \draw[feldakzent] (2.7,-5.15) rectangle (3.3,-4.60);
     \draw[feldakzent] (3.3,-5.15) rectangle (5.8,-4.60);
     \draw[feld] (5.8,-5.15) rectangle (12.9,-4.60);
-    \node[feldtext, font=\tiny] at (0.6,-4.875) {IP-Kopf};
-    \node[feldtext, font=\tiny] at (1.95,-4.875) {UDP-Kopf};
+    \node[feldtext, font=\tiny] at (0.6,-4.875) {IP-Header};
+    \node[feldtext, font=\tiny] at (1.95,-4.875) {UDP-Header};
     \node[feldtext, font=\tiny] at (3.0,-4.875) {OCS};
     \node[feldtext, font=\tiny] at (4.55,-4.875) {FRAG};
     \node[feldtext] at (9.35,-4.875) {Fragmentdaten};
@@ -554,18 +554,18 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     \node[anno, anchor=west] at (0,-3.45)
       {Schritt 2: \texttt{Frag.Offset} 8 füllt den Bereich ab Position 0. Der Puffer ist bis 2918\\
        lückenlos, der Satz damit vollständig.};
-    \draw[feld] (0,-4.75) rectangle (1.2,-4.20);
-    \node[feldtext, font=\tiny] at (0.6,-4.475) {UDP-Kopf};
-    \draw[feld] (1.2,-4.75) rectangle (11.9,-4.20);
-    \node[feldtext] at (6.55,-4.475) {Nutzdaten};
-    \node[bitindex] at (0.6,-4.96) {8};
-    \node[bitindex] at (6.55,-4.96) {2918};
+    \draw[feld] (0,-4.75) rectangle (1.4,-4.20);
+    \node[feldtext, font=\tiny] at (0.7,-4.475) {UDP-Header};
+    \draw[feld] (1.4,-4.75) rectangle (11.9,-4.20);
+    \node[feldtext] at (6.65,-4.475) {Nutzdaten};
+    \node[bitindex] at (0.7,-4.96) {8};
+    \node[bitindex] at (6.65,-4.96) {2918};
     \draw[klammer] (11.9,-5.30) -- (0,-5.30)
       node[midway, below=7pt, font=\scriptsize, text=feldlinie] {\texttt{UDP Length} = 2926 = RDOS};
     \node[anno, anchor=west] at (0,-6.55)
       {Schritt 3: Aus Daten und \texttt{UDP Length} entsteht ein neues Datagramm. Es durchläuft die\\
        Empfangspipeline (\secref{sec:empfangspfad}) genau einmal erneut; weitere Reassemblierung\\
-       ist gesperrt. Der UDP-Kopf ist nicht maßstäblich gezeichnet.};
+       ist gesperrt. Der UDP-Header ist nicht maßstäblich gezeichnet.};
   \end{tikzpicture}
   \caption[Zerlegung und Reassemblierung eines Datagramms]{Zerlegung und Reassemblierung eines Datagramms
     mit 2918 Nutzdatenbytes}
@@ -622,12 +622,12 @@ Bibliothek nicht aus \cite[Sec.~11.3]{rfc9868}.
 Der Parser wahrt die Abwärtskompatibilität auch bei unbekannten Optionen. Eine unbekannte SAFE-Option
 übergeht er und meldet sie als übergangen. Bei einer unbekannten UNSAFE-Option darf er die Nutzdaten
 dagegen nicht weitergeben. Ein gewöhnliches oder bereits zusammengesetztes Datagramm wird deshalb mit
-leerer Nutzlast zugestellt \cite[Sec.~12 und 14]{rfc9868}. Die Sendeseite erzeugt selbst keine
+leeren Nutzdaten zugestellt \cite[Sec.~12 und 14]{rfc9868}. Die Sendeseite erzeugt selbst keine
 UNSAFE-Optionen; der Optionskern weist solche Arten schon beim Aufbau zurück.
 
 Innerhalb eines Fragments bildet eine unbekannte UNSAFE-Option einen Sonderfall. Steht zuvor ein
 gültiges FRAG, kann die Bibliothek das Fragment zuordnen und verwirft den ganzen Fragmentsatz. Steht die
-UNSAFE-Option vor FRAG, ist noch keine Zuordnung möglich. Dann stellt die Bibliothek eine leere Nutzlast
+UNSAFE-Option vor FRAG, ist noch keine Zuordnung möglich. Dann stellt die Bibliothek leere Nutzdaten
 zu und lässt einen bereits gespeicherten Satz mit derselben Kennung unberührt
 \cite[Sec.~10, 12 und 14]{rfc9868}.
 

@@ -121,8 +121,8 @@ Aufwärmpaket die Mitschnittbereitschaft; die lokale Wire-Lane beendet den Mitsc
 unveränderten Dateigrößen, die Namespace-Lane nach fester Wartezeit, und die öffentlichen Kampagnen senden
 \texttt{SIGINT}, warten eine Sekunde und prüfen, dass \texttt{tcpdump} keinen Kernelverlust meldet. Im
 Sendeweg gilt die Arbeitsteilung: Auf dem \texttt{IP\_HDRINCL}-Pfad
-setzt der Kernel die IPv4-Gesamtlänge und die Kopfprüfsumme und, weil die Bibliothek die
-IPv4-Identification null lässt, gegebenenfalls auch dieses Feld. UDP-Kopf und Surplus Area bleiben
+setzt der Kernel die IPv4-Gesamtlänge und die Headerprüfsumme und, weil die Bibliothek die
+IPv4-Identification null lässt, gegebenenfalls auch dieses Feld. UDP-Header und Surplus Area bleiben
 unverändert; deshalb sind Grenzfälle
 wie ein Datagramm mit UDP-Prüfsumme null und OCS null weiterhin exakt konstruierbar.
 
@@ -396,12 +396,13 @@ folgender Bedingung überein: Das UDP-Prüfsummenfeld war null oder die Einerkom
 Pseudo-Header und gesamte IP-Nutzlast ging auf, wobei die Pseudo-Header-Länge aus der IP-Gesamtlänge
 stammte statt aus dem UDP-Längenfeld. Der entscheidende Kreuztest bestand aus zwei Zellen: Zelle G
 trägt ein Pad-Byte \texttt{ff} bei rechnerisch gültiger OCS; sie ist wegen des Null-Pad-Gebots aus
-\secref{subsec:surplus-aufbau} regelwidrig gebaut, ihre Legacy-Faltung geht nicht auf, und sie
-verschwindet vollständig. Zelle C kompensiert denselben Pad-Fehler durch eine gegenkorrigierte OCS
-\texttt{5b53}; sie ist ebenso regelwidrig, ihre Faltung geht auf, und sie kommt vollständig an. In
-dieser Stichprobe folgt die Zustellung damit der Legacy-Summe und nicht der OCS. Algebraisch schließt
-sich das: Bei RFC-korrekter OCS ist die Legacy-Summe gleich dem Pad-Byte, denn der Längenzuschlag des
-Pseudo-Headers hebt sich exakt gegen den Längensummanden der OCS-Definition auf
+\secref{subsec:surplus-aufbau} regelwidrig gebaut, ihre Gate-Faltung, also diese Einerkomplementsumme,
+geht nicht auf, und sie verschwindet vollständig. Zelle C kompensiert denselben Pad-Fehler durch eine
+gegenkorrigierte OCS \texttt{5b53}; sie ist ebenso regelwidrig, ihre Faltung geht auf, und sie kommt
+vollständig an. In dieser Stichprobe folgt die Zustellung damit der Gate-Summe und nicht der OCS.
+Algebraisch schließt sich das: Bei gültiger UDP-Prüfsumme und RFC-korrekter OCS ist die Gate-Summe gleich
+dem Pad-Byte, denn der Längenzuschlag des Pseudo-Headers hebt sich exakt gegen den Längensummanden der
+OCS-Definition auf
 (\secref{subsec:surplus-ocs}). Damit ist zugleich die entscheidende Anschlussfrage beantwortet, ob
 regelkonform gebaute Datagramme ein solches Gate passieren: Ja. Ein Datagramm mit Null-Pad und
 korrekter OCS besteht ein Gate dieses Typs zwingend; das ist mit der verlustfreien P0-Grundlast
@@ -437,8 +438,8 @@ Richtungen: C passiert alle 14, G verschwindet in elf und kommt in drei Richtung
 (\figref{fig:eval-gate}). Das Muster der Überlebensrichtungen trägt die
 Verortung: Der Amazon-Backbone lässt G beidseitig durch, ebenso der Weg von 1blue zu aws; die Ausfälle
 konzentrieren sich auf alle Richtungen mit Hetzner-Beteiligung und auf den 1blue-Eingang. Als sparsamstes
-Modell bleibt eine kanten- oder empfangsseitige Legacy-Prüfsummenvalidierung bei Hetzner in beiden
-Richtungen und bei 1blue nur eingehend, keine bei Amazon; das ist eine Schlussfolgerung aus
+Modell bleibt ein kanten- oder empfangsseitiges Prüfsummen-Gate bei Hetzner in beiden
+Richtungen und bei 1blue nur eingehend, keines bei Amazon; das ist eine Schlussfolgerung aus
 Endpunkt-Mitschnitten, denn zwischen Provider-Kante und angrenzendem Transitabschnitt kann ohne Messpunkt
 im Netz nicht unterschieden werden. Der Asien-Durchlauf replizierte beide Kantenbefunde über sechs
 AP-Zielregionen und ergänzte drei weitere G-Überlebensrichtungen von 1blue nach Mumbai, Singapur und
@@ -506,14 +507,14 @@ ließen sich später trennen. Im NAT-Modus kamen abgehende Optionsdatagramme zwa
 neun von neun ohne ihre Surplus Area, gegen 18 von 18 intakte Kontrollen (Fisher exakt, einseitig,
 $p = 2{,}13 \cdot 10^{-7}$). Rückantworten mit TTL 128 und neu geschriebenen IPv4-Kennungen sind mit
 einem Neuaufbau aus dem Verbindungszustand der NAT vereinbar (\figref{fig:eval-heimpfad}). Direkt belegt
-ist allein die Normalisierung auf IPv4-Kopflänge plus UDP-Länge bei unveränderten Nutzdaten und
+ist allein die Normalisierung auf IPv4-Headerlänge plus UDP-Länge bei unveränderten Nutzdaten und
 entfernter Surplus Area; die Messpunkte trennen weder \texttt{vmnet-natd} von der macOS-VMnet-API noch
 legen sie den internen Mechanismus offen. Dieses beobachtete Drahtbild definiert die Mechanismenklasse
 des \textbf{Normalisierers} mit der Ergebnisklasse entfernt. Sein deutlichster Fall (vorregistrierte
 Wiederholung vom 15.08.) betrifft atomare FRAG-Datagramme, deren gesamter Inhalt in der Surplus Area
 liegt: Sie kommen als leere 28-Byte-Hüllen an und werden zugestellt, zehn von zehn; die Anwendung erhält
 leere statt fehlender Datagramme, ohne jedes Verlustsignal. RFC~9868 erwartet Schwankungen ihrer Zahl
-zwischen Legacy- und optionsfähigen Empfängern als unproblematisch, nennt Nulllängen-Pakete als Signal
+zwischen Altempfängern und optionsfähigen Empfängern als unproblematisch, nennt Nulllängen-Pakete als Signal
 unzuverlässig, und Anwendungen mit UNSAFE-Optionen sollten sie nicht als Signal nutzen
 \cite[Sec.~6, 12 und 18]{rfc9868}. Der hier beobachtete Fall ist ein anderer: Der Inhalt wurde auf
 dem Pfad vernichtet. In der Rückrichtung verschwanden Optionsdatagramme dagegen vollständig: null von sechs
@@ -945,7 +946,9 @@ nicht zweimal zählt \cite[Sec.~11.2 und 25.2]{rfc9868}.
 
 Außerhalb der Matrix treten die erwarteten Betriebsgrenzen hinzu: Je unfragmentiertem IP-Datagramm trägt
 der Sendeweg bis zur MTU der ausgehenden Schnittstelle (auf allen Messendpunkten 1500 Byte, auf den
-Amazon- und Google-Instanzen ausdrücklich so eingestellt) und scheitert darüber am Kernel, weil
+Amazon- und Google-Instanzen ausdrücklich so eingestellt)\footnote{Für die Google-Messung wurde ein eigenes
+virtuelles Netz (VPC) mit 1500~Byte MTU statt des Standardwerts von 1460~Byte angelegt.}
+und scheitert darüber am Kernel, weil
 \texttt{IP\_HDRINCL} den Sendepuffer nicht fragmentiert. In der Voreinstellung teilt die Bibliothek
 größere logische Datagramme per FRAG; die markierte Pflicht aus Abschnitt~11.4, mindestens zwei je in
 1500 Byte passende Fragmente zu bilden und zusammenzusetzen, bleibt davon unberührt (Matrixzeile 194)
@@ -979,7 +982,7 @@ bleibt und ihr Nullwert nur bei genullter UDP-Prüfsumme zulässig ist \cite[Sec
 geprüfte Datagramm trug weder eine APC noch den
 Integritätsschutz einer anderen Schicht, sodass seine UDP-Nutzdaten und seine Surplus Area ungeschützt
 blieben. Eine APC kann allgemein die UDP-Nutzdaten zusätzlich schützen, aber weder die Surplus Area
-noch UDP-Kopf und Pseudo-Header \cite[Sec.~11.3]{rfc9868}. Zweitens löst
+noch UDP-Header und Pseudo-Header \cite[Sec.~11.3]{rfc9868}. Zweitens löst
 Erratum~8834 den Widerspruch zwischen den Abschnitten 10 und 14 zugunsten des Sec.-10-Verfahrens auf
 (\chapref{chap:methodik}); die Laufzeit folgt dem nachweislich, denn im realen Überlängenfall wurde
 ein gültiges REQ vor der defekten Option nicht gemeldet, sondern der gesamte Optionsbereich verworfen.
@@ -1028,7 +1031,7 @@ kommentarlos aus. Das ist keine Abweichung der Implementierung vom RFC, sondern 
 gegenüber einem nichtkonformen Sender. Der RFC schreibt dem Empfänger keine zusätzliche Erkennung
 solcher Kollisionen vor. Die APC bietet
 dafür eine optionale protokollinterne Erkennung beschädigter Nutzdaten; schlägt sie fehl, wird der
-Fehlschlag gemeldet und die Nutzlast standardmäßig dennoch zugestellt.
+Fehlschlag gemeldet, und die Nutzdaten werden standardmäßig dennoch zugestellt.
 
 Fragmentierung und Soft-State lassen sich in vier getrennte Grenzen zerlegen, die
 \tabref{tab:eval-frag-softstate} Norm, Umsetzung und Beobachtung direkt zuordnet.
@@ -1045,7 +1048,7 @@ Fragmentierung und Soft-State lassen sich in vier getrennte Grenzen zerlegen, di
         \textbf{Grenze} & \textbf{RFC 9868} & \textbf{Implementierung} & \textbf{Beobachtung} \\
         \midrule
         Menge und Schutz & Reassemblierungsspeicher sollte begrenzt werden; kein Zahlenwert
-        (Sec.~11.4, 25.4) & 64 unvollständige Sätze je Cache; Bestandsverkehr bleibt erhalten &
+        (Sec.~11.4, 25.4) & 64 unvollständige Sätze je Cache; bereits gespeicherte Sätze bleiben erhalten &
         S-50: je Lauf 64 von 80 Sätzen, 16 ohne Zustellung; 72 von 72 Läufen (12 je Hostpaar) wie
         vorhergesagt; Kontrollen und atomares Fragment zugestellt \\
         Zeit und Bereinigung & Standardtimeout sollte höchstens zwei Minuten betragen; sein Ablauf darf

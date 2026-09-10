@@ -53,8 +53,8 @@ for r in rows:
     y -= zeilenhoehe
 tex.append(f"  \\node[font=\\scriptsize, text=feldlinie, anchor=north west, text width=12.4cm] "
            f"at (0,{y - 0.05:.2f}) {{Zugestellt (\\checkmark) heißt: am fernen Ende aufgezeichnet "
-           f"beziehungsweise ausgeliefert; die zugestellten G-Datagramme verwirft der Empfänger "
-           f"anschließend regelkonform (Pad ungleich null), die Nutzdaten stellt er zu}};")
+           f"beziehungsweise ausgeliefert; bei den zugestellten G-Datagrammen verwirft der Empfänger "
+           f"anschließend regelkonform die Optionen (Pad ungleich null), die Nutzdaten stellt er zu}};")
 tex.append("\\end{tikzpicture}")
 FRAGMENT.write_text("\n".join(tex) + "\n")
 print(f"geschrieben: {FRAGMENT} ({len(rows)} Zeilen)")

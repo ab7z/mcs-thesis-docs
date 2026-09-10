@@ -303,8 +303,8 @@ Unterbau \cite{man7raw}.
 
 Als Betriebssystem trägt Linux diese Entscheidung: Dort ist der Weg
 dokumentiert und im quelloffenen Kernel nachprüfbar, und dieselbe Plattform stellt alle Endpunkte der
-Kampagnen (\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Kopf, Längen,
-UDP-Prüfsumme und Optionen selbst prüft. Beim Senden liefert sie mit \texttt{IP\_HDRINCL} den IPv4-Kopf;
+Kampagnen (\secref{sec:ff2-pfadmodell}). Der Preis ist, dass die Bibliothek IPv4-Header, Längen,
+UDP-Prüfsumme und Optionen selbst prüft. Beim Senden liefert sie mit \texttt{IP\_HDRINCL} den IPv4-Header;
 da dieser Pfad nicht fragmentiert, muss jedes Optionsdatagramm in die MTU passen (\secref{sec:netzpfad}).
 Diese Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
 
