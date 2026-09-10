@@ -40,8 +40,8 @@ grundsätzlich drei Wege in Betracht:
         Altempfänger möglichst unsichtbar bleibt.
 \end{enumerate}
 
-RFC~9868 wählt den dritten Weg (die Muster hinter diesen Wegen vergleicht \chapref{chap:grundlagen}) und
-nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich zwischen dem Ende der UDP-Nutzdaten
+RFC~9868 wählt den dritten Weg und nutzt dafür die sogenannte \emph{Surplus Area}: den möglichen Bereich
+zwischen dem Ende der UDP-Nutzdaten
 und dem Ende des IP-Datagramms. Das UDP-Length-Feld gibt die Länge des UDP-Datagramms an. Diese kann
 kleiner sein als die Größe des im IP-Datagramm für UDP verfügbaren Bereichs. Der verbleibende Raum hinter
 den UDP-Nutzdaten kann deshalb für Erweiterungen genutzt werden (\secref{sec:surplus-area}).
@@ -124,7 +124,7 @@ EOL, NOP, APC, FRAG, MDS, MRDS, REQ und RES \cite[Sec.~10]{rfc9868}.
 
 Die Verifikation erfolgt mehrstufig: Komponententests prüfen die einzelnen Bestandteile, Integrationstests den
 Loopback-Pfad, und für reine Regeln wird ergänzend eine Lean-Spezifikation gepflegt. Lean dient als formale
-Gegenprobe für Prüfsummenarithmetik sowie Längen- und Anordnungsregeln; das Verhalten von Raw Sockets,
+Gegenprobe für Prüfsummen\-arithmetik sowie Längen- und Anordnungsregeln; das Verhalten von Raw Sockets,
 Betriebssystemen und Zwischensystemen bleibt Gegenstand empirischer Prüfungen. Dieses Prüfprogramm schafft die
 Grundlage für die Beantwortung von FF1.
 
