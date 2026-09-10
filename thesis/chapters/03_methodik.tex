@@ -8,14 +8,14 @@
 Große Sprachmodelle unterstützten die Auswertung des RFC-Primärtexts, den Entwurf und die Implementierung,
 die Analyse der Messkampagnen und die Prüfung von Zwischenergebnissen. Wissenschaftlich belastbar ist dieses
 Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet.
-Diese Regeln müssen vor der Ergebnisbewertung feststehen. Deshalb steht dieses Kapitel vor der RFC-Analyse.
+Diese Regeln müssen vor der Ergebnisbewertung feststehen.
 
 \section{Anlass des KI-Einsatzes und veröffentlichte Fälle}
 \label{sec:externe-faelle}
 
 Diese Arbeit entsteht als Einzelarbeit und verbindet die Auswertung einer neuen Norm, systemnahe
-Programmierung, formale Modellierung und Messkampagnen. Der Einsatz von KI-Werkzeugen wird deshalb nicht
-beiläufig erwähnt, sondern vorab offengelegt und mit Prüfregeln versehen. Zur Einordnung dienen neun
+Programmierung, formale Modellierung und Messkampagnen. Die Arbeit legt den Einsatz von KI-Werkzeugen offen
+und beschreibt die Regeln zur Prüfung ihrer Ergebnisse. Zur Einordnung dienen neun
 veröffentlichte Fälle, in denen KI-Systeme, darunter Sprachmodelle, an Forschungs- und
 Entwicklungsergebnissen beteiligt waren. Sie bilden keine systematische Literaturübersicht, belegen keine
 einheitliche Prüfkette und erlauben keine Aussage über Häufigkeit oder Wirksamkeit eines Verfahrens. Die
@@ -29,8 +29,8 @@ KI-Systems, die prüfende Instanz und die Grenze der jeweiligen Prüfung.
   \item \textbf{Davies u.\,a.:} Ein KI-System schlug Hypothesen und Kandidatenmuster für mathematische
     Probleme vor; beteiligte Mathematiker prüften durch Gegenbeispielsuche und führten den klassischen
     Beweis \cite{davies2021intuition}.
-  \item \textbf{FunSearch:} Ein Sprachmodell erzeugte ausführbare Programmkandidaten, die ein
-    ausführbarer Auswerter einzeln bewertete; das Ergebnis gilt nur für die kodierte Bewertungsfunktion
+  \item \textbf{FunSearch:} Ein Sprachmodell erzeugte ausführbare Programmkandidaten. Ein Prüfprogramm
+    bewertete jeden Kandidaten; das Ergebnis gilt nur für die im Programm festgelegte Bewertungsfunktion
     \cite{romera2024funsearch}.
   \item \textbf{AlphaProof:} Ein Modell erzeugte formale Beweiskandidaten, die der Kern des
     Beweisassistenten Lean einzeln nachprüfte; jeder Beweis gilt für die formalisierte Aussage und ihre
@@ -38,9 +38,9 @@ KI-Systems, die prüfende Instanz und die Grenze der jeweiligen Prüfung.
   \item \textbf{Knuths Zyklen:} Ein Modell konstruierte die Lösung eines Zyklenproblems; Knuth führte den
     Beweis anschließend selbst, und unabhängig davon lag bereits eine veröffentlichte Lean-Formalisierung
     von Morrison vor \cite{knuth2026cycles}.
-  \item \textbf{Zeta-Schranke:} Ein Modell lieferte ein mathematisches Ergebnis samt gemeinsamer
-    Lean-Formalisierung; zwei Anthropic-Mathematiker und zwei externe Fachleute prüften es, ein
-    dokumentierter Blindvergleich fand nicht statt \cite{anthropic2026zeta}.
+  \item \textbf{Zeta-Schranke:} Ein Modell lieferte ein mathematisches Ergebnis und formalisierte es
+    gemeinsam mit dem Anthropic-Mitarbeiter Eric Easley in Lean. Zwei Anthropic-Mathematiker und zwei
+    externe Fachleute prüften das Ergebnis; ein Blindvergleich ist nicht dokumentiert \cite{anthropic2026zeta}.
   \item \textbf{Einheitsabstand:} Ein Modell lieferte einen Gegenbeweis zu einer Vermutung der diskreten
     Geometrie; externe Mathematiker prüften ihn und veröffentlichten eine verdichtete, von Menschen
     verifizierte Fassung \cite{openai2026unitdistance}.
@@ -48,7 +48,7 @@ KI-Systems, die prüfende Instanz und die Grenze der jeweiligen Prüfung.
     bei; Physiker prüften mit einer Gegenprobe durch Monte-Carlo-Simulationen, und der Preprint legt den
     Einsatz offen \cite{schwartz2026cparameter}.
   \item \textbf{Bun-Migration:} Bei der Migration von Bun von Zig nach Rust erzeugten und prüften Modelle
-    derselben Familie den Quelltext; trotz getrennter Rollen blieb ein Fehler unentdeckt, nach dem Merge
+    derselben Familie den Quelltext. Trotz getrennter Rollen blieb ein Fehler unentdeckt. Nach dem Merge
     wurde undefiniertes Verhalten gemeldet und das Prüfwerkzeug Miri in die kontinuierliche Integration
     aufgenommen \cite{bun-in-rust,bun-pr30412,bun-issue30719}.
 \end{itemize}
@@ -58,8 +58,7 @@ Beweise, Messdaten und menschliche Freigabe haben verschiedene Aufgaben; ihre ta
 dokumentiert sein. Diese Arbeit folgt außerdem der ausdrücklichen Offenlegung des C-Parameter-Falls
 (\secref{sec:ki-offenlegung}) und versteht auch eine mehrstufige Prüfung nicht als Garantie. Sie wendet
 denselben Maßstab auf sich selbst an: Jede Artefaktart erhält eine passende Prüfinstanz, und die
-Arbeitsteilung zwischen Autor und Werkzeugen steht fest, bevor Ergebnisse bewertet werden. Beides legen die
-folgenden Abschnitte offen.
+Arbeitsteilung zwischen Autor und Werkzeugen steht fest, bevor Ergebnisse bewertet werden.
 
 \section{Forschungsdesign und KI-gestützte Arbeitsweise}
 \label{sec:forschungsdesign}
@@ -69,7 +68,7 @@ Die Untersuchung verbindet die Auswertung der Norm, die Referenzimplementierung 
 Pfaduntersuchung. \figref{fig:forschungsdesign} zeigt, wie die beiden Forschungsfragen auf diesen Teilen
 aufbauen:
 
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \begin{tikzpicture}[
       x=1cm, y=1cm,
@@ -133,7 +132,7 @@ belegt keine Zustellbarkeit entlang realer Netzpfade, und eine unveränderte Zus
 RFC-Konformität.
 
 Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und Entscheidungsregeln.
-\tabref{tab:operationalisierung} legt diese Regeln fest, bevor die Ergebnisse betrachtet werden:
+\tabref{tab:operationalisierung} stellt sie gegenüber:
 
 \begin{table}[htbp]
   \centering
@@ -159,17 +158,17 @@ Die Forschungsfragen benötigen deshalb verschiedene Untersuchungseinheiten und 
 \end{table}
 
 Aus \tabref{tab:operationalisierung} geht hervor, dass FF1 je anwendbarer Anforderung und FF2 je
-kontrolliertem Szenario entschieden wird. Ein Szenario kann ein einzelnes Kontroll- und Optionsdatagramm,
-mehrere Wiederholungen oder bei FRAG mehrere Wire-Datagramme enthalten.
+kontrolliertem Szenario entschieden wird. Ein Szenario kann je ein Kontroll- und ein Optionsdatagramm,
+mehrere Wiederholungen oder bei FRAG mehrere übertragene Datagramme enthalten.
 Für FF1 wird zunächst die Anwendbarkeit bestimmt. Anwendbare \texttt{MUST}- und
 \texttt{SHOULD}-Aussagen gehen in die Bewertung ein; eine Abweichung von \texttt{SHOULD} benötigt eine
 dokumentierte Begründung. Eine \texttt{MAY}-Funktion wird nur bewertet, wenn sie für die
 Referenzimplementierung gewählt wurde.
 
 Wie diese Regeln auf die einzelnen Anforderungen angewandt werden, legt \secref{sec:ff1-kriterien} fest; die
-Auswertungsregeln der Messläufe für FF2 stehen in \secref{sec:testkonzept}. Beide Regelwerke stehen damit
-ebenfalls vor der Ergebnisbewertung fest. Der neben der Erfüllbarkeit berichtete Umsetzungsstand bewertet den
-Endpunkt aus Bibliothek und aufrufender Schicht; die zugehörige Regel definiert \secref{sec:soll-ist}.
+Auswertungsregeln der Messläufe für FF2 stehen in \secref{sec:testkonzept}. Neben der Erfüllbarkeit wird der
+Umsetzungsstand berichtet. Dafür werden die Bibliothek und die Software, die sie aufruft, gemeinsam
+bewertet; die zugehörige Regel definiert \secref{sec:soll-ist}.
 
 Der Maßstab für FF1 entsteht aus dem Primärtext. Normativ ist RFC~9868; RFC~768 liefert ergänzend das
 UDP-Format, RFC~1071 als informative Referenz die Rechenregeln der Prüfsummen. Die Schlüsselwörter
@@ -179,17 +178,17 @@ Formen tragen die dort festgelegte besondere Bedeutung; normative Aussagen könn
 auch auslassen \cite{rfc2119,rfc8174}. RFC~9868 stellt Absätzen mit solchen Wörtern zusätzlich das
 Zeichenpaar \texttt{>{}>} voran. Die eigene Zählung von 103 markierten Absätzen ist deshalb nur eine
 Kontrollzahl und keine vollständige Anforderungsliste. Für die Belegform gilt: Normbezüge nennen den
-maßgeblichen RFC-Abschnitt im Fließtext oder im Zitatmarker; bei BCP-14-Aussagen sowie bei Zahlen und
-Grenzwerten trägt der Marker die Abschnittsangabe immer.
+maßgeblichen RFC-Abschnitt im Fließtext oder im Quellenverweis; bei BCP-14-Aussagen sowie bei Zahlen und
+Grenzwerten trägt der Quellenverweis die Abschnittsangabe immer.
 
 Jede so gewonnene Aussage wird nach demselben Muster erfasst: Fundstelle, Normstufe, Anwendbarkeit und
 Projektumfang. Dieses Muster ist zugleich das Zeilenschema des Anforderungskatalogs im
-Implementierungs-Repository, sodass jede Katalogzeile ihren RFC-Abschnitt mitführt. Zwei Nachbarquellen
-bleiben davon getrennt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung (DPLPMTUD, \textit{Datagram
+Implementierungs-Repository, sodass jede Katalogzeile ihren RFC-Abschnitt mitführt. RFC~9869 und die Errata
+zu RFC~9868 werden gesondert behandelt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung (DPLPMTUD, \textit{Datagram
 Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des Implementierungsumfangs
 \cite{rfc9869}. Von den Errata ist das verifizierte technische EID~8834 angewendet; es löst den Widerspruch
 zwischen den Abschnitten~10 und 14 zur Behandlung überlanger Optionen \cite{rfc9868-eid8834}. Das
-redaktionelle EID~8708 bleibt für eine spätere Dokumentausgabe zurückgestellt \cite{rfc9868-eid8708}.
+redaktionelle EID~8708 bleibt für eine spätere Ausgabe des RFC zurückgestellt \cite{rfc9868-eid8708}.
 \figref{fig:rfc-auswertung} fasst diesen Weg zusammen:
 
 \begin{figure}[H]
@@ -236,33 +235,32 @@ redaktionelle EID~8708 bleibt für eine spätere Dokumentausgabe zurückgestellt
   \label{fig:rfc-auswertung}
 \end{figure}
 
-Aus \figref{fig:rfc-auswertung} geht hervor, dass der Maßstab aus zwei getrennt gehaltenen Zuflüssen
-entsteht: der normativen Lesung mit ihrem Errata-Stand und den ausdrücklich gekennzeichneten eigenen
-Projekt-, Schnittstellen- und Plattformvorgaben. Diese Trennung verhindert, dass eine lokale
-Entwurfsentscheidung nachträglich als Forderung des RFC erscheint. Die Kontrollzahl sichert den normativen
-Zufluss mit zwei Zählverfahren ab: Die Erstzählung ergab 96 Absätze, erst das zweite Verfahren deckte den
-Fehler auf. Ein Werkzeug, das den RFC-Text maschinell zerlegt, gibt es nicht; Zählung und Einordnung
-entstanden lesend.
+\figref{fig:rfc-auswertung} zeigt die beiden Grundlagen des Maßstabs: die Anforderungen des RFC unter
+Berücksichtigung der Errata und die davon getrennt erfassten eigenen Projekt-, Schnittstellen- und
+Plattformvorgaben. Die eigenen Vorgaben sind ausdrücklich gekennzeichnet. Diese Trennung verhindert, dass
+eine lokale Entwurfsentscheidung nachträglich als Forderung des RFC erscheint. Die Zahl der markierten
+Absätze wurde mit zwei Zählverfahren geprüft: Die Erstzählung ergab 96 Absätze; erst das zweite Verfahren
+deckte den Fehler auf. Zählung und Einordnung erfolgten beim Lesen des RFC-Texts. Ein Werkzeug zur
+automatischen Zerlegung des Texts wurde dafür nicht eingesetzt.
 
 Diese Erfassung liegt nicht im Quelltext, sondern in versionierten Textdokumenten des
-Implementierungs-Repositorys. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Vertragsdatei
+Implementierungs-Repositorys. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Datei mit Arbeitsvorgaben
 nennt in ihrem ersten Satz das Modellwerkzeug und menschliche Mitwirkende als
 Adressaten.\footnote{Implementierungs-Repository, Commit \texttt{f1cfe52}: \path{CLAUDE.md},
 \path{docs/requirements.md}, \path{docs/plan/ROADMAP.md} sowie die Schrittdateien unter
-\path{docs/plan/steps/}.} Damit tragen die Dokumente den Wissensstand zwischen den
-Arbeitssitzungen und sind zugleich der Maßstab, an dem eine Modellausgabe geprüft wird. Der Preis dieser
-mehrfachen Ablage ist belegt: Ein Abgleich am Primärtext fand vier falsche RFC-Angaben in vier
-Vertragsdokumenten zugleich.
+\path{docs/plan/steps/}.} Die Dokumente halten den Wissensstand über die Arbeitssitzungen hinweg fest und
+dienen als Maßstab für die Prüfung der Modellausgaben. Ein Abgleich am Primärtext fand vier falsche
+RFC-Angaben in vier Dokumenten mit Arbeitsvorgaben zugleich.
 
 Die Versionsgeschichte schreibt diese Vorgaben dem Autor zu: Die beiden ersten Commits des Repositorys
 legten Roadmap, Schrittdateien, Anforderungskatalog sowie Architektur- und Formatreferenz an. Die Roadmap
-bezeichnet sich als Masterplan mit einem Menschen in der Schleife: ein geprüfter Commit je Schritt. Der
-Autor legt damit Plan, Maßstab und
-Abschlusskriterien fest und gibt jedes Ergebnis frei; die Werkzeuge arbeiten innerhalb dieser Vorgaben.
-Zwei Grenzen bleiben: Die Sammelcommits verschmelzen die innere Reihenfolge eines Schritts, und die
-Commit-Historie trennt den Beitrag von Autor und Werkzeug je Änderung nicht auf.
+beschreibt einen Gesamtplan mit menschlicher Freigabe: Jeder Schritt soll mit einem geprüften Commit
+abgeschlossen werden. Der Autor legt damit Plan, Maßstab und Abschlusskriterien fest und gibt jedes
+Ergebnis frei; die Werkzeuge arbeiten innerhalb dieser Vorgaben. Aus den Sammelcommits lässt sich die
+Reihenfolge der Arbeiten innerhalb eines Schritts nicht rekonstruieren. Die Commit-Historie zeigt außerdem
+nicht, welchen Beitrag Autor und Werkzeug zu einer einzelnen Änderung geleistet haben.
 
-Denselben Aufbau hat der Plan. Jeder Hauptschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
+Jeder Hauptschritt bekommt eine eigene Datei nach festem Schema mit Ziel,
 Anforderungen, Lean-Pflichten, Plan, Aufgaben und Abschlusskriterien; alle Schrittdateien lagen vor dem
 ersten Funktionsschritt vor. Wo Lean-Pflichten bestehen, verlangen neun Schrittdateien wörtlich die
 Spezifikation vor der Umsetzung und den Beweis danach; \figref{fig:stepzyklus} zeigt den Kernzyklus:
@@ -279,13 +277,14 @@ Spezifikation vor der Umsetzung und den Beweis danach; \figref{fig:stepzyklus} z
       flusstext/.style={font=\scriptsize, inner sep=1.5pt, fill=white, align=center},
     ]
     \node[block, draw=sqgoldrand, fill=sqgold] (schritt) at (1.75,0)
-      {\textbf{Schritt wählen}\\ Step-Datei: Plan und\\ Definition of Done};
+      {\textbf{Schritt wählen}\\ Schrittdatei: Plan und\\ Abschlusskriterien};
     \node[block, draw=sqgrau, fill=sqhell] (lean) at (5.6,0)
       {bei Lean-Pflicht:\\ Spezifikation vor dem\\ Code, Beweise danach};
     \node[block, draw=sqblaurand, fill=sqblau] (umsetzung) at (9.45,0)
-      {\textbf{Umsetzung}\\ Code und Tests zusammen;\\ neue Parsefläche: auch\\ Property-Tests, Fuzz-Ziel};
+      {\textbf{Umsetzung}\\ Code und Tests zusammen;\\ neue oder geänderte\\ Paketverarbeitung:\\
+       Property-Tests und\\ Fuzz-Ziele ergänzen};
     \node[block, draw=sqblaurand, fill=sqblau] (gate) at (13.3,0)
-      {\textbf{lokales Gate}\\ \texttt{pre-pr.sh}\\ 18 Prüfläufe, Abbruch\\ beim ersten Fehler};
+      {\textbf{lokale Prüfung}\\ \texttt{pre-pr.sh}\\ 18 Prüfläufe, Abbruch\\ beim ersten Fehler};
     \node[block, draw=sqblaurand, fill=sqblau] (pr) at (13.3,-2.7)
       {\textbf{Pull Request}\\ CI: Format, Lint,\\ Tests, Lean};
     \node[block, draw=sqgrau, fill=sqhell] (ki) at (9.45,-2.7)
@@ -334,11 +333,12 @@ trennt die Rollen von Autor und Werkzeugen nach Aufgabe und Grenze:
   \end{tabularx}
 \end{table}
 
-Beide Modellwerkzeuge verbinden ein Sprachmodell mit Dateizugriff, Kommandoausführung und Repository. Die
-Herstellertrennung soll vollständig gleiche Fehlermuster verringern, beweist aber keine Unabhängigkeit.
-Eine Prüfung durch dasselbe Modell ist keine getrennte Zweitprüfung. Änderungen durch den Zweitprüfer
-erfordern einen eigenen, vom Autor freigegebenen Auftrag und zählen dann nicht als Prüfung desselben
-Ergebnisses.
+Beide Modellwerkzeuge verbinden ein Sprachmodell mit Dateizugriff, Kommandoausführung und Repository. Der
+Einsatz von Modellen verschiedener Hersteller soll das Risiko verringern, dass ihre Fehlermuster vollständig
+übereinstimmen. Unabhängige Prüfungen sind damit jedoch nicht belegt. Eine Prüfung durch dasselbe Modell ist
+keine getrennte Zweitprüfung. Wenn der Zweitprüfer selbst Änderungen vornimmt, braucht er dafür einen
+eigenen, vom Autor freigegebenen Auftrag. Diese Änderungen zählen nicht als getrennte Zweitprüfung des
+bearbeiteten Ergebnisses.
 
 Die Art der Prüfung richtet sich nach der Art der Aussage. Protokollaussagen werden gegen RFC-Primärtext und
 Errata geprüft. Aussagen über die Implementierung werden durch Quelltext und ausführbare Prüfungen gestützt.
@@ -346,8 +346,7 @@ Pfadbefunde benötigen Paketmitschnitte und Kampagnenprotokolle. Literaturbehaup
 Primärquelle geprüft. Ein Hashwert belegt nur die Unverändertheit eines Artefakts, nicht die Wahrheit seines
 Inhalts.
 
-Im Umgang mit den Modellen gilt die Haltung, sie wie fähige, aber unerfahrene Entwickler zu behandeln, deren
-Arbeit grundsätzlich geprüft wird. Aus diesem Grund wurden drei Arbeitsregeln schriftlich festgehalten:
+Die Arbeit mit den Modellen folgt drei schriftlich festgehaltenen Regeln:
 
 \begin{enumerate}
   \item Modellergebnisse werden gegen die jeweilige Primärquelle geprüft, nie gegen eigene Zusammenfassungen.
@@ -363,10 +362,10 @@ nötig ist, zeigt der folgende Abschnitt.
 \section{Bekannte Schwächen der Sprachmodelle}
 \label{sec:gefahrenmodell}
 
-Der Einsatz von Sprachmodellen bringt bekannte Schwächen mit. \tabref{tab:sprachmodell-schwaechen} ordnet
-ihnen die beobachtete Wirkung und die methodische Antwort zu.
+\tabref{tab:sprachmodell-schwaechen} ordnet den bekannten Schwächen der Sprachmodelle die beobachtete
+Wirkung und die methodische Antwort zu.
 
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{Schwächen der Sprachmodelle und methodische Antworten}
   \label{tab:sprachmodell-schwaechen}
@@ -398,8 +397,8 @@ Die Gegenmaßnahmen setzen deshalb an Auftrag, Prüfinstanz und Artefakten an. K
 Modell sie behauptet. Konformitätsmatrix und Testarchitektur prüfen die Implementierung; auch sie belegen
 nur die untersuchten Eigenschaften und keinen allgemeinen Korrektheitsbeweis.
 
-Die Antworten der Tabelle sind Verfahrensregeln, und Verfahrensregeln führen Menschen und Modelle aus.
-Ohne weiteres Zutun urteilen nur die ausführbaren Prüfungen und der Beweisprüfer.
+Menschen und Modelle müssen die Verfahrensregeln aus der Tabelle anwenden. Ausführbare Prüfungen und der
+Beweisprüfer liefern nach ihrem Start automatisch ein Ergebnis.
 Wie diese Prüfungen für FF1 aufgebaut sind, legt der folgende Abschnitt fest.
 
 \section{Testarchitektur für FF1}
@@ -409,7 +408,7 @@ Die aktuelle Prüfkette wird lokal gestartet, verbindet aber lokale und entfernt
 Sollzustand vor dem Öffnen oder Aktualisieren eines Pull Requests. Historisch entstand diese Kette
 schrittweise.
 
-Dieser Abschnitt beschreibt ausschließlich die Prüfung der Entwicklung, also die Nachweisseite von FF1.
+Dieser Abschnitt beschreibt, wie die Implementierung während der Entwicklung für FF1 geprüft wird.
 Ein bestandener Entwicklungstest sagt nichts über reale Netzpfade aus, und eine Pfadmessung ersetzt keinen
 Entwicklungstest. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme, Sendemanifeste sowie
 Paketmitschnitte an Sender und Empfänger; ihre Ergebnisklassen legt bereits
@@ -421,14 +420,17 @@ wird dabei wiederverwendet; die Bewertungsregeln beider Untersuchungen bleiben g
 \label{subsec:pruefmittel}
 
 Zu den festen Prüfungen gehören Formatierung, statische Analyse, Dokumentationsbau sowie Unit- und
-Integrationstests. Drei weitere Prüfmittel tragen besondere Aufgaben. Ein Property-Test formuliert eine
+Integrationstests. Ein Property-Test formuliert eine
 Eigenschaft, die für alle Eingaben einer Klasse gelten soll, und prüft sie an vielen maschinell erzeugten
-Fällen statt an ausgewählten Beispielen \cite{proptest}. Ein Fuzz-Ziel ist eine Funktion, die eine
+Fällen statt an ausgewählten Beispielen \cite{proptest}.
+
+Ein Fuzz-Ziel ist eine Funktion, die eine
 beliebige Bytefolge entgegennimmt und damit die echten Verarbeitungspfade der Bibliothek aufruft, vom
-Zerlegen über das Serialisieren bis zum Aufbau ganzer Datagramme; der abdeckungsgeleitete Fuzzer erzeugt
+Zerlegen über das Serialisieren bis zum Aufbau ganzer Datagramme. Der abdeckungsgeleitete Fuzzer erzeugt
 und verändert solche Eingaben fortlaufend und bevorzugt jene, die neue Programmpfade erreichen
-\cite{cargo-fuzz,libfuzzer}. Fuzzing findet Fehler, aber keine Fehlerfreiheit; es läuft als lokale
-Pflichtstufe und nicht in der kontinuierlichen Integration.
+\cite{cargo-fuzz,libfuzzer}. Fuzzing kann Fehler finden, aber keine Fehlerfreiheit beweisen. Es läuft als
+lokale Pflichtstufe und nicht in der kontinuierlichen Integration.
+
 Lean ist ein Beweisassistent: Regeln werden als Modell formuliert, Aussagen darüber als Theoreme bewiesen, und ein
 kleiner Kern prüft jeden Beweisschritt nach \cite{lean4}. Die Lean-Prüfung baut diese Modelle und
 kontrolliert ihre Axiome. Bewiesen ist damit das handgeschriebene Modell mit seinen Annahmen, nicht der
@@ -437,29 +439,29 @@ Rust-Quelltext.
 Eine besondere Gefahr sind Fehler, die Implementierung und Test gemeinsam haben. Sender und Empfänger der
 Bibliothek verwenden getrennte Module für Serialisierung und Parsing, beruhen aber auf denselben
 projektspezifischen Formatannahmen, etwa der gemeinsamen Tabelle der \texttt{Kind}-Werte und der
-Längenkonstanten. Ein gemeinsamer Entwurfsfehler in diesen Annahmen kann deshalb jeden Test
-bestehen. Die Wire-Prüfung verringert diese Selbstbezüglichkeit: \texttt{tcpdump} zeichnet die tatsächlich
-gesendeten Bytes auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
+Längenkonstanten. Tests, die auf denselben fehlerhaften Annahmen beruhen, können den Entwurfsfehler deshalb
+übersehen. Bei der Wire-Prüfung zeichnet \texttt{tcpdump} die tatsächlich gesendeten Bytes für eine
+getrennte Auswertung auf. Ein getrenntes Python-Programm dekodiert IPv4, UDP und die UDP-Optionen und
 berechnet die Prüfsummen.
 \texttt{tshark} bestätigt zusätzlich die IPv4- und UDP-Felder. Die im Projekt verwendete Version 4.6.4
 besitzt jedoch keinen Dissektor für UDP-Optionen.
 
 \subsection{Prüfkette bis zur Freigabe}
 
-Das lokale Gate \texttt{pre-pr.sh} Skript fährt neun feste Test-Bahnen: Formatierung, statische Analyse,
-Dokumentationsbau, die Tests samt Property-Fällen, die Prüfung des eigenen Auswerters, das Lean-Tor sowie
-drei Bahnen auf einem separaten Linux-Zielsystem (lokale virtuelle Maschine, aka achim),
-das die Cross-Kompilierung, die Raw-Socket-Integration
-mit Root-Rechten und das tatsächlich gesendete Paketbild prüft. Dazu kommt je Fuzz-Ziel eine eigene Bahn;
-zusammen ergeben sich die 18 Prüfläufe aus \figref{fig:stepzyklus}. Die kontinuierliche Integration (CI)
+Das lokale Prüfskript \texttt{pre-pr.sh} führt neun feste Prüfläufe aus: Formatierung, statische Analyse,
+Dokumentationsbau, Tests mit Property-Fällen, Prüfung des eigenen Auswerters, Lean-Prüfung und drei
+Prüfläufe für das Linux-Zielsystem. Diese umfassen Cross-Kompilierung und Tests, Raw-Socket-Integration mit
+Root-Rechten und die Prüfung der tatsächlich gesendeten Pakete. Die Cross-Kompilierung erfolgt auf dem
+Entwicklungsrechner; die Testprogramme laufen auf der lokalen virtuellen Maschine \texttt{achim}.
+Für jedes der neun Fuzz-Ziele kommt ein weiterer Prüflauf hinzu.
+Insgesamt ergeben sich die 18 Prüfläufe aus \figref{fig:stepzyklus}. Die kontinuierliche Integration (CI)
 wiederholt Formatierung, statische Analyse und Unit-Tests. Nach deren Erfolg baut sie die Lean-Modelle und
 stellt anschließend zwei getrennte Prüfanfragen: an Claude Code zu Codequalität und Sicherheit und an
 Codex zur RFC-9868-Semantik.
 
 Der aktuelle Sollprozess ist in \figref{fig:pruefprozess} als Sequenzdiagramm dargestellt: Jeder Beteiligte
 erhält eine senkrechte Lebenslinie, die schmalen Balken zeigen seine aktiven Phasen, durchgezogene Pfeile sind
-Aufträge und gestrichelte Pfeile Rückmeldungen. Auch diese Darstellung bleibt bewusst auf die Kontrollpunkte
-und die Grenze ihrer technischen Erzwingung reduziert:
+Aufträge und gestrichelte Pfeile Rückmeldungen.
 
 \begin{figure}[H]
   \centering
@@ -495,9 +497,10 @@ und die Grenze ihrer technischen Erzwingung reduziert:
     \draw[sqroserand, fill=sqrose, thin] (\xClaude-0.08,-6.1)  rectangle (\xClaude+0.08,-8.1);
     % Lokale Prüfung
     \draw[ruf] (\xAutor+0.08,-1.05) -- node[pfeiltext] {\texttt{pre-pr.sh} starten} (\xSkript-0.08,-1.05);
-    \draw[ruf] (\xSkript+0.08,-1.85) -- node[pfeiltext] {Kreuzbau,\\ Rohsocket,\\ Wire-Prüfung} (\xLinux-0.08,-1.85);
+    \draw[ruf] (\xSkript+0.08,-1.85) -- node[pfeiltext]
+      {Tests ohne Root,\\ Raw-Socket-Test,\\ Wire-Prüfung} (\xLinux-0.08,-1.85);
     \node[notiz, anchor=east] (hoststufen) at (\xSkript-0.4,-2.4)
-      {\textbf{Host-Stufen}\\ Format, Analyse,\\ Tests, Property,\\ Fuzz, Lean};
+      {\textbf{Lokale Prüfungen}\\ Format, Analyse,\\ Tests, Property,\\ Fuzz, Lean,\\ Cross-Kompilierung};
     \draw[sqgrau, dashed, thin] (hoststufen.east) -- (\xSkript-0.08,-2.4);
     \draw[antwort] (\xLinux-0.08,-3.05) -- node[pfeiltext] {Ergebnisse} (\xSkript+0.08,-3.05);
     \draw[antwort] (\xSkript-0.08,-3.75) -- node[pfeiltext] {Gesamtergebnis} (\xAutor+0.08,-3.75);
@@ -527,8 +530,8 @@ Aus \figref{fig:pruefprozess} geht hervor, dass die Pfeilfolge nur die vorgesehe
 über den Pull Request und die Rust/Lean-CI bis zur Freigabe durch den Autor zeigt; eine technische
 Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt.
 
-Ob eine Prüfung tatsächlich stattfand, entscheidet
-allein ihre Protokollierung; deren Grenzen behandelt der folgende Abschnitt.
+In dieser Arbeit gilt eine Prüfung nur dann als belegt, wenn sie protokolliert ist. Die Grenzen dieser
+Protokollierung behandelt der folgende Abschnitt.
 
 \section{Reproduzierbarkeit und Grenzen}
 \label{sec:reproduzierbarkeit}
