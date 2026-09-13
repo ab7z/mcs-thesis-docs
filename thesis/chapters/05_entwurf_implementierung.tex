@@ -6,8 +6,8 @@
 \label{chap:entwurf}
 
 Dieses Kapitel beschreibt die Referenzimplementierung und das Messinstrument. Es folgt den Datenpfaden
-der Bibliothek: von der Architektur über das Senden und Empfangen bis zu den Pflichtoptionen, FRAG und
-den Betriebsgrenzen.
+der Bibliothek: von der Architektur über das Senden und Empfangen bis zu FRAG, den weiteren
+Pflichtoptionen und den Betriebsgrenzen.
 
 \section{Architektur}
 \label{sec:architektur}
@@ -71,7 +71,7 @@ zeigt ihre Aufgaben und ausgewählte Abhängigkeiten.
     \draw[oskontakt] ([xshift=-0.6cm]frag.south) -- ([xshift=-0.6cm]frag.south |- urandom.north);
     \node[anno, anchor=north west, align=left] at (-0.2,-0.75)
       {Pfeil: ausgewählte Importbeziehung, vom importierenden zum importierten Modul. Gestrichelte Linie:\\
-       ausgewählter Betriebssystemkontakt. Hervorgehoben: das Modul mit den Netz-Systemaufrufen.};
+       ausgewählter Kontakt zum Betriebssystem. Hervorgehoben: das Modul mit den Netz-Systemaufrufen.};
   \end{tikzpicture}
   \caption{Module der Bibliothek, Messprogramme und ihre Abhängigkeiten}
   \label{fig:komponenten}
@@ -84,7 +84,7 @@ die von RFC~9868 vorgegebenen Prüfschritte nacheinander aus \cite[Sec.~14]{rfc9
 und reassembliert Datagramme, und \texttt{api} bündelt diese Funktionen im Typ \texttt{Peer}.
 \texttt{error} und \texttt{model} stellen gemeinsame Fehlertypen, Konstanten und Grenzen bereit.
 
-Im Produktionsquelltext unter \texttt{src/} liegen die Netz-Systemaufrufe der Bibliothek in
+Im Quelltext unter \texttt{src/} liegen die Netz-Systemaufrufe der Bibliothek in
 \texttt{socket}; dort stehen auch die einzigen zwei \texttt{unsafe}-Blöcke. Beim Empfang bindet
 \texttt{socket} zusätzlich einen gewöhnlichen UDP-Socket auf den Zielport; sonst würde der Kernel
 eintreffende Datagramme per ICMP als unerreichbar zurückmelden.
@@ -98,14 +98,14 @@ ein neu gestarteter Sender Kennungen wiederholt, die ein Empfänger noch gespeic
 
 \texttt{api} und \texttt{socket} verwenden die monotone Uhr. Sie misst nur, wie viel Zeit vergangen ist,
 und wird durch Änderungen der Systemzeit nicht verstellt. \texttt{api} liefert damit den Zeitpunkt, mit dem
-\texttt{frag} unvollständige Fragmentgruppen nach Fristablauf verwirft. \texttt{socket} kann damit die
+\texttt{frag} unvollständige Fragmentsätze nach Fristablauf verwirft. \texttt{socket} kann damit die
 gesamte Empfangsfrist zuverlässig einhalten. Die Protokolllogik in \texttt{recv} und \texttt{frag} greift
 selbst weder auf das Netz noch auf die Uhr zu; sie erhält Zeitpunkte und Kennungen als Parameter. So lässt
 sich jede Protokollentscheidung ohne Netz und ohne erhöhte Rechte prüfen (\secref{subsec:pruefmittel}).
-Beide Messprogramme schreiben auf die Konsole. Nur \texttt{udpopt-send} kann zusätzlich eine Manifestdatei
+Beide Messprogramme schreiben auf die Konsole. Nur \texttt{udpopt-send} kann zusätzlich das Sendemanifest
 fortschreiben, je Sendevorgang eine Zeile im JSON-Format (JSONL).
 
-Die folgenden Abschnitte nutzen drei Pflichtoptionen als roten Faden. Die Option zur maximalen
+Die folgenden Abschnitte nutzen drei Pflichtoptionen als Leitbeispiele. Die Option zur maximalen
 Datagrammgröße (MDS) veranschaulicht den Sendepfad, die zusätzliche Nutzdatenprüfsumme (APC) den
 Empfangspfad und die Fragmentierungsoption (FRAG) die Zerlegung und spätere Zusammensetzung großer
 Datagramme.
@@ -114,7 +114,7 @@ Datagramme.
 \label{sec:sendepfad}
 
 Beim Senden baut die Bibliothek aus Nutzdaten und Optionen ein vollständiges IPv4-Datagramm und übergibt
-es dem Raw Socket. Als Leitbeispiel dient eine Anwendung, die drei Nutzdatenbytes \texttt{odd} verschickt
+es dem Raw Socket. Als Leitbeispiel dient eine Anwendung, die drei Byte Nutzdaten \texttt{odd} verschickt
 und ihrem Gegenüber dabei mitteilt, wie große Datagramme sie selbst empfangen kann. Dafür dient die Option
 Maximum Datagram Size (MDS). Im Beispiel nimmt die Anwendung an, dass IPv4-Datagramme bis 1.500~Byte ohne
 IP-Fragmentierung bei ihr ankommen. Nach Abzug des 20~Byte langen IPv4-Headers und des 8~Byte langen
@@ -201,14 +201,14 @@ MDS-Option. \figref{fig:paketentstehung} zeigt die drei Zustände bis zum fertig
 \end{figure}
 
 Den Optionsbereich aus Zustand~2 erzeugt der gemeinsame Optionskern. Er prüft zuerst, ob die gewählte
-Option unterstützt wird und ihre Länge stimmt. Bei mehreren Einträgen stellt er die Pflichtoptionen vor
-andere SAFE-Optionen und legt danach die Bytes in einer festen eigenen Reihenfolge ab
-\cite[Sec.~10]{rfc9868}. Im Beispiel entsteht so der acht Byte lange Bereich aus Zustand~2; der MDS-Wert
+Option unterstützt wird und ihre Länge stimmt. Bei mehreren Einträgen stellt er die Pflichtoptionen außer EOL
+und NOP vor andere SAFE-Optionen \cite[Sec.~10]{rfc9868} und legt die Bytes danach in einer festen
+eigenen Reihenfolge ab. Im Beispiel entsteht so der acht Byte lange Bereich aus Zustand~2; der MDS-Wert
 \texttt{0x05C0} entspricht den angekündigten 1.472~Byte. Beim Empfang liest derselbe Optionskern diesen
 Aufbau wieder zurück.
 
 Sobald der Optionsbereich feststeht, kann der Sendepfad die endgültigen Längen bestimmen. Die drei
-Nutzdatenbytes ergeben zusammen mit dem acht Byte langen UDP-Header eine \texttt{UDP Length} von 11.
+Byte Nutzdaten ergeben zusammen mit dem acht Byte langen UDP-Header eine \texttt{UDP Length} von 11.
 Hinter dem 20~Byte langen IP-Header beginnt die Surplus Area deshalb bei Byte 31. Da dieser Offset ungerade
 ist, fügt die Bibliothek vor dem OCS ein Nullbyte zur Ausrichtung ein
 (\secref{subsec:surplus-aufbau}). Mit diesem Pad-Byte und dem acht Byte langen Optionsbereich wächst das
@@ -225,28 +225,28 @@ stattdessen \texttt{0xFFFF}. Für UDP verlangt dies RFC~768. Beim OCS folgt es d
 \texttt{0x0000} ein ungenutztes OCS kennzeichnet \cites{rfc768}[Sec.~9]{rfc9868}.
 
 Mit \texttt{IP\_HDRINCL} übergibt die Bibliothek anschließend das vollständige Datagramm an den Kernel;
-dieser ergänzt nur IPv4-Gesamtlänge, IP-Headerprüfsumme und eine noch leere IPv4-Identifikation
-\cite{man7raw}. UDP-Header und Surplus Area bleiben auf diesem Weg unverändert; selbst
+dieser trägt IPv4-Gesamtlänge und IP-Headerprüfsumme stets selbst ein und füllt die noch leere
+IPv4-Identifikation \cite{man7raw}. UDP-Header und Surplus Area bleiben auf diesem Weg unverändert; selbst
 die vom RFC erlaubte Kombination aus UDP-Prüfsumme null und OCS null gelangt so auf die Leitung
 (\secref{sec:soll-ist}). Spätere Paketfilter können das Datagramm weiterhin verändern oder verwerfen
 (\secref{sec:netzpfad}).
 
-Eine zweite Grenze betrifft die Größe: Auf diesem Pfad fragmentiert der Kernel nicht, ein Datagramm über
+Eine weitere Grenze betrifft die Größe: Auf diesem Pfad fragmentiert der Kernel nicht, ein Datagramm über
 der MTU der Schnittstelle scheitert mit \texttt{EMSGSIZE} \cite{man7raw}. Größere Nachrichten muss die
 Bibliothek deshalb selbst mit FRAG zerlegen.
 
 \section{Empfangspfad und öffentliche Schnittstelle}
 \label{sec:empfangspfad}
 
-Der Raw Socket erhält das IPv4-Datagramm, bevor der Kernel UDP-Länge, Prüfsumme und Ports prüft. Deshalb
+Der Raw Socket erhält das IPv4-Datagramm, bevor der Kernel \texttt{UDP Length}, Prüfsumme und Ports prüft. Deshalb
 kontrolliert die Bibliothek diese Angaben selbst, bevor sie die Surplus Area und deren Optionen auswertet.
 
-Als Leitbeispiel dient ein Datagramm mit den neun Nutzdatenbytes \texttt{123456789} und einer Additional
+Als Leitbeispiel dient ein Datagramm mit den neun Byte Nutzdaten \texttt{123456789} und einer Additional
 Payload Checksum (APC). Die Option enthält eine 32-Bit-Prüfsumme nach dem Verfahren CRC32c über die
-Nutzdaten, hier \texttt{0xE3069283}. Der Sender trägt den Wert in Netzwerkbytefolge hinter Kind 2 und
+Nutzdaten, hier \texttt{0xE3069283}. Der Sender trägt den Wert mit dem höchstwertigen Byte zuerst hinter Kind 2 und
 Länge 6 ein \cite[Sec.~11.3]{rfc9868}.
 
-Wichtig ist die Aufgabenteilung. Die APC schützt nur die Nutzdaten. Pseudo-Header und UDP-Header bleiben
+Die APC schützt nur die Nutzdaten. Pseudo-Header und UDP-Header bleiben
 Aufgabe der UDP-Prüfsumme, sofern diese verwendet wird. Für die Surplus Area greifen zwei andere
 Prüfungen zusammen: Das Pad vor dem ausgerichteten OCS wird getrennt auf null geprüft. Die OCS-Rechnung
 beginnt am OCS-Feld und reicht bis zum Ende der Surplus Area; zusätzlich geht die Länge des gesamten
@@ -337,13 +337,13 @@ Nutzdatenfehler erkennen, die der UDP-Prüfsumme entgehen \cite[Sec.~8, 9 und 11
   \label{fig:empfangspipeline}
 \end{figure}
 
-Ein früher Vorversuch zeigte, warum diese eigene Prüfung nötig ist. Von 97 erzeugten Fällen erreichten 69
-den Raw-Empfang. Die übrigen 28 überschritten die MTU von 1.500~Byte und scheiterten bereits beim Senden
-mit \texttt{EMSGSIZE}. Unter den empfangenen Fällen waren vier gezielte
-Grenzfälle: eine UDP-Prüfsumme von null, eine absichtlich falsche UDP-Prüfsumme, eine
+Ein früher Vorversuch zeigte, warum die Bibliothek \texttt{UDP Length} und UDP-Prüfsumme selbst prüfen
+muss. Von 97 erzeugten Fällen erreichten 69 den Raw-Empfang. Die übrigen 28 überschritten die MTU von
+1.500~Byte und scheiterten bereits beim Senden mit \texttt{EMSGSIZE}. Unter den empfangenen Fällen waren
+vier gezielte Grenzfälle: eine UDP-Prüfsumme von null, eine absichtlich falsche UDP-Prüfsumme, eine
 \texttt{UDP Length} von 500 bei nur 48 verfügbaren Bytes und eine \texttt{UDP Length} von 4, die kürzer
 als der UDP-Header war. Der Raw Socket lieferte alle vier Fälle an den Benutzerraum. Der Versuch erfasste
-dabei die Ankunft, die Längenfelder und die Surplus-Bytes, aber keinen vollständigen Vergleich mit dem
+dabei die Ankunft, die Längenfelder und die Surplus-Bytes, verglich sie aber nicht vollständig mit dem
 Sendepuffer. Außerdem enthielt der Sendepuffer in 42 der 69 empfangenen Fälle einen falschen Wert für
 \texttt{IP Total Length}. Der Kernel ersetzte alle 42 Werte vor der Übertragung durch die tatsächliche
 Pufferlänge.
@@ -354,9 +354,9 @@ null muss stimmen; eine gespeicherte Null bleibt unter IPv4 zulässig (\secref{s
 Scheitert eine dieser Prüfungen, wird das gesamte Datagramm verworfen
 \cite[Sec.~10 und 14]{rfc9868}.
 
-Danach sucht die Bibliothek die Surplus Area. Im Beispiel liegen zwischen \texttt{UDP Length} 17 und
-\texttt{IP Total Length} 48 elf Byte, beginnend bei Byte 37. Der Start ist ungerade, also ist das erste
-Byte das Pad vor dem ausgerichteten OCS. Passt das OCS nicht mehr vollständig in den Überschuss, sind
+Danach sucht die Bibliothek die Surplus Area. Sie beginnt im Beispiel bei Byte 37 ($20 + 17$) und umfasst
+$48 - 37 = 11$ Byte. Der Start ist ungerade, also ist das erste
+Byte das Pad vor dem ausgerichteten OCS. Passt das OCS nicht mehr vollständig in die Surplus Area, sind
 keine Optionen vorhanden. Das ist kein Fehler: Die Nutzdaten werden ohne Optionen zugestellt, und der
 OCS-Bericht meldet ein fehlendes OCS.
 
@@ -367,8 +367,8 @@ dieser Prüfungen, verwirft die Bibliothek bei einem gewöhnlichen Datagramm nur
 die bereits geprüften Nutzdaten weiter zu \cite[Sec.~8, 9 und 14]{rfc9868}.
 
 Erst danach liest der Parser die Optionsliste. Zwei Längenfehler machen den gesamten Optionsbereich
-strukturell ungültig: Die Länge liegt unter dem bekannten Mindestmaß ihrer Art oder reicht über das Ende
-der Surplus Area hinaus. Ein zweites FRAG hat dieselbe Folge \cite[Sec.~10]{rfc9868}. Für den
+strukturell ungültig: Die angegebene Länge liegt unter dem bekannten Mindestmaß der Optionsart oder
+reicht über das Ende der Surplus Area hinaus. Ein zweites FRAG hat dieselbe Folge \cite[Sec.~10]{rfc9868}. Für den
 Überlängenfall löst Erratum~8834 den Widerspruch zu Abschnitt~14 zugunsten dieses Verfahrens auf
 \cite{rfc9868-eid8834}.
 
@@ -377,63 +377,65 @@ Länge größer, passt aber noch vollständig in die Surplus Area, behandelt der
 falsche APC-Prüfsumme und nicht wie einen Strukturfehler \cite[Sec.~11.3]{rfc9868}.
 
 Bei einer gültig aufgebauten APC berechnet die Bibliothek die CRC32c erneut über die neun
-Nutzdatenbytes. Stimmen beide Werte überein, gilt die APC als erfolgreich und wird der Anwendung
-gemeldet. Andernfalls meldet die Bibliothek einen Fehlschlag und schreibt eine gedrosselte Warnung in das
-Protokoll. Enthält das Datagramm mehrere APC-Optionen, wertet die
-Bibliothek nur die erste aus und übergeht die weiteren \cite[Sec.~10]{rfc9868}.
+Byte Nutzdaten. Stimmen beide Werte überein, gilt die APC als erfolgreich und wird der Anwendung
+gemeldet. Andernfalls meldet die Bibliothek einen Fehlschlag und gibt eine gedrosselte Warnung aus.
+Enthält das Datagramm mehrere APC-Optionen, wertet die Bibliothek nur die erste aus und übergeht die
+weiteren \cite[Sec.~10]{rfc9868}.
 
 Zum Schluss entscheidet die Empfangsrichtlinie über die Zustellung. In der Voreinstellung erhält die
 Anwendung die Nutzdaten auch bei einer fehlgeschlagenen APC. Eine strenge Richtlinie kann dagegen eine
-erfolgreiche APC verlangen. Fehlt sie oder schlägt sie fehl, liefert die Richtlinienauswertung den
-Ausgang \texttt{Filtered}. \texttt{Dropped} bezeichnet dagegen einen Verwerfungsweg der
-Protokollverarbeitung, etwa einen gescheiterten Fragmentsatz. So bleibt intern sichtbar, ob eine
+erfolgreiche APC verlangen. Fehlt die APC oder schlägt sie fehl, liefert die Richtlinienauswertung den
+Ausgang \texttt{Filtered}. \texttt{Dropped} steht dagegen für ein Verwerfen in der
+Protokollverarbeitung, etwa bei einem gescheiterten Fragmentsatz. So bleibt intern sichtbar, ob eine
 Anwendungsrichtlinie oder die Verarbeitung selbst die Zustellung verhindert hat
 \cite[Sec.~11.3, 14 und 19]{rfc9868}.
 
-Die öffentliche Schnittstelle bündelt den Netzpfad im Typ \texttt{Peer}. Er wird mit Adressen,
-Sendekonfiguration, Empfangsrichtlinie und Empfangsfrist gebunden. Die Empfangsrichtlinie
-(\texttt{ReceivePolicy}) kann eine oder mehrere meldefähige Pflichtoptionen verlangen, alle
-optionstragenden Datagramme ausfiltern oder ein bestätigtes OCS fordern. Die Berichtsarten
-\texttt{OcsReport} und \texttt{OptionReport} halten fest, welche Prüfungen die Bibliothek ausgeführt hat
-und wie sie endeten \cite[Sec.~14 und 15]{rfc9868}.
+Die öffentliche Schnittstelle fasst Senden und Empfangen im Typ \texttt{Peer} zusammen. Er wird mit
+Adressen, Sendekonfiguration, Empfangsrichtlinie und Empfangsfrist erzeugt. Die Empfangsrichtlinie
+(\texttt{ReceivePolicy}) kann eine oder mehrere meldefähige Pflicht\-optionen verlangen (alle außer EOL,
+NOP und FRAG), alle options\-tragenden Datagramme ausfiltern oder ein bestätigtes OCS fordern. Die
+Berichtsarten \texttt{OcsReport} und \texttt{OptionReport} halten fest, welche Prüfungen die Bibliothek
+ausgeführt hat und wie sie endeten \cite[Sec.~14 und 15]{rfc9868}.
 
 Vor dieser Verarbeitung muss die Socket-Schicht zunächst ein passendes Datagramm finden. Ein Raw Socket
 sieht auch fremden UDP-Verkehr. In einer frühen Fassung beendete bereits das erste fremde Datagramm den
 Empfangsaufruf ohne Ergebnis; eine laufende Messung konnte dadurch still enden. Die heutige Fassung
-überspringt unlesbare Header, eigene Kopien und nicht passende Ports innerhalb einer Empfangsschleife.
+überspringt in einer Empfangsschleife Datagramme mit unlesbarem Header oder nicht passenden Ports, auf
+Anforderung auch Datagramme vom eigenen Absender.
 
-Für diese Schleife gilt eine einzige Gesamtfrist. Vor jedem weiteren Leseversuch erhält der Socket nur
-die verbleibende Zeit; ständiger fremder Verkehr verlängert die Wartezeit deshalb nicht. Erst wenn bis
-zum Ablauf der Gesamtfrist kein passendes Datagramm eintrifft, meldet die
+Eine gesetzte Empfangsfrist gilt für die ganze Schleife; ohne Frist wartet sie unbegrenzt. Vor jedem
+weiteren Leseversuch erhält der Socket nur die verbleibende Zeit; ständiger fremder Verkehr verlängert die
+Wartezeit deshalb nicht. Erst wenn bis zum Ablauf der Frist kein passendes Datagramm eintrifft, meldet die
 Socket-Schicht einen Fristablauf. Die öffentliche Schnittstelle fasst diesen Ausgang weiterhin mit
-Dekodierfehlern zusammen. Dasselbe gilt für ein noch unvollständig gepuffertes Fragment, einen
-Verwerfungsweg und eine Richtlinienentscheidung. Alle erscheinen dort nur als \zitat{kein Datagramm}; die
-Ursache ist nicht unterscheidbar.
+Dekodierfehlern zusammen. Dasselbe gilt für ein noch unvollständig gepuffertes Fragment, ein
+Verwerfen und eine Richtlinienentscheidung. Alle erscheinen dort nur als \zitat{kein Datagramm}; die
+Ursache ist nicht unterscheidbar. Ob diese Zusammenfassung für die Messkampagnen ausreicht, klärt
+\secref{sec:soll-ist}.
 
 \section{Fragmentierung und weitere Pflichtoptionen}
 \label{sec:optionsverarbeitung}
 
-Der Pflichtkern umfasst acht Arten: End of Options List (EOL), No Operation (NOP), Additional Payload
+Die Pflichtoptionen umfassen acht Arten: End of Options List (EOL), No Operation (NOP), Additional Payload
 Checksum (APC), Fragmentation (FRAG), Maximum Datagram Size (MDS), Maximum Reassembled Datagram Size
 (MRDS), Echo Request (REQ) und Echo Response (RES) \cite[Sec.~10]{rfc9868}. EOL und NOP entstehen
-beim Optionsbau, FRAG im Splitter. APC, MDS, MRDS, REQ und RES stehen als typisierte Sendeoptionen
+beim Optionsbau, FRAG beim Zerlegen. APC, MDS, MRDS, REQ und RES stehen als typisierte Sendeoptionen
 bereit und entstehen nur auf Anforderung.
 
-TIME, AUTH und EXP besitzen keine typisierten, sendbaren Varianten. Empfangsseitig erscheinen ihre
-Kind-Werte als \texttt{Other}. Nur TIME und EXP haben Mindestlängenprüfungen; diese Prüfungen sind keine
-vollständige Unterstützung der Optionen.
+TIME, AUTH und EXP (Experimentaloption) besitzen keine typisierten, sendbaren Varianten. Empfangsseitig
+erscheinen ihre Kind-Werte als \texttt{Other}. Nur für TIME und EXP prüft der Parser eine Mindestlänge;
+das ist keine vollständige Unterstützung dieser Optionen.
 
-FRAG überträgt ein Datagramm in einem oder mehreren Fragmenten und setzt mehrere Fragmente beim
-Empfänger wieder zusammen. Dazu verschiebt FRAG die Fragmentdaten aus den UDP-Nutzdaten in die Surplus
+Mit FRAG überträgt der Sender ein Datagramm in einem oder mehreren Fragmenten, die der Empfänger
+wieder zusammensetzt. Dazu stehen die Fragmentdaten nicht in den UDP-Nutzdaten, sondern in der Surplus
 Area. Deshalb beträgt \texttt{UDP Length} in jedem Fragment 8, und jedes Fragment trägt erneut beide
 UDP-Ports \cite[Sec.~11.4]{rfc9868}. Die FRAG-Option ist im nichtterminalen Fragment zehn Byte und im
 terminalen Fragment zwölf Byte lang.
 
 \texttt{Frag.Offset} bezeichnet die Lage der Fragmentdaten im ursprünglichen UDP-Datagramm, gemessen
 ab dessen UDP-Header. \texttt{Frag.Start} bezeichnet den Beginn der Fragmentdaten im aktuellen Fragment,
-ebenfalls ab dem UDP-Header. Er beträgt hier 20 Byte im nichtterminalen und 22 Byte im terminalen
-Fragment. Nur das terminale Format enthält den Reassembled Datagram Option Start (RDOS). Dieser Zeiger
-markiert im wiederhergestellten Datagramm das Ende der Nutzdaten und den Beginn der Datagrammoptionen.
+ebenfalls ab dem UDP-Header. Er beträgt in dieser Implementierung 20 Byte im nichtterminalen und 22 Byte
+im terminalen Fragment. Nur das terminale Format enthält den Reassembled Datagram Option Start (RDOS). Dieser Zeiger
+markiert im wiederhergestellten Datagramm das Ende der Nutzdaten und den Beginn der Surplus Area.
 RDOS ergibt zugleich die \texttt{UDP Length} des wiederhergestellten Datagramms; etwaige
 Datagrammoptionen folgen dahinter in dessen Surplus Area \cite[Sec.~11.4]{rfc9868}.
 
@@ -442,25 +444,24 @@ Datagrammoptionen. Ein zweites Feld begrenzt die Zahl der Fragmente \cite[Sec.~1
 empfangene MRDS legt die Implementierung für IPv4 die vom RFC verlangten Mindestwerte von 2.926 Byte
 und zwei Fragmenten zugrunde.
 
-Empfangene MRDS-Werte übernimmt die Bibliothek ebenso wenig automatisch in ihre Sendekonfiguration wie
-empfangene MDS-Werte. Der Aufrufer muss sie selbst in \texttt{PeerFragmentLimits} übertragen. Auch MRDS
-lässt sich je Sendung erzeugen.
+Empfangene MRDS- und MDS-Werte übernimmt die Bibliothek nicht automatisch in ihre Sendekonfiguration.
+Der Aufrufer muss MRDS-Werte selbst in \texttt{PeerFragmentLimits} übertragen. Auch MRDS lässt sich je
+Sendung erzeugen.
 
 Bei einer maximalen Datagrammlänge von 1.500 Byte bleiben nach IPv4- und UDP-Header 1.472 Byte für die
 Surplus Area. OCS und FRAG verringern die Datenkapazität auf 1.460 Byte im nichtterminalen und
 1.458 Byte im terminalen Fragment. Das Beispiel in \figref{fig:frag-ablauf} zerlegt deshalb
-2.918 Nutzdatenbytes in genau zwei Fragmente.
+2.918 Byte Nutzdaten in genau zwei Fragmente.
 
-Passt der gesamte Rest in ein terminales Fragment, verwendet dieses \texttt{Frag.Offset} null. Sonst
-erzeugt eine Schleife nichtterminale Fragmente und überlässt den Rest dem terminalen Fragment. Der
-Splitter prüft zuerst die MRDS-Größe und danach die Zahl der Fragmente. Ausgelöst wird die Zerlegung durch die
-Datagrammkapazität, nicht durch MRDS.
+Passt das ganze Datagramm in ein einziges terminales Fragment, trägt dieses \texttt{Frag.Offset} null.
+Sonst erzeugt eine Schleife nichtterminale Fragmente und überlässt den Rest dem terminalen Fragment.
+Beim Zerlegen prüft die Bibliothek zuerst die MRDS-Größe und danach die Zahl der Fragmente. Ausgelöst
+wird die Zerlegung durch die Datagrammkapazität, nicht durch MRDS.
 
-\texttt{Peer} und \texttt{udpopt-send} besitzen je einen monotonen Generator für die
-Fragmentidentifikation. Sie verwenden einen vorgegebenen Startwert oder lesen ihn aus
-\texttt{/dev/urandom}. Der Generator wiederholt keinen Wert. Nach \texttt{u32::MAX} meldet er einen
+\texttt{Peer} und \texttt{udpopt-send} besitzen je einen monotonen Kennungsgenerator
+(\secref{sec:architektur}). Er wiederholt keinen Wert. Nach \texttt{u32::MAX} meldet er einen
 Fehler. Die tiefere Funktion \texttt{build\_outgoing\_datagrams} besitzt keinen Generator und verlangt
-bei notwendiger Fragmentierung eine explizite Identifikation.
+bei notwendiger Fragmentierung eine explizite Kennung.
 
 \begin{figure}[p]
   \centering
@@ -481,7 +482,7 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
       {ursprüngliches Datagramm, \texttt{UDP Length} = 2926};
     \draw[->, draw=feldlinie, thin] (3.7,-0.95) -- (3.7,-1.42);
     \node[anno, anchor=west] at (4.0,-1.21)
-      {Zerlegung, Budget je Fragment: 1472 Byte Surplus Area};
+      {Zerlegung, Platz je Fragment: 1472 Byte Surplus Area};
     \draw[klammer] (2.7,-2.13) -- (12.9,-2.13)
       node[midway, above=7pt, font=\scriptsize, text=feldlinie] {Surplus Area, 1472 Byte};
     \draw[feld] (0,-2.80) rectangle (1.2,-2.25);
@@ -531,7 +532,7 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
       anno/.style={font=\scriptsize\linespread{1.0}\selectfont, text=feldlinie, align=left},
     ]
     \node[anno, anchor=west] at (0,0.72)
-      {Puffer nach Nutzdatenposition im wiederhergestellten Datagramm:};
+      {Puffer, geordnet nach der Position innerhalb der Nutzdaten:};
     \node[bitindex, anchor=south] at (0.9,0.10) {0};
     \node[bitindex, anchor=south] at (6.4,0.10) {1460};
     \node[bitindex, anchor=south] at (11.9,0.10) {2918};
@@ -542,9 +543,9 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     \node[bitindex] at (3.65,-0.76) {1460};
     \node[bitindex] at (9.15,-0.76) {1458};
     \node[anno, anchor=west] at (0,-1.40)
-      {Schritt 1: Das terminale Fragment trifft zuerst ein. \texttt{Frag.Offset} 1468 ergibt die Ablage\\
-       ab Position 1460. Sein Ende legt das Satzende auf 2918 fest; RDOS 2926 setzt die\\
-       \texttt{UDP Length} des Ergebnisses. Das Fragment bleibt gepuffert.};
+      {Schritt 1: Das terminale Fragment trifft zuerst ein. \texttt{Frag.Offset} 1468 ergibt abzüglich des\\
+       UDP-Headers die Ablage ab Position 1460. Sein Ende legt das Ende des Satzes auf 2918 fest;\\
+       RDOS 2926 setzt die \texttt{UDP Length} des Ergebnisses. Das Fragment bleibt gepuffert.};
     \draw[feldakzent] (0.9,-2.60) rectangle (6.4,-2.05);
     \node[feldtext] at (3.65,-2.325) {Daten des nichtterminalen Fragments};
     \draw[feld] (6.4,-2.60) rectangle (11.9,-2.05);
@@ -563,19 +564,19 @@ bei notwendiger Fragmentierung eine explizite Identifikation.
     \draw[klammer] (11.9,-5.30) -- (0,-5.30)
       node[midway, below=7pt, font=\scriptsize, text=feldlinie] {\texttt{UDP Length} = 2926 = RDOS};
     \node[anno, anchor=west] at (0,-6.55)
-      {Schritt 3: Aus Daten und \texttt{UDP Length} entsteht ein neues Datagramm. Es durchläuft die\\
-       Empfangspipeline (\secref{sec:empfangspfad}) genau einmal erneut; weitere Reassemblierung\\
+      {Schritt 3: Aus Daten und \texttt{UDP Length} entsteht ein neues Datagramm. Es durchläuft den\\
+       Empfangspfad (\secref{sec:empfangspfad}) genau einmal erneut; weitere Reassemblierung\\
        ist gesperrt. Der UDP-Header ist nicht maßstäblich gezeichnet.};
   \end{tikzpicture}
   \caption[Zerlegung und Reassemblierung eines Datagramms]{Zerlegung und Reassemblierung eines Datagramms
-    mit 2918 Nutzdatenbytes}
+    mit 2.918 Byte Nutzdaten}
   \label{fig:frag-ablauf}
 \end{figure}
 
-Der Empfangscache ordnet Fragmente nach UDP-Vierertupel und Identifikation
+Der Empfangscache ordnet Fragmente nach UDP-Vierertupel und Kennung
 \cite[Sec.~11.4]{rfc9868}. Das Ende des terminalen Fragments bestimmt das Ende des Satzes; sein RDOS
-liefert die \texttt{UDP Length} des Ergebnisses. \lstref{lst:frag-lueckenpruefung} prüft, ob alle
-Bereiche lückenlos vorliegen.
+liefert die \texttt{UDP Length} des Ergebnisses. \lstref{lst:frag-lueckenpruefung} zeigt die Prüfung,
+ob die Fragmentdaten lückenlos vorliegen.
 
 \noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[style=codestyle, language=Rust, basicstyle=\ttfamily\scriptsize,
@@ -608,42 +609,42 @@ fn complete(&self) -> InsertResult {
 Nur ein lückenloser Bereich bis zum terminalen Ende erzeugt ein Ergebnis; eine Überlappung verwirft den
 Satz.
 
-Ein intern vollständig identisches Duplikat wird übergangen. Lage, Endwert, Daten, Fragmentoptionen und
-Fehlerliste müssen dafür übereinstimmen. Andernfalls gelten die normalen Grenz- und
-Überlappungsprüfungen. Die OCS-Beobachtung wird getrennt zusammengeführt.
+Die Bibliothek übergeht ein Duplikat nur, wenn Lage, Endwert, Daten, Fragment\-optionen und Fehlerliste
+übereinstimmen \cite[Sec.~11.4]{rfc9868}. Andernfalls gelten die normalen Grenz- und
+Überlappungsprüfungen. Den OCS-Befund der Fragmente führt die Bibliothek davon getrennt zusammen.
 
 Die Fragmentberichte werden ebenfalls zusammengeführt. Bei MDS gilt der kleinste Wert. Bei MRDS werden
-Größe und Fragmentzahl getrennt minimiert. Von REQ und RES bleibt jeweils das zuletzt gesehene Token;
-ein Fehlschlag in einem Fragment gilt für den ganzen Satz. Das neu gebildete Datagramm durchläuft
-danach die Empfangspipeline genau einmal erneut (\figref{fig:frag-ablauf}). Erst in diesem Durchlauf
+Größe und Fragmentzahl getrennt minimiert. Von REQ und RES bleibt jeweils das zuletzt gesehene Token
+\cite[Sec.~11.5 bis 11.7]{rfc9868}. Schlägt eine Option in einem Fragment fehl, gilt sie im ganzen
+Satz als fehlgeschlagen \cite[Sec.~15]{rfc9868}. Das neu gebildete Datagramm durchläuft
+danach den Empfangspfad genau einmal erneut (\figref{fig:frag-ablauf}). Erst in diesem Durchlauf
 wird eine APC des Ursprungsdatagramms geprüft; eine APC in einem einzelnen Fragment wertet die
 Bibliothek nicht aus \cite[Sec.~11.3]{rfc9868}.
 
 Der Parser wahrt die Abwärtskompatibilität auch bei unbekannten Optionen. Eine unbekannte SAFE-Option
 übergeht er und meldet sie als übergangen. Bei einer unbekannten UNSAFE-Option darf er die Nutzdaten
 dagegen nicht weitergeben. Ein gewöhnliches oder bereits zusammengesetztes Datagramm wird deshalb mit
-leeren Nutzdaten zugestellt \cite[Sec.~12 und 14]{rfc9868}. Die Sendeseite erzeugt selbst keine
+leeren Nutzdaten zugestellt \cite[Sec.~10, 12 und 14]{rfc9868}. Die Sendeseite erzeugt selbst keine
 UNSAFE-Optionen; der Optionskern weist solche Arten schon beim Aufbau zurück.
 
-Innerhalb eines Fragments bildet eine unbekannte UNSAFE-Option einen Sonderfall. Steht zuvor ein
+Innerhalb eines Fragments bildet eine unbekannte UNSAFE-Option einen Sonder\-fall. Steht zuvor ein
 gültiges FRAG, kann die Bibliothek das Fragment zuordnen und verwirft den ganzen Fragmentsatz. Steht die
 UNSAFE-Option vor FRAG, ist noch keine Zuordnung möglich. Dann stellt die Bibliothek leere Nutzdaten
-zu und lässt einen bereits gespeicherten Satz mit derselben Kennung unberührt
-\cite[Sec.~10, 12 und 14]{rfc9868}.
+zu und verwirft keinen gespeicherten Satz \cite[Sec.~10, 12 und 14]{rfc9868}.
 
-Für den Aufbau aller Optionen gelten gemeinsame Regeln. Der Sender stellt die Pflichtoptionen außer
-\texttt{EOL} und \texttt{NOP} vor andere SAFE-Optionen. Der interne Optionskern lässt gewöhnliche
-Wiederholungen für Tests zu. Die öffentliche Schnittstelle weist wiederholte meldefähige Optionen dagegen
+Für den Aufbau aller Optionen gelten gemeinsame Regeln. Die Reihenfolge legt der Optionskern fest
+(\secref{sec:sendepfad}). Der interne Optionskern lässt für Tests Wiederholungen gewöhnlicher Optionen
+zu. \texttt{Peer} und \texttt{build\_outgoing\_datagrams} weisen wiederholte meldefähige Optionen dagegen
 ab; FRAG darf schon im Optionskern nur einmal vorkommen \cite[Sec.~10]{rfc9868}.
 
 EOL beendet die Liste, NOP richtet die folgende Option aus. Nach EOL fügt der Serialisierer höchstens ein
-Nullbyte für eine gerade Länge an. Die öffentliche Schnittstelle kann weder eine größere Nullfüllung noch
-eine Mindestlänge des Optionsbereichs anfordern. Beim Empfang prüft der Parser die Bytes hinter EOL
+Füllbyte für eine gerade Länge an. Die öffentliche Schnittstelle kann weder eine größere Nullfüllung noch
+eine Mindestlänge des Options\-bereichs anfordern. Beim Empfang prüft der Parser die Bytes hinter EOL
 nicht; der RFC stellt diese Prüfung frei \cite[Sec.~11.1]{rfc9868}. Im Empfangsbericht bleiben EOL, NOP
 und FRAG unsichtbar.
 
 Beim erweiterten Längenformat trifft der Parser eine eigene strenge Entscheidung. Verwendet eine
-vollständige Option dieses Format für eine Gesamtlänge unter 255, verwirft er alle Optionen. RFC~9868
+Option dieses Format für eine Gesamtlänge unter 255, verwirft er alle Optionen. RFC~9868
 verlangt hier nur vom Sender die kürzere Darstellung und legt keine besondere Reaktion des Empfängers
 fest \cite[Sec.~10]{rfc9868}.
 
@@ -659,30 +660,30 @@ Raw Sockets verlangen unter Linux \texttt{CAP\_NET\_RAW} oder Root
 \texttt{IP\_HDRINCL} kann der Prozess auch eine von null verschiedene Quelladresse vorgeben. Die
 Bibliothek kapselt den Zugriff, hebt seine Wirkung aber nicht auf.
 
-Der \texttt{ReassemblyCache} ist der einzige fachliche Empfangszustand über Datagrammgrenzen hinweg.
+Der \texttt{ReassemblyCache} ist der einzige Empfangszustand mit Protokollwirkung, der über ein Datagramm
+hinaus erhalten bleibt.
 Jeder \texttt{Peer} besitzt einen Cache, filtert eingehende Datagramme jedoch nur nach Ports.
-Verschiedene Adresspaare mit gleichen Ports teilen deshalb Cache und Mengengrenze. Der im Modul
-\texttt{frag} zugesagte Vertrag eines Caches je UDP-Vierertupel ist auf dieser Ebene nur teilweise
-erfüllt.
+Verschiedene Adresspaare mit gleichen Ports teilen deshalb Cache und Mengengrenze. Die im Modul
+\texttt{frag} dokumentierte Aufruferpflicht, je UDP-Vierertupel einen eigenen Cache zu führen, erfüllt
+\texttt{Peer} damit nur teilweise.
 
-Globale Warnzähler dienen nur der Diagnose. Der Parser besitzt keine Gesamtgrenze für die Zahl der
-Optionen. Mehr als sieben aufeinanderfolgende \texttt{NOP} erzeugen eine Warnung
-\cite[Sec.~11.2]{rfc9868}. Sie erscheint beim ersten und danach bei jedem 64. Vorkommnis einer
-Kategorie.
+Globale Warnzähler dienen nur der Diagnose. Der Parser begrenzt die Zahl der Optionen nicht. Mehr als
+sieben aufeinanderfolgende \texttt{NOP} erzeugen nur eine Warnung \cite[Sec.~11.2]{rfc9868}. Sie
+erscheint beim ersten und danach bei jedem 64. Vorkommnis derselben Warnung.
 
-\texttt{ReassemblyLimits} begrenzt Datagrammgröße, Fragmentzahl, gleichzeitig unvollständige Sätze und
-Frist. Die Voreinstellungen sind 2.926 Byte, zwei Fragmente und zwei Minuten
-\cite[Sec.~11.4, 11.6 und 25.4]{rfc9868} sowie 64 unvollständige Sätze je Cache. Die Zahl 64 ist eine
-lokale Schutzgrenze; RFC~9868 empfiehlt nur eine Begrenzung.
+\texttt{ReassemblyLimits} begrenzt Datagrammgröße, Fragmentzahl, Frist und die Zahl gleichzeitig
+unvollständiger Sätze. Die Voreinstellungen sind 2.926 Byte, zwei Fragmente und zwei Minuten
+\cite[Sec.~11.4 und 11.6]{rfc9868} sowie 64 unvollständige Sätze je Cache. Die Zahl 64 ist eine
+lokale Schutzgrenze; RFC~9868 empfiehlt nur eine Begrenzung \cite[Sec.~11.4 und 25.4]{rfc9868}.
 
 Die Frist beginnt mit dem ersten Fragment und wird nicht erneuert. Abgelaufene Sätze verschwinden bei
 der nächsten Einfügung oder bei einem Bereinigungsaufruf. Ein voller Cache weist neue unvollständige
 Sätze ab und verdrängt keine vorhandenen. Ein für sich vollständiges Fragment kann weiterhin
 zugestellt werden.
 
-Die maximale Sendelänge ist eine Vorgabe des Aufrufers und keine Pfad-MTU-Ermittlung. Oberhalb der MTU
+Die maximale Sendelänge gibt der Aufrufer vor; die Bibliothek ermittelt die Pfad-MTU nicht. Oberhalb der MTU
 meldet der Kernel \texttt{EMSGSIZE} \cite{man7raw}; die Bibliothek reicht den E/A-Fehler weiter
 (\secref{sec:sendepfad}).
 
-Damit sind das Messinstrument und seine Betriebsgrenzen beschrieben; \chapref{chap:evaluation} setzt
-es auf die Forschungsfragen an.
+Damit sind die Referenzimplementierung und ihre Betriebsgrenzen beschrieben. \chapref{chap:evaluation}
+prüft sie für FF1 und setzt sie für FF2 als Messmittel ein.

@@ -19,8 +19,10 @@ Stand f847895):
     und Failed sind die empfangenen Parameter ueber keinen oeffentlichen Pfad erreichbar, waehrend
     Sec. 15 "the per-packet options and their parameters as received" verlangt.
   * Zeile 226 (Sec. 25.2): teilweise -> nicht anwendbar. Das SHOULD zur empfangsseitigen
-    Referenzordnung ist an das vorangehende, nicht gewaehlte MAY gebunden; der fruehere Beleg
-    FR-14 betrifft nur die sendeseitige Ordnung (Zeile 186).
+    Referenzordnung gilt fuer Implementierungen mit Bedenken wegen verdeckter Kanaele; diese
+    Arbeit verfolgt kein solches Schutzziel (Kapitel 1.4), die Empfangsausgabe gewoehnlicher
+    Datagramme folgt der Paketreihenfolge. Begruendung am 2026-09-13 korrigiert (zuvor faelschlich an das nicht
+    gewaehlte MAY gebunden). FR-14 betrifft nur die sendeseitige Ordnung (Zeile 186).
 
 Fruehere Aenderungen (dritte Faktencheckrunde, 2026-08-26): Zeile 189 teilweise -> vollstaendig
 (Sec. 11.2 verlangt nur Erkennung und Meldung); Zeile 222 nicht anwendbar -> teilweise (unmarkierte
@@ -185,8 +187,8 @@ ZEILEN = [
      "partial / documented opt-out", "bed. SHOULD", "ja", T, V, "R, F; NFR-04/05/06/08",
      "NFR-04 begruendeter Verzicht; NFR-05 teilweise; NFR-06/08 umgesetzt"),
     (226, "Sec. 23-26", "25.2", "Bei Kanalbedenken Optionen in unabhaengiger Referenzordnung", "SHOULD", "partial",
-     "bed. SHOULD", "nein", A, A, "nicht gewaehlt; kanonische Sendereihenfolge genuegt nicht",
-     "geprueft 2026-08-28: das SHOULD aus Sec. 25.2 ist an das vorangehende, nicht gewaehlte MAY gebunden; FR-14 belegt nur die sendeseitige Ordnung (Zeile 186)"),
+     "bed. SHOULD", "nein", A, A, "kein Schutzziel gegen verdeckte Kanaele; Empfangsausgabe gewoehnlicher Datagramme in Paketreihenfolge",
+     "geprueft 2026-09-13: das SHOULD aus Sec. 25.2 gilt fuer Implementierungen mit Bedenken wegen verdeckter Kanaele (Z. 2113-2116); diese Arbeit verfolgt kein solches Schutzziel (Kapitel 1.4); die Empfangsausgabe gewoehnlicher Datagramme folgt der Paketreihenfolge, zusammengefuehrte Fragmentoptionen stehen in fester Reihenfolge davor (src/recv/pipeline.rs merge_fragment_options); FR-14 belegt nur die sendeseitige Ordnung (Zeile 186)"),
     (227, "Sec. 23-26", "23", "Multicast und Broadcast gesondert betrachten", "special", "out", "Leitlinie", "nein",
      A, A, "nur Unicast", "nur Unicast untersucht"),
     (228, "Sec. 23-26", "26", "Namensregeln fuer neue SAFE- und UNSAFE-Arten", "MUST", "n/a", "MUST", "nein", A, A,

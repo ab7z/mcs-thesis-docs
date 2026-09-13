@@ -146,7 +146,8 @@ Außerhalb des Umfangs liegt der REQ/RES"=Anwendungsfall zur Pfad-MTU-Ermittlung
 nicht implementiert wird die TIME-Option. RFC~9868 beschreibt zwar ihr Format und den Anwendungszweck, die Schätzung
 der Paketumlaufzeit (\textit{Round-Trip Time}, RTT), legt aber kein nutzendes Protokoll fest. Die Kennungen für AUTH,
 UCMP und UENC sind in RFC~9868 lediglich reserviert und werden daher ebenfalls nicht implementiert
-\cite[Sec.~11.9, 12.1 und 12.2]{rfc9868}. Kernel-Module werden nicht entwickelt.
+\cite[Sec.~11.9, 12.1 und 12.2]{rfc9868}. Kernel-Module werden nicht entwickelt. Ein Schutz gegen verdeckte
+Kanäle über UDP-Optionen ist kein Ziel dieser Arbeit \cite[Sec.~25.2]{rfc9868}.
 
 IPv6 wird weder implementiert noch auf Konformität geprüft. Die hier untersuchten Mechanismen des RFC~9868
 (\textit{Surplus Area}, OCS, TLV-Optionen und FRAG) lassen sich vollständig über IPv4 zeigen. Die
@@ -163,8 +164,8 @@ Nach dieser Einleitung folgen sechs Kapitel, die drei Blöcke bilden:
         Entwurfsprinzipien. \chapref{chap:methodik} legt die Forschungsmethodik offen, bevor mit ihr
         gearbeitet wird: das Forschungsdesign, die RFC-Auswertungsmethode und der Einsatz von KI.
     \item \textbf{Anwendungsteil:} \chapref{chap:analyse} überführt RFC~9868 mit dieser Methode in ein
-        prüfbares Anforderungsmodell und begründet die Technologieauswahl. \chapref{chap:entwurf} führt
-        Entwurf und Implementierung der Bibliothek komponentenweise zusammen. \chapref{chap:evaluation}
+        prüfbares Anforderungsmodell und begründet die Technologieauswahl. \chapref{chap:entwurf} beschreibt
+        Entwurf und Implementierung der Bibliothek entlang ihrer Datenpfade. \chapref{chap:evaluation}
         berichtet die Ergebnisse zu beiden Forschungsfragen sowie eine deskriptive Auswertung der
         KI-gestützten Arbeitsweise.
     \item \textbf{Schluss:} \chapref{chap:fazit} wiederholt die Forschungsfragen, beantwortet sie einzeln

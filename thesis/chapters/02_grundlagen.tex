@@ -629,7 +629,7 @@ IP-Datagramm verfügbare Platz, wie viele Optionen es trägt.
 Die beiden Ein-Byte-Codes \texttt{NOP} und \texttt{EOL} besitzen kein Längenfeld. \texttt{NOP}
 (No Operation, Kind~1) ist ein Byte lang und dient der Ausrichtung zwischen Optionen. Dafür darf
 \texttt{NOP} mehrfach vorkommen.
-\texttt{EOL} (End of Option List, Kind~0) beendet die Liste vorzeitig; die Bytes dahinter muss der Sender
+\texttt{EOL} (End of Options List, Kind~0) beendet die Liste vorzeitig; die Bytes dahinter muss der Sender
 bis zum Ende der Surplus Area beziehungsweise des Optionsbereichs eines UDP-Fragments auf null setzen
 \cite[Sec.~8 und 11.1]{rfc9868}. Der Empfänger darf diese Nullfüllung prüfen, muss es aber nicht. Findet er
 dabei ein Byte ungleich null, verwirft er nach der Grundregel aus \secref{subsec:surplus-aufbau} die gesamte

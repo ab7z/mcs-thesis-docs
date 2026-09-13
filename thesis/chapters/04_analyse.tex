@@ -65,10 +65,8 @@ Beschreibungen und Leitlinien. Die Prüfung aus \secref{sec:extraktionsmethode} 
 erneut am Primärtext ein. Normstufe, Anwendbarkeit, FF1-Bewertung und Implementierungs\-stand
 (\secref{sec:soll-ist}) stehen in einer eigenen Datei, der \textbf{geprüften
 Einzelzuordnung}.\footnote{\raggedright Die Datei
-\nolinkurl{thesis/daten/konformitaet-kategorien.csv} liegt im
-\href{https://github.com/ab7z/mcs-thesis-docs/blob/%
-b8a52778bf1db73ed1bd9629f2276adfed5f6ab7/thesis/daten/konformitaet-kategorien.csv}{öffentlichen
-Repository dieser Arbeit, \texttt{ab7z/mcs-thesis-docs}} (Stand: Commit \texttt{b8a5277}).}
+\nolinkurl{thesis/daten/konformitaet-kategorien.csv} liegt im öffentlichen Repository dieser Arbeit,
+\url{https://github.com/ab7z/mcs-thesis-docs} (Stand der abgegebenen Fassung).}
 Zeilen, die mehrere Normsätze oder Adressaten bündeln, etwa die Zeilen zu den Abschnitten 11.2, 16 und 19
 sowie 25.2 bis 25.4, bleiben eine Zeile. Bewertet wird jeweils der Anteil, der die Endpunkte im Sinne
 von FF1 betrifft; die Transitpflicht aus Abschnitt~16 gehört zu FF2.
@@ -222,15 +220,14 @@ zur Surplus Area, die Messwerkzeuge sowie Fuzzing und formale Gegenproben.
 \subsection{Programmiersprache}
 \label{subsec:programmiersprache}
 
-Die Sprache muss vier Bedingungen erfüllen. Erstens braucht die Bibliothek Zugriff auf das
-vollständige IP-Datagramm einschließlich der Surplus Area (\secref{sec:netzpfad}). Zweitens muss der
-Serialisierer das Paketformat bytegenau in Netzwerkbyteordnung schreiben; native Speicherabbilder mit
-möglichem Padding werden nicht als Paketformat verwendet. Drittens verarbeitet der Parser auch Pakete
-unbekannter oder bösartiger Absender. An dieser \textit{Vertrauensgrenze} muss er fehlerhafte und gezielt
-konstruierte Eingaben sicher behandeln. Viertens soll die Bibliothek keine verwaltete Laufzeitumgebung
-voraussetzen und ohne automatische Speicher\-bereinigung (\mbox{Garbage} Collector) auskommen. Das erleichtert ihre Einbindung
-und vermeidet GC-Pausen, garantiert aber kein allgemein vorhersagbares Zeitverhalten. Die ersten beiden
-Bedingungen betreffen den Protokollzugriff, die letzten beiden sind Qualitätsziele der Arbeit.
+Die Sprache muss vier Bedingungen erfüllen. Erstens braucht die Bibliothek Zugriff auf das vollständige IP-Datagramm
+einschließlich der Surplus Area (\secref{sec:netzpfad}). Zweitens muss der Serialisierer das Paketformat bytegenau in
+Netzwerkbyteordnung schreiben; native Speicherabbilder mit möglichem Padding werden nicht als Paketformat verwendet.
+Drittens verarbeitet der Parser auch Pakete unbekannter oder bösartiger Absender. An dieser \textit{Vertrauensgrenze}
+muss er fehlerhafte und gezielt konstruierte Eingaben sicher behandeln. Viertens soll die Bibliothek keine verwaltete
+Laufzeitumgebung voraussetzen und ohne automatische Speicher\-bereinigung (\mbox{Garbage} Collector) auskommen. Das
+erleichtert ihre Einbindung und vermeidet GC-Pausen, garantiert aber kein allgemein vorhersagbares Zeitverhalten. Die
+ersten beiden Bedingungen betreffen den Protokollzugriff, die letzten beiden sind Qualitätsziele der Arbeit.
 
 C, C++, Zig und Rust erlauben den benötigten Zugriff auf Speicher und System\-schnittstellen und
 erfüllen die Vorgabe, ohne Garbage Collector auszukommen. Go und Java werden wegen dieser ausdrücklich

@@ -332,25 +332,22 @@ helsinki und 1blue sowie den Mobilfunk-Zugangspfad des Entwicklungsrechners. Den
     \label{fig:eval-eudreieck}
 \end{figure}
 
-\figref{fig:eval-eudreieck} zeigt, dass die drei Messstrecken zwei Endpunkt-Netze (AS24940,
-AS42730) und zwei beobachtete Transit-Netze (Lumen, COLT) berühren;\footnote{Im COLT-Zweig bleibt die
-Zuordnung von \texttt{134.128.133.251} unscharf: Für die Adresse liegen weder Origin-Route noch PTR vor;
-sie kann COLT-intern oder ein Übergang sein.} die abgeleiteten Routerzahlen beruhen auf der TTL-Annahme
-aus \secref{sec:netzpfad}, und zwei Weiterleitungen existieren nur als TTL-Differenz, weil sie nie
-antworten. Auf diesem Dreieck wurde
-zuerst die Grundlast geprüft: Die Verlustbasislinie ergab auf jedem der drei Hostpaare 3000 von 3000,
-zusammen 9000 von 9000, zugestellte Pakete in
-Sandwich-Tripeln gleicher Gesamtlänge (einseitige obere 95-Prozent-Vertrauensgrenze der klassenweisen
-Verlustrate unter 0,6 Prozent je Richtung bei 500 Paketen je Klasse, unter der Annahme unabhängiger
-Einzelverluste), der MTU-Sweep trug bis exakt 1500 Byte Gesamtlänge vollständig, und über zehntausend
-P0-Pakete blieben ohne unerklärten Verlust. Ferner überstand das goldene Prüfszenarien-Set aus
-\chapref{chap:entwurf} den Pfad von mcs nach 1blue unverändert: elf Szenarien mit 15 Datagrammen und 0 bis
-308 Byte Surplus, an beiden Enden aufgezeichnet und in elf von elf Szenarien bestanden; als Vorstufe
-belegt das Pfadtransparenz, nicht die Zustellung an die Anwendung. Zusammen mit dem Piloten vom 13.08.
-(je Richtung sechs von sechs
-Optionsdatagrammen intakt) liefert der OpenVZ-Endpunkt zugleich einen eigenen Virtualisierungs-Datenpunkt: Auch dieser
-Netzstapel normalisiert die Surplus Area nicht. Die vollständigen Suiten liefen anschließend fehlerfrei
-auf beiden Helsinki-Paaren (je 18 Szenarien und Richtung).
+\figref{fig:eval-eudreieck} zeigt, dass die drei Messstrecken zwei Endpunkt-Netze (AS24940, AS42730) und zwei
+beobachtete Transit-Netze (Lumen, COLT) berühren;\footnote{Im COLT-Zweig bleibt die Zuordnung von
+\texttt{134.128.133.251} unscharf: Für die Adresse liegen weder Origin-Route noch PTR vor; sie kann COLT-intern oder
+ein Übergang sein.} die abgeleiteten Routerzahlen beruhen auf der TTL-Annahme aus \secref{sec:netzpfad}, und zwei
+Weiterleitungen existieren nur als TTL-Differenz, weil sie nie antworten. Auf diesem Dreieck wurde zuerst die
+Grundlast geprüft: Die Verlustbasislinie ergab auf jedem der drei Hostpaare 3000 von 3000, zusammen 9000 von 9000,
+zugestellte Pakete in Sandwich-Tripeln gleicher Gesamtlänge (einseitige obere 95-Prozent-Vertrauensgrenze der
+klassenweisen Verlustrate unter 0,6 Prozent je Richtung bei 500 Paketen je Klasse, unter der Annahme unabhängiger
+Einzelverluste), der MTU-Sweep trug bis exakt 1500 Byte Gesamtlänge vollständig, und über zehntausend P0-Pakete
+blieben ohne unerklärten Verlust. Ferner überstand das goldene Prüfszenarien-Set der Wire-Prüfung
+(\secref{subsec:pruefmittel}) den Pfad von mcs nach 1blue unverändert: elf Szenarien mit 15 Datagrammen und 0 bis 308
+Byte Surplus, an beiden Enden aufgezeichnet und in elf von elf Szenarien bestanden; als Vorstufe belegt das
+Pfadtransparenz, nicht die Zustellung an die Anwendung. Zusammen mit dem Piloten vom 13.08. (je Richtung sechs von
+sechs Optionsdatagrammen intakt) liefert der OpenVZ-Endpunkt zugleich einen eigenen Virtualisierungs-Datenpunkt: Auch
+dieser Netzstapel normalisiert die Surplus Area nicht. Die vollständigen Suiten liefen anschließend fehlerfrei auf
+beiden Helsinki-Paaren (je 18 Szenarien und Richtung).
 
 Dennoch ist das Dreieck kein neutrales Medium, und zwar in zwei Punkten: der Wegevielfalt des Rückpfads
 und einem Prüfsummen-Gate. Die Wegevielfalt dokumentiert \figref{fig:eval-reroute}:
@@ -767,9 +764,9 @@ Intervalle und der reine Amazon-Backbone zeigten kein Gate; die vollständigen P
 1blue sind dennoch nicht gatefrei, denn das Gate liegt auf der jeweils entfernten Seite oder dem
 angrenzenden Transitabschnitt. Dazu tritt der Maskierungseffekt: Ein Normalisierer vor einem
 Präsenz-Verwerfer entfernt dessen Auslöser und macht ihn unsichtbar. Was das für ein einzelnes
-Datagramm bedeutet, bündelt
-\figref{fig:eval-paketformen} am Beispieldatagramm aus \chapref{chap:entwurf} und seinen zwei härtesten
-Gegenstücken:
+Datagramm bedeutet, bündelt \figref{fig:eval-paketformen} an einem Datagramm mit den Nutzdaten \texttt{odd}
+wie im Leitbeispiel aus \chapref{chap:entwurf}, hier mit REQ statt MDS (42 statt 40 Byte), und seinen zwei
+härtesten Gegenstücken:
 
 \begin{figure}[H]
     \centering
@@ -840,9 +837,9 @@ normativer Sätze und der sichtbaren, aber unbewerteten nicht gewählten MAY-Fun
 NFR-Kennungen dienen als Nachweisindex und nicht als zweiter Nenner; 58 der 67 Matrixzeilen tragen im
 eingefrorenen Repository-Arbeitsindex mindestens eine solche Kennung. Je bewerteter Zeile folgt der
 Nachweis einer festen Reihenfolge: Notiz der Matrixzeile, verknüpfte Anforderungskennung, Quelltext und
-Test, zuletzt, wo vorhanden, das Realpfadszenario. Damit ist auch die aus \chapref{chap:entwurf}
-übergebene Frage zu beantworten, ob die zusammengefassten Empfangsberichte für die Messkampagnen
-ausreichen: allein nicht, denn nur bei den vollständigen Kampagnen stützt sich jeder Realpfadnachweis
+Test, zuletzt, wo vorhanden, das Realpfadszenario. Damit ist auch die Frage aus \chapref{chap:entwurf}
+zu beantworten, ob die zusammengefasste Meldung \zitat{kein Datagramm} für die Messkampagnen
+ausreicht: allein nicht, denn nur bei den vollständigen Kampagnen stützt sich jeder Realpfadnachweis
 auf Mitschnitte, Sendemanifest und Auswerterlauf (\secref{sec:testkonzept}). Ein Ausbleiben, etwa beim
 Reassemblierungs-Timeout ohne eigene Verwerfmeldung, ist nur dort als Kampagnenbefund belastbar, wo
 diese Negativevidenz vollständig vorliegt.
@@ -963,17 +960,18 @@ ohne weiteren Eingang erfordert die Bereinigung einen Aufruf von \texttt{Peer::g
 Hintergrundlauf existiert. Die Bibliothek setzt den
 geprüften Protokollkern damit um, bildet aber nicht alle bewerteten API-Anforderungen vollständig ab.
 
-\textbf{Nicht anwendbar} oder leitend sind zehn Zeilen: 188, 206, 207, 208, 209, 211, 223, 226, 227 und
-228. Dazu gehören die nicht gewählte Empfangsprüfung der Bytes nach EOL, die nicht implementierten
-Optionen TIME, EXP und UEXP, die reservierten Arten AUTH, UCMP und UENC, die Entwurfs- und Namensregeln für neue
-Optionsarten, die Multicast-Betrachtungen sowie die API-Leitlinie zu Optionsreihenfolge und
-Fragmentgrenzen; letztere bleibt Leitlinie, weil der Primärtext sie ausdrücklich als nicht beabsichtigte
-Nutzersteuerung formuliert \cite[Sec.~15]{rfc9868}. Zeile 226 betrifft die bedingte Empfehlung zur
-empfangsseitigen Referenzordnung aus Abschnitt~25.2: Das vorangehende \texttt{MAY} wurde nicht gewählt,
-und die kanonische Sendereihenfolge erfüllt keine empfangsseitige Ordnung. Die unmarkierte
-Sende-API-Form ist dagegen anwendbar und teilweise umgesetzt (Zeile 222). Eine formgültige TIME-Option
-lief auf dem Realpfad als unbekannte SAFE-Option still mit; das belegt das stille Übergehen einer
-unbekannten SAFE-Option, nicht die Umsetzung von TIME, und ändert die Umfangseinstufung nicht.
+\textbf{Nicht anwendbar} oder leitend sind zehn Zeilen: 188, 206, 207, 208, 209, 211, 223, 226, 227 und 228. Dazu
+gehören die nicht gewählte Empfangsprüfung der Bytes nach EOL, die nicht implementierten Optionen TIME, EXP und UEXP,
+die reservierten Arten AUTH, UCMP und UENC, die Entwurfs- und Namensregeln für neue Optionsarten, die
+Multicast-Betrachtungen sowie die API-Leitlinie zu Optionsreihenfolge und Fragmentgrenzen; letztere bleibt Leitlinie,
+weil der Primärtext sie ausdrücklich als nicht beabsichtigte Nutzersteuerung formuliert \cite[Sec.~15]{rfc9868}. Zeile
+226 betrifft die bedingte Empfehlung aus Abschnitt~25.2, empfangene Optionen in einer von der Paketreihenfolge
+unabhängigen Ordnung zurückzugeben \cite[Sec.~25.2]{rfc9868}. Sie richtet sich an Implementierungen mit Bedenken wegen
+verdeckter Kanäle. Diese Arbeit verfolgt kein solches Schutzziel (\secref{sec:abgrenzung}); die Empfangsausgabe der
+Bibliothek folgt bei gewöhnlichen Datagrammen der Paketreihenfolge. Die unmarkierte Sende-API-Form ist dagegen
+anwendbar und teilweise umgesetzt (Zeile 222). Eine formgültige TIME-Option lief auf dem Realpfad als unbekannte
+SAFE-Option still mit; das belegt das stille Übergehen einer unbekannten SAFE-Option, nicht die Umsetzung von TIME,
+und ändert die Umfangseinstufung nicht.
 
 Vier \textbf{Differenzen zwischen Spezifikation, Modell, Programm und Laufzeit} verdienen eigene
 Sätze. Erstens ist die Kombination aus UDP-Prüfsumme null und OCS null aus dem Benutzerraum exakt

@@ -62,7 +62,8 @@ Thesis and documentation are written in German.
 ## Kapitelprüfung und Freigabe (verbindlich)
 
 Diese Prüfkriterien wurden aus der gemeinsamen Durchsicht von Kapitel 1 bis 3 abgeleitet und am
-12. September 2026 von GreenCodeDoesntSmell zur Verwendung für weitere Kapitel bestätigt.
+12. September 2026 von GreenCodeDoesntSmell zur Verwendung für weitere Kapitel bestätigt. Kriterium 25 kam am
+13. September 2026 auf Anweisung von GreenCodeDoesntSmell hinzu.
 Sie sind bei weiteren Kapitelprüfungen anzuwenden. Bei gezielten Überarbeitungen den beauftragten Umfang
 einhalten und betroffene Kriterien prüfen; daraus keine vollständige Kapitelprüfung ableiten.
 
@@ -126,6 +127,9 @@ einhalten und betroffene Kriterien prüfen; daraus keine vollständige Kapitelpr
 24. **Abschlusskontrolle:** Nach Änderungen am Thesis-Text die gesamte Thesis einschließlich Literatur und
     Glossar neu bauen. Build-Warnungen, Referenzen und die aktuelle PDF prüfen. Den Diff auf unbeabsichtigte
     Bedeutungsänderungen kontrollieren; Quellstand und ausgelieferte PDF müssen zusammenpassen.
+25. **Versionsangaben:** Keine Commit-Hashes, Kurzkennungen, Branch- oder Tag-Namen im Thesistext, auch nicht in
+    Fußnoten, Tabellen, Beschriftungen und Links. Stände über Datum, Bezeichnung des Laufs oder die abgegebene
+    Fassung benennen; Links auf Repositorys ohne Commit-Bezug setzen.
 
 ### Prüfumfang und Freigabe
 
