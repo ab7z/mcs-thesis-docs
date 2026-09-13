@@ -59,6 +59,91 @@ Thesis and documentation are written in German.
 - Nach Textkorrekturen die gesamte Thesis neu bauen und die betroffenen Umbrüche erneut in der PDF
   prüfen. Auch neu entstandene Trennungen kontrollieren, bevor die Überarbeitung als abgeschlossen gilt.
 
+## Kapitelprüfung und Freigabe (verbindlich)
+
+Diese Prüfkriterien wurden aus der gemeinsamen Durchsicht von Kapitel 1 bis 3 abgeleitet und am
+12. September 2026 von GreenCodeDoesntSmell zur Verwendung für weitere Kapitel bestätigt.
+Sie sind bei weiteren Kapitelprüfungen anzuwenden. Bei gezielten Überarbeitungen den beauftragten Umfang
+einhalten und betroffene Kriterien prüfen; daraus keine vollständige Kapitelprüfung ableiten.
+
+### Prüfkriterien
+
+1. **Fachliche Richtigkeit:** Definitionen, Erklärungen, Voraussetzungen, Regeln und Ausnahmen gegen
+   Primärquellen prüfen. Zu pauschale Aussagen einschränken; richtige Aussagen als richtig anerkennen.
+2. **Quellen und Belege:** Prüfen, ob die Quelle die konkrete Aussage trägt und RFC, Abschnitt, Datum und
+   Zuschreibung stimmen. Endgültige Standards, frühere Entwürfe und ältere Untersuchungen unterscheiden.
+3. **Verbindlichkeit:** Anforderungen, Empfehlungen und Möglichkeiten sowie MUST, SHOULD und MAY sauber
+   unterscheiden. Beim Vereinfachen Bedingungen, Ausnahmen und die Stärke einer Aussage erhalten.
+4. **Persönlicher Schreibstil:** Kurz, konkret und verständlich schreiben. Die Rückfragen aus der
+   gemeinsamen Durchsicht als Maßstab nutzen; abstrakte Begriffe, unnötige Anglizismen und Metaphern vermeiden.
+5. **Einzelne Sätze:** Satz für Satz auf Grammatik, klare Handelnde, eindeutige Bezüge und lesbare Satzlänge
+   prüfen. Fußnoten, Definitionen und Beschriftungen einbeziehen, nicht nur den Fließtext.
+6. **Zweck und Ursache:** Neben der Definition erklären, wofür etwas gebraucht wird, wer es verwendet und
+   warum eine Handlung erfolgt. Bedeutung, Zweck und mögliche Entscheidungsgründe nicht vermischen.
+7. **Zusammenhang:** Änderungen mit den vorherigen und nachfolgenden Sätzen sowie dem gesamten Absatz lesen.
+   Erklärungslücken, unklare Übergänge und Widersprüche zwischen einzeln richtigen Sätzen vermeiden.
+8. **Relevanz und Wiederholungen:** Den Beitrag jedes Absatzes zum Verständnis der Arbeit prüfen.
+   Unnötige Vergleiche, Vorbemerkungen und Wiederholungen streichen; benötigte Erklärungen erhalten.
+9. **Begriffe:** Fachbegriffe verständlich einführen und durchgängig verwenden. Insbesondere Header, Nutzlast,
+   Nutzdaten, Altempfänger, Altsystem und optionsfähiger Empfänger sowie FF1/FF2-Kategorien konsistent halten.
+10. **Fußnoten:** Eine konkrete Nebenfrage kurz beantworten. Keine unklaren Begriffe oder zusätzlichen
+    Nebenfragen einführen; notwendige Erklärungen des Hauptarguments im Fließtext belassen.
+11. **Ziel und Umfang:** Motivation, Problemstellung, Forschungsfragen, Untersuchung und angekündigte
+    Ergebnisse aufeinander abstimmen. Grenzen wie Linux, IPv4, Raw Sockets und Optionsumfang erhalten.
+12. **Ergebniszuordnung:** Fremde Ergebnisse, eigene Messungen und Schlussfolgerungen unterscheiden.
+    Fehlende Angaben nicht erfinden; beobachtetes Verhalten nicht mit einem identifizierten Gerät gleichsetzen.
+13. **IPv4, MTU und Fragmentierung:** Bei relevanten Aussagen Headerlänge, IHL, Optionen, zusätzliche Header,
+    Längengrenzen, Fragmentzuordnung und Verlustfolgen prüfen. Aussagen über NATs und Firewalls qualifizieren.
+14. **UDP und Prüfsummen:** Bei relevanten Aussagen Felder, Nullwerte und fehlende UDP-Garantien prüfen.
+    IPv4-Headerprüfsumme, UDP-Prüfsumme, Pseudo-Header, Berechnung und NAT-Auswirkungen auseinanderhalten.
+15. **Surplus Area und Optionen:** Bei relevanten Aussagen Lage, Längen, Einheiten, Formeln, Rechenbeispiele,
+    Byte-Offsets, Ausrichtung, Padding, OCS, TLV, NOP/EOL, unbekannte Optionen und Fehlerfälle prüfen.
+    Verwerfen von Optionen, Nutzdaten und Datagrammen unterscheiden; FRAG, UNSAFE und Errata berücksichtigen.
+16. **Betriebssystem und Netzpfad:** Zuständigkeiten von Anwendung, UDP, IP, Kernel und Filtern unterscheiden.
+    Raw Sockets nicht mit der Umgehung aller vorherigen Prüfungen gleichsetzen. Implementierungsangaben
+    gezielt am passenden Code und dessen Stand prüfen; Implementierungscode ist keine normative Quelle.
+17. **Messbedingungen:** Aussagen mit tatsächlicher Konfiguration, Messdaten und Paketmitschnitten abgleichen,
+    etwa bei MTU oder Shim-Headern. Messpunkt, Pfad, Richtung und Zeitpunkt sowie Beobachtungsgrenzen beachten.
+    Fehlende Beobachtung ist kein allgemeiner Ausschluss; eine Prüfung ersetzt keine nicht ausgeführte Messung.
+18. **Methodik:** Untersuchungsgegenstand, Verfahren, Bewertung und Nachweise nachvollziehbar zuordnen.
+    Normauswertung, Implementierung und Messung sowie die Rollen der Bibliothek für FF1 und FF2 unterscheiden.
+    Normative Anforderungen von eigenen Projekt-, Schnittstellen- und Plattformentscheidungen trennen.
+    Anwendbarkeit und Bewertungskategorien konsistent mit den Analyse- und Evaluationskapiteln halten.
+19. **Aussagekraft der Nachweise:** Modellbeweis und Rust-Code, gemeinsame Fehlerannahmen von Code und Tests,
+    Hashwert und inhaltliche Richtigkeit sowie Reproduzierbarkeit und unabhängige Prüfung unterscheiden.
+    Einschränkungen der jeweiligen Nachweise auch bei sprachlichen Kürzungen erhalten.
+20. **Entwicklungs- und Prüfablauf:** Menschliche Verantwortung, Modellbeteiligung, Reviewrollen und Freigaben
+    klar benennen. Geplante und nachweislich ausgeführte Prüfungen unterscheiden; relevante Angaben zu
+    Prüfskripten, Cross-Kompilierung, Ausführungsorten und Fuzz-Tests gegen die tatsächlichen Abläufe prüfen.
+21. **Abbildungen, Tabellen und Verweise:** Beschriftungen, Zahlen, Begriffe und Abläufe mit dem Text abgleichen.
+    Nach Änderungen auch Kapitelankündigungen, Querverweise und Verzeichnisse prüfen. Ein aufgelöster Verweis
+    reicht nicht aus, wenn das Ziel den angekündigten Inhalt nicht mehr enthält.
+22. **PDF-Lesbarkeit:** Die aktuelle PDF auf Überschriftenabstände, Seitenumbrüche, Fußnoten, Tabellen,
+    Abbildungen und abgeschnittene Inhalte prüfen. Erklärungen und zugehörige Darstellungen sinnvoll anordnen.
+23. **Silbentrennung:** Die tatsächlichen deutschen Zeilen- und Seitenumbrüche einschließlich Fußnoten,
+    Tabellen und Beschriftungen nach den verbindlichen Regeln oben prüfen. Fehler gezielt korrigieren und
+    nach dem Neubau auch neu entstandene Trennungen kontrollieren.
+24. **Abschlusskontrolle:** Nach Änderungen am Thesis-Text die gesamte Thesis einschließlich Literatur und
+    Glossar neu bauen. Build-Warnungen, Referenzen und die aktuelle PDF prüfen. Den Diff auf unbeabsichtigte
+    Bedeutungsänderungen kontrollieren; Quellstand und ausgelieferte PDF müssen zusammenpassen.
+
+### Prüfumfang und Freigabe
+
+- Bei einer vollständigen Kapitelprüfung alle Kriterien berücksichtigen. Technische Einzelthemen nur dort
+  prüfen, wo sie für das Kapitel relevant sind; keine sachfremden Inhalte ergänzen, um die Liste abzuarbeiten.
+- Im Prüfbericht je Kriterium festhalten: geprüft, nicht anwendbar, offen oder nicht geprüft. Den Textstand,
+  die verwendeten Belege und den Umfang der PDF-Prüfung nennen. Alte Freigaben nicht ungeprüft übertragen.
+- Fachliche Fehler und abgaberelevante Mängel von optionalen sprachlichen Verbesserungen unterscheiden.
+  Korrekte, verständliche Passagen beibehalten und keine Befunde erfinden, um Änderungen zu rechtfertigen.
+- Eine Freigabe nur auf den tatsächlich geprüften und korrigierten Stand beziehen. Verbleibende Mängel und
+  Grenzen ausdrücklich nennen. Sprachprüfung, gezielte Quellenprüfung, vollständige Faktenprüfung,
+  PDF-Build und erneute Ausführung von Tests oder Messungen nicht gleichsetzen.
+- Vorhandene Test- und Messbelege nachvollziehen. Ganze Testserien oder Messkampagnen nur erneut ausführen,
+  wenn eine Änderung, ein Befund oder eine offene Frage dies erfordert.
+- Historischer Umfang: Kapitel 3 wurde zuletzt vollständig sprachlich und visuell sowie an einzelnen Stellen
+  fachlich geprüft. Das war keine erneute vollständige Prüfung aller Forschungsfälle oder Implementierungstests.
+  Die systematische Silbentrennungsprüfung aller drei Kapitel erfolgte in einem zusätzlichen Abschlussdurchgang.
+
 ## Insights-Inbox (verbindlich)
 
 - `thesis/insights-inbox.md` ist die Sammelstelle für Erkenntnisse und Edge-Cases aus der

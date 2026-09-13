@@ -183,7 +183,7 @@ Grenzwerten trägt der Quellenverweis die Abschnittsangabe immer.
 
 Jede so gewonnene Aussage wird nach demselben Muster erfasst: Fundstelle, Normstufe, Anwendbarkeit und
 Projektumfang. Dieses Muster ist zugleich das Zeilenschema des Anforderungskatalogs im
-Implementierungs-Repository, sodass jede Katalogzeile ihren RFC-Abschnitt mitführt. RFC~9869 und die Errata
+Repository der Implementierung, sodass jede Katalogzeile ihren RFC-Abschnitt mitführt. RFC~9869 und die Errata
 zu RFC~9868 werden gesondert behandelt. RFC~9869 beschreibt die Pfad-MTU-Bestimmung (DPLPMTUD, \textit{Datagram
 Packetization Layer Path MTU Discovery}) mit UDP-Optionen und liegt außerhalb des Implementierungsumfangs
 \cite{rfc9869}. Von den Errata ist das verifizierte technische EID~8834 angewendet; es löst den Widerspruch
@@ -243,10 +243,11 @@ Absätze wurde mit zwei Zählverfahren geprüft: Die Erstzählung ergab 96 Absä
 deckte den Fehler auf. Zählung und Einordnung erfolgten beim Lesen des RFC-Texts. Ein Werkzeug zur
 automatischen Zerlegung des Texts wurde dafür nicht eingesetzt.
 
-Diese Erfassung liegt nicht im Quelltext, sondern in versionierten Textdokumenten des
-Implementierungs-Repositorys. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Datei mit Arbeitsvorgaben
+Diese Erfassung liegt nicht im Quelltext, sondern in versionierten Textdokumenten im
+Repository der Implementierung. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Datei mit
+Arbeitsvorgaben
 nennt in ihrem ersten Satz das Modellwerkzeug und menschliche Mitwirkende als
-Adressaten.\footnote{Implementierungs-Repository, Commit \texttt{f1cfe52}: \path{CLAUDE.md},
+Adressaten.\footnote{Repository der Implementierung, Commit \texttt{f1cfe52}: \path{CLAUDE.md},
 \path{docs/requirements.md}, \path{docs/plan/ROADMAP.md} sowie die Schrittdateien unter
 \path{docs/plan/steps/}.} Die Dokumente halten den Wissensstand über die Arbeitssitzungen hinweg fest und
 dienen als Maßstab für die Prüfung der Modellausgaben. Ein Abgleich am Primärtext fand vier falsche
@@ -413,8 +414,9 @@ Ein bestandener Entwicklungstest sagt nichts über reale Netzpfade aus, und eine
 Entwicklungstest. Die Pfaduntersuchung für FF2 verwendet die fertigen Programme, Sendemanifeste sowie
 Paketmitschnitte an Sender und Empfänger; ihre Ergebnisklassen legt bereits
 \tabref{tab:operationalisierung} fest, das Pfad- und Auswertungsmodell folgt in \secref{sec:ff2-pfadmodell},
-die Belegregeln und die Auswertung der Messläufe in \secref{sec:testkonzept}. Der eigene Mitschnittprüfer
-wird dabei wiederverwendet; die Bewertungsregeln beider Untersuchungen bleiben getrennt.
+die Belegregeln und die Auswertung der Messläufe in \secref{sec:testkonzept}. Welche Auswerter dabei
+eingesetzt werden und was sie prüfen, beschreibt \secref{subsec:mitschnittwerkzeuge}; die Bewertungsregeln
+beider Untersuchungen bleiben getrennt.
 
 \subsection{Prüfmittel und ihre Reichweite}
 \label{subsec:pruefmittel}

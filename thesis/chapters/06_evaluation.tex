@@ -51,7 +51,7 @@ Messreihe, ohne Senderaufzeichnung wie ein Pilot. Alle Läufe ordnet \tabref{tab
         \textbf{Archiv} \\
         \midrule
         Lokale Lanes & 4 Topologien & \file{f847895} & 5~Szenarien & Referenz & Impl. \\
-        Extern 10.08. & achim $\rightarrow$ mcs & \file{7b11140} & IPv4/IPv6, Tunnel & Kampagne & extern \\
+        Extern 10.08. & achim $\rightarrow$ mcs & \file{7b11140} & IPv4, Tunnel & Kampagne & extern \\
         Bidir 11.08. & achim $\leftrightarrow$ mcs & \file{7b11140} & 9/9 normalisiert, 0/6 Rückweg &
         Kampagne & bidir \\
         Piloten 12./13.08. & achim, Mac, 1blue, mcs & \file{b12ba8e} & 1blue 6/6; achim/Mac 0/13, 0/10 &
@@ -88,7 +88,7 @@ Grenze; S-51 wurde begründet gestrichen. Ohne vorher festgelegte Äquivalenzreg
 korrigierte Vollständigkeitsquote bilden.
 
 Die Spalte Stand nennt den dokumentierten Binärstand eines Laufs; abweichende Treiberstände weist die
-Fußnote aus.\footnote{Alle Kurzkennungen bezeichnen Commits des öffentlichen Implementierungsrepositoriums
+Fußnote aus.\footnote{Alle Kurzkennungen bezeichnen Commits des öffentlichen Repositorys der Implementierung
 \url{https://github.com/ab7z/udp-transport-options}; der Auswertungsstand \file{f847895} ist die Revision
 \texttt{f8478951b71a943dd9538ad4917f421dccb8a212}. Für Helsinki waren die Kampagnenbinärdateien
 bitidentisch zu \file{d7187eb}; die Treiberskripte liefen aus dem Arbeitsbaum und wurden erst nachträglich
@@ -106,13 +106,14 @@ sind nicht einheitlich portabel (teils kein Gesamtmanifest, zwei Manifeste mit V
 temporäre Datei, ein archivübergreifendes Manifest, alte absolute Pfade im GCP-Manifest); das begrenzt
 die portable Innenprüfung, ist aber kein Hinweis auf beschädigte Archivdaten.\footnote{Die
 Archive und ihre Sollwerte liegen im Verzeichnis \file{thesis/evidence/} des öffentlichen
-Arbeitsrepositoriums \url{https://github.com/ab7z/mcs-thesis-docs}; die dortige Übersicht ordnet die
+Repositorys dieser Arbeit \url{https://github.com/ab7z/mcs-thesis-docs}; die dortige Übersicht ordnet die
 Kurzkennungen der Tabelle den Dateinamen und SHA-256-Sollwerten zu. Versioniert sind die Archive seit der
 Revision \texttt{e82dba201cdad2175e484a82984b968a30b5e40c}. Ein Hashwert belegt die
 Unverändertheit eines Artefakts, nicht die Wahrheit seines Inhalts (\chapref{chap:methodik}).}
 
-Die Werkzeugkette folgt \secref{subsec:mitschnittwerkzeuge}: \texttt{tcpdump} zeichnet auf, der eigene
-Prüfer deutet die Surplus Area, \texttt{tshark} liefert die fremde Gegenprobe der IPv4- und UDP-Felder.
+Die Kampagnenskripte zeichnen den Verkehr mit \texttt{tcpdump} auf; der Prüfumfang der Auswerter
+unterscheidet sich je nach Messreihe (\secref{subsec:mitschnittwerkzeuge}). Insbesondere übernehmen die
+P0-, P1- und P2-Auswerter den OCS-Status aus der Empfänger\-ausgabe; sie rechnen OCS nicht unabhängig nach.
 Aus Fehlversuchen auf der Loopback-Schnittstelle stammen vier Betriebsregeln: Ausgehende Pakete werden
 dort nicht über Richtungsfilter erfasst, Mitschnittdateien wechseln nach dem Rechteabstieg von
 \texttt{tcpdump} den Eigentümer, die Schnittstelle meldet sich mit einem künstlichen Ethernet-Rahmen, und
@@ -130,7 +131,7 @@ Den Prüfumfang der Realpfadkampagnen legt der Szenarienkatalog fest: 18~Treiber
 (elf P0, vier P1, drei P2). Hinzu kommen 21 etikettierte Options- und FRAG-Zellen des P2-Zellplans
 (14~\texttt{p2opt}, sieben \texttt{p2frag}) sowie S-50 als eigene vorregistrierte Cache-Reihe mit zwölf
 Läufen. Der Zellplan hält je Zelle fest, ob die Erwartung aus dem RFC, aus dem Implementierungsstand
-oder aus einer Pfadannahme stammt.\footnote{Im Implementierungsrepositorium liegen der Treiber
+oder aus einer Pfadannahme stammt.\footnote{Im Repository der Implementierung liegen der Treiber
 \path{scripts/pair-campaign.sh}, der Zellplan \path{scripts/p2-cellplan.json} und die Auswerter
 \path{scripts/p0-eval.py} bis \path{scripts/p2-eval.py}; die lokalen Topologien und Verdikt-Klassen
 definiert \path{docs/evaluation.md}.} Die lokalen Referenzläufe verwenden dagegen fünf eigene Szenarien in vier
@@ -492,7 +493,7 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
         \node[font=\tiny, align=center] at (13.20,-3.15) {mcs oder 1blue\\16 bzw. 13 Router};
         \draw[pf] (dcix.south east) -- (12.85,-2.35);
         \node[kante, anchor=west, align=left] at (0.0,-2.15)
-            {Mitschnitte: Gast, en0 (nur 10./11.08.), Ziel.};
+            {Mitschnitte: Gast und Ziel; zusätzlich en0 in ausgewählten Versuchen.};
         \node[kante, anchor=west, align=left, text width=7.2cm] at (0.0,-2.85)
             {NAT-Rückweg TTL 128 (mit Neuaufbau vereinbar). Bridge: Endpunkt-TTL
              48 von mcs, 51 von 1blue; Ziel-TTLs um eins höher ohne NAT-Sprung.};
@@ -831,7 +832,7 @@ Anforderungen des Standards erfüllbar bleiben, bewertet der folgende Soll-Ist-A
 FF1 fragt, welche Anforderungen von RFC~9868 sich unter Linux und IPv4 mit einer
 Raw-Socket-Implementierung im Benutzerraum vollständig, teilweise oder nicht erfüllen lassen
 (\secref{sec:zielsetzung}). Bewertungsgrundlage sind die 67 Zeilen der Konformitätsmatrix aus
-\secref{sec:anforderungsmatrix}, ein Arbeitsindex des Implementierungsrepositoriums und kein Verzeichnis
+\secref{sec:anforderungsmatrix}, ein Arbeitsindex der Implementierung und kein Verzeichnis
 aller Pflichten des Standards; einzelne Zeilen bündeln mehrere Normsätze, Zeile 224 etwa eine Transit-
 und eine Endpunktpflicht, und werden nur mit ihrem FF1-Anteil bewertet. Die Bewertungsregeln aus
 \chapref{chap:analyse} und \chapref{chap:methodik} gelten unverändert, einschließlich unmarkierter
@@ -846,13 +847,13 @@ auf Mitschnitte, Sendemanifest und Auswerterlauf (\secref{sec:testkonzept}). Ein
 Reassemblierungs-Timeout ohne eigene Verwerfmeldung, ist nur dort als Kampagnenbefund belastbar, wo
 diese Negativevidenz vollständig vorliegt.
 
-Die am Primärtext korrigierte Einzelzuordnung aller 67 Zeilen enthält die in
-\secref{sec:anforderungsmatrix} verlinkte Konformitätsmatrix. \tabref{tab:eval-sollist-summe} fasst die
-Summen zusammen.
+Die am Primärtext korrigierten Bewertungen aller 67 Zeilen stehen in der in
+\secref{sec:anforderungsmatrix} verlinkten Einzelzuordnung. \tabref{tab:eval-sollist-summe} fasst die Summen
+zusammen.
 
 \begin{table}[H]
     \centering
-    \caption{Summen der Konformitätsmatrix}
+    \caption{Summen der geprüften Einzelzuordnung}
     \label{tab:eval-sollist-summe}
     \small
     \begin{tabularx}{\textwidth}{@{}Yr@{}}
@@ -891,7 +892,7 @@ Spalte T bewertet die technische Erfüllbarkeit: Für keine der 57 anwendbaren o
 findet die Einzelprüfung eine technische Grenze des gewählten Rahmens (57-mal V, zehnmal
 \texttt{n.a.}). Davon getrennt zählt Spalte I 50 vollständig und sieben teilweise umgesetzte Zeilen.
 Neben Zeile 199 weichen auch die Zeilen 189, 204, 216, 221, 223 und 226 von der Selbstauskunft
-des Arbeitsindex ab; die in \secref{sec:anforderungsmatrix} verlinkte Konformitätsmatrix führt
+des Arbeitsindex ab; die in \secref{sec:anforderungsmatrix} verlinkte Einzelzuordnung führt
 Selbstauskunft und Urteil je Zeile nebeneinander. Kennungen und Einzelbegründungen folgen in den beiden
 Detailabsätzen.
 
@@ -964,7 +965,7 @@ geprüften Protokollkern damit um, bildet aber nicht alle bewerteten API-Anforde
 
 \textbf{Nicht anwendbar} oder leitend sind zehn Zeilen: 188, 206, 207, 208, 209, 211, 223, 226, 227 und
 228. Dazu gehören die nicht gewählte Empfangsprüfung der Bytes nach EOL, die nicht implementierten
-Optionen TIME und EXP, die reservierten AUTH- und UNSAFE-Arten, die Entwurfs- und Namensregeln für neue
+Optionen TIME, EXP und UEXP, die reservierten Arten AUTH, UCMP und UENC, die Entwurfs- und Namensregeln für neue
 Optionsarten, die Multicast-Betrachtungen sowie die API-Leitlinie zu Optionsreihenfolge und
 Fragmentgrenzen; letztere bleibt Leitlinie, weil der Primärtext sie ausdrücklich als nicht beabsichtigte
 Nutzersteuerung formuliert \cite[Sec.~15]{rfc9868}. Zeile 226 betrifft die bedingte Empfehlung zur
@@ -995,7 +996,7 @@ Modelle der Wire-Regeln, nicht über das laufende Programm; die Brücke bleibt P
 Fünf \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf. Erstens beendete sich der Raw-Empfänger
 auf öffentlichen Hosts still beim ersten fremden UDP-Paket; Ursache war ein als Ende gewerteter
 Filterausgang, und die Korrektur besteht aus dem Weiterlesen nach gefiltertem Rauschen und einer
-Gesamtfrist.\footnote{Commits \texttt{f3bf430} und \texttt{8f8c11b} im Implementierungsrepositorium.}
+Gesamtfrist.\footnote{Commits \texttt{f3bf430} und \texttt{8f8c11b} im Repository der Implementierung.}
 Die externe Kampagne vom 10.08. und die bidirektionale Kampagne vom 11.08. nutzten noch einen Stand vor
 beiden Korrekturen (\tabref{tab:eval-messlaeufe}). In der bidirektionalen Kampagne hielt eine
 äußere Neustartschleife den Empfänger verfügbar; die Ankunftszahlen beruhen deshalb auf den
@@ -1080,7 +1081,7 @@ kalibrierte Pfade ohne gemischte Störprüfung (\secref{sec:testkonzept}, \secre
 und die Messbarkeit der Empfängerpflichten für verfälschte Pads und Prüfsummen nur über die
 pfadneutralen Konstruktionen aus \secref{subsec:eval-europa}.
 Damit ist der derzeitige Zuordnungsstand für FF1 zusammengefasst; die Einzelwerte enthält die in
-\secref{sec:anforderungsmatrix} verlinkte Konformitätsmatrix. Wie diese Zuordnung zustande kam, und zwar
+\secref{sec:anforderungsmatrix} verlinkte Einzelzuordnung. Wie diese Zuordnung zustande kam, und zwar
 unter durchgehender Beteiligung von Sprachmodellen, beschreibt der folgende Abschnitt.
 
 \section{Reflexion der KI-gestützten Arbeitsweise}
@@ -1092,9 +1093,9 @@ keine Wirksamkeitsaussage, denn eine Prüfung ohne Sprachmodelle als Vergleichsg
 Die Rollen sind die aus \chapref{chap:methodik}: das umsetzende Werkzeug für Entwürfe und Quelltext, der
 getrennte Zweitprüfer mit dem Auftrag, Fehler und Gegenbeispiele zu suchen, und der Autor, der
 entscheidet und verantwortet. Grundlage ist ein Befundregister aus zwölf Fällen; zehn tragen einen
-öffentlichen Anker im Implementierungsrepositorium oder in den versiegelten Archiven, zwei nur einen
+öffentlichen Anker im Repository der Implementierung oder in den versiegelten Archiven, zwei nur einen
 Verweis auf die betroffene Kapitelstelle;\footnote{Register als
-\file{thesis/daten/ki"=befundregister.csv} im Repositorium der Arbeit; die Pull-Request-Verläufe sind
+\file{thesis/daten/ki"=befundregister.csv} im Repository dieser Arbeit; die Pull-Request-Verläufe sind
 öffentlich, Existenz, Titel, Merge-Zeitpunkte und Kommentarfolgen wurden am 26.08.2026 nachgeprüft.}
 das Register ist eine geprüfte Auswahl aus 27 Pull-Requests und Messläufen, kein Vollbestand. Vier
 Fallgruppen tragen das Bild:
@@ -1133,7 +1134,7 @@ Fallgruppen tragen das Bild:
 
 Die Kennzahlen des Registers: Zehn der zwölf Fälle endeten mit Übernahme,
 einer teils mit Übernahme und teils mit begründeter Ablehnung, einer vollständig mit Ablehnung; sechs
-Fälle lagen vor dem Merge, fünf danach, einer außerhalb des Repositoriums. Zwei Funde führt das Register
+Fälle lagen vor dem Merge, fünf danach, einer außerhalb des Repositorys. Zwei Funde führt das Register
 allein beim Zweitprüfer, ein dritter stammt aus einem Zweitprüferlauf des Faktenchecks, und die
 Übernahmenserie eines Falls allein vom führenden Werkzeug. Das Register
 kennzeichnet nur den Kampagnen-Zählfehler ausdrücklich als zunächst von allen drei Beteiligten
