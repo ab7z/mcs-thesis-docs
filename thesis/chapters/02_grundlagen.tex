@@ -84,7 +84,7 @@ Vielfaches von~4. Diese Eigenschaft ist für die Ausrichtung der UDP Options wic
 
 Zwischen festem Header und Nutzlast können zudem IP-Optionen liegen: zusätzliche Steuerfelder für
 Sonderfälle, die die gewöhnliche Kommunikation nicht braucht; \texttt{Record Route} etwa sammelt die
-Adressen der durchlaufenen Router ein \cite{rfc791}. IP-Optionen werden in der Praxis kaum genutzt.
+Adressen der durchlaufenen Router ein \cite{rfc791}.
 Ihre Verarbeitung belastet je nach Architektur und Konfiguration den allgemeinen Prozessor des Routers.
 Zudem ist das Verwerfen von Paketen mit IP-Optionen verbreitet \cite[Sec.~1 und 3.1]{rfc7126}.
 Der Beginn der Nutzlast folgt damit stets aus der \texttt{IHL}, nie aus einer Konstante.
@@ -190,8 +190,8 @@ behebt allerdings auch FRAG nicht (\chapref{chap:evaluation}).
 Das User Datagram Protocol (UDP) ist ein verbindungsloses, nachrichtenorientiertes Transportprotokoll.
 UDP benötigt keinen vorherigen Verbindungsaufbau und bietet selbst keine Garantie für Zustellung, Reihenfolge oder
 Duplikaterkennung \cite{rfc768}. Zuverlässigkeit und Staukontrolle muss ein nutzendes Protokoll bei Bedarf
-oberhalb von UDP bereitstellen \cite[Sec.~3.1 bis 3.3]{rfc8085}. UDP verwendet die IP-Protokollnummer~17 und
-ist als STD~6 standardisiert. RFC~768 wurde seit seiner Veröffentlichung im August 1980 über 45~Jahre
+oberhalb von UDP bereitstellen \cite[Sec.~3.1 bis 3.3]{rfc8085}. UDP verwendet die IP-Protokollnummer~17 \cite{rfc768}.
+RFC~768 wurde seit seiner Veröffentlichung im August 1980 über 45~Jahre
 hinweg nicht formell aktualisiert. Erst RFC~9868 trägt den Header-Eintrag
 \texttt{Updates:~768} und erweitert damit den ursprünglichen UDP-Standard erstmalig direkt \cite{rfc9868}.
 
@@ -226,7 +226,7 @@ den Aufbau des Headers zeigt \figref{fig:udp-header} \cite{rfc768}.
     \draw[klammer] (32.35,0) -- (32.35,-1.54)
       node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {fester Header\\8~Byte};
   \end{tikzpicture}
-  \caption{Der UDP-Header nach RFC~768 \cite{rfc768}}
+  \caption[Der UDP-Header nach RFC~768]{Der UDP-Header nach RFC~768 \cite{rfc768}}
   \label{fig:udp-header}
 \end{figure}
 
@@ -305,7 +305,7 @@ seine Werte gehen nur in die Rechnung ein. Seinen Aufbau zeigt \figref{fig:udp-p
     \draw[klammer] (32.35,0) -- (32.35,-2.36)
       node[midway, right=8pt, font=\scriptsize, text=feldlinie, align=left] {12~Byte};
   \end{tikzpicture}
-  \caption{Der Pseudo-Header der UDP-Prüfsumme für IPv4 \cite{rfc768}}
+  \caption[Der Pseudo-Header der UDP-Prüfsumme für IPv4]{Der Pseudo-Header der UDP-Prüfsumme für IPv4 \cite{rfc768}}
   \label{fig:udp-pseudo-header}
 \end{figure}
 
@@ -336,7 +336,6 @@ eines Verlusts zurückgehalten; dort entsteht kein \textit{Head-of-Line-Blocking
 Bytestrom. Benötigte Zuverlässigkeit oder Reihenfolge muss die Anwendung selbst herstellen
 \cite[Sec.~3.3]{rfc8085}.
 
-Diese Eigenschaften eignen sich für latenzempfindliche oder verlusttolerante Anwendungen.
 \section{Die Surplus Area}
 \label{sec:surplus-area}
 
@@ -825,7 +824,8 @@ Die Arbeitsteilung zwischen Anwendung und Kernel zeigt \figref{fig:sendepfade}:
     \draw[fluss] (us.south) |- (ip.west);
     \draw[fluss] (rs.south) |- (ip.east);
   \end{tikzpicture}
-  \caption{Die zwei Sendepfade durch den Linux-Kernel \cite{stephan2024packetpath,man7raw}}
+  \caption[Die zwei Sendepfade durch den Linux-Kernel]{Die zwei Sendepfade durch den Linux-Kernel
+    \cite{stephan2024packetpath,man7raw}}
   \label{fig:sendepfade}
 \end{figure}
 
@@ -862,7 +862,8 @@ bereit.
     \draw[fluss] (nf.south) -- node[left, font=\tiny, text=feldlinie] {Kopie} (raw.north);
     \draw[fluss] (udp) -- (usock);
   \end{tikzpicture}
-  \caption{Der Empfangspfad durch den Linux-Kernel \cite{stephan2024packetpath,man7raw}}
+  \caption[Der Empfangspfad durch den Linux-Kernel]{Der Empfangspfad durch den Linux-Kernel
+    \cite{stephan2024packetpath,man7raw}}
   \label{fig:empfangspfad}
 \end{figure}
 
@@ -948,9 +949,5 @@ zunächst mögliche Ursachen auf dem Datagrammweg, bevor sie einen Fehler der Im
 Mit Messpunkten an beiden Enden lässt sich eingrenzen, in welchem Abschnitt des Weges ein Verlust oder eine Veränderung
 auftritt. Welches Gerät eingreift, bleibt ohne zusätzliche Messpunkte oder unabhängige Evidenz offen
 (\chapref{chap:evaluation}).
-
-Wireshark und tshark 4.6 dekodieren UDP Options nach RFC~9868 nicht. Die Kampagnen benötigen deshalb einen eigenen
-Prüfer für PCAP-Dateien (\secref{subsec:mitschnittwerkzeuge}). Die fehlende Dekodierung zeigt zugleich die geringe
-bisherige Unterstützung von UDP Options durch Analysewerkzeuge.
 
 Die Auswertungsmethode folgt in \chapref{chap:methodik}.

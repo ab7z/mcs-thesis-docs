@@ -83,9 +83,9 @@ aller 67 Implementierungsurteile gehört nicht zu diesem Kapitelreview und wurde
 
 ## Geprüfter Stand
 
-- Thesis: Commit `80022ba61d369f244d2bab78ead9519de6243740` auf `main`.
+- Thesis: Stand vom 10.09.2026 auf `main`.
 
-- Implementierung: Commit `503c6c83b7c8ec41810c2145054a582cf865e02a`; für historische Aussagen zusätzlich die benannten älteren Stände.
+- Implementierung: Stand vom 03.09.2026; für historische Aussagen zusätzlich die benannten älteren Stände.
 
 - SHA-256 `thesis/chapters/04_analyse.tex`: `a19c3926f9d981437d98ed9ff351d0c5ca33c05e529029567db1b208474ac2f2`.
 
@@ -153,14 +153,14 @@ Die Stärke von MUST/SHOULD/MAY wurde nach [RFC 2119](https://www.rfc-editor.org
 ### E02: Anforderungen, Historie und Konformitätsdatei
 
 `../udp-transport-options/docs/requirements.md`: genau 49 FR-Zeilen, FR-01 bis FR-50 ohne FR-47,
-und zwölf NFR-Zeilen. Die Datei ist seit Commit `36cc465` vom 30.05.2026 vorhanden; die Umsetzung der
-Prüfsummenprimitive folgte mit `cacef21` vom 10.06.2026. Die Aussage zur frühen Anlage ist damit belegt.
+und zwölf NFR-Zeilen. Die Datei ist seit dem 30.05.2026 vorhanden; die Umsetzung der
+Prüfsummenprimitive folgte am 10.06.2026. Die Aussage zur frühen Anlage ist damit belegt.
 Die weitere Historie enthält die Fortschreibungen.
 
-Der veröffentlichte [CSV-Verweis am angegebenen Commit](https://github.com/ab7z/mcs-thesis-docs/blob/6a5239a89dda0e31be438770c298a126ed4174de/thesis/daten/konformitaet-kategorien.csv)
-ist über die GitHub-API erreichbar (Blob `384fcc4d133034202913c5fc863e48dcf2d3a512`).
-Die lokale Datei unterscheidet sich nur in der ersten Kommentarzeile, nicht in Daten oder Bewertungen.
-Sie enthält 67 Zeilen: Implementierung 50 vollständig, 7 teilweise, 10 nicht anwendbar;
+Der veröffentlichte
+[CSV-Verweis](https://github.com/ab7z/mcs-thesis-docs/blob/main/thesis/daten/konformitaet-kategorien.csv) ist über die
+GitHub-API erreichbar. Die lokale Datei unterscheidet sich nur in der ersten Kommentarzeile, nicht in Daten oder
+Bewertungen. Sie enthält 67 Zeilen: Implementierung 50 vollständig, 7 teilweise, 10 nicht anwendbar;
 technische Erfüllbarkeit 57 vollständig, 10 nicht anwendbar. Die Kapitel-6-Summen stimmen damit überein.
 Die beiden Urteile werden dort getrennt ausgewiesen. Kein vermeintlicher Widerspruch zwischen
 „57 technisch vollständig“ und „50 vollständig umgesetzt“ wurde als Fehler gemeldet.
@@ -257,7 +257,7 @@ tshark vergleicht IP-/UDP-Felder und Prüfsummenstatus. Die aktuelle Beschreibun
 abdeckungsgeleitete Eingaben gegen den tatsächlichen Parser und explizite Invarianten.
 `formal/lean-rfc9868/Rfc9868/Wire.lean:3-20` bezeichnet das Modell ausdrücklich als handgeschrieben
 und nicht aus Rust extrahiert; die Theoreme darunter tragen die genannten Modellbehauptungen.
-Commit `4c82ab0` vom 02.08.2026 dokumentiert den nachträglichen RFC-Korrekturschritt.
+Der Stand vom 02.08.2026 dokumentiert den nachträglichen RFC-Korrekturschritt.
 Kein neuer Gesamt-Testlauf und kein neuer vollständiger Lean-Bau wurde als Teil dieses Reviews behauptet.
 
 ## Vor der Freigabe zu bearbeiten
@@ -735,8 +735,8 @@ Die separaten Fußnotentexte sind aus den umgebenden Satz-Zitaten herausgenommen
 **Urteil:** Belassen. **Beleg/Zusammenhang:** E02.
 
 > Vollständige Konformitätsmatrix als \href{https://github.com/ab7z/mcs-thesis-docs/blob/%
-> 6a5239a89dda0e31be438770c298a126ed4174de/thesis/daten/konformitaet-kategorien.csv}{Datei im öffentlichen
-> GitHub-Repository} (Stand: Commit \texttt{6a5239a}).
+> main/thesis/daten/konformitaet-kategorien.csv}{Datei im öffentlichen
+> GitHub-Repository} (Stand: 30.08.2026).
 
 ### S014 · Satz · Zeilen 69 bis 70
 

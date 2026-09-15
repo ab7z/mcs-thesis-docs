@@ -5,7 +5,7 @@ Erstellt am 2026-09-13 (Prüfung 2026-09-12/13). Rein lesend; keine Projektdatei
 
 ## 1. Geprüfter Stand und tatsächlicher Prüfumfang
 
-- Thesis-Repo HEAD `80022ba` (main). Vorhandene Änderungen: `AGENTS.md` uncommitted (ergänzt den Abschnitt
+- Thesis-Repo Stand vom 10.09.2026 (main). Vorhandene Änderungen: `AGENTS.md` uncommitted (ergänzt den Abschnitt
   "Kapitelprüfung und Freigabe" mit den 24 Kriterien); untracked `reviews/kapitel-4-vollpruefung-2026-09-12.md`
   (vorhandener Prüfbericht, auftragsgemäß NICHT gelesen).
 - Kapitel: `thesis/chapters/04_analyse.tex`, 332 Zeilen, vollständig gelesen (alle Sätze, Überschriften, beide
@@ -20,7 +20,7 @@ Erstellt am 2026-09-13 (Prüfung 2026-09-12/13). Rein lesend; keine Projektdatei
   rfc2119/rfc8174; man7 raw(7) und packet(7), kernel.org v5.10 (tuntap, af_xdp), Chromium "Memory safety",
   Millers BlueHat-IL-2019-Folien (GitHub MSRC-Security-Research, PDF), MSRC-Blog 16.07.2019, Bun-Blog
   "Rewriting Bun in Rust" (08.07.2026), kernel.org dev-tools v5.10.
-- Belege: `../udp-transport-options` bei HEAD `503c6c8` (Code, Tests, fuzz/, formal/, scripts/, docs/,
+- Belege: `../udp-transport-options` im Stand vom 03.09.2026 (Code, Tests, fuzz/, formal/, scripts/, docs/,
   journal.html, git-Historie, PR #12 und #25 per `gh`), `thesis/daten/konformitaet-kategorien.csv`,
   `thesis/evidence/README.md` und alle elf Archive (Inhaltslisten; gezielte Auszüge nur im Scratchpad),
   Kapitel 1, 2, 3, 5, 6, 7 für Begriffe, Ankündigungen und Rückverweise.
@@ -137,11 +137,11 @@ area", RFC Z. 1894 bis 1897); die Sendeseite belegt K2 (Kernelverhalten) und RFC
 Ersatz: "Ein gewöhnlicher UDP-Socket kann die Surplus Area weder füllen noch auslesen (\secref{sec:netzpfad});
 getestete Altsysteme liefern beim Empfang nur die Nutzdaten bis \texttt{UDP Length} \cite[Sec.~18]{rfc9868}."
 
-**L4 (gering): Fußnote Z. 65 bis 68, S. 37.** Commit `6a5239a` existiert, liegt auf origin/main, enthält die CSV;
-Datenzeilen identisch mit HEAD. Die verlinkte Fassung trägt aber die Kopfzeile "# Datenschicht fuer die
-Anhangstabelle tab:eval-sollist"; diesen Anhang gibt es seit 2026-09-03 nicht mehr (Commit `b8a5277` ändert genau
-diese Kommentarzeile). Ersatz: Link und Stand auf `b8a5277` (oder den Abgabe-Commit) setzen. Nebenbei: Kopfzeile 5
-der CSV enthält den Tippfehler "gepruefen".
+**L4 (gering): Fußnote Z. 65 bis 68, S. 37.** Der Stand vom 30.08.2026 existiert, liegt auf origin/main, enthält die
+CSV; Datenzeilen identisch mit HEAD. Die verlinkte Fassung trägt aber die Kopfzeile "# Datenschicht fuer die
+Anhangstabelle tab:eval-sollist"; diesen Anhang gibt es seit 2026-09-03 nicht mehr (der Stand vom 03.09.2026 ändert
+genau diese Kommentarzeile). Ersatz: Link und Stand auf den 03.09.2026 (oder die Abgabefassung) setzen. Nebenbei:
+Kopfzeile 5 der CSV enthält den Tippfehler "gepruefen".
 
 **L5 (gering): `literatur.bib` Eintrag `nsa-memory-safety` (zitiert Z. 248 und 275).** Der Eintrag nennt
 `date = {2022-11-10}` ohne Fassung; die unter der Bib-URL ausgelieferte Datei trägt die Kopfzeile
@@ -172,7 +172,7 @@ K6 Z. 833 und K7 Z. 44 sie als Inhalt von 4.2 anführen. Ersatz: Z. 59 "sowie ei
 Zeilen;"; Z. 63 bis 65 "... stuft deshalb jede der 67 Zeilen am Primärtext ein (Normstufe, Anwendbarkeit,
 FF1-Kategorie) und hält das Urteil je Zeile in einer eigenen Datei fest, der geprüften Einzelzuordnung."; Fußnote:
 "Die geprüfte Einzelzuordnung liegt als \texttt{thesis/daten/konformitaet-kategorien.csv} im öffentlichen
-Repositorium dieser Arbeit (\href{...}{github.com/ab7z/mcs-thesis-docs}, Stand: Commit \texttt{b8a5277}); sie
+Repositorium dieser Arbeit (\href{...}{github.com/ab7z/mcs-thesis-docs}, Stand: 03.09.2026); sie
 führt Selbstauskunft des Arbeitsindex und Urteil je Zeile nebeneinander."; Z. 72 "im Wortlaut des Arbeitsindex".
 Folgeänderung K6 Z. 849 bis 850, 894, 1083: "verlinkte Einzelzuordnung".
 
@@ -316,9 +316,9 @@ Tab. 4.1 bis 4.4) und Verweisnummern sind in Ordnung; kein "??"; kein Text im Ra
   UENC, UEXP nicht darunter; keine typisierte Verarbeitung dieser Arten im Code; REQ/RES nur Parsen/Serialisieren.
 - Sec. 6 Prinzipien 1 und 2 tragen "Zustand und Antwort in Anwendung oder Bibliothek"; man7 raw(7): "When the
   IP_HDRINCL option is set, datagrams will not be fragmented and are limited to the interface MTU."
-- PR #12 (2026-06-11): Codex-Review fand die SurplusLayout-Inkonsistenz bei ungeradem Start; 23 Tests im Commit
-  2c7d62a nachgezählt (9+6+8+0); Fix f0fb445 vor dem Merge. Fuzz-Ziel und Property-Tests je Parsefläche (neun
-  Fuzz-Ziele mit Erst-Commits Step 2 bis 12; `tests/properties_*.rs`); Fuzz- und Property-Läufe nachweislich
+- PR #12 (2026-06-11): Codex-Review fand die SurplusLayout-Inkonsistenz bei ungeradem Start; 23 Tests im Stand
+  vom 11.06.2026 nachgezählt (9+6+8+0); Fix vom 11.06.2026 vor dem Merge. Fuzz-Ziel und Property-Tests je Parsefläche
+  (neun Fuzz-Ziele mit Erst-Commits Step 2 bis 12; `tests/properties_*.rs`); Fuzz- und Property-Läufe nachweislich
   ausgeführt (proptest-Regressionsdateien, geschrumpfte Seeds); Pflichtgate `scripts/pre-pr.sh`.
 - Zwei `unsafe`-Blöcke in der Bibliothek (`src/socket/send.rs:131`, `src/socket/recv.rs:169`); geborgte
   `&'a [u8]`-Ausschnitte (`src/options/parse.rs`); Enums für Optionsarten und acht Fehler-Enums; keine
@@ -348,7 +348,7 @@ Tab. 4.1 bis 4.4) und Verweisnummern sind in Ordnung; kein "??"; kein Text im Ra
 - `iso-c` zitiert N2310 als "Arbeitsentwurf zu ISO/IEC 9899:2018 (C17)"; N2310 ist formal der erste C2x-Entwurf
   nach C17 und gilt als frei verfügbarer Näherungstext zu C17. Die belegte Aussage (Annex J.2, Zugriff außerhalb
   eines Arrays ist undefiniert) steht darin; kein Befund.
-- Kopfzeile der CSV nennt "Auswertungsstand f847895"; das Implementierungsrepo hat seitdem Zeile 199 der Matrix
+- Kopfzeile der CSV nennt den Auswertungsstand vom 18.08.2026; das Implementierungsrepo hat seitdem Zeile 199 der Matrix
   (Covered yes zu partial) angepasst; K6 Z. 892 bis 894 führt Zeile 199 bereits als Abweichung. Kein K4-Befund.
 - Land des Endpunkts 1blue (AS42730) nennt keine zugelassene Quelle; "Deutschland und Finnland" für das
   Cloud-Dreieck (mcs Nürnberg, HEL1, 1blue) ist damit nicht vollständig belegt.

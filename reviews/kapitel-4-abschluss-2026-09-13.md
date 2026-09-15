@@ -3,7 +3,7 @@
 ## Urteil und geprüfter Stand
 
 Kapitel 4 ist nach Umsetzung der bestätigten Befunde im hier dokumentierten Prüfumfang freigabefähig.
-Die Freigabe betrifft den aktuellen Arbeitsstand auf Basis von Commit `80022ba`, nicht den unveränderten
+Die Freigabe betrifft den aktuellen Arbeitsstand auf Basis des Stands vom 10.09.2026, nicht den unveränderten
 Commit allein. Sie ist keine Freigabe der gesamten Thesis oder aller 67 externen Einzelbewertungen.
 Es bestehen keine offenen abgaberelevanten Befunde am geprüften Kapitel-4-Text.
 Eine Begründungslücke in der Bewertung einer Kapitel-6-Matrixzeile bleibt gesondert offen (unten).
@@ -20,7 +20,7 @@ Der ursprüngliche [Erstbericht](kapitel-4-vollpruefung-2026-09-12.md) und die u
 
 - Abschnitt 4.1: unmarkierte RFC-Längenregel und eigene Shim-Umfangsgrenze klar getrennt.
 - Abschnitt 4.2: 67-zeiligen RFC-Arbeitsindex und eigene geprüfte Einzelzuordnung eindeutig eingeführt;
-  Fußnote mit Dateipfad, Thesis-Repositorium und passendem veröffentlichtem Commit `b8a5277`.
+  Fußnote mit Dateipfad, Thesis-Repositorium und passendem veröffentlichtem Stand vom 03.09.2026.
   UEXP als Experimentoption präzisiert; Bewertungs- und Sonderklassen verständlicher erklärt.
 - Abschnitt 4.3: Auswertung nach vorhandener Evidenz, zusätzliche Messpunkte und deren Aussagegrenzen;
   keine pauschale Behauptung genau zweier Mitschnitte. IPv6-Kontrollen auf dieselbe Versuchsanordnung
@@ -52,7 +52,7 @@ sind vom vorherigen Quellenreview getrennt dokumentiert.
   und einer Legacy-Prüfsummenfaltung, aber keine unabhängige OCS-Nachrechnung.
 - `docs/evaluation.md:28-33` beschreibt `eval-check.py` nicht mehr zutreffend. Die unabhängige
   OCS-Rechnung steht in dessen Code (`_validate_surplus`, Zeilen 234 bis 251) und bereits im
-  historischen Messstand `7b11140`. Diese Dokumentationsstelle trägt den ersten Nachtrag nicht.
+  historischen Messstand vom 10.08.2026. Diese Dokumentationsstelle trägt den ersten Nachtrag nicht.
 - Im Archiv vom 10.08. gibt es tshark-Feldexporte auch außerhalb der Wire-Prüfung:
   `captures/port-matrix-capture/controller-script.sh` sowie `sender-fields.csv`/`receiver-fields.csv`.
   `matrix/analyze-pcap-pair.py` verwendet die unabhängige OCS-Prüfung aus `eval-check.py`.
@@ -61,8 +61,8 @@ sind vom vorherigen Quellenreview getrennt dokumentiert.
   nicht mehr ausschließlich auf den 10./11.08.
 - Claudes V3 „Prüfer nirgends eingeführt“ ist nicht bestätigt: Kapitel 3.4.1 erklärt das getrennte
   Python-Programm bereits. Geändert wurde die zu pauschale Behauptung seiner Wiederverwendung.
-- Der ursprüngliche F02 ist kein belegter historischer Ausführungsfehler. In den Commits
-  `4285dcc`, `492a298`, `b96f736`, `22dea96`, `fdb94dd`, `556e963` und `4c82ab0` finden sich die
+- Der ursprüngliche F02 ist kein belegter historischer Ausführungsfehler. In den Ständen
+  vom 20.06., 21.06., 29.06., 05.07. (drei Schritte) und 02.08.2026 finden sich die
   jeweiligen Property-Module sowie neue oder erweiterte Fuzz-Ziele. Der Text beschreibt die
   eingeführte Regel jetzt präziser. Die 23 Tests und der falsch berechnete Startoffset bleiben belegt.
 - UEXP ist laut RFC 12.3 tatsächlich für Experimente reserviert; die neue Formulierung verdeutlicht
@@ -73,7 +73,7 @@ sind vom vorherigen Quellenreview getrennt dokumentiert.
 ## Quellen und Nachweise
 
 Normative Grundlage ist `literature/rfc9868.txt`, insbesondere Abschnitte 6 bis 12, 15, 18 und 25.2,
-zusammen mit RFC 2119/8174. Implementierungsstand: `503c6c83b7c8ec41810c2145054a582cf865e02a`.
+zusammen mit RFC 2119/8174. Implementierungsstand: 03.09.2026.
 Codebelege betreffen `scripts/wire-check.py`, `wire-check.sh`, `eval-check.py`, `p0-eval.py`,
 `p1-eval.py`, `p2-eval.py`, `src/wire/ip.rs`, `src/options/parse.rs` und die dokumentierte Historie.
 Die drei für den vertieften Messabgleich benutzten Archive wurden gegen ihre SHA-256-Sollwerte geprüft:

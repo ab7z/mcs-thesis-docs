@@ -243,7 +243,7 @@
 % Nur Kürzel, die der Text nicht selbst auflöst.
 % RFC 9868
 \newacronym{time}{TIME}{Timestamp Option}
-\newacronym{auth}{AUTH}{Authentication Option}
+\newacronym{auth}{AUTH}{Authentication Option (reserviert)}
 \newacronym{ucmp}{UCMP}{UNSAFE Compression (reserviert)}
 \newacronym{uenc}{UENC}{UNSAFE Encryption (reserviert)}
 \newacronym{uexp}{UEXP}{UNSAFE Experimental}
@@ -372,6 +372,22 @@
 \hypersetup{pageanchor=true}
 \pagenumbering{roman}
 
+% --- KURZFASSUNG ---
+\chapter*{Kurzfassung}
+\addcontentsline{toc}{chapter}{Kurzfassung}
+
+RFC~9868 erweitert UDP seit Oktober 2025 um Transportoptionen in der Surplus Area, dem Bereich zwischen dem Ende der
+UDP-Nutzdaten und dem Ende des IP-Datagramms. Diese Arbeit setzt den Optionsmechanismus als Bibliothek in Rust um
+(Linux, IPv4, Raw Sockets im Benutzerraum) und prüft ihn an zwei Fragen. Für die technische Erfüllbarkeit dient ein
+am Primärtext geprüfter Arbeitsindex mit 67 Zeilen als Maßstab: Für alle 57 anwendbaren oder gewählten Zeilen findet
+die Einzelprüfung keine technische Grenze des gewählten Rahmens; die Referenzimplementierung setzt 50 Zeilen
+vollständig und sieben teilweise um, zehn Zeilen sind nicht anwendbar oder Leitlinie. Für die Durchlässigkeit realer
+Pfade vergleichen die Messläufe zeitnah gesendete, gleich große Kontroll- und Optionsdatagramme: Die Surplus Area
+bleibt je nach Paar und Richtung erhalten, wird entfernt oder als Klasse verworfen. Drei Mechanismen tragen die
+Befunde: Normalisierer, Prüfsummen-Gates und Präsenz-Verwerfer. Technische Umsetzbarkeit am Endpunkt und
+Durchlässigkeit des Pfads sind getrennte Eigenschaften.
+\clearpage
+
 % --- VERZEICHNISSE ---
 \tableofcontents
 
@@ -407,17 +423,15 @@
 % Literaturverzeichnis
 \printbibliography[heading=bibintoc, title=Literaturverzeichnis]
 
-% --- EIDESSTATTLICHE ERKLÄRUNG (ehemals frontmatter/declaration.tex) ---
-\chapter*{Eidesstattliche Erklärung}
-\addcontentsline{toc}{chapter}{Eidesstattliche Erklärung}
+% --- ERKLÄRUNG (Wortlaut nach § 15 Abs. 7 der Prüfungsordnung, Fassung vom 13. Juli 2026) ---
+\chapter*{Erklärung}
+\addcontentsline{toc}{chapter}{Erklärung}
 
-Ich versichere, dass ich die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen
-Quellen und Hilfsmittel benutzt habe.
-
-Alle Stellen der Arbeit, die wörtlich oder sinngemäß aus Veröffentlichungen oder aus anderweitigen fremden
-Quellen entnommen wurden, sind als solche kenntlich gemacht.
-
-Die Arbeit wurde in gleicher oder ähnlicher Form noch keiner Prüfungsbehörde vorgelegt.
+Ich erkläre, dass ich die Masterarbeit selbstständig und ohne unzulässige Inanspruchnahme Dritter verfasst habe.
+Ich habe dabei nur die angegebenen Quellen und Hilfsmittel verwendet und die aus diesen wörtlich oder sinngemäß
+entnommenen Stellen als solche kenntlich gemacht. Die Versicherung selbstständiger Arbeit gilt auch für enthaltene
+Zeichnungen, Skizzen oder graphische Darstellungen. Die Arbeit wurde bisher in gleicher oder ähnlicher Form weder
+derselben noch einer anderen Prüfungsbehörde vorgelegt und auch nicht veröffentlicht.
 
 \vspace{3cm}
 

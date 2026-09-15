@@ -14,7 +14,7 @@ Reproduzierbarkeit aus den versiegelten Archiven (am 2026-09-02 nachvollzogen, C
   1. Paar 1blue/mcs: die archivierte Tabellenkopie ttl-report-alle-captures.md aus
      ff2-ttl-pfadanalyse-20260815.tar.zst (enthaelt die Kampagnen-Stamps und die lokale
      p1-checksumgate-Reihe).
-  2. Helsinki-Paare: scripts/ttl-report.py des Implementierungsrepos (Stand f847895) ueber alle PCAPs der
+  2. Helsinki-Paare: scripts/ttl-report.py des Implementierungsrepos (Stand vom 18.08.2026) ueber alle PCAPs der
      p0-, p1- und p2-Stamps aus hel-kampagne-20260815.tar.zst (ohne die checksumgate-Stamps; die
      AppleDouble-Eintraege ._*.pcap des Archivs sind keine Mitschnitte und auszuschliessen).
   Aufruf: ttl-uniformitaet.py --ableiten <ttl-report-alle-captures.md> <hel-tabelle.md>
@@ -45,7 +45,7 @@ ARCHIVE_KOPF = [
     "#   hel-kampagne-20260815.tar.zst (SHA-256 1545f30a5f2d1c97d0a55d657c7615f035fecb0fd6c7841a0944ce9ecf5bb063);",
     "#   Tabellenkopien in ff2-ttl-pfadanalyse-20260815.tar.zst",
     "#   (SHA-256 0e9cbbcd1391756e6e3f64a24058b571177b1ec5d0dd6b84710657b57e7aedca).",
-    "# Werkzeug: scripts/ttl-report.py (Implementierungsrepo, Auswertungsstand f847895).",
+    "# Werkzeug: scripts/ttl-report.py (Implementierungsrepo, Auswertungsstand vom 18.08.2026).",
     "# Einschlussregel: Die Richtungen des Paars 1blue/mcs enthalten neben den Kampagnen-Stamps die lokale,",
     "#   nicht versiegelte p1-checksumgate-Reihe (je Richtung 124 Egress- und 72 Ingress-Pakete, Differenz 52);",
     "#   die vier Helsinki-Richtungen enthalten nur die Kampagnen-Stamps, nicht die checksumgate-Stamps des",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Datenschicht fuer die FF1-Einzelbewertung der 67 Matrixzeilen.
 
-Quelle: docs/requirements.md Abschnitt 3 des Implementierungsrepos am Auswertungsstand f847895
+Quelle: docs/requirements.md Abschnitt 3 des Implementierungsrepos am Auswertungsstand vom 18.08.2026
 (Zeilen 162 bis 228; Spalten RFC area, Normative item, Level, Covered, Step, Notes). Die Spalten
 level und covered geben diese Repository-Selbstauskunft inhaltlich wieder. Die Spalten normstufe,
 anwendbar, kategorie und technisch tragen die am RFC-Primaertext und am Quelltext gepruefen Urteile
@@ -10,10 +10,10 @@ seit der Zweitpruefung vom 2026-08-28 je Zeile getrennt gespeichert und werden u
 Konsistenz geprueft, nicht mehr voneinander abgeleitet.
 
 Aenderungsstand 2026-08-28 (Zweitpruefung der Faktencheckrunde, verifiziert an RFC 9868 und am
-Stand f847895):
+Stand vom 18.08.2026):
   * Zeile 189: Anmerkung nennt Sec. 25.2 statt 25.3 als Fundstelle der Ressourcengrenze.
   * Zeile 199: bleibt I=P; der Beleg kennzeichnet die eigene Korrektur der Selbstauskunft
-    "Covered yes" am Stand f847895.
+    "Covered yes" am Stand vom 18.08.2026.
   * Zeilen 216 und 221 (Sec. 14/15): vollstaendig -> teilweise. src/recv/pipeline.rs fuellt
     options nur in den Success-Zweigen; OptionReport traegt Kind, Status und Quelle. Bei Ignored
     und Failed sind die empfangenen Parameter ueber keinen oeffentlichen Pfad erreichbar, waehrend
@@ -123,7 +123,7 @@ ZEILEN = [
     (198, "Sec. 11.x", "11.4", "Standardtimeout hoechstens zwei Minuten; kein ICMP", "SHOULD/MUST", "yes",
      "SHOULD/MUST", "ja", V, V, "F; FR-33; S-42", "S-42 real (nur Negativevidenz)"),
     (199, "Sec. 11.x", "11.4", "Speicher begrenzen und nicht socketuebergreifend teilen", "SHOULD", "yes", "SHOULD",
-     "ja", T, V, "F, A; FR-34; NFR-06; eigene Korrektur von f847895",
+     "ja", T, V, "F, A; FR-34; NFR-06; eigene Korrektur der Selbstauskunft vom 18.08.2026",
      "Vertrag dokumentiert, Peer-Ebene loest ihn nur teilweise ein"),
     (200, "Sec. 11.x", "11.4", "Einzelne Fragmente nie an den Nutzer geben", "MUST", "yes", "MUST", "ja", V, V,
      "R, F; FR-31", ""),
@@ -222,7 +222,7 @@ assert [z[0] for z in ZEILEN if z[8] == A] == [188, 206, 207, 208, 209, 211, 223
 with CSV.open("w", newline="") as fh:
     fh.write("# Vollstaendige FF1-Einzelbewertung der 67 Matrixzeilen.\n")
     fh.write("# Quelle: docs/requirements.md\n")
-    fh.write("# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895. Die Spalten level und\n")
+    fh.write("# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand vom 18.08.2026. Die Spalten level und\n")
     fh.write("# covered geben die Repository-Selbstauskunft wieder; normstufe, anwendbar, kategorie\n")
     fh.write("# (Implementierungsstand) und technisch tragen die am RFC-Primaertext gepruefen\n")
     fh.write("# Urteile dieser Arbeit als drei getrennt gespeicherte Einzelurteile, Pruefstand\n")

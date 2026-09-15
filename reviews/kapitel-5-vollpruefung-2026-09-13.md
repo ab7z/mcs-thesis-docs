@@ -2,8 +2,8 @@
 
 ## Auftrag und Ablauf
 
-Auftrag von GreenCodeDoesntSmell: Kapitel 5 (`thesis/chapters/05_entwurf_implementierung.tex`, Stand Commit
-49dd36a, 688 Zeilen) vollständig prüfen, Satz für Satz und im Zusammenhang der ganzen Arbeit, nach den 24 Kriterien
+Auftrag von GreenCodeDoesntSmell: Kapitel 5 (`thesis/chapters/05_entwurf_implementierung.tex`, Stand vom
+13.09.2026, 688 Zeilen) vollständig prüfen, Satz für Satz und im Zusammenhang der ganzen Arbeit, nach den 24 Kriterien
 aus AGENTS.md (Abschnitt "Kapitelprüfung und Freigabe"), mit denselben Mitteln wie bei Kapitel 4: ein Workflow mit
 drei Sonnet-5-, zwei Opus-5-Lanes und Fable 5.1 als Adjudikator, danach Einarbeitung durch Claude (Orchestrator) mit
 eigener Verifikation jeder Ersetzung, Neubau und Prüfung der PDF, abschließend ein Review durch Codex (gpt-6-astra,
@@ -16,7 +16,7 @@ Workflow `wf_f86720ef-fda` (54 Minuten, 6/6 Berichte, 347 Werkzeugaufrufe, 1,66 
 
 | Lane | Modell | Aufgabe | Befunde | bestätigte Aussagen |
 |------|--------|---------|---------|---------------------|
-| S1 | Sonnet 5 | Implementierungsaussagen am Code (HEAD 503c6c8) | 0 | 39 |
+| S1 | Sonnet 5 | Implementierungsaussagen am Code (Stand vom 03.09.2026) | 0 | 39 |
 | S2 | Sonnet 5 | Norm, Belege, Verbindlichkeit (RFC 9868 mit Zeilennummern, RFC 768, Bib) | 5 | 16 |
 | S3 | Sonnet 5 | Verweise, Begriffe, PDF, Silbentrennung, Form | 9 | 12 |
 | O1 | Opus 5 | adversariale Vollprüfung Satz für Satz, Zahlen nachgerechnet | 13 | 58 |
@@ -30,8 +30,8 @@ Workflow-Ausgang liegt in der Sitzungsablage (`tasks/wf-k5-result.json`); dieser
 
 Fable: **mit Auflagen**. Keine Lane und auch der Adjudikator fanden eine falsche Sachaussage; alle Zahlen (OCS
 0x09C4 plus 0x0009 ergibt 0xF632, Probe 0xFFFF; 40/11/9/31; 48/17/11/37; 1472/1460/1458/2918/2926/1468; CRC32c
-0xE3069283; Vorversuch 97/69/28/4/42) und alle Implementierungsaussagen sind am Code 503c6c8 und an RFC 9868 mit
-Zeilennummern belegt. Vier Pflichtpunkte standen der Freigabe entgegen:
+0xE3069283; Vorversuch 97/69/28/4/42) und alle Implementierungsaussagen sind am Code (Stand vom 03.09.2026) und an RFC
+9868 mit Zeilennummern belegt. Vier Pflichtpunkte standen der Freigabe entgegen:
 
 1. A1: Trennung "Pflichtop-/tionen" auf gedruckter Seite 49 verstößt gegen die verbindliche Trennregel.
 2. A2: "Manifestdatei" statt des thesisweit festgelegten Begriffs "Sendemanifest" (K3, K4, K6).
@@ -86,8 +86,8 @@ alle von Fable zitierten RFC-Zeilen am Quelltext gelesen.
     Filtered/Dropped als eigene Regeln markiert).
 19. Aussagekraft der Nachweise: geprüft. Einschränkungen ("nur teilweise", "keine vollständige Unterstützung",
     "nicht vollständig verglichen") bleiben erhalten.
-20. Entwicklungs- und Prüfablauf: geprüft. "Frühe" gegen "heutige" Fassung der Empfangsschleife durch die Commits
-    f3bf430 und 8f8c11b im Repository der Implementierung belegt.
+20. Entwicklungs- und Prüfablauf: geprüft. "Frühe" gegen "heutige" Fassung der Empfangsschleife durch die Korrekturen
+    vom 11.08. und 14.08.2026 im Repository der Implementierung belegt.
 21. Abbildungen, Tabellen und Verweise: geprüft. Abbildungszahlen und Annotationen gegen Text und Code; Caption
     5.4 mit Tausenderpunkt; Ankündigung 01:166-167 und K6-Verweise 06:346 (Prüfszenarien-Set) und 06:771 korrigiert.
 22. PDF-Lesbarkeit: geprüft. Abbildungen 5.1 bis 5.3 bei ihrer Erklärung, 5.4 auf eigener Seite, Listing ungeteilt;
@@ -239,8 +239,8 @@ Alle Befunde habe ich vor der Übernahme selbst geprüft:
 Grenzen laut Codex, die bleiben: Für den Vorversuch (05:340-349) existiert kein Rohprotokoll des damaligen Laufs in
 den Messarchiven; die Zahlen sind am Fallgenerator (examples/support/common.rs) und an docs/plan/steps/00b-spike.md
 nachvollziehbar, der Text weist sie als Vorversuch aus (Kriterium 17). Das Verhalten der "frühen Fassung" der
-Empfangsschleife prüfte Codex nicht an der Historie; die Fable-Lane belegte es an den Commits f3bf430 und 8f8c11b
-(Kriterium 20). Beides erfordert keine Textänderung.
+Empfangsschleife prüfte Codex nicht an der Historie; die Fable-Lane belegte es an den Korrekturen vom 11.08. und
+14.08.2026 (Kriterium 20). Beides erfordert keine Textänderung.
 
 Nach diesen Änderungen dreimal neu gebaut (Builds 3 bis 5): keine Warnungen, 95 Seiten, Kapitelanfänge unverändert
 (Kapitel 5 Seite 44, Kapitel 6 Seite 56, Kapitel 7 Seite 83, Literatur 85, Erklärung 89); alle Zeilenendtrennungen der
@@ -281,20 +281,19 @@ vom Commit.
 Umgesetzt in den bereits geprüften Kapiteln:
 
 - 04_analyse.tex Z. 67-69 (Fußnote zur Einzelzuordnung): Link auf das Repository ohne Commit-Pfad, "Stand der
-  abgegebenen Fassung" statt "Stand: Commit b8a5277". Dazu eine vorbestehende Zeile mit 126 Zeichen (Z. 223-231)
+  abgegebenen Fassung" statt der alten Commit-Angabe. Dazu eine vorbestehende Zeile mit 126 Zeichen (Z. 223-231)
   umbrochen; nur Quelltext-Umbruch, keine Textänderung.
-- 03_methodik.tex Z. 250 (Fußnote zu den Arbeitsvorgaben): "Stand vom 14. August 2026" statt "Commit f1cfe52"
+- 03_methodik.tex Z. 250 (Fußnote zu den Arbeitsvorgaben): "Stand vom 14. August 2026" statt der alten Commit-Angabe
   (Datum des Commits im Repository der Implementierung).
 
 Noch offen, weil Kapitel 6 seine eigene Runde bekommt und die Tabellenlogik betroffen ist:
 
-- 06_evaluation.tex Z. 53-73: Tabelle tab:eval-messlaeufe, Spalte "Stand" mit sieben Kurzkennungen (f847895,
-  7b11140, b12ba8e, 347d5b5, d7187eb, f4d8cee, 9d6c5bd).
-- 06_evaluation.tex Z. 91-96: Fußnote mit Erklärung der Kurzkennungen und der vollen Revision f8478951...
-- 06_evaluation.tex Z. 98-103: Zuordnung b12ba8e zu SHA-256-Werten, "Der Commit war ... kein Vorfahr des
-  Hauptzweigs", "alle Aussagen über Quelltext und Tests auf f847895".
-- 06_evaluation.tex Z. 111: "Versioniert sind die Archive seit der Revision e82dba20...".
-- 06_evaluation.tex Z. 997: Fußnote "Commits f3bf430 und 8f8c11b"; Z. 1116: "mit Commit 8f8c11b drei Tage später".
+- 06_evaluation.tex Z. 53-73: Tabelle tab:eval-messlaeufe, Spalte "Stand" mit sieben Kurzkennungen.
+- 06_evaluation.tex Z. 91-96: Fußnote mit Erklärung der Kurzkennungen und der vollen Revision des Auswertungsstands.
+- 06_evaluation.tex Z. 98-103: Zuordnung des Pilotstands zu SHA-256-Werten, "Der Commit war ... kein Vorfahr des
+  Hauptzweigs", "alle Aussagen über Quelltext und Tests" auf den Auswertungsstand.
+- 06_evaluation.tex Z. 111: "Versioniert sind die Archive seit der Revision ..." mit voller Kennung.
+- 06_evaluation.tex Z. 997: Fußnote mit zwei Commit-Kennungen; Z. 1116: "mit Commit ... drei Tage später".
 
 Vorschlag für die Kapitel-6-Runde: Spalte "Stand" durch das Datum des Binärstands ersetzen, die Zuordnung zu den
 Archiven in thesis/evidence/README.md belassen (dort dürfen Kennungen stehen), Fußnoten auf Datum umstellen.
@@ -323,8 +322,8 @@ Abkürzungsverzeichnisses. Entscheidungen zu den neun Befunden, jeweils nach eig
   Seite gewachsen (96 Seiten, alle physischen Seiten verschoben).
 - B2 (abgaberelevant nach Kriterium 25, Kapitel 6): Commit-Kennungen in Tabelle 6.1, zwei Fußnoten und
   Fließtext. Bleibt nach Autorenentscheidung für die Kapitel-6-Runde. Fables Datumszuordnung wurde am Git-Log
-  bestätigt: f847895 = 18.08.2026, 7b11140 = 10.08., b12ba8e = 11.08., 347d5b5 = 13.08., d7187eb = 15.08. (09:49),
-  f4d8cee = 15.08. (19:54), 9d6c5bd = 16.08., f3bf430 = 11.08., 8f8c11b = 14.08., e82dba2 (Thesis) = 25.08.2026.
+  bestätigt: Auswertungsstand 18.08.2026; Messstände 10.08., 11.08., 13.08., 15.08. (09:49 und 19:54) und
+  16.08.; Empfängerkorrekturen 11.08. und 14.08.; Archivversionierung im Thesis-Repository 25.08.2026.
 - B3 (optional): Die Ordnungsregel stand wortgleich in 5.2 und 5.4. Übernommen: 5.4 verweist auf 5.2.
 - B4 (optional): "einziger Empfangszustand" übergeht die globalen Warnzähler. Übernommen: "einzige
   Empfangszustand mit Protokollwirkung".
@@ -341,7 +340,7 @@ Abkürzungsverzeichnisses. Entscheidungen zu den neun Befunden, jeweils nach eig
   anwendbar" hängt am fehlenden Schutzziel und bleibt.
 - B8 (optional, Kriterium 22): Fußnote 03:250 brach "docs/requirements." / "md" um. Übernommen mit \mbox und
   \raggedright (wie die Fußnote in Kapitel 4; ohne \raggedright entstand eine Underfull-Box).
-- B9 (optional): Kurzkennung f847895 im CSV-Kopf und im Generator-Docstring. Datendatei, kein Thesistext;
+- B9 (optional): Kurzkennung des Auswertungsstands im CSV-Kopf und im Generator-Docstring. Datendatei, kein Thesistext;
   zusammen mit B2 in der Kapitel-6-Runde auf ein Datum umstellen.
 
 Von Fable nicht prüfbar (keine Textänderung nötig): Rohprotokoll des Vorversuchs (nur Fallgenerator und
@@ -354,7 +353,7 @@ unverändert, Kapitel 6 seitenidentisch, Kapitel 5 auf den gedruckten Seiten 44 
 
 ## Identifikation des ausgelieferten Standes
 
-Ausgangsstand: Thesis `49dd36a` (Arbeitsbaum sauber), Implementierung `503c6c8` (nur gelesen). Endstand
+Ausgangsstand: Thesis vom 13.09.2026 (Arbeitsbaum sauber), Implementierung vom 03.09.2026 (nur gelesen). Endstand
 (uncommitted, nach Build 10):
 
 - thesis/chapters/05_entwurf_implementierung.tex:

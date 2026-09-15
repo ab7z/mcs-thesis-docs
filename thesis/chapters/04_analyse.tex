@@ -55,12 +55,11 @@ Zusätzliche Header zwischen IPv4- und UDP-Header, sogenannte Shim-Header, verri
 \label{sec:ff1-kriterien}
 
 Das Repository der Implementierung (\chapref{chap:entwurf}) führt in \texttt{docs/requirements.md} 49
-funktionale Anforderungen (\texttt{FR-01} bis \texttt{FR-50} ohne die entfallene \texttt{FR-47}) und zwölf
-nichtfunktionale (\texttt{NFR-01} bis \texttt{NFR-12}). Die Datei entstand vor dem ersten Funktionsschritt
+funktionale Anforderungen (FR) und zwölf nichtfunktionale (NFR). Die Datei entstand vor dem ersten Funktionsschritt
 und wurde während der Umsetzung fortgeschrieben.
 
 Die Konformitätsmatrix in dieser Datei umfasst 67 Zeilen. Sie dient als \textbf{RFC-Arbeitsindex}:
-Sie ordnet Aussagen des RFC den Anforderungen und ihrem Umsetzungsstand zu. Neben Normsätzen enthält sie
+Sie ordnet Aussagen des RFC den Anforderungen und ihrem Um\-setzungs\-stand zu. Neben Normsätzen enthält sie
 Beschreibungen und Leitlinien. Die Prüfung aus \secref{sec:extraktionsmethode} stuft deshalb jede Zeile
 erneut am Primärtext ein. Normstufe, Anwendbarkeit, FF1-Bewertung und Implementierungs\-stand
 (\secref{sec:soll-ist}) stehen in einer eigenen Datei, der \textbf{geprüften
@@ -120,7 +119,7 @@ Umsetzungspflicht festlegen.
 \section{FF2-Pfad- und Auswertungsmodell}
 \label{sec:ff2-pfadmodell}
 
-FF2 fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Pfaden bis zur Gegenstelle
+FF2 fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Netzpfaden bis zur Gegenstelle
 unverändert erhalten bleibt
 (\secref{sec:zielsetzung}). Ausgewertet wird je Pfad, Richtung und Messzeitpunkt ein kontrolliertes
 Szenario aus Kontroll- und Optionsverkehr, das mehrere Wiederholungen oder bei FRAG mehrere
@@ -277,9 +276,8 @@ erreichten Programmpfade \cite{nsa-memory-safety}. Auch Zig prüft zur Übersetz
 Laufzeitprüfungen hängen aber vom Build-Modus ab \cite{zig-lang}. Für die Vertrauensgrenze dieser
 Bibliothek fiel die Wahl deshalb auf Rust.
 
-Der Parser verwendet geliehene Slices und muss die Optionsbytes deshalb nicht kopieren. Die Lebensdauer
-dieser Byte-Ausschnitte ist an den Empfangspuffer gebunden \cite{rust-book}. \texttt{enum} stellt die
-Optionsarten dar; \texttt{Result} unterscheidet erfolgreiche Ergebnisse von Fehlern. Zwei
+Der Parser liest die Optionsbytes als geliehene Slices ohne Kopie; ihre Lebensdauer ist an den
+Empfangspuffer gebunden \cite{rust-book}. Zwei
 \texttt{unsafe}-Blöcke stehen an den Schnittstellen zum Betriebssystem; ihre Sicherheits\-bedingungen
 stehen als Kommentar am jeweiligen Block, ihre Lage im Modul \texttt{socket} nennt \chapref{chap:entwurf}.
 Externe Parser-Bibliotheken entfallen, weil diese Arbeit die Mechanik von RFC~9868 selbst untersucht.
@@ -313,8 +311,8 @@ Diese Folgen bestimmen den Entwurf in \chapref{chap:entwurf}.
 \label{subsec:mitschnittwerkzeuge}
 
 Die Kampagnenskripte zeichnen den Verkehr mit \texttt{tcpdump} in PCAP-Dateien auf. Eigene Python-Programme
-werten diese Dateien aus, weil Wireshark in der verwendeten Version~4.6 die UDP-Optionen nicht dekodiert
-(\secref{sec:netzpfad}). Ihr Prüfumfang unterscheidet sich je nach Versuch.
+werten diese Dateien aus, weil Wireshark in der verwendeten Version~4.6 die UDP-Optionen nicht dekodiert.
+Ihr Prüfumfang unterscheidet sich je nach Versuch.
 
 Bei der Wire-Prüfung rechnet \texttt{wire-check.py} die Prüfsummen einschließlich OCS selbst nach und
 prüft die Options\-struktur. \texttt{tshark} liefert dazu eine Gegenprobe der IPv4- und UDP-Felder

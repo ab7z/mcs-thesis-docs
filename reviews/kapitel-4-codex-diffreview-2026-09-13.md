@@ -13,9 +13,9 @@ RFC-Auslegung, Messbegriffen und Querverweisen sind tragfähig und entfernen kei
 Nach den beiden Korrekturen und ihrer erneuten Build- und PDF-Kontrolle ist der Diffumfang freigabefähig; die
 vorbestehende Begründungslücke zur CSV-Kennung 226 bleibt gesondert offen.
 
-Geprüft wurde die übergebene Codex-Kopie gegen den aktuellen Arbeitsbaum auf Basis von `80022ba`. Der Patch
+Geprüft wurde die übergebene Codex-Kopie gegen den aktuellen Arbeitsbaum auf Basis des Stands vom 10.09.2026. Der Patch
 rekonstruiert alle drei betroffenen Textdateien exakt; `03_methodik.tex` ist gegenüber der Kopie unverändert. Das
-Nachbarrepositorium steht sauber auf `503c6c83b7c8ec41810c2145054a582cf865e02a`. Alle folgenden Zeilenangaben beziehen
+Nachbarrepositorium steht sauber auf dem Stand vom 03.09.2026. Alle folgenden Zeilenangaben beziehen
 sich auf den aktuellen Stand; Implementierungsbelege liegen unter `../udp-transport-options`.
 
 ## 2. Prüfung jedes Hunks in Diff-Reihenfolge
@@ -257,7 +257,8 @@ Es wurden keine Dateien angelegt oder geändert, keine Archive ins Dateisystem e
 # Zweiter Review nach der Kürzungsrunde (16:09 bis 16:18 Uhr)
 
 Unveränderter Wortlaut des zweiten Codex-Berichts über den Gesamtdiff gegen den Codex-Stand (einschließlich
-01_einleitung.tex gegen 80022ba), nur auf 120 Zeichen je Zeile umgebrochen; überlange URL-Zeilen bleiben.
+01_einleitung.tex gegen den Stand vom 10.09.2026), nur auf 120 Zeichen je Zeile umgebrochen; überlange URL-Zeilen
+bleiben.
 
 **1. Urteil.** GreenCodeDoesntSmell, **Freigabe: ja, Kapitel 4 ist im geprüften Diff-Umfang abgabereif.** Alle 21
 Hunks sind richtig; keiner muss angepasst oder zurückgenommen werden. Die Kürzungen erhalten die Begründung der
@@ -267,10 +268,10 @@ Freigabe des abschließenden FF1-Ergebnisses in Kapitel 6.
 
 **2. Einzelprüfung in Diff-Reihenfolge.**
 
-Geprüft wurde der Arbeitsbaum auf Basis von `80022ba`, die Implementierung auf `503c6c8`. Das Anwenden des
-bereitgestellten Diffs auf die Codex-Kopie ergibt exakt die aktuellen fünf Quelldateien; für Kapitel 1 wurde wie
-vorgegeben `80022ba` verwendet. Die folgenden Zeilenangaben bezeichnen den aktuellen Arbeitsbaum;
-Implementierungspfade beziehen sich auf `../udp-transport-options`.
+Geprüft wurde der Arbeitsbaum auf Basis des Stands vom 10.09.2026, die Implementierung auf dem Stand vom 03.09.2026. Das
+Anwenden des bereitgestellten Diffs auf die Codex-Kopie ergibt exakt die aktuellen fünf Quelldateien; für Kapitel 1
+wurde wie vorgegeben der Stand vom 10.09.2026 verwendet. Die folgenden Zeilenangaben bezeichnen den aktuellen
+Arbeitsbaum; Implementierungspfade beziehen sich auf `../udp-transport-options`.
 
 **Hunk 1, `03_methodik.tex:186`: richtig.** Die Begriffsänderung erhält die Aussage und vereinheitlicht die
 Bezeichnung mit Kapitel 6, etwa `06_evaluation.tex:835`.
@@ -451,18 +452,18 @@ Begründungen, Aussagegrenzen und Kapitelverbindungen. Die vollständige Sprachp
 Vereinfachungen, aber keinen neuen Abgabemangel; der bekannte Begründungsfehler zu CSV-Kennung 226 bleibt ein
 gesonderter K6-Punkt.
 
-2. Geprüft wurde der aktuelle Arbeitsbaum auf Basis von `80022ba`. Der bereitgestellte Patch lässt sich vollständig
-aus dem Codex-Stand rekonstruieren und entspricht den aktuellen Dateien. Kapitel 4 hat SHA-256
+2. Geprüft wurde der aktuelle Arbeitsbaum auf Basis des Stands vom 10.09.2026. Der bereitgestellte Patch lässt sich
+vollständig aus dem Codex-Stand rekonstruieren und entspricht den aktuellen Dateien. Kapitel 4 hat SHA-256
 `4df564b2c72688163db71df6f054050c197b9a644b581a88a22ee16676e77e88`; die Implementierung steht auf
-`503c6c83b7c8ec41810c2145054a582cf865e02a`. In der Stellenliste bezeichnet „RFC“ die Datei `literature/rfc9868.txt`;
+dem Stand vom 03.09.2026. In der Stellenliste bezeichnet „RFC“ die Datei `literature/rfc9868.txt`;
 Implementierungspfade beziehen sich auf das Nachbarrepositorium.
 
 | Hunk | Stelle im aktuellen Stand | Urteil und Begründung |
 |---:|---|---|
 | 1 | `03_methodik.tex:186` | **Richtig.** „Repository der Implementierung“ bezeichnet dieselbe Quelle; Aussage und Zuordnung bleiben unverändert. |
-| 2 | `03_methodik.tex:246–252` | **Richtig.** Die Vereinfachung erhält Dokumentart, Adressaten und historischen Beleg. `CLAUDE.md` bei `f1cfe52` nennt tatsächlich das Modellwerkzeug und menschliche Mitwirkende. |
+| 2 | `03_methodik.tex:246–252` | **Richtig.** Die Vereinfachung erhält Dokumentart, Adressaten und historischen Beleg. `CLAUDE.md` im Stand vom 14.08.2026 nennt tatsächlich das Modellwerkzeug und menschliche Mitwirkende. |
 | 3 | `04_analyse.tex:17–23` | **Richtig.** RFC, Z. 126–129, erklärt die Markierung. Die eigene Nachzählung bestätigt 103 markierte Absätze. Die neue Quellenangabe ergänzt den passenden Beleg. |
-| 4 | `04_analyse.tex:47–75` | **Richtig.** Die Shim-Regel entspricht RFC, Z. 353–366; `src/wire/ip.rs:70–71` begrenzt den Parser auf Protocol 17. Nachgezählt: 49 FR, zwölf NFR, 67 CSV-Datensätze. CSV-Z. 9 enthält beide Bewertungsspalten; das neue Verweisziel `06_evaluation.tex:876–904` erklärt deren Unterschied. Die verlinkte CSV bei `b8a5277` ist mit der lokalen Datei identisch. |
+| 4 | `04_analyse.tex:47–75` | **Richtig.** Die Shim-Regel entspricht RFC, Z. 353–366; `src/wire/ip.rs:70–71` begrenzt den Parser auf Protocol 17. Nachgezählt: 49 FR, zwölf NFR, 67 CSV-Datensätze. CSV-Z. 9 enthält beide Bewertungsspalten; das neue Verweisziel `06_evaluation.tex:876–904` erklärt deren Unterschied. Die verlinkte CSV im Stand vom 03.09.2026 ist mit der lokalen Datei identisch. |
 | 5 | `04_analyse.tex:81` | **Richtig.** Die Beschriftung bezeichnet weiterhin den Arbeitsindex. Sie verwechselt ihn nicht mit der eigenen Einzelzuordnung. |
 | 6 | `04_analyse.tex:105–107` | **Richtig.** Die NOP-Empfehlungen stehen in RFC, Z. 863–871; die bedingte Ressourcenempfehlung steht in Z. 2125–2131. Bedingung und Empfehlungsstärke bleiben erhalten. |
 | 7 | `04_analyse.tex:115–121` | **Richtig.** Die Definition der technischen Nichterfüllbarkeit ändert sich nicht. Sie passt zur Trennung von Erfüllbarkeit und Implementierungsstand in K3 und K6. |

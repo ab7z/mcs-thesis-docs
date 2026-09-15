@@ -14,8 +14,8 @@ uneingeschränkt abgabereif. Architektur, Rechenbeispiele, Empfangsverarbeitung 
 mit den geprüften Quellen und dem Code überein. Zu korrigieren sind fehlende Bedingungen, eine ungenaue Beschreibung von
 RDOS, ein Verweis aus Kapitel 6 und Verstöße gegen deine Wortregel. Die damaligen Empfangsergebnisse des frühen
 Vorversuchs konnte ich ohne ursprüngliches Laufprotokoll nicht unabhängig bestätigen. Geprüft wurde der aktuelle
-Arbeitsbaum bei Thesis-HEAD `49dd36a`, Kapiteldatei mit SHA-256-Präfix `c6317f9e48ae`, gegen den sauberen
-Implementierungsstand `503c6c83b7c8ec41810c2145054a582cf865e02a`.
+Arbeitsbaum beim Thesis-Stand vom 13.09.2026, Kapiteldatei mit SHA-256-Präfix `c6317f9e48ae`, gegen den sauberen
+Implementierungsstand vom 03.09.2026.
 
 **2. Abgaberelevante Befunde**
 

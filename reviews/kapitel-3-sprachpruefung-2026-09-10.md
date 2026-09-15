@@ -5,7 +5,7 @@
 Originalzitate, Zeilen- und Seitenangaben beziehen sich auf diesen Stand. Die Umsetzung ist am Ende
 festgehalten.
 
-Stand: 10. September 2026, Commit `fc3ac8a`. Geprüft wurden alle Prosasätze in
+Stand: 10. September 2026. Geprüft wurden alle Prosasätze in
 `thesis/chapters/03_methodik.tex`, einschließlich Fußnoten, Tabellen und Diagrammbeschriftungen.
 Zusätzlich wurden alle elf Kapitelseiten der aktuellen PDF angesehen (PDF-Seiten 31 bis 41,
 Druckseiten 25 bis 35). Kapiteltext und PDF wurden nicht verändert.

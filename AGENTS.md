@@ -127,9 +127,10 @@ einhalten und betroffene Kriterien prüfen; daraus keine vollständige Kapitelpr
 24. **Abschlusskontrolle:** Nach Änderungen am Thesis-Text die gesamte Thesis einschließlich Literatur und
     Glossar neu bauen. Build-Warnungen, Referenzen und die aktuelle PDF prüfen. Den Diff auf unbeabsichtigte
     Bedeutungsänderungen kontrollieren; Quellstand und ausgelieferte PDF müssen zusammenpassen.
-25. **Versionsangaben:** Keine Commit-Hashes, Kurzkennungen, Branch- oder Tag-Namen im Thesistext, auch nicht in
-    Fußnoten, Tabellen, Beschriftungen und Links. Stände über Datum, Bezeichnung des Laufs oder die abgegebene
-    Fassung benennen; Links auf Repositorys ohne Commit-Bezug setzen.
+25. **Versionsangaben:** Keine Commit-Hashes, Kurzkennungen, Branch- oder Tag-Namen in irgendeiner Datei
+    des Repositorys dieser Arbeit: nicht im Thesistext, nicht in Fußnoten, Tabellen, Beschriftungen und Links,
+    nicht in Datendateien, Generatoren, der Evidenz-README und den Berichten. Stände über Datum, Bezeichnung des
+    Laufs oder die abgegebene Fassung benennen; Links auf Repositorys ohne Commit-Bezug setzen.
 
 ### Prüfumfang und Freigabe
 

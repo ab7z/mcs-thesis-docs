@@ -6,9 +6,9 @@ Auftrag von GreenCodeDoesntSmell: die Codex-Prüfung von Kapitel 4 nach den 24 K
 "Kapitelprüfung und Freigabe") mit einem Workflow aus 1x Fable 5.1, 2x Opus 5 und 3x Sonnet 5 erneut prüfen und neu
 bewerten; die daraus folgenden Änderungen anschließend von Codex (gpt-6-astra, Effort ultra) prüfen lassen.
 
-Ausgangsstand: Commit `80022ba` mit den uncommitted Codex-Änderungen vom 13.09.2026 (SHA-256 der fünf Dateien
-identisch mit `reviews/kapitel-4-abschluss-2026-09-13.md`). Implementierung `../udp-transport-options` bei `503c6c8`,
-Arbeitsbaum sauber. Dieser Codex-Stand liegt für den Diff als Kopie im Sitzungs-Scratchpad.
+Ausgangsstand: Thesis-Stand vom 10.09.2026 mit den uncommitted Codex-Änderungen vom 13.09.2026 (SHA-256 der fünf Dateien
+identisch mit `reviews/kapitel-4-abschluss-2026-09-13.md`). Implementierung `../udp-transport-options` im Stand vom
+03.09.2026, Arbeitsbaum sauber. Dieser Codex-Stand liegt für den Diff als Kopie im Sitzungs-Scratchpad.
 
 Workflow `wf_41d33dff-e3e` (Claude Code, 53 Minuten, 418 Werkzeugaufrufe, Roll call 6 von 6):
 
@@ -23,8 +23,8 @@ Workflow `wf_41d33dff-e3e` (Claude Code, 53 Minuten, 418 Werkzeugaufrufe, Roll c
 ## Urteil des Adjudikators
 
 Freigabe: **mit Auflagen**. Kapitel 4 ist fachlich tragfähig: Alle von mir am RFC-Primärtext, am Implementierungscode
-(HEAD 503c6c8), an der Git-Historie und am Archiv vom 10.08. nachvollzogenen Norm-, Code- und Messaussagen halten
-stand, und die sachlichen Codex-Korrekturen sind belegt. Das Codex-Urteil "freigabefähig, keine offenen
+(Stand vom 03.09.2026), an der Git-Historie und am Archiv vom 10.08. nachvollzogenen Norm-, Code- und Messaussagen
+halten stand, und die sachlichen Codex-Korrekturen sind belegt. Das Codex-Urteil "freigabefähig, keine offenen
 abgaberelevanten Befunde" ist dennoch nicht haltbar: Die Ankündigung "ihre Verträge prüft Kapitel 5" (04:292) wird von
 Kapitel 5 nicht eingelöst, Kapitel 4 führt die Kürzel P0/P1/P2 und das Wort "Sendeprotokolle" uneingeführt ein
 (04:332), die tragende Begründungspassage der Sprachwahl hat zwei bezugslose "ebenfalls" und benennt den Bun-Wechsel
@@ -63,8 +63,8 @@ erneuter Trennungskontrolle ist das Kapitel im geprüften Umfang freigabefähig.
   sonst Sendemanifest) und die uneingeführten Kürzel P0/P1/P2 (A4, pflicht), 'Ablaufprotokolle' (einziges Vorkommen,
   A8), die K6-Beschriftung 06:856 (A5, pflicht) und 'kontrollierte Pfadversuche' statt 'lokale Referenzläufe' (A27
   optional) verletzen die Durchgängigkeit; Repository/Repositorium bleibt thesisweit offen.
-- 10. geprüft: Beide Fußnoten beantworten je eine Nebenfrage; Fußnote 1 verweist auf Commit b8a5277 (Typ commit, auf
-  origin/main, git diff b8a5277 HEAD für die CSV leer), Fußnote 2 trennt Rust-unsafe von der UNSAFE-Klasse; der Satz
+- 10. geprüft: Beide Fußnoten beantworten je eine Nebenfrage; Fußnote 1 verweist auf den Stand vom 03.09.2026 (auf
+  origin/main, CSV seitdem unverändert), Fußnote 2 trennt Rust-unsafe von der UNSAFE-Klasse; der Satz
   vor Fußnote 1 nennt nur eine FF1-Bewertung, die Datei trägt zwei Urteilsspalten (A9).
 - 11. geprüft: Linux, IPv4, Raw Sockets im Benutzerraum, Protocol 17 ohne Shim-Ketten und der Optionsumfang bleiben
   erhalten und lösen 01:141 und 01:154 ein; die in tab:scope-messung angekündigte IPv6-Gegenprobe erscheint in Kapitel
@@ -233,7 +233,7 @@ Abweichend vom Vorschlag umgesetzt oder nicht umgesetzt:
   ungenau (mangel). Grund: Das entpackte Archiv external-campaign-20260810T200118Z enthält neben den fünf
   gescheiterten CLI-Aufrufen auf externen Paarmitschnitten vier erfolgreiche eval-check-Auswertungen: logs/hetzner-
   eval/02-eval-veth bis 05-eval-filter (.meta jeweils exit_code=0, verdicts.jsonl mit fünf Szenarien, summary.md 'alle
-  fünf Szenarien intact' bzw. 'dropped', Commit 7b11140, 2026-08-10T20:47Z). Die externen Paare wertete
+  fünf Szenarien intact' bzw. 'dropped', Stand vom 10.08.2026, 20:47Z). Die externen Paare wertete
   matrix/analyze-pcap-pair.py mit der importierten Funktion eval_check._validate_surplus aus (Z. 14-20, 55-62). Der
   Satz 'in der Kampagne vom 10. August eingesetzt' ist damit richtig; S1 hat die hetzner-eval-Lanes übersehen. Nur der
   Begriff 'kontrollierte Pfadversuche' wird optional angeglichen (A27).
@@ -382,10 +382,10 @@ Einziger verbliebener abgaberelevanter Punkt außerhalb des Diffs und außerhalb
 Nichtanwendbarkeit von CSV-Kennung 226 (RFC 9868, Abschnitt 25.2) in `06_evaluation.tex` Zeilen 971 bis 973, in
 `thesis/daten/konformitaet-kategorien.csv` Zeile 74 und in `thesis/tikz/gen/ff1-kategorien.py`. Das SHOULD gilt für
 Implementierungen mit Bedenken wegen verdeckter Kanäle; die Nichtwahl des vorangehenden MAY trägt die Einstufung
-nicht. Bewusst nicht in dieser Runde geändert: Die CSV ist über den Commit `b8a5277` in der Fußnote von Abschnitt 4.2
-verankert, eine Änderung gehört in die Kapitel-6-Runde zusammen mit CSV, Generator und Fußnote. Ergebnisrelevant wird
-sie erst, wenn der Autor ein Schutzziel gegen verdeckte Kanäle in den Umfang aufnimmt; sonst bleibt "nicht anwendbar"
-mit korrigierter Begründung.
+nicht. Bewusst nicht in dieser Runde geändert: Die CSV ist über den Stand vom 03.09.2026 in der Fußnote von Abschnitt
+4.2 verankert, eine Änderung gehört in die Kapitel-6-Runde zusammen mit CSV, Generator und Fußnote. Ergebnisrelevant
+wird sie erst, wenn der Autor ein Schutzziel gegen verdeckte Kanäle in den Umfang aufnimmt; sonst bleibt "nicht
+anwendbar" mit korrigierter Begründung.
 
 ## Sprachrunde: einfache Wörter statt Wortungetüme (Autorenanweisung vom 13.09.2026)
 

@@ -36,7 +36,7 @@ grundsätzlich drei Wege in Betracht:
 \begin{enumerate}
     \item Erweiterung innerhalb der Nutzdaten: Jede Anwendung definiert dort ein eigenes Rahmenformat.
     \item Ein neues Transportprotokoll: Alle gewünschten Mechanismen können so von Beginn an vorgesehen werden.
-    \item Erweiterung des bestehenden Formats: UDP selbst erhält einen Optionsmechanismus, der für
+    \item Erweiterung des bestehenden Formats: UDP selbst erhält einen Options\-mechanismus, der für
         Altempfänger möglichst unsichtbar bleibt.
 \end{enumerate}
 
@@ -61,14 +61,9 @@ Die Arbeit untersucht diese Frage anhand einer Referenzimplementierung und auf a
 \label{sec:problemstellung}
 
 Die Implementierung von UDP-Optionen gemäß RFC~9868 wirft drei Problemfelder auf, die diese Arbeit behandelt:
-die Beschaffenheit der Surplus Area selbst, die bewusste Unidirektionalität des Protokolls sowie die praktischen
-Implementierungsherausforderungen vom Zugriff aus dem Benutzerraum bis zum Verhalten von Zwischensystemen. Die
-folgenden Abschnitte behandeln sie in dieser Reihenfolge.
-
-\subsection{Die Surplus Area als ungenutzter Erweiterungsraum}
-
-RFC~9868 lässt den UDP-Header unverändert, verlangt aber die getrennte Auswertung von UDP- und IP-Länge.
-Den genauen Aufbau der daraus entstehenden Surplus Area behandelt \secref{sec:surplus-area}.
+die Beschaffenheit der Surplus Area selbst (\secref{sec:surplus-area}), die bewusste Unidirektionalität des
+Protokolls sowie die praktischen Implementierungsherausforderungen vom Zugriff aus dem Benutzerraum bis zum
+Verhalten von Zwischensystemen. Die folgenden Abschnitte behandeln die beiden letzten.
 
 \subsection{Unidirektionalität}
 
@@ -173,7 +168,7 @@ Nach dieser Einleitung folgen sechs Kapitel, die drei Blöcke bilden:
 \end{itemize}
 
 Diese lineare Kapitelfolge ist eine rekonstruktive Darstellungsstruktur und kein Abbild des tatsächlichen
-Arbeitsprozesses. Die Umsetzung verlief iterativ und agentengestützt, sodass Entwurf, Implementierung und Test
+Arbeitsprozesses. Die Umsetzung verlief iterativ, sodass Entwurf, Implementierung und Test
 einander fortlaufend bedingten.
 
 \section{KI-Einsatz}
@@ -186,7 +181,7 @@ Zudem prüften sie den Text wiederholt gegen den Primärtext
 des RFC~9868. Auf der Softwareseite unterstützten sie Planung, Implementierung, Tests und Verifikation der
 Bibliothek. Der Autor entschied über die Übernahme der Ergebnisse und verantwortet sie.
 
-Zum Einsatz kommen zwei KI-Werkzeuge (harness), die ein Sprachmodell mit Dateizugriff und
+Zum Einsatz kommen zwei KI-Werkzeuge, die ein Sprachmodell mit Dateizugriff und
 Kommandoausführung verbinden:
 Claude Code von Anthropic und Codex von OpenAI. Ihre Rollenverteilung, die bekannten Schwächen dieser Arbeitsweise
 und die Prüfkette vor der Übernahme eines Ergebnisses behandelt \chapref{chap:methodik}.

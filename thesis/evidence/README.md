@@ -1,7 +1,7 @@
 # Messartefakte
 
 Stand 2026-08-26: Die elf Archive in diesem Verzeichnis sind die versiegelte Evidenz zu den
-FF1- und FF2-Messungen der Arbeit. Die Thesis auf `main` (1f17af3) beantwortet beide
+FF1- und FF2-Messungen der Arbeit. Die Thesis (Stand vom 26.08.2026) beantwortet beide
 Forschungsfragen im geprüften Umfang (Paar, Richtung, Messfenster). Die älteren
 Einleitungsabsätze einzelner Archive beschreiben den Beitrag *dieses* Datensatzes zum Zeitpunkt
 der Versiegelung; sie sind keine aktuelle Gesamtwertung von FF2.
@@ -9,7 +9,7 @@ der Versiegelung; sie sind keine aktuelle Gesamtwertung von FF2.
 ## Bidirektionale Kampagne vom 11. August 2026
 
 - Kampagnenkennung: `bidir-campaign-20260811`
-- Quellstand der Messung: `7b11140a91ec730bf5d8351e7b00653d41f3c255`
+- Quellstand der Messung: Entwicklungsstand vom 10.08.2026
 - Ursprünglicher Pfad:
   `../udp-transport-options/target/bidir-campaign-20260811/`
 - Archiv: `bidir-campaign-20260811.tar.zst`
@@ -71,7 +71,7 @@ cd bidir-campaign-20260811 && shasum -a 256 -c SHA256SUMS
 ## Externe Pfadkampagne vom 10. August 2026
 
 - Kampagnenkennung: `20260810T200118Z`
-- Quellstand: `7b11140a91ec730bf5d8351e7b00653d41f3c255`
+- Quellstand: Entwicklungsstand vom 10.08.2026
 - Messzeitraum: `2026-08-10T20:01:18Z` bis `2026-08-10T22:24:22Z`
 - Abschluss der Dokumentation: `2026-08-10T22:35:56Z`
 - Ursprünglicher Pfad:
@@ -117,9 +117,9 @@ sha256sum -c SHA256SUMS
 ## Helsinki-Kampagnen vom 15. August 2026
 
 - Kampagnenkennung: `hel-kampagne-20260815`
-- Quellstand der Messung: Kampagnen-Binaries bitidentisch `d7187eb` auf allen drei Endpunkten
-  (mcs, helsinki, 1blue); Treiber ab Commit `d3e22db`, `pair-campaign.sh` und `pair-pilot.sh` aus
-  `8627860`, `checksumgate-cell.sh` aus `74bc65a`. Die Treiberskripte liefen zur Messzeit aus dem
+- Quellstand der Messung: Kampagnen-Binaries bitidentisch zum Stand vom 15.08.2026 (vormittags) auf allen
+  drei Endpunkten (mcs, helsinki, 1blue); Treiber ab dem Stand vom 15.08.2026, `pair-campaign.sh` und
+  `pair-pilot.sh` vom 15.08.2026, `checksumgate-cell.sh` vom 16.08.2026. Die Treiberskripte liefen zur Messzeit aus dem
   Arbeitsbaum und wurden erst nachträglich unter diesen Commits festgeschrieben; ihre Inhaltsgleichheit
   zum Laufzeitstand ist nur durch die interne Ergebnisnotiz belegt, nicht durch ein zeitgenössisches
   Prüfsummenprotokoll
@@ -174,7 +174,7 @@ Python-Cachedateien und Finder-Metadaten.
   `644955e5bf51d03dd353273a5606e7e2bc9150c723393ddc9a2e889e85566dad`.
 - `p0p1p2-kampagnen-aws-20260816.tar.zst`: die neun Kampagnen-Stamps der transatlantischen FF1-Suiten
   (aws-mcs, aws-hel, aws-1blu, je p0/p1/p2) sowie die beiden NAT-Split-Smoke-Läufe; Treiberstand der
-  Suiten zusätzlich `9d6c5bd`; 1479690 Byte,
+  Suiten zusätzlich vom 16.08.2026; 1479690 Byte,
   entpackt 90951680 Byte, 1575 Einträge; SHA-256
   `d5f5a4d89eaa76f6ce872807461f26ec94bd9649f63ac91d2a202833e88c1d9a`.
 - `piloten-und-nachtraege-20260810-15.tar.zst`: die drei Piloten vom 12./13.08. (pilot-1blu,
@@ -208,7 +208,7 @@ zstd -t <archiv>.tar.zst
 zstd -dc <archiv>.tar.zst | tar -tf - > /dev/null
 ```
 
-Versionierung: Seit Commit `e82dba2` vom 25.08.2026 sind die elf Archive, ihre Prüfsummendateien und diese
+Versionierung: Seit dem 25.08.2026 sind die elf Archive, ihre Prüfsummendateien und diese
 README unter `thesis/evidence/` im öffentlichen Repositorium der Arbeit (`github.com/ab7z/mcs-thesis-docs`)
-versioniert. Kapitel 6 nennt das Repositorium, diese Revision und das Archivverzeichnis; diese README ordnet
-die Kurzkennungen der Arbeit den Dateinamen und SHA-256-Sollwerten zu.
+versioniert. Kapitel 6 nennt das Repositorium und das Archivverzeichnis; Stände sind überall mit dem Datum
+bezeichnet, und diese README ordnet die Läufe der Tabelle 6.1 den Dateinamen und SHA-256-Sollwerten zu.

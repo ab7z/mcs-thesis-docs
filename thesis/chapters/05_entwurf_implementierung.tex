@@ -338,15 +338,9 @@ Nutzdatenfehler erkennen, die der UDP-Prüfsumme entgehen \cite[Sec.~8, 9 und 11
 \end{figure}
 
 Ein früher Vorversuch zeigte, warum die Bibliothek \texttt{UDP Length} und UDP-Prüfsumme selbst prüfen
-muss. Von 97 erzeugten Fällen erreichten 69 den Raw-Empfang. Die übrigen 28 überschritten die MTU von
-1.500~Byte und scheiterten bereits beim Senden mit \texttt{EMSGSIZE}. Unter den empfangenen Fällen waren
-vier gezielte Grenzfälle: eine UDP-Prüfsumme von null, eine absichtlich falsche UDP-Prüfsumme, eine
-\texttt{UDP Length} von 500 bei nur 48 verfügbaren Bytes und eine \texttt{UDP Length} von 4, die kürzer
-als der UDP-Header war. Der Raw Socket lieferte alle vier Fälle an den Benutzerraum. Der Versuch erfasste
-dabei die Ankunft, die Längenfelder und die Surplus-Bytes, verglich sie aber nicht vollständig mit dem
-Sendepuffer. Außerdem enthielt der Sendepuffer in 42 der 69 empfangenen Fälle einen falschen Wert für
-\texttt{IP Total Length}. Der Kernel ersetzte alle 42 Werte vor der Übertragung durch die tatsächliche
-Pufferlänge.
+muss. Er enthielt vier gezielte Grenzfälle: eine UDP-Prüfsumme von null, eine absichtlich falsche
+UDP-Prüfsumme, eine \texttt{UDP Length} von 500 bei nur 48 verfügbaren Bytes und eine \texttt{UDP Length}
+von 4, die kürzer als der UDP-Header war. Der Raw Socket lieferte alle vier Fälle an den Benutzerraum.
 
 Zuerst prüft die Bibliothek das Datagramm selbst. Der IPv4-Header muss gültig sein. \texttt{UDP Length}
 muss mindestens 8 betragen und darf die IP-Nutzlast nicht überschreiten. Eine UDP-Prüfsumme ungleich

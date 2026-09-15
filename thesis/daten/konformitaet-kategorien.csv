@@ -1,6 +1,6 @@
 # Vollstaendige FF1-Einzelbewertung der 67 Matrixzeilen.
 # Quelle: docs/requirements.md
-# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand f847895. Die Spalten level und
+# Abschnitt 3 (Zeilen 162-228) am Auswertungsstand vom 18.08.2026. Die Spalten level und
 # covered geben die Repository-Selbstauskunft wieder; normstufe, anwendbar, kategorie
 # (Implementierungsstand) und technisch tragen die am RFC-Primaertext gepruefen
 # Urteile dieser Arbeit als drei getrennt gespeicherte Einzelurteile, Pruefstand
@@ -44,7 +44,7 @@ quellzeile,gruppe,rfc_bereich,kurzinhalt,level,covered,normstufe,anwendbar,kateg
 196,Sec. 11.x,11.4,Ueberlappung abbrechen und ohne ICMP verwerfen,MUST,yes,MUST,ja,vollstaendig,vollstaendig,F; FR-32/48; S-45,"S-45 real, auch byteidentisch"
 197,Sec. 11.x,11.4,Exakte Duplikate duerfen verworfen werden,MAY,yes,MAY,ja,vollstaendig,vollstaendig,F; FR-32; S-45 Z0,gewaehlte MAY
 198,Sec. 11.x,11.4,Standardtimeout hoechstens zwei Minuten; kein ICMP,SHOULD/MUST,yes,SHOULD/MUST,ja,vollstaendig,vollstaendig,F; FR-33; S-42,S-42 real (nur Negativevidenz)
-199,Sec. 11.x,11.4,Speicher begrenzen und nicht socketuebergreifend teilen,SHOULD,yes,SHOULD,ja,teilweise,vollstaendig,"F, A; FR-34; NFR-06; eigene Korrektur von f847895","Vertrag dokumentiert, Peer-Ebene loest ihn nur teilweise ein"
+199,Sec. 11.x,11.4,Speicher begrenzen und nicht socketuebergreifend teilen,SHOULD,yes,SHOULD,ja,teilweise,vollstaendig,"F, A; FR-34; NFR-06; eigene Korrektur der Selbstauskunft vom 18.08.2026","Vertrag dokumentiert, Peer-Ebene loest ihn nur teilweise ein"
 200,Sec. 11.x,11.4,Einzelne Fragmente nie an den Nutzer geben,MUST,yes,MUST,ja,vollstaendig,vollstaendig,"R, F; FR-31",
 201,Sec. 11.x,11.4,Fehlgeschlagene Reassemblierung ohne Leerdatagramm,SHOULD,yes,SHOULD,ja,vollstaendig,vollstaendig,"R, F; FR-33; S-49",S-49 real
 202,Sec. 11.x,11.5,MDS verarbeiten; MDS begrenzt das Senden nicht,MUST,yes,MUST,ja,vollstaendig,vollstaendig,"O, A; FR-24",real (1400 nach MDS 1200)

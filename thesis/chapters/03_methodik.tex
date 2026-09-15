@@ -5,52 +5,33 @@
 \chapter{Methodik und KI-gestützte Entwicklung}
 \label{chap:methodik}
 
-Große Sprachmodelle unterstützten die Auswertung des RFC-Primärtexts, den Entwurf und die Implementierung,
-die Analyse der Messkampagnen und die Prüfung von Zwischenergebnissen. Wissenschaftlich belastbar ist dieses
-Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet.
-Diese Regeln müssen vor der Ergebnisbewertung feststehen.
+Der Autor setzte große Sprachmodelle bei der Auswertung des RFC-Primärtexts, bei Entwurf und Implementierung, bei der
+Analyse der Messkampagnen und bei der Prüfung von Zwischenergebnissen ein. Wissenschaftlich belastbar ist dieses
+Vorgehen nur, wenn die Arbeit offenlegt, wie Modellausgaben geprüft werden und wer die Ergebnisse verantwortet. Diese
+Regeln müssen vor der Ergebnisbewertung feststehen.
 
 \section{Anlass des KI-Einsatzes und veröffentlichte Fälle}
 \label{sec:externe-faelle}
 
 Diese Arbeit entsteht als Einzelarbeit und verbindet die Auswertung einer neuen Norm, systemnahe
 Programmierung, formale Modellierung und Messkampagnen. Die Arbeit legt den Einsatz von KI-Werkzeugen offen
-und beschreibt die Regeln zur Prüfung ihrer Ergebnisse. Zur Einordnung dienen neun
-veröffentlichte Fälle, in denen KI-Systeme, darunter Sprachmodelle, an Forschungs- und
+und beschreibt die Regeln zur Prüfung ihrer Ergebnisse. Zur Einordnung dienen drei
+veröffentlichte Fälle, in denen KI-Systeme an Forschungs- und
 Entwicklungsergebnissen beteiligt waren. Sie bilden keine systematische Literaturübersicht, belegen keine
 einheitliche Prüfkette und erlauben keine Aussage über Häufigkeit oder Wirksamkeit eines Verfahrens. Die
 folgende Auflistung nennt nur die in den Quellen ausdrücklich dokumentierten Rollen: den Beitrag des
 KI-Systems, die prüfende Instanz und die Grenze der jeweiligen Prüfung.
 
 \begin{itemize}
-  \item \textbf{AlphaFold:} Ein Vorhersagemodell bestimmte Proteinstrukturen; der blinde CASP14-Vergleich
-    mit experimentell ermittelten Strukturen prüfte die Ergebnisse, eine allgemeine Prüfkette entsteht
-    daraus nicht \cite{jumper2021alphafold}.
-  \item \textbf{Davies u.\,a.:} Ein KI-System schlug Hypothesen und Kandidatenmuster für mathematische
-    Probleme vor; beteiligte Mathematiker prüften durch Gegenbeispielsuche und führten den klassischen
-    Beweis \cite{davies2021intuition}.
-  \item \textbf{FunSearch:} Ein Sprachmodell erzeugte ausführbare Programmkandidaten. Ein Prüfprogramm
-    bewertete jeden Kandidaten; das Ergebnis gilt nur für die im Programm festgelegte Bewertungsfunktion
-    \cite{romera2024funsearch}.
   \item \textbf{AlphaProof:} Ein Modell erzeugte formale Beweiskandidaten, die der Kern des
     Beweisassistenten Lean einzeln nachprüfte; jeder Beweis gilt für die formalisierte Aussage und ihre
     Annahmen \cite{alphaproof2026}.
-  \item \textbf{Knuths Zyklen:} Ein Modell konstruierte die Lösung eines Zyklenproblems; Knuth führte den
-    Beweis anschließend selbst, und unabhängig davon lag bereits eine veröffentlichte Lean-Formalisierung
-    von Morrison vor \cite{knuth2026cycles}.
-  \item \textbf{Zeta-Schranke:} Ein Modell lieferte ein mathematisches Ergebnis und formalisierte es
-    gemeinsam mit dem Anthropic-Mitarbeiter Eric Easley in Lean. Zwei Anthropic-Mathematiker und zwei
-    externe Fachleute prüften das Ergebnis; ein Blindvergleich ist nicht dokumentiert \cite{anthropic2026zeta}.
-  \item \textbf{Einheitsabstand:} Ein Modell lieferte einen Gegenbeweis zu einer Vermutung der diskreten
-    Geometrie; externe Mathematiker prüften ihn und veröffentlichten eine verdichtete, von Menschen
-    verifizierte Fassung \cite{openai2026unitdistance}.
   \item \textbf{C-Parameter:} Ein Modell steuerte unter Aufsicht Rechnungen, Numerik und Manuskriptteile
     bei; Physiker prüften mit einer Gegenprobe durch Monte-Carlo-Simulationen, und der Preprint legt den
     Einsatz offen \cite{schwartz2026cparameter}.
   \item \textbf{Bun-Migration:} Bei der Migration von Bun von Zig nach Rust erzeugten und prüften Modelle
-    derselben Familie den Quelltext. Trotz getrennter Rollen blieb ein Fehler unentdeckt. Nach dem Merge
-    wurde undefiniertes Verhalten gemeldet und das Prüfwerkzeug Miri in die kontinuierliche Integration
-    aufgenommen \cite{bun-in-rust,bun-pr30412,bun-issue30719}.
+    derselben Familie den Quelltext. Trotz getrennter Rollen blieb ein Fehler unentdeckt, der erst nach
+    dem Merge als undefiniertes Verhalten gemeldet wurde \cite{bun-in-rust,bun-pr30412,bun-issue30719}.
 \end{itemize}
 
 Die Fälle belegen nur, dass die Prüfinstanz zum Artefakt passen muss. Normtext, ausführbare Tests, formale
@@ -244,14 +225,11 @@ deckte den Fehler auf. Zählung und Einordnung erfolgten beim Lesen des RFC-Text
 automatischen Zerlegung des Texts wurde dafür nicht eingesetzt.
 
 Diese Erfassung liegt nicht im Quelltext, sondern in versionierten Textdokumenten im
-Repository der Implementierung. Sie sind ausdrücklich an die Werkzeuge gerichtet: Die zentrale Datei mit
-Arbeitsvorgaben
-nennt in ihrem ersten Satz das Modellwerkzeug und menschliche Mitwirkende als
-Adressaten.\footnote{\raggedright Repository der Implementierung, Stand vom 14.~August 2026: \path{CLAUDE.md},
+Repository der Implementierung.\footnote{\raggedright Repository der Implementierung, Stand vom 14.~August 2026:
 \mbox{\path{docs/requirements.md}}, \path{docs/plan/ROADMAP.md} sowie die Schrittdateien unter
 \path{docs/plan/steps/}.} Die Dokumente halten den Wissensstand über die Arbeitssitzungen hinweg fest und
 dienen als Maßstab für die Prüfung der Modellausgaben. Ein Abgleich am Primärtext fand vier falsche
-RFC-Angaben in vier Dokumenten mit Arbeitsvorgaben zugleich.
+RFC-Angaben in Dokumenten mit Arbeitsvorgaben; sie wurden dort berichtigt.
 
 Die Versionsgeschichte schreibt diese Vorgaben dem Autor zu: Die beiden ersten Commits des Repositorys
 legten Roadmap, Schrittdateien, Anforderungskatalog sowie Architektur- und Formatreferenz an. Die Roadmap
@@ -458,8 +436,8 @@ Entwicklungsrechner; die Testprogramme laufen auf der lokalen virtuellen Maschin
 Für jedes der neun Fuzz-Ziele kommt ein weiterer Prüflauf hinzu.
 Insgesamt ergeben sich die 18 Prüfläufe aus \figref{fig:stepzyklus}. Die kontinuierliche Integration (CI)
 wiederholt Formatierung, statische Analyse und Unit-Tests. Nach deren Erfolg baut sie die Lean-Modelle und
-stellt anschließend zwei getrennte Prüfanfragen: an Claude Code zu Codequalität und Sicherheit und an
-Codex zur RFC-9868-Semantik.
+stellt anschließend zwei Prüfanfragen: an Claude Code zu Codequalität und Sicherheit und an Codex als
+getrennten Zweitprüfer zur RFC-9868-Semantik.
 
 Der aktuelle Sollprozess ist in \figref{fig:pruefprozess} als Sequenzdiagramm dargestellt: Jeder Beteiligte
 erhält eine senkrechte Lebenslinie, die schmalen Balken zeigen seine aktiven Phasen, durchgezogene Pfeile sind
@@ -530,7 +508,7 @@ Aufträge und gestrichelte Pfeile Rückmeldungen.
 
 Aus \figref{fig:pruefprozess} geht hervor, dass die Pfeilfolge nur die vorgesehene Reihenfolge vom Prüfskript
 über den Pull Request und die Rust/Lean-CI bis zur Freigabe durch den Autor zeigt; eine technische
-Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden getrennte Zweitprüfungen angefragt.
+Merge-Bedingung ist sie nicht. Nach erfolgreicher Rust/Lean-CI werden beide KI-Prüfungen angefragt.
 
 In dieser Arbeit gilt eine Prüfung nur dann als belegt, wenn sie protokolliert ist. Die Grenzen dieser
 Protokollierung behandelt der folgende Abschnitt.
