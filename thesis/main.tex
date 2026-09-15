@@ -397,6 +397,44 @@
 % BACKMATTER
 % -----------------------------------------------------------------------------
 
+% --- ANHANG ---
+\chapter*{Anhang}
+\addcontentsline{toc}{chapter}{Anhang}
+
+Die Arbeit stützt sich auf zwei Repositorys.
+
+\section*{Repository der Implementierung}
+
+\url{https://github.com/ab7z/udp-transport-options}
+
+\noindent
+Rust-Bibliothek zu RFC~9868 mit Prüf- und Messwerkzeugen (\chapref{chap:entwurf}):
+\begin{itemize}[leftmargin=1.6em]
+    \item \file{src/}: Bibliothek mit den Modulen \texttt{wire}, \texttt{options}, \texttt{recv}, \texttt{frag},
+        \texttt{socket} und \texttt{api} sowie die Programme \texttt{udpopt-send} und \texttt{udpopt-recv}
+    \item \file{tests/}, \file{fuzz/}: Integrations- und Property-Tests, Fuzz-Ziele und Testdaten
+    \item \file{formal/}: Lean-Modelle zu Wire-Format, Prüfsummen, Optionen, FRAG und Empfangspfad
+    \item \file{scripts/}: Prüfskript, Wire-Prüfung, Messumgebung, Kampagnentreiber, Zellplan und Auswerter
+        (\chapref{chap:evaluation})
+    \item \file{docs/}: Anforderungskatalog mit Konformitätsmatrix, Roadmap und Schritt\-dateien, Architektur- und
+        Formatreferenz, Beschreibung der Messumgebung (Kapitel~\ref{chap:methodik} und \ref{chap:analyse})
+\end{itemize}
+
+\section*{Repository dieser Arbeit}
+
+\url{https://github.com/ab7z/mcs-thesis-docs}
+
+\noindent
+Text, Daten und Belege der Arbeit:
+\begin{itemize}[leftmargin=1.6em]
+    \item \file{thesis/}: LaTeX-Quellen, Literaturdatenbank und Abbildungsgeneratoren
+    \item \file{thesis/daten/}: Datentabellen als CSV: geprüfte Einzelzuordnung (\chapref{chap:analyse}),
+        Gate-Zellen, AP-Opfermatrix, TTL-Verteilung und KI-Befundregister (\chapref{chap:evaluation})
+    \item \file{thesis/evidence/}: elf versiegelte Messarchive mit SHA-256-Sollwerten und der Evidenz-Übersicht
+        zu den Läufen aus \tabref{tab:eval-messlaeufe}
+    \item \file{literature/}: RFC-Primärtexte
+\end{itemize}
+
 % Literaturverzeichnis
 \printbibliography[heading=bibintoc, title=Literaturverzeichnis]
 

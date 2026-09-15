@@ -618,7 +618,7 @@ Option. Das 1~Byte große Feld \texttt{Length} gibt die Gesamtlänge einschließ
 \texttt{Length} an. Dahinter kann ein Wert folgen \cite[Sec.~8 und 10]{rfc9868}. Im Standardformat ist die
 gesamte Option einschließlich \texttt{Kind} und \texttt{Length} höchstens 254~Byte lang. Größere Optionen
 verwenden ein erweitertes Format: Der Wert 255 im \texttt{Length}-Feld kündigt ein zusätzliches
-16-Bit-Längenfeld an. Damit sind je Option höchstens 65535~Byte einschließlich der Headerfelder kodierbar
+16-Bit-Längenfeld an. Damit sind je Option höchstens 65\,535~Byte einschließlich der Headerfelder kodierbar
 \cite[Sec.~10]{rfc9868}.
 
 RFC~9868 setzt keine zusätzliche Gesamtgrenze für den Optionsraum; maßgeblich ist die Grenze des UDP-Pakets

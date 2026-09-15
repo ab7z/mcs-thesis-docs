@@ -64,8 +64,8 @@ Beschreibungen und Leitlinien. Die Prüfung aus \secref{sec:extraktionsmethode} 
 erneut am Primärtext ein. Normstufe, Anwendbarkeit, FF1-Bewertung und Implementierungs\-stand
 (\secref{sec:soll-ist}) stehen in einer eigenen Datei, der \textbf{geprüften
 Einzelzuordnung}.\footnote{\raggedright Die Datei
-\nolinkurl{thesis/daten/konformitaet-kategorien.csv} liegt im öffentlichen Repository dieser Arbeit,
-\url{https://github.com/ab7z/mcs-thesis-docs} (Stand der abgegebenen Fassung).}
+\nolinkurl{thesis/daten/konformitaet-kategorien.csv} liegt im Repository dieser Arbeit,
+\url{https://github.com/ab7z/mcs-thesis-docs}.}
 Zeilen, die mehrere Normsätze oder Adressaten bündeln, etwa die Zeilen zu den Abschnitten 11.2, 16 und 19
 sowie 25.2 bis 25.4, bleiben eine Zeile. Bewertet wird jeweils der Anteil, der die Endpunkte im Sinne
 von FF1 betrifft; die Transitpflicht aus Abschnitt~16 gehört zu FF2.
@@ -121,7 +121,7 @@ Umsetzungspflicht festlegen.
 
 FF2 fragt, in welchem Umfang die Surplus Area auf den untersuchten realen Netzpfaden bis zur Gegenstelle
 unverändert erhalten bleibt
-(\secref{sec:zielsetzung}). Ausgewertet wird je Pfad, Richtung und Messzeitpunkt ein kontrolliertes
+(\secref{sec:zielsetzung}). Ausgewertet wird je Pfad, Richtung und Messfenster ein kontrolliertes
 Szenario aus Kontroll- und Optionsverkehr, das mehrere Wiederholungen oder bei FRAG mehrere
 IP-Datagramme umfassen kann (\tabref{tab:operationalisierung}). Ein gültiger Lauf beschreibt die Surplus
 Area als \textbf{erhalten}, \textbf{verändert} oder \textbf{entfernt} oder das Datagramm als
@@ -199,7 +199,7 @@ Implementierungsumfang, \tabref{tab:scope-messung} die bewusst breitere Messinfr
       und Asien-Pazifik & Sende- und Empfangsendpunkte der Kampagnen; Mitschnitt mit \texttt{tcpdump} \\
     Mobilfunk-Zugang über einen Hotspot & reales Zugangsnetz mit Hotspot-NAT; der Anteil eines
       möglichen CGNAT bleibt ohne zusätzlichen Messpunkt offen \\
-    macOS-Messpunkt \texttt{en0} (\texttt{access\_bpf}) & zusätzlicher Beobachtungspunkt am Zugangsnetz;
+    macOS-Messpunkt \texttt{en0} & zusätzlicher Beobachtungspunkt am Zugangsnetz;
       die Bibliothek wird dort nicht eingesetzt \\
     WireGuard-Tunnel & Kontrollpfad mit Kapselung (Pfadstufe~3) \\
     \bottomrule
