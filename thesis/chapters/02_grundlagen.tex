@@ -483,12 +483,12 @@ Datagramm mit 5~Byte Nutzdaten und einer einzelnen Option:
   \label{fig:surplus-struktur}
 \end{figure}
 
-In \figref{fig:surplus-struktur} gilt \texttt{UDP Length} $= 8 + 5 = 13$. Die Surplus Area beginnt deshalb
-bei Byte $20 + 13 = 33$. Dieser Offset ist ungerade, also fügt der Sender ein Pad-Byte ein. Das OCS beginnt
-bei Byte 34, die erste Option bei Byte 36. Die Abbildung zeigt unten auch die Prüfbereiche bei verwendeten
-Prüfsummen: Die UDP-Prüfsumme erfasst den UDP-Header und die Nutzdaten; zusätzlich geht der Pseudo-Header
-in ihre Berechnung ein (\secref{subsec:udp-struktur}). Mit dem OCS prüft der Empfänger die Surplus Area ab
-dem OCS-Feld. Ein davorliegendes Pad-Byte prüft er gesondert auf null \cite[Sec.~8 und 9]{rfc9868}.
+In \figref{fig:surplus-struktur} gilt \texttt{UDP Length} $= 8 + 5 = 13$. Die Surplus Area beginnt deshalb bei Byte $20
++ 13 = 33$. Dieser Offset ist ungerade, also fügt der Sender ein Pad-Byte ein. Das OCS beginnt bei Byte 34, die erste
+Option bei Byte 36. \figref{fig:surplus-struktur} zeigt unten auch die Prüfbereiche bei verwendeten Prüfsummen: Die
+UDP-Prüfsumme erfasst den UDP-Header und die Nutzdaten; zusätzlich geht der Pseudo-Header in ihre Berechnung ein
+(\secref{subsec:udp-struktur}). Mit dem OCS prüft der Empfänger die Surplus Area ab dem OCS-Feld. Ein davorliegendes
+Pad-Byte prüft er gesondert auf null \cite[Sec.~8 und 9]{rfc9868}.
 
 Der Sender darf Optionen an jedem gültigen \texttt{UDP-Length}-Offset beginnen lassen. Ausrichtungsbytes
 vor dem OCS müssen null sein \cite[Sec.~8]{rfc9868}. Für Fehler in der Surplus Area gilt im Standardfall:
@@ -678,7 +678,7 @@ die Surplus Area prüft:
       {Optionen einzeln auswerten,\\ Nutzdaten zustellen};
     \node[ausgang, draw=feldlinie, dashed, fill=white, font=\scriptsize\itshape, anchor=west]
       (sonder) at (8.7,-6.4) {Sonderwege: FRAG puffert bis zur\\
-        Reassemblierung, UNSAFE nach \ref{subsec:surplus-prinzipien}};
+        Reassemblierung,\\ UNSAFE nach \secref{subsec:surplus-prinzipien}};
     \draw[kante] (q0) -- node[kantentext, anchor=west] {ja} (q1);
     \draw[kante] (q1) -- node[kantentext, anchor=west] {ja} (q2);
     \draw[kante] (q2) -- node[kantentext, anchor=west] {ja} (q3);
@@ -870,9 +870,9 @@ bereit.
 Aus \figref{fig:empfangspfad} geht hervor, dass sich der Weg hinter dem Paketfilter gabelt: Der Raw Socket erhält eine
 Kopie des gesamten IP-Datagramms samt Surplus Area, und zwar vor den Prüfungen von Länge, Prüfsumme und Portzuordnung im
 regulären UDP-Empfangspfad \cite{man7raw,stephan2024packetpath}. Den IP-Header hat die IP-Schicht zu diesem Zeitpunkt
-bereits geprüft, wie die Abbildung zeigt. Sofern vorgeschaltete Filter es passieren lassen, kann ein Datagramm mit
-falscher UDP-Prüfsumme oder einer \texttt{UDP Length}, die über die IP-Nutzlast hinausweist, unverändert am Raw Socket
-ankommen.
+bereits geprüft, wie \figref{fig:empfangspfad} zeigt. Sofern vorgeschaltete Filter es passieren lassen, kann ein
+Datagramm mit falscher UDP-Prüfsumme oder einer \texttt{UDP Length}, die über die IP-Nutzlast hinausweist, unverändert
+am Raw Socket ankommen.
 
 Die Raw-Empfangsschicht muss diese UDP-Prüfungen selbst ausführen. RFC~9868 verlangt folgende Reihenfolge: Zuerst prüft
 sie Mindestlänge und Längenkonsistenz des UDP-Headers, dann die UDP-Prüfsumme. Erst danach bestimmt sie die Grenzen der

@@ -25,14 +25,13 @@ KI-Reflexion (\secref{sec:ki-reflexion}) und die Grenzen (\secref{sec:diskussion
 \section{Test- und Messkonzept}
 \label{sec:testkonzept}
 
-Die Messläufe tragen unterschiedliche, vorab festgelegte Beweiskraft. Eine \textbf{Kampagne} umfasst
-beidseitige Mitschnitte, Sendemanifest, Auswerterlauf und ein versiegeltes Archiv; eine
-\textbf{vorregistrierte Messreihe} (in der Tabelle kurz Messreihe) folgt einem festen Zellplan, verzichtet
-aber auf einen Teil dieses Vollpakets; ein \textbf{Pilot} ist eine Funktionsprobe ohne Mitschnitt oder
-Manifest; eine \textbf{Vorstufe} prüft eine Richtung mit einem Datagramm je Klasse; ein
-\textbf{Referenzlauf} (kurz Referenz) ist eine kontrollierte lokale Messung ohne fremde Netzbeteiligung.
-Eine \textbf{Zelle} ist eine Messung mit fester Datagrammzahl je Zellform und Richtung außerhalb einer
-Kampagne; ihre Stufe folgt den Artefakten: mit beidseitigen Mitschnitten und Sendemanifest wie eine
+Die Messläufe tragen unterschiedliche, vorab festgelegte Beweiskraft. Eine \textbf{Kampagne} umfasst beidseitige
+Mitschnitte, Sendemanifest, Auswerterlauf und ein versiegeltes Archiv; eine \textbf{vorregistrierte Messreihe} (in
+\tabref{tab:eval-messlaeufe} kurz Messreihe) folgt einem festen Zellplan, verzichtet aber auf einen Teil dieses
+Vollpakets; ein \textbf{Pilot} ist eine Funktionsprobe ohne Mitschnitt oder Manifest; eine \textbf{Vorstufe} prüft eine
+Richtung mit einem Datagramm je Klasse; ein \textbf{Referenzlauf} (kurz Referenz) ist eine kontrollierte lokale Messung
+ohne fremde Netzbeteiligung. Eine \textbf{Zelle} ist eine Messung mit fester Datagrammzahl je Zellform und Richtung
+außerhalb einer Kampagne; ihre Stufe folgt den Artefakten: mit beidseitigen Mitschnitten und Sendemanifest wie eine
 Messreihe, ohne Senderaufzeichnung wie ein Pilot. Alle Läufe ordnet \tabref{tab:eval-messlaeufe} ein:
 
 \begin{table}[ht]
@@ -92,7 +91,7 @@ sind nicht einheitlich portabel; das begrenzt
 die portable Innenprüfung, ist aber kein Hinweis auf beschädigte Archivdaten.\footnote{Die
 Archive und ihre Sollwerte liegen im Verzeichnis \file{thesis/evidence/} des öffentlichen
 Repositorys dieser Arbeit \url{https://github.com/ab7z/mcs-thesis-docs}; die dortige Übersicht ordnet die
-Läufe der Tabelle den Dateinamen, Quellständen und SHA-256-Sollwerten zu. Ein Hashwert belegt die
+Läufe aus \tabref{tab:eval-messlaeufe} den Dateinamen, Quellständen und SHA-256-Sollwerten zu. Ein Hashwert belegt die
 Unverändertheit eines Artefakts, nicht die Wahrheit seines Inhalts (\chapref{chap:methodik}).}
 
 Die Kampagnenskripte zeichnen den Verkehr mit \texttt{tcpdump} auf; der Prüfumfang der Auswerter
@@ -151,11 +150,11 @@ Helsinki kommen 7136 Pakete mit TTL 54 und 70 mit TTL 53 an; dort liegen 40 der 
 eigener Flusskennung, was eine flussabhängige Aufteilung stützt, aber nur für die Messfenster gilt. Keine der Gruppen
 liefert einen eigenständigen Beleg für eine klassenspezifische Behandlung oder für einen allgemein stabilen Pfad; die
 abgeleitete Routerzahl beruht auf der Annahme aus \secref{sec:ipv4}, dass jede Weiterleitung den Wert um genau eins
-senkt. Die Abbildung zählt für das Paar 1blue und mcs auch die lokale, nicht versiegelte Kreuztestreihe mit, für die
-Helsinki-Paare nur die Kampagnen-Mitschnitte. Zählt man allein die Kampagnen-Mitschnitte, stimmen Egress und Ingress auf
-allen sechs Richtungen exakt überein; mit der Kreuztestreihe fehlen auf dem Paar 1blue und mcs je Richtung genau deren
-52 Negativzellen. Diese Differenz ist kein Messverlust, sondern das Verwerfen, das \secref{subsec:eval-europa} gerade
-nachweist. Für die späteren Klassenbefunde sind deshalb die jeweiligen Kontrollpakete und Messfenster maßgeblich.
+senkt. \figref{fig:eval-ttl} zählt für das Paar 1blue und mcs auch die lokale, nicht versiegelte Kreuztestreihe mit, für
+die Helsinki-Paare nur die Kampagnen-Mitschnitte. Zählt man allein die Kampagnen-Mitschnitte, stimmen Egress und Ingress
+auf allen sechs Richtungen exakt überein; mit der Kreuztestreihe fehlen auf dem Paar 1blue und mcs je Richtung genau
+deren 52 Negativzellen. Diese Differenz ist kein Messverlust, sondern das Verwerfen, das \secref{subsec:eval-europa}
+gerade nachweist. Für die späteren Klassenbefunde sind deshalb die jeweiligen Kontrollpakete und Messfenster maßgeblich.
 
 Zwei Verzichte gehören zum Konzept. Das Szenario S-24 (unterschiedliche Options\-sätze je Fragment) wird
 über die automatische Sende-API nicht erzeugt, weil diese je logischem Datagramm einen Optionssatz
