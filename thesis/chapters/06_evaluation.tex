@@ -36,36 +36,29 @@ Messreihe, ohne Senderaufzeichnung wie ein Pilot. Alle Läufe ordnet \tabref{tab
 
 \begin{table}[ht]
     \centering
-    \caption{Messläufe der Arbeit nach Pfad, Stand und Einstufung}
+    \caption{Messläufe der Arbeit nach Pfad und Einstufung}
     \label{tab:eval-messlaeufe}
     \footnotesize
     \setlength{\tabcolsep}{3.5pt}
-    \begin{tabularx}{\textwidth}{L{2.20cm} L{2.35cm} L{1.65cm} Y L{2.05cm} L{1.40cm}}
+    \begin{tabularx}{\textwidth}{L{2.20cm} L{2.35cm} Y L{2.05cm} L{1.40cm}}
         \toprule
-        \textbf{Lauf} & \textbf{Pfad} & \textbf{Stand} & \textbf{Umfang} & \textbf{Stufe} &
+        \textbf{Lauf} & \textbf{Pfad} & \textbf{Umfang} & \textbf{Stufe} &
         \textbf{Archiv} \\
         \midrule
-        Lokale Läufe & 4 Topologien & 18.08. & 5~Szenarien & Referenz & Impl. \\
-        Extern 10.08. & achim $\rightarrow$ mcs & 10.08. & IPv4, Tunnel & Kampagne & extern \\
-        Bidir 11.08. & achim $\leftrightarrow$ mcs & 10.08. & 9/9 normalisiert, 0/6 Rückweg &
-        Kampagne & bidir \\
-        Piloten 12./13.08. & achim, Mac, 1blue, mcs & 11.08. & 1blue 6/6; achim/Mac 0/13, 0/10 &
-        Pilot & piloten \\
-        Vorstufe 14.08. & mcs $\rightarrow$ 1blue & 13.08. &
-        11~Szenarien, $n=1$ & Vorstufe & lokal, unversiegelt \\
-        P0 14.08. & 1blue $\leftrightarrow$ mcs & 13.08. & P0 $>$10k &
-        Kampagne & 1blue \\
-        P1/P2 15.08. & 1blue $\leftrightarrow$ mcs & 15.08. & P1/P2-Suiten & Kampagne & 1blue \\
-        Helsinki 15.08. & mcs, hel, 1blue & 15.08. & 18~Szenarien je Paar & Kampagne & hel \\
-        Gate-Zellen 15.08. & drei EU-Paare & 15.08. & G/C und dokumentierte Kontrolle je
-        Richtung & Messreihe & hel; lokal unversiegelt \\
-        Hotspot 15.08. & achim $\leftrightarrow$ mcs, 1blue & 15.08. & $n=30$, ATOM $n=10$ &
-        Messreihe & hotspots; ttl-pfad \\
-        AWS-Suiten 16.08. & aws, mcs, hel, 1blue & 15.08. & 18~Szenarien, 3~Paare & Kampagne &
-        aws \\
-        GCP/AWS 16.08. & gcp, aws, aws2 & 15.08. & Piloten; Zellen $n=20$ &
-        Pilot/Zelle & aws-us; gcp-us \\
-        AP 16.08. & 6 Regionen, mcs, 1blue & 15.08. & Zellen $n=20$ & Messreihe & aws-ap \\
+        Lokale Läufe & 4 Topologien & 5~Szenarien & Referenz & Impl. \\
+        Extern 10.08. & achim $\rightarrow$ mcs & IPv4, Tunnel & Kampagne & extern \\
+        Bidir 11.08. & achim $\leftrightarrow$ mcs & 9/9 normalisiert, 0/6 Rückweg & Kampagne & bidir \\
+        Piloten 12./13.08. & achim, Mac, 1blue, mcs & 1blue 6/6; achim/Mac 0/13, 0/10 & Pilot & piloten \\
+        Vorstufe 14.08. & mcs $\rightarrow$ 1blue & 11~Szenarien, $n=1$ & Vorstufe & lokal, unversiegelt \\
+        P0 14.08. & 1blue $\leftrightarrow$ mcs & P0 $>$10k & Kampagne & 1blue \\
+        P1/P2 15.08. & 1blue $\leftrightarrow$ mcs & P1/P2-Suiten & Kampagne & 1blue \\
+        Helsinki 15.08. & mcs, hel, 1blue & 18~Szenarien je Paar & Kampagne & hel \\
+        Gate-Zellen 15.08. & drei EU-Paare & G/C und dokumentierte Kontrolle je         Richtung & Messreihe & hel;
+        lokal unversiegelt \\
+        Hotspot 15.08. & achim $\leftrightarrow$ mcs, 1blue & $n=30$, ATOM $n=10$ & Messreihe & hotspots; ttl-pfad \\
+        AWS-Suiten 16.08. & aws, mcs, hel, 1blue & 18~Szenarien, 3~Paare & Kampagne & aws \\
+        GCP/AWS 16.08. & gcp, aws, aws2 & Piloten; Zellen $n=20$ & Pilot/Zelle & aws-us; gcp-us \\
+        AP 16.08. & 6 Regionen, mcs, 1blue & Zellen $n=20$ & Messreihe & aws-ap \\
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -75,17 +68,8 @@ beruhen. Piloten, Vorstufen und Messreihen schließen Lücken und isolieren Mech
 jeweils ausgewiesenes niedrigeres Evidenzniveau. Werte aus diesen Läufen werden nicht mit
 Kampagnensummen verrechnet.
 
-Die Spalte Stand nennt das Datum des dokumentierten Binärstands eines Laufs; abweichende Treiberstände
-weist die Fußnote aus.\footnote{\raggedright Alle Stände sind Entwicklungsstände des öffentlichen Repositorys der
-Implementierung \url{https://github.com/ab7z/udp-transport-options}; der Auswertungsstand ist der Stand
-vom 18.08.2026. Für Helsinki waren die Binärdateien der Kampagne bitidentisch zum Stand vom 15.08.; die
-AWS-Suiten nutzten zusätzlich einen Treiberstand vom 16.08. (Einzelstände in
-\file{thesis/evidence/README.md}).}
-Die drei Pilot-READMEs
-ordnen den Stand vom 11.08. den dort genannten SHA-256-Werten zu; die Binärdateien selbst liegen nicht im
-Korpus der elf Archive. Weder dieser Stand noch der Stand der Vorstufe und der P0-Kampagne ist im
-Repository als benannte Referenz erhalten; die beiden letzten liefen zudem mit lokalen Änderungen. Davon
-getrennt beziehen sich alle Aussagen über Quelltext und Tests auf den Auswertungsstand vom 18.08.2026.
+Alle Aussagen über Quelltext und Tests beziehen sich auf den Auswertungsstand der Implementierung; die Stände der
+einzelnen Läufe verzeichnet die Evidenz-Übersicht im Repository dieser Arbeit.
 Jedes der elf versiegelten Archive besitzt eine passende äußere SHA-256-Prüfsumme. Die inneren Manifeste
 sind nicht einheitlich portabel; das begrenzt
 die portable Innenprüfung, ist aber kein Hinweis auf beschädigte Archivdaten.\footnote{Die
@@ -962,7 +946,7 @@ Modelle der Wire-Regeln, nicht über das laufende Programm; die Brücke bleibt P
 Fünf \textbf{Abweichungen} traten im Prüf- und Messbetrieb auf. Erstens beendete sich der Raw-Empfänger
 auf öffentlichen Hosts still beim ersten fremden UDP-Paket; Ursache war ein als Ende gewerteter
 Filterausgang, und die Korrektur besteht aus dem Weiterlesen nach gefiltertem Rauschen und einer
-Gesamtfrist.\footnote{Korrekturen vom 11.08. und vom 14.08.2026 im Repository der Implementierung.}
+Gesamtfrist.
 Die externe Kampagne vom 10.08. und die bidirektionale Kampagne vom 11.08. nutzten noch einen Stand vor
 beiden Korrekturen (\tabref{tab:eval-messlaeufe}). In der bidirektionalen Kampagne hielt eine
 äußere Neustartschleife den Empfänger verfügbar; die Ankunftszahlen beruhen deshalb auf den
@@ -1073,7 +1057,7 @@ entscheidet und verantwortet. Grundlage ist ein Befundregister aus zwölf Fälle
         sind in den Verläufen nachlesbar; sie gehören zum Bild derselben Arbeitsweise.
     \item \textbf{Prüfung nach dem Merge.} Die Reihenfolge hielt nicht immer: Ein Pull Request wurde vor der
         Zweitprüfer-Rückmeldung zusammengeführt. Die vom Zweitprüfer beanstandete Gesamtfrist des
-        Empfangspfads folgte drei Tage später, am 14.08. Auch der Schlussaudit fand
+        Empfangspfads folgte drei Tage später. Auch der Schlussaudit fand
         trotz grüner Prüfkette weitere Konformitätslücken; Schritt~18 behob sie gesammelt
         (\secref{sec:soll-ist}).
     \item \textbf{Gemeinsam übersehene Fehler.} Der Zählfehler der bidirektionalen Kampagne gab für

@@ -2,9 +2,9 @@
 # Rollen nach Kapitel 3: fuehrendes Werkzeug (Claude Code), getrennter Zweitpruefer (Codex),
 # Autor (entscheidet und verantwortet), Pruefkette (Gates und CI).
 # zeitpunkt: Lage relativ zum Merge des betroffenen Stands. anker: Ort des Belegs, benannt nach Thema und
-# gegebenenfalls Datum: Pull-Request-Verlaeufe des oeffentlichen Implementierungsrepos
-# (github.com/ab7z/udp-transport-options), Datum des Stands, Archivdatei oder Kapitelstelle.
-# Verifikation 2026-08-26 an den Pull-Request-Verlaeufen (Existenz, Titel, Merge-Zeitpunkte, Kommentarfolgen).
+# Pull-Request-Verlaeufe des oeffentlichen Implementierungsrepos
+# (github.com/ab7z/udp-transport-options), Archivdatei oder Kapitelstelle.
+# Verifikation an den Pull-Request-Verlaeufen (Existenz, Titel, Merge-Zeitpunkte, Kommentarfolgen).
 # Fall-Einstufungen folgen der dokumentierten Autorenadjudikation in den Pull-Request-Verlaeufen.
 fall,anker,rolle,zeitpunkt,ausgang,kurzbefund
 Wire-Modell-Review,Pull Request zum Wire-Modell,fuehrendes Werkzeug und Zweitpruefer,vor dem Merge,uebernommen,zwei Funde uebernommen: erzwungene Laengeninvariante der Pruefsummenrechnung und IPv6-Laengen-Verengung
@@ -12,10 +12,10 @@ Lean-Gate-Bootstrap,Pull Request zum Lean-Gate,fuehrendes Werkzeug,vor dem Merge
 TLV-Parser-Review,Pull Request zum TLV-Parser,beide Pruefer,vor dem Merge,abgelehnt,Befunde nicht uebernommen; Ablehnungsgrund beabsichtigter Umfang (dokumentierte Autorenadjudikation im Verlauf)
 Palindrom-maskierter Pruefprogrammfehler,Pull Request zum unabhaengigen Pruefprogramm; Kapitel 5,nur Zweitpruefer,vor dem Merge,uebernommen,Ausrichtungsfehler der OCS-Nachrechnung des unabhaengigen Pruefprogramms; vom Golden-Fall wegen Byte-Palindrom maskiert
 FF2-Harness-Review,Pull Request zum FF2-Harness,beide Pruefer,vor dem Merge,uebernommen,mehrere Runden bis zur befundfreien Schlussrunde beider Pruefer
-Merge vor Abschluss der Pruefungen,Pull Request zum Empfangsfilter (11.08.2026); Gesamtfrist-Fix vom 14.08.2026,Zweitpruefer und Pruefkette,nach dem Merge,uebernommen,"Zweitpruefer-Rueckmeldung vier Minuten nach dem Merge; der fuenf Minuten spaeter zusammengefuehrte Fuzz-RSS-Fix war schon vorher eroeffnet und davon unabhaengig; Gesamtfrist-Fix drei Tage spaeter"
-Schlussaudit trotz gruener Kette,Pull Request zum RFC-Audit (02.08.2026); Kapitel 5,Autor mit fuehrendem Werkzeug,nach dem Merge,uebernommen,RFC-Abgleich fand trotz gruener Pruefkette weitere Konformitaetsluecken; Schritt 18 behob sie gesammelt
+Merge vor Abschluss der Pruefungen,Pull Request zum Empfangsfilter; Gesamtfrist-Fix,Zweitpruefer und Pruefkette,nach dem Merge,uebernommen,"Zweitpruefer-Rueckmeldung vier Minuten nach dem Merge; der fuenf Minuten spaeter zusammengefuehrte Fuzz-RSS-Fix war schon vorher eroeffnet und davon unabhaengig; Gesamtfrist-Fix drei Tage spaeter"
+Schlussaudit trotz gruener Kette,Pull Request zum RFC-Audit; Kapitel 5,Autor mit fuehrendem Werkzeug,nach dem Merge,uebernommen,RFC-Abgleich fand trotz gruener Pruefkette weitere Konformitaetsluecken; Schritt 18 behob sie gesammelt
 Um-eins-Fehler der Surplus-Ortung,Kapitel 6 (Soll-Ist-Abgleich mit RFC 9868),nur Zweitpruefer,vor dem Merge,uebernommen,23 eigene Einzelfalltests uebersahen den Fehler; Konsequenz: Property- und Fuzz-Pflicht je Parseflaeche
 Kampagnen-Zaehlfehler,bidir-Archiv analysis/verdicts.md (Erratum E1) und verification/README.md (Panel-Anmerkung),alle drei Beteiligten,nach dem Merge,uebernommen,15 statt 18 FULL-Kontrollpakete in Richtung A berichtet (Ergebnis 18/18); von allen drei Beteiligten zunaechst uebersehen; das separate Kampagnen-Prueferpanel hatte die Zahl nicht im Auftrag; als Erratum berichtigt
 Falsche Vertragsaussage im eigenen Text,Kapitel 5 (Betriebsgrenzen); src/api/mod.rs,Zweitpruefer-Lane im Faktencheck,nach dem Merge,uebernommen,Kapiteltext behauptete den Cachevertrag als erfuellt; Pruefung am Quelltext widerlegte das und der Text wurde korrigiert
-Doppelreview der Grundlagen,Stand vom 18.08.2026; Parser- und Pipelinekommentare,zwei getrennte Zweitpruefer-Laeufe,nach dem Merge,uebernommen,zwei Politiken als solche dokumentiert und eine fehlende End-zu-End-Testabdeckung geschlossen
+Doppelreview der Grundlagen,Parser- und Pipelinekommentare des Auswertungsstands,zwei getrennte Zweitpruefer-Laeufe,nach dem Merge,uebernommen,zwei Politiken als solche dokumentiert und eine fehlende End-zu-End-Testabdeckung geschlossen
 Quellenpruefung ausserhalb des Codes,Kapitel 3 (Referenzfaelle),Autor korrigiert Werkzeugbewertung,ausserhalb des Repos,uebernommen,Abrufwerkzeug liess einen entscheidenden Abstract-Satz aus; die Erstbewertung war falsch und wurde nach Autorenhinweis berichtigt
