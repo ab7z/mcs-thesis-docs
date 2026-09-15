@@ -15,8 +15,8 @@ Das Internet Protocol (IP) vermittelt Datagramme zwischen Endsystemen und bildet
 für UDP \cite{rfc791}. \texttt{UDP Length} und das durch den IP-Header bestimmte Datagrammende legen
 Lage und Größe der Surplus Area fest \cite[Sec.~7]{rfc9868}.
 
-Entsprechend der Abgrenzung in \secref{sec:abgrenzung} behandelt dieser Abschnitt nur die für RFC~9868
-und die Messung nötigen IPv4-Felder: \texttt{IHL}, \texttt{Total Length}, \texttt{Protocol}, Adressen,
+Entsprechend der Abgrenzung in \secref{sec:abgrenzung} behandelt dieser Abschnitt nur die für RFC~9868 und die Messung
+nötigen IPv4-Felder: \texttt{IHL} (Internet Header Length), \texttt{Total Length}, \texttt{Protocol}, Adressen,
 Header-Prüfsumme, Fragmentierungsfelder und \texttt{Time to Live}.
 
 \figref{fig:ipv4-header} zeigt den Aufbau des IPv4-Headers.
@@ -72,7 +72,7 @@ Header-Prüfsumme, Fragmentierungsfelder und \texttt{Time to Live}.
 \texttt{Total Length} gibt die Gesamtlänge des Datagramms in Byte an, Header und Nutzlast zusammen;
 als 16-Bit-Feld erlaubt es höchstens 65\,535~Byte.
 
-Die zweite Längenangabe, die \texttt{IHL} (Internet Header Length), beziffert die Länge des Headers.
+Die zweite Längenangabe, die \texttt{IHL}, beziffert die Länge des Headers.
 \texttt{IHL} zählt in 32-Bit-Wörtern zu je 4~Byte. Das 4-Bit-Feld erreicht höchstens den Wert~15 und kann
 damit Headerlängen bis 60~Byte angeben \cite{rfc791}. Die Headerlänge ergibt sich daher als
 \begin{equation}

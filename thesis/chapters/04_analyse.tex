@@ -233,14 +233,13 @@ erfüllen die Vorgabe, ohne Garbage Collector auszukommen. Go und Java werden we
 gewählten Vorgabe nicht weiter betrachtet.
 
 Den Ausschlag gibt die Speicher\-sicherheit an der Vertrauensgrenze. Sie schließt Zugriffe außerhalb eines
-Speicher\-bereichs (\textit{Buffer Overflow}), auf
-freigegebenen Speicher (\textit{Use-after-free}) und doppelte Freigaben (\textit{Double Free}) aus. Ein
-\textit{Memory Leak} gewährt dagegen keinen unzulässigen Zugriff und bleibt auch in Rust möglich.
-Das Microsoft Security Response Center (MSRC) berichtete 2019, dass rund 70~Prozent der Schwachstellen,
-denen Microsoft jährlich eine CVE-Nummer zuweist, auf Speicher\-fehler zurückgehen \cite{msrc-memory-blog}.
-Chromium nennt rund 70~Prozent unter 912 seit 2015 erfassten Fehlern hoher oder kritischer Schwere
-in der stabilen Auslieferung (Stable Channel) \cite{chromium-memory}.
-Die NSA empfiehlt speichersichere Sprachen, darunter Rust \cite{nsa-memory-safety}.
+Speicher\-bereichs (\textit{Buffer Overflow}), auf freigegebenen Speicher (\textit{Use-after-free}) und doppelte
+Freigaben (\textit{Double Free}) aus. Ein \textit{Memory Leak} gewährt dagegen keinen unzulässigen Zugriff und bleibt
+auch in Rust möglich. Das Microsoft Security Response Center (MSRC) berichtete 2019, dass rund 70~Prozent der
+Schwachstellen, denen Microsoft jährlich eine CVE-Nummer (Common Vul\-ner\-a\-bil\-i\-ties and Exposures) zuweist, auf
+Speicher\-fehler zurückgehen \cite{msrc-memory-blog}. Chromium nennt rund 70~Prozent unter 912 seit 2015 erfassten
+Fehlern hoher oder kritischer Schwere in der stabilen Auslieferung (Stable Channel) \cite{chromium-memory}. Die National
+Security Agency (NSA) empfiehlt speichersichere Sprachen, darunter Rust \cite{nsa-memory-safety}.
 
 Die für die Entscheidung wichtigen Eigenschaften fasst \tabref{tab:sprachvergleich} zusammen
 \cite{iso-c,cpp-core-guidelines,zig-lang,rust-book}:

@@ -71,9 +71,9 @@ RFC~9868 stellt explizit klar: \emph{\enquote{UDP is unidirectional; UDP Options
 \cite[Sec.~6]{rfc9868}.
 
 Für Mechanismen, die Bidirektionalität voraussetzen, fordert RFC~9868 eine getrennte Spezifikation
-\cite[Sec.~6]{rfc9868}; RFC~9869 definiert einen solchen Einsatz von REQ und RES für die Pfad-MTU-Ermittlung
-\cite[Sec.~3]{rfc9869}. Die Optionsschicht erzeugt also keine Antwort selbstständig; das Prinzip vertieft
-\secref{subsec:surplus-prinzipien}.
+\cite[Sec.~6]{rfc9868}; RFC~9869 definiert einen solchen Einsatz der Optionen REQ (Echo Request) und RES (Echo Response)
+für die Ermittlung der Pfad-MTU (Maximum Transmission Unit) \cite[Sec.~3]{rfc9869}. Die Optionsschicht erzeugt also
+keine Antwort selbstständig; das Prinzip vertieft \secref{subsec:surplus-prinzipien}.
 
 \subsection{Herausforderungen}
 
@@ -115,7 +115,7 @@ und systematisch auf Konformität geprüfte Bibliothek für UDP-Transportoptione
 begrenzte Implementierung arbeitet im Benutzerraum mit Raw Sockets. Sie umfasst Parser und Serialisierer für
 UDP-Optionen nach dem TLV-Schema (\textit{Type-Length-Value}), die Validierung der Optionsprüfsumme
 (\textit{Option Checksum}, OCS) gemäß Abschnitt~9 des RFC~9868 sowie die verpflichtend zu unterstützenden Optionen
-EOL, NOP, APC, FRAG, MDS, MRDS, REQ und RES \cite[Sec.~10]{rfc9868}.
+EOL, NOP, APC, FRAG, MDS, MRDS, REQ und RES (Langformen in \secref{sec:optionsverarbeitung}) \cite[Sec.~10]{rfc9868}.
 
 Die Verifikation erfolgt mehrstufig: Komponententests prüfen die einzelnen Bestandteile, Integrationstests den
 Loopback-Pfad, und für reine Regeln wird ergänzend eine Lean-Spezifikation gepflegt. Lean dient als formale
