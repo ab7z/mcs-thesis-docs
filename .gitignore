@@ -38,3 +38,6 @@ lernnotizen/
 # Abbildungen (lokal, nicht versioniert)
 thesis/figures/
 reviews/
+
+# Gebaute Arbeit (lokal, nicht versioniert)
+thesis/main.pdf

@@ -9,7 +9,7 @@ Masterarbeit am LG Kooperative Systeme der FernUniversität in Hagen.
 **Abgabe:** 15.09.2026
 **Erstprüfer / Zweitprüferin:** Prof. Dr. Christian Icking / Dr. Lihong Ma
 
-**PDF:** [thesis/main.pdf](https://github.com/ab7z/mcs-thesis-docs/blob/main/thesis/main.pdf)
+**PDF:** wird lokal gebaut (`make -C thesis`) und ist nicht im Repository.
 
 **Umsetzung:** [udp-transport-options](https://github.com/ab7z/udp-transport-options)
 
