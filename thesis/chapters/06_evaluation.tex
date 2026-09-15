@@ -194,8 +194,8 @@ Umgebungen zeigt \figref{fig:eval-lokal}:
         anm/.style={font=\tiny, text=feldlinie}]
         % Kachel 1: Loopback-Wire-Lane
         \node[titel, anchor=west] at (0,1.0) {Stufe 1: Loopback (achim)};
-        \node[host] (s1) at (0.9,0.2) {Sender};
-        \node[host] (e1) at (5.0,0.2) {Empfänger};
+        \node[host] (s1) at (0.8,0.2) {Sender};
+        \node[host] (e1) at (5.35,0.2) {Empfänger};
         \draw[pf] (s1) -- node[anm, above] {lo, Raw Socket} (e1);
         \node[anm, anchor=west] at (0,-0.5) {Mitschnitt, eigener Prüfer und tshark auf demselben Host};
         % Kachel 2: veth-Kante
@@ -206,9 +206,9 @@ Umgebungen zeigt \figref{fig:eval-lokal}:
         \node[anm, anchor=west] at (7.6,-0.5) {zwei Namespaces, direkte Kante};
         % Kachel 3: netns-Lanes
         \node[titel, anchor=west] at (0,-1.4) {Stufe 2b: Namespace-Läufe};
-        \node[host] (s3) at (0.9,-2.2) {uoe-l};
-        \node[mb] (m3) at (2.95,-2.2) {uoe-m};
-        \node[host] (e3) at (5.0,-2.2) {uoe-r};
+        \node[host] (s3) at (0.8,-2.2) {Sender};
+        \node[mb] (m3) at (2.95,-2.2) {Zwischensystem};
+        \node[host] (e3) at (5.35,-2.2) {Empfänger};
         \draw[pf] (s3) -- (m3);
         \draw[pf] (m3) -- (e3);
         \node[anm, anchor=west, text width=6.4cm] at (0,-3.05) {vier Varianten: veth direkt, Weiterleitung,
@@ -410,17 +410,17 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
             inner sep=3pt, minimum width=1.55cm, minimum height=0.7cm},
         kante/.style={font=\tiny, text=feldlinie, align=center},
         pf/.style={-, draw=sqdunkel, semithick}]
-        \path (0.05,1.15) pic {knpc};
-        \node[font=\tiny, align=center] at (0.40,0.55) {achim-Gast\\NAT-Modus};
+        \path (0.05,0.38) pic {knpc};
+        \node[font=\tiny, align=center] at (0.40,1.55) {achim-Gast\\NAT-Modus};
         \node[cpe] (nat) at (2.55,0.95) {VMware-NAT};
-        \path (4.15,1.15) pic {knpc};
-        \node[font=\tiny, align=center] at (4.50,0.55) {Mac en0};
+        \path (4.15,0.38) pic {knpc};
+        \node[font=\tiny, align=center] at (4.50,1.55) {Mac en0};
         \node[cpe] (hot) at (6.55,0.95) {iPhone-\\Hotspot};
         \draw[pf] (0.80,0.95) -- (nat.west);
         \draw[pf] (nat.east) -- (4.15,0.95);
         \draw[pf] (4.85,0.95) -- (hot.west);
-        \path (0.05,-0.85) pic {knpc};
-        \node[font=\tiny, align=center] at (0.40,-1.45) {achim-Gast\\Bridge-Modus};
+        \path (0.05,-1.12) pic {knpc};
+        \node[font=\tiny, align=center] at (0.40,-1.72) {achim-Gast\\Bridge-Modus};
         \draw[pf] (0.80,-0.55) -- (6.55,0.55);
         \node[kante] at (3.3,-0.85) {direkt ins Hotspot-Subnetz};
         \fill[sqblau, opacity=0.20]
@@ -440,9 +440,9 @@ Die zweite europäische Umgebung ist der Zugangspfad über einen Mobilfunk-Hotsp
         \path (12.85,-2.55) pic {knpc};
         \node[font=\tiny, align=center] at (13.20,-3.15) {mcs oder 1blue\\16 bzw. 13 Router};
         \draw[pf] (dcix.south east) -- (12.85,-2.35);
-        \node[kante, anchor=west, align=left] at (0.0,-2.15)
+        \node[kante, anchor=west, align=left] at (0.0,-2.40)
             {Mitschnitte: Gast und Ziel; zusätzlich en0 in ausgewählten Versuchen.};
-        \node[kante, anchor=west, align=left, text width=7.2cm] at (0.0,-2.85)
+        \node[kante, anchor=west, align=left, text width=7.2cm] at (0.0,-3.10)
             {NAT-Rückweg TTL 128 (mit Neuaufbau vereinbar). Bridge: Endpunkt-TTL
              48 von mcs, 51 von 1blue; Ziel-TTLs um eins höher ohne NAT-Sprung.};
     \end{tikzpicture}
@@ -632,7 +632,9 @@ zusammen:
 den drei nachgeschalteten Zellenmatrizen kamen von mcs nach Tokio und Seoul sowie von 1blue nach
 Sydney jeweils alle Kontrollen an, aber keine der fünf Surplus-Zellen; die jeweilige Gegenrichtung blieb
 mit 120 von 120
-Paketen sauber, zusammen also mit 360 von 360 Paketen. Die Helsinki-Piloten nach Tokio und Seoul
+Paketen sauber, zusammen also mit 360 von 360 Paketen. Von 1blue nach Tokio und Seoul zeigten bereits die
+Zellenläufe dasselbe Bild: alle Kontrollen kamen an, keine der Sendungen der Zellen G und C;
+Eskalationsmatrizen liefen für diese beiden Richtungen nicht. Die Helsinki-Piloten nach Tokio und Seoul
 lieferten je drei Kontrollen, aber keines der je sechs Optionsdatagramme, während die Amazon-Piloten
 nach Tokio, Seoul, Sydney und Osaka je drei Kontrollen und sechs Optionsdatagramme vollständig
 zustellten. Zwei Gegenproben stützen die Deutung: Osaka teilt mit Tokio die sichtbare AS-Kette und
